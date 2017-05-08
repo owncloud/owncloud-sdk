@@ -1,2 +1,2 @@
-# js-occlient
+# js-owncloud-client
 ownCloud client library for JavaScript

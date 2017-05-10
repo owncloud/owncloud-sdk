@@ -4,6 +4,9 @@ var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
 
+/**
+ * Initializes constants of the class ownCloud
+ */
 ownCloud.prototype.initRoutes = function() {
 	this.OCS_BASEPATH = 'ocs/v1.php/';
     this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1';
@@ -25,6 +28,11 @@ ownCloud.prototype.initRoutes = function() {
     this.OCS_SHARE_TYPE_REMOTE = 6;
 };
 
+/**
+ * @class
+ * @classdesc ownCloud class, where everything works
+ * @param {string} URL of the ownCloud instance
+ */
 function ownCloud(instance) {
 	console.log("Inited Library");
 	this.initRoutes();
@@ -46,6 +54,12 @@ function ownCloud(instance) {
 	this._capabilities = [];
 }
 
+/**
+ * Logs in to the specified ownCloud instance (Updates capabilities)
+ * @param {string} username
+ * @param {string} password
+ * @param {callback} error, response, body(status message)
+ */
 ownCloud.prototype.login = function(username, password, callback) {
 	this._username = /*username*/'noveens';
 	this._password = /*password*/'123';
@@ -60,6 +74,10 @@ ownCloud.prototype.login = function(username, password, callback) {
 	});
 };
 
+/**
+ * Gets all enabled and non-enabled apps downloaded on the instance.
+ * @param {callback} error, response, body(apps)
+ */
 ownCloud.prototype.getApps = function(callback) {
 	flag = 0;
 	var self = this;
@@ -181,17 +199,17 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
         	var share;
 
 		    var tree = parser.toJson(body, {object : true});
-		    error = self._checkOcsStatus(tree);
+		    error = self._checkOCSstatus(tree);
         	
         	if (!error) {
 				body = tree.ocs.data;
+				var params = {};
 
-			    share = new shareInfo({
-	                'id': body.id,
-	                'path': body.path,
-	                'url': body.url,
-	                'token': body.token
-				});
+				for (param in body) {
+					params.param = body.param;
+				}
+
+			    share = new shareInfo(params);
 
 			}
 			callback(error, share);
@@ -199,6 +217,14 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
     );
 };
 
+/////////////
+// HELPERS //
+/////////////
+
+/**
+ * Updates the capabilities of user logging in.
+ * @param {callback} error, reponse, body(capabilities)
+ */
 ownCloud.prototype._updateCapabilities = function(callback) {
 	var self = this;
 	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities", function(error, response, body) {
@@ -214,7 +240,13 @@ ownCloud.prototype._updateCapabilities = function(callback) {
 	});
 };
 
-/* HELPERS */
+/**
+ * Makes an OCS API request.
+ * @param {string} method of request (GET, POST etc.)
+ * @param {string} service (cloud, privatedata etc.)
+ * @param {string} action (apps?filter=enabled, capabilities etc.)
+ * @param {callback} error, reponse, body
+ */
 ownCloud.prototype._makeOCSrequest = function (method, service, action, callback) {
 	var args = [];
     for (var i = 0; i < arguments.length; i++) {
@@ -272,6 +304,11 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action, callback
 	});
 };
 
+/**
+ * Makes sure path starts with a '/'
+ * @param {string} path to the remote file share
+ * @returns {string} normalized path
+ */
 ownCloud.prototype._normalizePath = function (path) {
     if (path.length == 0) {
         return '/';
@@ -284,7 +321,13 @@ ownCloud.prototype._normalizePath = function (path) {
     return path;
 };
 
-ownCloud.prototype._checkOcsStatus = function (json, acceptedCodes) {
+/**
+ * Checks the status code of an OCS request
+ * @param {object} parsed response
+ * @param {array} [acceptedCodes = [ 100 ]] array containing accepted codes
+ * @returns {string} error message or NULL
+ */
+ownCloud.prototype._checkOCSstatus = function (json, acceptedCodes) {
 	if (!acceptedCodes) {
 		acceptedCodes = [100];
 	}
@@ -292,12 +335,17 @@ ownCloud.prototype._checkOcsStatus = function (json, acceptedCodes) {
 	var meta = json.ocs.meta;
 
 	if (acceptedCodes.indexOf(parseInt(meta.statuscode)) == -1) {
-		return meta.message || json;
+		return meta.message || JSON.stringify(json);
 	}
 
 	return null;
 };
 
+/**
+ * Encodes the string according to UTF-8 standards
+ * @param {string} path to be encoded
+ * @returns {string} encoded path
+ */
 ownCloud.prototype._encodeString = function(path) {
 	return utf8.encode(path);	
 };
@@ -305,8 +353,14 @@ ownCloud.prototype._encodeString = function(path) {
 module.exports = ownCloud;
 
 /**
- * This callback is displayed as a global member.
  * @callback shareCallback
  * @param {string} error
  * @param {object} instance of class shareInfo
+ */
+
+/**
+ * @callback callback
+ * @param {string} error
+ * @param {object} response(headers, statusCode etc.)
+ * @param {string} body
  */

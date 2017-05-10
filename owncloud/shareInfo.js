@@ -1,3 +1,8 @@
+/**
+ * @class
+ * @classdesc shareInfo class, stores information regarding a share
+ * @param {object} containing information like id, url etc. of the share
+ */
 function shareInfo(shareInfo) {
 	this.shareInfo = {};
 

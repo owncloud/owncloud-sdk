@@ -4,29 +4,6 @@ var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
 
-/**
- * Initializes constants of the class ownCloud
- */
-ownCloud.prototype.initRoutes = function() {
-	this.OCS_BASEPATH = 'ocs/v1.php/';
-    this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1';
-    this.OCS_SERVICE_PRIVATEDATA = 'privatedata';
-    this.OCS_SERVICE_CLOUD = 'cloud';
-
-    // constants from lib/public/constants.php
-    this.OCS_PERMISSION_READ = 1;
-    this.OCS_PERMISSION_UPDATE = 2;
-    this.OCS_PERMISSION_CREATE = 4;
-    this.OCS_PERMISSION_DELETE = 8;
-    this.OCS_PERMISSION_SHARE = 16;
-    this.OCS_PERMISSION_ALL = 31;
-    
-    // constants from lib/public/share.php
-    this.OCS_SHARE_TYPE_USER = 0;
-    this.OCS_SHARE_TYPE_GROUP = 1;
-    this.OCS_SHARE_TYPE_LINK = 3;
-    this.OCS_SHARE_TYPE_REMOTE = 6;
-};
 
 /**
  * @class
@@ -53,6 +30,30 @@ function ownCloud(instance) {
 	this._version = '';
 	this._capabilities = [];
 }
+
+/**
+ * Initializes constants of the class ownCloud
+ */
+ownCloud.prototype.initRoutes = function() {
+	this.OCS_BASEPATH = 'ocs/v1.php/';
+    this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1';
+    this.OCS_SERVICE_PRIVATEDATA = 'privatedata';
+    this.OCS_SERVICE_CLOUD = 'cloud';
+
+    // constants from lib/public/constants.php
+    this.OCS_PERMISSION_READ = 1;
+    this.OCS_PERMISSION_UPDATE = 2;
+    this.OCS_PERMISSION_CREATE = 4;
+    this.OCS_PERMISSION_DELETE = 8;
+    this.OCS_PERMISSION_SHARE = 16;
+    this.OCS_PERMISSION_ALL = 31;
+    
+    // constants from lib/public/share.php
+    this.OCS_SHARE_TYPE_USER = 0;
+    this.OCS_SHARE_TYPE_GROUP = 1;
+    this.OCS_SHARE_TYPE_LINK = 3;
+    this.OCS_SHARE_TYPE_REMOTE = 6;
+};
 
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
@@ -199,22 +200,85 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
         	var share;
 
 		    var tree = parser.toJson(body, {object : true});
-		    error = self._checkOCSstatus(tree);
+		    
+		    if (!error) {
+			    error = self._checkOCSstatus(tree);
+		    }
         	
         	if (!error) {
 				body = tree.ocs.data;
-				var params = {};
 
-				for (param in body) {
-					params.param = body.param;
-				}
-
-			    share = new shareInfo(params);
-
+			    share = new shareInfo(body);
 			}
 			callback(error, share);
         }
     );
+};
+
+/**
+ * Returns array of shares
+ * @param  {string}   path           path to the share to be checked
+ * @param  {object}   optionalParams object of values {"reshares": boolean, "subfiles": boolean, "shared_with_me": boolean}
+ * @param  {Function} callback       error, response, body(array of shareInfo objects)
+ */
+ownCloud.prototype.getShares = function(path, optionalParams, callback){
+	var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args.push(arguments[i]);
+    }
+
+    callback = args.pop();
+    path = args.shift();
+
+    if (args.length == 1) {
+    	optionalParams = args[0];
+    }
+
+    var data = 'shares';
+
+    if (path !== '') {
+    	data += '?';
+
+    	path = this._encodeString(this._normalizePath(path));
+    	var send = {};
+
+    	if (optionalParams) {
+    		if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
+    			send.reshares = optionalParams.reshares;
+    		}
+
+			if (optionalParams.subfiles && typeof(optionalParams.subfiles) === "boolean") {
+    			send.subfiles = optionalParams.subfiles;
+    		}
+
+    		if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
+    			send.shared_with_me = optionalParams.shared_with_me;
+    		}
+    	}
+
+    	data += encodeURIComponent(JSON.stringify(send));
+    }
+
+    var self = this;
+
+    this._makeOCSrequest('GET', this.OCS_SERVICE_SHARE, data, function (error, response, body) {
+    	var tree = parser.toJson(body, {object : true});
+    	var elements = tree.ocs.data.element;
+
+    	var shares = [];
+
+    	if (!error) {
+    		error = self._checkOCSstatus(tree);
+    	}
+
+    	if (!error) {
+	    	for (var i in elements) {
+	    		var share = new shareInfo(elements[i]);
+	    		shares.push(share);
+	    	}
+	    }
+    	callback(error, response, shares);
+    });
 };
 
 /////////////

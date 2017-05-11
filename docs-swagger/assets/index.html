@@ -1,55 +1,109 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>
-			ownCloud test
-		</title>
+<head>
+  <meta charset="UTF-8">
+  <title>Documentation</title>
+  <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
+  <link href='css/typography.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='css/reset.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='css/reset.css' media='print' rel='stylesheet' type='text/css'/>
+  <link href='css/print.css' media='print' rel='stylesheet' type='text/css'/>
+  <script src='lib/jquery-1.8.0.min.js' type='text/javascript'></script>
+  <script src='lib/jquery.slideto.min.js' type='text/javascript'></script>
+  <script src='lib/jquery.wiggle.min.js' type='text/javascript'></script>
+  <script src='lib/jquery.ba-bbq.min.js' type='text/javascript'></script>
+  <script src='lib/handlebars-2.0.0.js' type='text/javascript'></script>
+  <script src='lib/underscore-min.js' type='text/javascript'></script>
+  <script src='lib/backbone-min.js' type='text/javascript'></script>
+  <script src='swagger-ui.js' type='text/javascript'></script>
+  <script src='lib/highlight.7.3.pack.js' type='text/javascript'></script>
+  <script src='lib/marked.js' type='text/javascript'></script>
+  <script src='lib/swagger-oauth.js' type='text/javascript'></script>
 
-		<script type="text/javascript" src="./bundle.js"></script>
-	</head>
+  <!-- Some basic translations -->
+  <!-- <script src='lang/translator.js' type='text/javascript'></script> -->
+  <!-- <script src='lang/ru.js' type='text/javascript'></script> -->
+  <!-- <script src='lang/en.js' type='text/javascript'></script> -->
 
-	<body>
-		<div id="session_init">
-			<p>Session URL : <input type="text" name="session_url" id="session_url"></p>
-			<button id="session_init_button">Initiate session</button>
-		</div>
+  <script type="text/javascript">
+    $(function () {
+      url = "/api-docs.json";
 
-		<div id="url_fixed"></div>
+      // Pre load translate...
+      if(window.SwaggerTranslator) {
+        window.SwaggerTranslator.translate();
+      }
+      window.swaggerUi = new SwaggerUi({
+        url: url,
+        dom_id: "swagger-ui-container",
+        supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+        onComplete: function(swaggerApi, swaggerUi){
+          if(typeof initOAuth == "function") {
+            initOAuth({
+              clientId: "your-client-id",
+              clientSecret: "your-client-secret-if-required",
+              realm: "your-realms",
+              appName: "your-app-name", 
+              scopeSeparator: ","
+            });
+          }
 
-		<div id="login">
-			<p>Username : <input type="text" name="username" id="uname"></p>
-			<p>Password : <input type="password" name="pass" id="pass"></p>
-			<button id="login_button">Login</button>
-		</div>
+          if(window.SwaggerTranslator) {
+            window.SwaggerTranslator.translate();
+          }
 
-		<div id="status"></div>
+          $('pre code').each(function(i, e) {
+            hljs.highlightBlock(e)
+          });
 
-		<div>
-            <p><a href="./doc.html">Link to swagger documentation</a></p>
-        </div>
+          addApiKeyAuthorization();
+        },
+        onFailure: function(data) {
+          log("Unable to Load SwaggerUI");
+        },
+        docExpansion: "none",
+        apisSorter: "alpha",
+        showRequestHeaders: false
+      });
 
-        <div>
-            <p><a href="https://github.com/noveens/ownCloud-node-lib-sample">Link to code (GitHub)</a></p>
-        </div>
+      function addApiKeyAuthorization(){
+        var key = encodeURIComponent($('#input_apiKey')[0].value);
+        if(key && key.trim() != "") {
+            var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("api_key", key, "query");
+            window.swaggerUi.api.clientAuthorizations.add("api_key", apiKeyAuth);
+            log("added key " + key);
+        }
+      }
 
-        <!-- <a href="/asd">asd</a> <br /><br /> -->
+      $('#input_apiKey').change(addApiKeyAuthorization);
 
-        <a href="/getApps">getApps</a> <br /><br />
+      // if you have an apiKey you would like to pre-populate on the page for demonstration purposes...
+      /*
+        var apiKey = "myApiKeyXXXX123456789";
+        $('#input_apiKey').val(apiKey);
+      */
 
-        <a href="/shareFile">shareFile</a> <br /><br />
+      window.swaggerUi.load();
 
-        <a href="/getShares">getShares</a> <br /><br />
+      function log() {
+        if ('console' in window) {
+          console.log.apply(console, arguments);
+        }
+      }
+  });
+  </script>
+</head>
 
-        <a href="/isShared">isShared</a> <br /><br />
+<body class="swagger-section">
+<div id='header'>
+  <div class="swagger-ui-wrap">
+    <a id="logo" href="http://swagger.io">Documentation</a>
+  </div>
+</div>
 
-        <a href="/getShare">getShare</a> <br /><br />
-
-        <div id="createUser">
-        	<p>Create User : </p>
-			<p>Username : <input type="text" name="username_create" id="uname_create"></p>
-			<p>Password : <input type="password" name="pass_create" id="pass_create"></p>
-			<button id="login_button_create">Create User!</button>
-		</div>
-
-	</body>
+<div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
+<div id="swagger-ui-container" class="swagger-ui-wrap"></div>
+</body>
 </html>

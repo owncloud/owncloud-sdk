@@ -14,10 +14,6 @@ function shareInfo(shareInfo) {
             this.shareInfo[key] = shareInfo[key];
         }
     }
-    this.shareId = this._getInt('id');
-    if ('token' in this.shareInfo) {
-        this.token = this.shareInfo['token']
-    }
 }
 
 /**

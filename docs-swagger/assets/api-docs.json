@@ -1,0 +1,339 @@
+{
+ "swagger": "2.0",
+ "info": {
+  "version": "10.0.0",
+  "title": "ownCloud documentation"
+ },
+ "tags": [
+  {
+   "name": "General",
+   "description": "Methods like initLibrary, login etc."
+  },
+  {
+   "name": "Sharing",
+   "description": "File/Folder sharing methods"
+  },
+  {
+   "name": "User Management",
+   "description": "User Creation/Deletion/Updation methods"
+  }
+ ],
+ "host": "localhost:8080",
+ "basePath": "/",
+ "schemes": [
+  "http"
+ ],
+ "consumes": [
+  "application/json"
+ ],
+ "produces": [
+  "application/json"
+ ],
+ "paths": {
+  "/initLibrary": {
+   "get": {
+    "tags": [
+     "General"
+    ],
+    "description": "Initialze the owncloud session by specifying an owncloud instance URL.",
+    "summary": "Initialize owncloud session",
+    "operationId": "initLibrary",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "description": "server URL",
+      "type": "string"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/login": {
+   "get": {
+    "tags": [
+     "General"
+    ],
+    "description": "Login into the URL specified in the \"/initLibrary\" API",
+    "operationId": "login",
+    "summary": "Logs you in to your specified ownCloud instance",
+    "parameters": [
+     {
+      "name": "user",
+      "description": "username",
+      "in": "query",
+      "type": "string"
+     },
+     {
+      "name": "pass",
+      "description": "password",
+      "in": "query",
+      "type": "string",
+      "format": "password"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/getApps": {
+   "get": {
+    "tags": [
+     "General"
+    ],
+    "description": "Get all the enabled and disbaled apps",
+    "summary": "Get all the enabled and disbaled apps",
+    "operationId": "getApps",
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/shareFileWithLink": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Shares a remote file with link",
+    "summary": "Shares a remote file with link",
+    "operationId": "shareFileWithLink",
+    "parameters": [
+     {
+      "name": "path",
+      "in": "query",
+      "description": "path of the file to be shared",
+      "type": "string"
+     },
+     {
+      "name": "perms",
+      "in": "query",
+      "required": false,
+      "description": "permission of the shared object defaults to read only",
+      "type": "integer"
+     },
+     {
+      "name": "public_upload",
+      "in": "query",
+      "required": false,
+      "description": "allows users to upload files or folders",
+      "type": "boolean"
+     },
+     {
+      "name": "password",
+      "in": "query",
+      "required": false,
+      "description": "sets a password",
+      "type": "string"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/getShares": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Returns array of shares",
+    "summary": "Returns array of shares",
+    "operationId": "getShares",
+    "parameters": [
+     {
+      "name": "path",
+      "in": "query",
+      "description": "path to the share to be checked",
+      "type": "string"
+     },
+     {
+      "name": "reshares",
+      "in": "query",
+      "required": false,
+      "description": "resharing allowed or not",
+      "type": "boolean"
+     },
+     {
+      "name": "subfiles",
+      "in": "query",
+      "required": false,
+      "description": "returns not only the shares from the current user but all shares from the given file",
+      "type": "boolean"
+     },
+     {
+      "name": "shared_with_me",
+      "in": "query",
+      "required": false,
+      "description": "returns all shares which are shared with me",
+      "type": "boolean"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/isShared": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Checks wether a path is already shared",
+    "summary": "Checks wether a path is already shared",
+    "operationId": "isShared",
+    "parameters": [
+     {
+      "name": "path",
+      "description": "path to the share to be checked",
+      "in": "query",
+      "type": "string"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/getShare": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Gets share information about known share",
+    "summary": "Gets share information about known share",
+    "operationId": "getShare",
+    "parameters": [
+     {
+      "name": "shareId",
+      "description": "ID of the share to be checked",
+      "in": "query",
+      "type": "number"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/createUser": {
+   "get": {
+    "tags": [
+     "User Management"
+    ],
+    "description": "Creates user via the provisioning API",
+    "summary": "Creates user via the provisioning API",
+    "operationId": "createUser",
+    "parameters": [
+     {
+      "name": "username",
+      "description": "username of the new user to be created",
+      "in": "query",
+      "type": "string"
+     },
+     {
+      "name": "password",
+      "description": "password of the new user to be created",
+      "in": "query",
+      "type": "string",
+      "format": "password"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

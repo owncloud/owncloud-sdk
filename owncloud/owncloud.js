@@ -14,6 +14,10 @@ function ownCloud(instance) {
 	console.log("Inited Library");
 	this.initRoutes();
 
+	if (!instance) {
+		instance = "localhost/core";
+	}
+
 	var slash = '';
 	if (instance.slice(-1) !== '/') {
 		slash = '/';
@@ -70,7 +74,7 @@ ownCloud.prototype.login = function(username, password, callback) {
 			callback(error, "Login Successful");
 		}
 		else {
-			callback(error, "Login Unuccessful");
+			callback(error, "Login Unsuccessful");
 		}
 	});
 };
@@ -80,7 +84,6 @@ ownCloud.prototype.login = function(username, password, callback) {
  * @param {callback} error, body(apps)
  */
 ownCloud.prototype.getApps = function(callback) {
-	flag = 0;
 	var self = this;
 	var send = {};
 
@@ -94,41 +97,31 @@ ownCloud.prototype.getApps = function(callback) {
 				send[body[i]] = false;
 			}
 
-			flag++;
+			self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", function(error2, response2, body2) {
+				if (!error2) {
+					var tree = parser.toJson(body2, {object : true});
 
-			if (flag == 2) { // checking if both jobs (one without enable filer and one with, have completed)
-				callback(error, JSON.stringify(send));
-			}
-		}
+					body2 = tree.ocs.data.apps.element; 
+					/*<ocs>
+						<data>
+							<apps>
+								<element></element>
+								<element></element> ..
+							</apps>
+						</data>
+					</ocs>*/
 
-		else {
-			callback(error, body);
-		}
-	});
+					for (var i=0;i<body2.length;i++) {
+						send[body2[i]] = true;
+					}
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", function(error, response, body) {
-		if (!error) {
-			var tree = parser.toJson(body, {object : true});
+					callback(error2, send);
+				}
 
-			body = tree.ocs.data.apps.element; 
-			/*<ocs>
-				<data>
-					<apps>
-						<element></element>
-						<element></element> ..
-					</apps>
-				</data>
-			</ocs>*/
-
-			for (var i=0;i<body.length;i++) {
-				send[body[i]] = true;
-			}
-
-			flag++;
-
-			if (flag == 2) { // checking if both jobs (one without enable filer and one with, have completed)
-				callback(error, JSON.stringify(send));
-			}
+				else {
+					callback(error2, body2);
+				}
+			});
 		}
 
 		else {
@@ -153,40 +146,27 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
 
     callback = args.pop();
     path = args.shift();
-    var optionalParams;
-    var perms, publicUpload, password;
-    if (args.length == 1) {
-    	optionalParams = args[0];
-
-	    if (optionalParams.indexOf('perms') > -1) {
-		    perms = optionalParams.perms;
-	    }
-
-	    if (optionalParams.indexOf('publicUpload') > -1) {
-		    perms = optionalParams.publicUpload;
-	    }
-
-	    if (optionalParams.indexOf('password') > -1) {
-		    perms = optionalParams.password;
-	    }
-    }
-
     path = this._normalizePath(path);
+    
     var postData = {
         'shareType': this.OCS_SHARE_TYPE_LINK,
         'path': this._encodeString(path)
     };
 
-    if (publicUpload && (typeof(publicUpload) === "boolean")) {
-        postData['publicUpload'] = publicUpload.toString().toLowerCase();
-    }
+    if (args.length == 1) {
+    	var optionalParams = args[0];
 
-    if (password) {
-	    postData['password'] = password.toString();
-    }
-    
-    if (perms) {
-        postData['permissions'] = perms;
+	    if ('perms' in optionalParams) {
+		    postData['permissions'] = optionalParams['perms'];
+	    }
+
+	    if ('publicUpload' in optionalParams) {
+		    postData['publicUpload'] = optionalParams['publicUpload'].toString().toLowerCase();
+	    }
+
+	    if ('password' in optionalParams) {
+		    postData['password'] = optionalParams['password'].toString();
+	    }
     }
 
     var self = this;
@@ -217,7 +197,7 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
 
 /**
  * Returns array of shares
- * @param  {string}   path           path to the share to be checked
+ * @param  {string}   path           path to the file whose share needs to be checked
  * @param  {object}   optionalParams object of values {"reshares": boolean, "subfiles": boolean, "shared_with_me": boolean}
  * @param  {Function} callback       error, body(array of shareInfo objects)
  */
@@ -241,20 +221,21 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
 
     	path = this._encodeString(this._normalizePath(path));
     	var send = {};
+    	optionalParams = this._convertObjectToBool(optionalParams);
 
-    	send.path = path;
+    	send['path'] = path;
 
     	if (optionalParams) {
-    		if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
-    			send.reshares = optionalParams.reshares;
+    		if ('reshares' in optionalParams && typeof(optionalParams['reshares']) === "boolean") {
+    			send['reshares'] = optionalParams['reshares'];
     		}
 
-			if (optionalParams.subfiles && typeof(optionalParams.subfiles) === "boolean") {
-    			send.subfiles = optionalParams.subfiles;
+			if ('subfiles' in optionalParams && typeof(optionalParams['subfiles']) === "boolean") {
+    			send['subfiles'] = optionalParams['subfiles'];
     		}
 
-    		if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
-    			send.shared_with_me = optionalParams.shared_with_me;
+    		if ('shared_with_me' in optionalParams && typeof(optionalParams['shared_with_me']) === "boolean") {
+    			send['shared_with_me'] = optionalParams['shared_with_me'];
     		}
     	}
 
@@ -284,6 +265,10 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
     	}
 
     	if (!error) {
+    		if (typeof(elements) === "object") {
+    			// just a single element
+    			elements = [elements];
+    		}
 	    	for (var i in elements) {
 	    		var share = new shareInfo(elements[i]);
 	    		shares.push(share);
@@ -322,7 +307,7 @@ ownCloud.prototype.isShared = function(path, callback) {
 
 /**
  * Gets share information about known share
- * @param  {Number} {string}   shareId  id of the share to be checked
+ * @param  {Number}   shareId  ID of the share to be checked
  * @param  {Function} callback error, body(instance of class shareInfo)
  */
 ownCloud.prototype.getShare = function(shareId, callback) {
@@ -348,6 +333,41 @@ ownCloud.prototype.getShare = function(shareId, callback) {
 		});
 };
 
+/**
+ * Creates user via the provisioning API
+ * If user already exists, an error is given back : "User already exists"
+ * If provisoning API has been disabled, an error is given back saying the same.
+ * @param  {string}   username username of the new user to be created
+ * @param  {string}   password password of the new user to be created
+ * @param  {Function} callback error, body(boolean : whether user was created or not)
+ */
+ownCloud.prototype.createUser = function(username, password, callback) {
+	var self = this;
+
+	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users', 
+		{'password' : password, 'userid' : username}, function(error, response, body) {
+			if (!error && response.statusCode == 200) {
+				var tree = parser.toJson(body, {object : true});
+				var statusCode = self._checkOCSstatusCode(tree);
+
+				if (statusCode == 999) {
+					error = "Provisioning API has been disabled at your instance";
+				}
+				else {
+					error = self._checkOCSstatus(tree);
+				}
+
+				body = false;
+				if (!error) {
+					body = true;
+				}
+			}
+
+			callback(error, body);
+		}
+	);
+};
+
 /////////////
 // HELPERS //
 /////////////
@@ -367,7 +387,7 @@ ownCloud.prototype._updateCapabilities = function(callback) {
 			}
 			self._version = body.version.string + '-' + body.version.edition;
 		}
-		callback(error, JSON.stringify(self._capabilities));
+		callback(error, response, JSON.stringify(self._capabilities));
 	});
 };
 
@@ -441,6 +461,10 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action, callback
  * @returns {string} normalized path
  */
 ownCloud.prototype._normalizePath = function (path) {
+	if (!path) {
+		path = '';
+	}
+
     if (path.length == 0) {
         return '/';
     }
@@ -473,12 +497,44 @@ ownCloud.prototype._checkOCSstatus = function (json, acceptedCodes) {
 };
 
 /**
+ * Returns the status code of the xml response
+ * @param  {object} xml response parsed into json
+ * @return {Number} status-code
+ */
+ownCloud.prototype._checkOCSstatusCode = function (json) {
+	var meta = json.ocs.meta;
+	return parseInt(meta.statuscode);
+};
+
+/**
  * Encodes the string according to UTF-8 standards
  * @param {string} path to be encoded
  * @returns {string} encoded path
  */
 ownCloud.prototype._encodeString = function(path) {
 	return utf8.encode(path);	
+};
+
+/**
+ * converts all of object's "true" or "false" entries to booleans
+ * @param  {object} object object to be typcasted
+ * @return {object} object typecasted object
+ */
+ownCloud.prototype._convertObjectToBool = function(object) {
+	if (typeof(object) !== "object") {
+		return object;
+	}
+
+	for (key in object) {
+		if (object[key] == "true") {
+			object[key] = true;
+		} 
+		if (object[key] == "false") {
+			object[key] = false;
+		}
+	}
+
+	return object;
 };
 
 module.exports = ownCloud;

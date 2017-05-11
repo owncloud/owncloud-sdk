@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			ownCloud test
+		</title>
+
+		<script type="text/javascript" src="./bundle.js"></script>
+	</head>
+
+	<body>
+		<div id="session_init">
+			<p>Session URL : <input type="text" name="session_url" id="session_url"></p>
+			<button id="session_init_button">Initiate session</button>
+		</div>
+
+		<div id="url_fixed"></div>
+
+		<div id="login">
+			<p>Username : <input type="text" name="username" id="uname"></p>
+			<p>Password : <input type="password" name="pass" id="pass"></p>
+			<button id="login_button">Login</button>
+		</div>
+
+		<div id="status"></div>
+
+		<div>
+            <p><a href="./doc.html">Link to swagger documentation</a></p>
+        </div>
+
+        <div>
+            <p><a href="https://github.com/noveens/ownCloud-node-lib-sample">Link to code (GitHub)</a></p>
+        </div>
+
+        <!-- <a href="/asd">asd</a> <br /><br /> -->
+
+        <a href="/getApps">getApps</a> <br /><br />
+
+        <a href="/shareFile">shareFile</a> <br /><br />
+
+        <a href="/getShares">getShares</a> <br /><br />
+
+        <a href="/isShared">isShared</a> <br /><br />
+
+        <a href="/getShare">getShare</a> <br /><br />
+
+        <div id="createUser">
+        	<p>Create User : </p>
+			<p>Username : <input type="text" name="username_create" id="uname_create"></p>
+			<p>Password : <input type="password" name="pass_create" id="pass_create"></p>
+			<button id="login_button_create">Create User!</button>
+		</div>
+
+	</body>
+</html>

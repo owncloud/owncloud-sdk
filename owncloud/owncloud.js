@@ -59,7 +59,7 @@ ownCloud.prototype.initRoutes = function() {
  * Logs in to the specified ownCloud instance (Updates capabilities)
  * @param {string} username
  * @param {string} password
- * @param {callback} error, response, body(status message)
+ * @param {callback} error, body(status message)
  */
 ownCloud.prototype.login = function(username, password, callback) {
 	this._username = /*username*/'noveens';
@@ -67,17 +67,17 @@ ownCloud.prototype.login = function(username, password, callback) {
 
 	this._updateCapabilities(function (error, response, body) {
 		if (!error && response.statusCode == 200) {
-			callback(error, response, "Login Successful");
+			callback(error, "Login Successful");
 		}
 		else {
-			callback(error, response, "Login Unuccessful");
+			callback(error, "Login Unuccessful");
 		}
 	});
 };
 
 /**
  * Gets all enabled and non-enabled apps downloaded on the instance.
- * @param {callback} error, response, body(apps)
+ * @param {callback} error, body(apps)
  */
 ownCloud.prototype.getApps = function(callback) {
 	flag = 0;
@@ -97,12 +97,12 @@ ownCloud.prototype.getApps = function(callback) {
 			flag++;
 
 			if (flag == 2) { // checking if both jobs (one without enable filer and one with, have completed)
-				callback(error, response, JSON.stringify(send));
+				callback(error, JSON.stringify(send));
 			}
 		}
 
 		else {
-			callback(error, response, body);
+			callback(error, body);
 		}
 	});
 
@@ -127,12 +127,12 @@ ownCloud.prototype.getApps = function(callback) {
 			flag++;
 
 			if (flag == 2) { // checking if both jobs (one without enable filer and one with, have completed)
-				callback(error, response, JSON.stringify(send));
+				callback(error, JSON.stringify(send));
 			}
 		}
 
 		else {
-			callback(error, response, body);
+			callback(error, body);
 		}
 	});
 };
@@ -143,7 +143,7 @@ ownCloud.prototype.getApps = function(callback) {
  * @param {perms (optional)} permission of the shared object defaults to read only (1)
  * @param {public_upload (optional)} allows users to upload files or folders
  * @param {password (optional)} sets a password
- * @param {shareCallback} callback error, followed by response (instance of class shareInfo)
+ * @param {shareCallback} callback error, body (instance of class shareInfo)
  */
 ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) {
     var args = [];
@@ -219,7 +219,7 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
  * Returns array of shares
  * @param  {string}   path           path to the share to be checked
  * @param  {object}   optionalParams object of values {"reshares": boolean, "subfiles": boolean, "shared_with_me": boolean}
- * @param  {Function} callback       error, response, body(array of shareInfo objects)
+ * @param  {Function} callback       error, body(array of shareInfo objects)
  */
 ownCloud.prototype.getShares = function(path, optionalParams, callback){
 	var args = [];
@@ -242,6 +242,8 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
     	path = this._encodeString(this._normalizePath(path));
     	var send = {};
 
+    	send.path = path;
+
     	if (optionalParams) {
     		if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
     			send.reshares = optionalParams.reshares;
@@ -256,16 +258,26 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
     		}
     	}
 
-    	data += encodeURIComponent(JSON.stringify(send));
+    	var urlString = '';
+    	for (var key in send) {
+    		urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key]);
+    	}
+
+    	urlString = urlString.slice(1); // removing the first '&'
+
+    	data += urlString;
     }
 
     var self = this;
 
     this._makeOCSrequest('GET', this.OCS_SERVICE_SHARE, data, function (error, response, body) {
-    	var tree = parser.toJson(body, {object : true});
-    	var elements = tree.ocs.data.element;
+    	var tree, elements, shares;
 
-    	var shares = [];
+    	if (!error) {
+	    	tree = parser.toJson(body, {object : true});
+	    	elements = tree.ocs.data.element;
+	    	shares = [];
+	    }
 
     	if (!error) {
     		error = self._checkOCSstatus(tree);
@@ -277,8 +289,63 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
 	    		shares.push(share);
 	    	}
 	    }
-    	callback(error, response, shares);
+    	callback(error, shares);
     });
+};
+
+/**
+ * Checks wether a path is already shared
+ * @param  {string}   path     path to the share to be checked
+ * @param  {Function} callback error, body(boolean : true if shared, false if not)
+ */
+ownCloud.prototype.isShared = function(path, callback) {
+	var self = this;
+
+	var bod = false;
+	var err;
+
+	// check if file exists (webDAV)
+	//this.fileInfo(path, function (err, res, bod) {
+		//if (!err) {
+			self.getShares(path, function(error, shares) {
+				err = error;
+
+				if (!err) {
+					bod = shares.length > 0;
+				}
+
+				callback(err, bod);
+			});
+		//}
+	//});
+};
+
+/**
+ * Gets share information about known share
+ * @param  {Number} {string}   shareId  id of the share to be checked
+ * @param  {Function} callback error, body(instance of class shareInfo)
+ */
+ownCloud.prototype.getShare = function(shareId, callback) {
+	var self = this;
+
+	if (isNaN((parseInt(shareId)))) {
+		callback("share ID specified should be a number", null);
+		return;
+	}
+
+	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'shares/' + shareId.toString(), 
+		function (error, response, body) {
+			var shareInstance;
+
+			if (!error && response.statusCode == 200) {
+				var tree = parser.toJson(body, {object : true});
+		    	var share = tree.ocs.data.element;
+
+		    	shareInstance = new shareInfo(share);
+			}
+
+			callback(error, shareInstance);
+		});
 };
 
 /////////////
@@ -300,7 +367,7 @@ ownCloud.prototype._updateCapabilities = function(callback) {
 			}
 			self._version = body.version.string + '-' + body.version.edition;
 		}
-		callback(error, response, JSON.stringify(self._capabilities));
+		callback(error, JSON.stringify(self._capabilities));
 	});
 };
 
@@ -415,16 +482,3 @@ ownCloud.prototype._encodeString = function(path) {
 };
 
 module.exports = ownCloud;
-
-/**
- * @callback shareCallback
- * @param {string} error
- * @param {object} instance of class shareInfo
- */
-
-/**
- * @callback callback
- * @param {string} error
- * @param {object} response(headers, statusCode etc.)
- * @param {string} body
- */

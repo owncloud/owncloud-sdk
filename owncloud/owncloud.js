@@ -71,10 +71,10 @@ ownCloud.prototype.login = function(username, password, callback) {
 
 	this._updateCapabilities(function (error, response, body) {
 		if (!error && response.statusCode == 200) {
-			callback(error, "Login Successful");
+			callback(error, true);
 		}
 		else {
-			callback(error, "Login Unsuccessful");
+			callback(error, false);
 		}
 	});
 };
@@ -368,6 +368,95 @@ ownCloud.prototype.createUser = function(username, password, callback) {
 	);
 };
 
+/**
+ * Deletes a user via provisioning API
+ * @param  {string}   username name of user to be deleted
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.deleteUser = function(username, callback) {
+	var self = this;
+
+	this._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'users/' + username, 
+		function(error, response, body) {
+			if (!error && response.statusCode == 200) {
+				var tree = parser.toJson(body, {object : true});
+				var statusCode = self._checkOCSstatusCode(tree);
+
+				if (statusCode == 999) {
+					error = "Provisioning API has been disabled at your instance";
+				}
+				else if (statusCode == 101) {
+					error = "User does not exist.";
+				}
+				else {
+					error = self._checkOCSstatus(tree);
+				}
+
+				body = false;
+				if (!error) {
+					body = true;
+				}
+			}
+
+			callback(error, body);
+		}
+	);
+};
+
+/**
+ * Searches for users via provisioning API
+ * @param  {string}   name     username of the user to be searched
+ * @param  {Function} callback error, body(array of search results i.e users)
+ */
+ownCloud.prototype.searchUsers = function(name, callback) {
+	action = 'users';
+
+	if (name) {
+		action += '?search=' + name;
+	}
+
+	var self = this;
+
+	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			var tree = parser.toJson(body, {object : true});
+			var statusCode = self._checkOCSstatusCode(tree);
+
+			if (statusCode == 999) {
+				error = "Provisioning API has been disabled at your instance";
+			}
+			else {
+				error = self._checkOCSstatus(tree);
+			}
+
+			if (!error) {
+				body = tree.ocs.data.users.element;
+
+				if (typeof(body) !== "object") {
+					// single entry
+					body = [body];
+				}
+			}
+		}
+
+		callback(error, body);
+	});
+};
+
+/**
+ * Checks a user via provisioning API
+ * @param  {string}   name     name of user to be checked
+ * @param {Function} callback error, body(boolean; whether exists or not)
+ */
+ownCloud.prototype.userExists = function(name, callback) {
+	if (!name) {
+		name = '';
+	}
+	this.searchUsers(name, function(error, body) {
+		callback(error, body.indexOf(name) > -1);
+	});
+};
+
 /////////////
 // HELPERS //
 /////////////
@@ -488,12 +577,18 @@ ownCloud.prototype._checkOCSstatus = function (json, acceptedCodes) {
 	}
 
 	var meta = json.ocs.meta;
+	var ret;
 
 	if (acceptedCodes.indexOf(parseInt(meta.statuscode)) == -1) {
-		return meta.message || JSON.stringify(json);
+		ret = meta.message;
+
+		if (Object.keys(meta.message).length === 0) {
+			// no error message returned, return the whole message
+			ret = json;
+		}
 	}
 
-	return null;
+	return ret;
 };
 
 /**

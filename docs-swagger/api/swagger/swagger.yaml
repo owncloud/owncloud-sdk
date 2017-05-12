@@ -8,6 +8,9 @@ tags:
       
   - name: "Sharing"
     description: "File/Folder sharing methods"
+    
+  - name: "Apps Management"
+    description: "Methods for Enabling/Disabling/Retrieving apps"
       
   - name: "User Management"
     description: "User Creation/Deletion/Updation methods"
@@ -71,7 +74,7 @@ paths:
   /getApps:
     get:
       tags:
-        - General
+        - Apps Management
       description: Get all the enabled and disbaled apps
       summary: Get all the enabled and disbaled apps
       operationId: getApps
@@ -227,6 +230,69 @@ paths:
           in: query
           type: string
           format: password
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /deleteUser:
+    get:
+      tags:
+        - User Management
+      description: Deletes user via the provisioning API
+      summary: Deletes user via the provisioning API
+      operationId: deleteUser
+      parameters:
+        - name: username
+          description: username of the user to be deleted
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /searchUsers:
+    get:
+      tags:
+        - User Management
+      description: Searches for users via provisioning API
+      summary: Searches for users via provisioning API
+      operationId: searchUsers
+      parameters:
+        - name: username
+          description: username of the user to be searched
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /userExists:
+    get:
+      tags:
+        - User Management
+      description: Checks a user via provisioning API
+      summary: Checks a user via provisioning API
+      operationId: userExists
+      parameters:
+        - name: username
+          description: name of user to be checked
+          in: query
+          type: string
       responses:
         "200":
           description: success

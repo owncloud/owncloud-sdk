@@ -3,6 +3,7 @@ var owncloud = require("../../js-owncloud-client");
 var cors = require('cors');
 var app = express();
 var oc;
+
 app.use(express.static('assets'));
 app.use(cors());
 
@@ -13,7 +14,7 @@ app.get('/', function(request, response) {
 app.get('/initLibrary', function(request, response) {
 	var url = request.query.url;
 	oc = new owncloud(url);
-	response.send("success");
+	response.send(true);
 });
 
 app.get('/login', function(request, response) {
@@ -88,15 +89,7 @@ app.get('/isShared', function(request, response) {
 	}
 	oc.isShared(path, function(error, body) {
 		//response.send("path = " + body.getPath());
-		if (!error && body == true) {
-			response.send("already shared!");
-		}
-		else if (error) {
-			response.send(error);
-		}
-		else {
-			response.send("not shared yet!");
-		}
+		response.send(error || body);
 	});
 });
 
@@ -120,6 +113,39 @@ app.get('/createUser', function(request, response) {
 		return;
 	}
 	oc.createUser(uname, pass, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/deleteUser', function(request, response) {
+	var uname = request.query.username;
+	if (!oc) {
+		response.send("Please initialise the library with a running ownCloud URL first.");
+		return;
+	}
+	oc.deleteUser(uname, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/searchUsers', function(request, response) {
+	var username = request.query.username;
+	if (!oc) {
+		response.send("Please initialise the library with a running ownCloud URL first.");
+		return;
+	}
+	oc.searchUsers(username, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/userExists', function(request, response) {
+	var username = request.query.username;
+	if (!oc) {
+		response.send("Please initialise the library with a running ownCloud URL first.");
+		return;
+	}
+	oc.userExists(username, function(error, body) {
 		response.send(error || body);
 	});
 });

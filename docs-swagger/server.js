@@ -150,6 +150,43 @@ app.get('/userExists', function(request, response) {
 	});
 });
 
+app.get('/getUsers', function(request, response) {
+	if (!oc) {
+		response.send("Please initialise the library with a running ownCloud URL first.");
+		return;
+	}
+	oc.getUsers(function(error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/setUserAttribute', function(request, response) {
+	var username = request.query.username;
+	var key = request.query.key;
+	var value = request.query.value;
+
+	if (!oc) {
+		response.send("Please initialise the library with a running ownCloud URL first.");
+		return;
+	}
+	oc.setUserAttribute(username, key, value, function(error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/addUserToGroup', function(request, response) {
+	var username = request.query.username;
+	var groupName = request.query.groupName;
+
+	if (!oc) {
+		response.send("Please initialise the library with a running ownCloud URL first.");
+		return;
+	}
+	oc.addUserToGroup(username, groupName, function(error, body) {
+		response.send(error || body);
+	});
+});
+
 /*app.get('/asd', function(request , response) {
 	var requestPromise = require('request-promise');
 

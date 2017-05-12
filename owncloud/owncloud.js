@@ -346,24 +346,7 @@ ownCloud.prototype.createUser = function(username, password, callback) {
 
 	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users', 
 		{'password' : password, 'userid' : username}, function(error, response, body) {
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-
-				body = false;
-				if (!error) {
-					body = true;
-				}
-			}
-
-			callback(error, body);
+			self._OCSuserResponseHandler(error, response, body, callback);
 		}
 	);
 };
@@ -378,27 +361,7 @@ ownCloud.prototype.deleteUser = function(username, callback) {
 
 	this._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'users/' + username, 
 		function(error, response, body) {
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else if (statusCode == 101) {
-					error = "User does not exist.";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-
-				body = false;
-				if (!error) {
-					body = true;
-				}
-			}
-
-			callback(error, body);
+			self._OCSuserResponseHandler(error, response, body, callback);
 		}
 	);
 };
@@ -417,30 +380,10 @@ ownCloud.prototype.searchUsers = function(name, callback) {
 
 	var self = this;
 
-	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action, function (error, response, body) {
-		if (!error && response.statusCode == 200) {
-			var tree = parser.toJson(body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-
-			if (statusCode == 999) {
-				error = "Provisioning API has been disabled at your instance";
-			}
-			else {
-				error = self._checkOCSstatus(tree);
-			}
-
-			if (!error) {
-				body = tree.ocs.data.users.element;
-
-				if (typeof(body) !== "object") {
-					// single entry
-					body = [body];
-				}
-			}
+	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action, function(error, response, body) {
+			self._OCSuserResponseHandler(error, response, body, callback);
 		}
-
-		callback(error, body);
-	});
+	);
 };
 
 /**
@@ -455,6 +398,47 @@ ownCloud.prototype.userExists = function(name, callback) {
 	this.searchUsers(name, function(error, body) {
 		callback(error, body.indexOf(name) > -1);
 	});
+};
+
+/**
+ * Get all users via Provisioning API
+ * @param  {Function} callback error, body(array of all users)
+ */
+ownCloud.prototype.getUsers = function(callback) {
+	this.searchUsers('', function(error, body) {
+		callback(error, body);
+	});
+};
+
+/**
+ * Sets a user attribute via the Provisioning API
+ * @param {string}   username name of the user to modify
+ * @param {string}   key      key of the attribute to be set (email, quota, display, password)
+ * @param {string}   value    value to be set
+ * @param {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.setUserAttribute = function(username, key, value, callback) {
+	var self = this;
+
+	this._makeOCSrequest('PUT', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
+		{'key' :   self._encodeString(key),
+		 'value' : self._encodeString(value)
+		}, function(error, response, body) {
+			self._OCSuserResponseHandler(error, response, body, callback);
+		}
+	);
+};
+
+ownCloud.prototype.addUserToGroup = function(username, groupName, callback) {
+	var self = this;
+
+	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/groups', 
+		{
+			'groupid' : groupName
+		}, function(error, response, body) {
+			self._OCSuserResponseHandler(error, response, body, callback);
+		}
+	)
 };
 
 /////////////
@@ -630,6 +614,28 @@ ownCloud.prototype._convertObjectToBool = function(object) {
 	}
 
 	return object;
+};
+
+ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, callback) {
+	var status = false;
+	var self = this;
+	if (!error && response.statusCode == 200) {
+		var tree = parser.toJson(body, {object : true});
+		var statusCode = self._checkOCSstatusCode(tree);
+
+		if (statusCode == 999) {
+			error = "Provisioning API has been disabled at your instance";
+		}
+		else {
+			error = self._checkOCSstatus(tree);
+		}
+		
+		if (!error) {
+			status = true;
+		}
+	}
+
+	callback(error, status);
 };
 
 module.exports = ownCloud;

@@ -264,8 +264,8 @@ paths:
     get:
       tags:
         - User Management
-      description: Searches for users via provisioning API
-      summary: Searches for users via provisioning API
+      description: Searches for users via the provisioning API
+      summary: Searches for users via the provisioning API
       operationId: searchUsers
       parameters:
         - name: username
@@ -285,12 +285,82 @@ paths:
     get:
       tags:
         - User Management
-      description: Checks a user via provisioning API
-      summary: Checks a user via provisioning API
+      description: Checks a user via the provisioning API
+      summary: Checks a user via the provisioning API
       operationId: userExists
       parameters:
         - name: username
           description: name of user to be checked
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getUsers:
+    get:
+      tags:
+        - User Management
+      description: Get all users via the Provisioning API
+      summary: Get all users via the Provisioning API
+      operationId: getUsers
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /setUserAttribute:
+    get:
+      tags:
+        - User Management
+      description: Sets a user attribute via the Provisioning API
+      summary: Sets a user attribute via the Provisioning API
+      operationId: setUserAttribute
+      parameters:
+        - name: username
+          description: name of user to modify
+          in: query
+          type: string
+        - name: key
+          description: key of the attribute to be set (email, quota, display, password)
+          in: query
+          type: string
+        - name: value
+          description: value to be set
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /addUserToGroup:
+    get:
+      tags:
+        - User Management
+      description: Adds user to group via the Provisioning API
+      summary: Adds user to group via the Provisioning API
+      operationId: addUserToGroup
+      parameters:
+        - name: username
+          description: name of user to modify
+          in: query
+          type: string
+        - name: groupName
+          description: name of group to add to
           in: query
           type: string
       responses:

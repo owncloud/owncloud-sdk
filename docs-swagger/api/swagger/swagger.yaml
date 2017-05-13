@@ -14,6 +14,9 @@ tags:
       
   - name: "User Management"
     description: "User Creation/Deletion/Updation methods"
+    
+  - name: "Group Management"
+    description: "Group Creation/Deletion/Updation methods"
 
 host: localhost:8080
 basePath: /
@@ -102,23 +105,97 @@ paths:
           description: path of the file to be shared
           type: string
         
-        - name: perms
+        - name: perms (optional)
           in: query
           required: false
           description: permission of the shared object defaults to read only
           type: integer
         
-        - name: public_upload
+        - name: publicUpload (optional)
           in: query
           required: false
           description:  allows users to upload files or folders
           type: boolean
         
-        - name: password
+        - name: password (optional)
           in: query
           required: false
           description: sets a password
           type: string
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /shareFileWithUser:
+    get:
+      tags:
+        - Sharing
+      description: Shares a remote file with User
+      summary: Shares a remote file with User
+      operationId: shareFileWithUser
+      parameters:
+        - name: path
+          in: query
+          description: path of the file to be shared
+          type: string
+          
+        - name: username
+          in: query
+          description: name of user to be shared with
+          type: string
+        
+        - name: perms (optional)
+          in: query
+          required: false
+          description: permission of the shared object defaults to read only
+          type: integer
+        
+        - name: remoteUser (optional)
+          in: query
+          required: false
+          description:  allows users to upload files or folders
+          type: boolean
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /shareFileWithGroup:
+    get:
+      tags:
+        - Sharing
+      description: Shares a remote file with Group
+      summary: Shares a remote file with Group
+      operationId: shareFileWithGroup
+      parameters:
+        - name: path
+          in: query
+          description: path of the file to be shared
+          type: string
+          
+        - name: groupName
+          in: query
+          description: name of group to be shared with
+          type: string
+        
+        - name: perms (optional)
+          in: query
+          required: false
+          description: permission of the shared object defaults to read only
+          type: integer
       produces:
       - "application/json"
       responses:
@@ -361,6 +438,438 @@ paths:
           type: string
         - name: groupName
           description: name of group to add to
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getUserGroups:
+    get:
+      tags:
+        - User Management
+      description: Get a list of groups associated to a user via the Provisioning API
+      summary: Get a list of groups associated to a user via the Provisioning API
+      operationId: getUserGroups
+      parameters:
+        - name: username
+          description: name of user to list groups
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /userIsInGroup:
+    get:
+      tags:
+        - User Management
+      description: Checks if a user is in a group via the Provisioning API
+      summary: Checks if a user is in a group via the Provisioning API
+      operationId: userIsInGroup
+      parameters:
+        - name: username
+          description: name of user
+          in: query
+          type: string
+        - name: groupName
+          description: name of group
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getUser:
+    get:
+      tags:
+        - User Management
+      description: Retrieves information about a user via the Provisioning API
+      summary: Retrieves information about a user via the Provisioning API
+      operationId: getUser
+      parameters:
+        - name: username
+          description: name of user to list groups
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /removeUserFromGroup:
+    get:
+      tags:
+        - User Management
+      description: Removes user from a group via the Provisioning API
+      summary: Removes user from a group via the Provisioning API
+      operationId: removeUserFromGroup
+      parameters:
+        - name: username
+          description: name of user
+          in: query
+          type: string
+        - name: groupName
+          description: name of group
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /addUserToSubadminGroup:
+    get:
+      tags:
+        - User Management
+      description: Adds user to a subadmin group via the Provisioning API
+      summary: Adds user to a subadmin group via the Provisioning API
+      operationId: addUserToSubadminGroup
+      parameters:
+        - name: username
+          description: name of user to modify
+          in: query
+          type: string
+        - name: groupName
+          description: name of group to add to
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getUserSubadminGroups:
+    get:
+      tags:
+        - User Management
+      description: Get a list of subadmin groups associated to a user via the Provisioning API
+      summary: Get a list of subadmin groups associated to a user via the Provisioning API
+      operationId: getUserSubadminGroups
+      parameters:
+        - name: username
+          description: name of user to list groups
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /userIsInSubadminGroup:
+    get:
+      tags:
+        - User Management
+      description: Checks if a user is in a subadmin group via the Provisioning API
+      summary: Checks if a user is in a subadmin group via the Provisioning API
+      operationId: userIsInSubadminGroup
+      parameters:
+        - name: username
+          description: name of user
+          in: query
+          type: string
+        - name: groupName
+          description: name of group
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /createGroup:
+    get:
+      tags:
+        - Group Management
+      description: Creates a group via the provisioning API
+      summary: Creates a group via the provisioning API
+      operationId: createGroup
+      parameters:
+        - name: groupName
+          description: groupName of the new user to be created
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /deleteGroup:
+    get:
+      tags:
+        - Group Management
+      description: Deletes a group via the provisioning API
+      summary: Deletes a group via the provisioning API
+      operationId: deleteGroup
+      parameters:
+        - name: groupName
+          description: Name of the new group to be created
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getGroups:
+    get:
+      tags:
+        - Group Management
+      description: Gets all groups via the Provisioning API
+      summary: Gets all groups via the provisioning API
+      operationId: getGroups
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getGroupMembers:
+    get:
+      tags:
+        - Group Management
+      description: Gets all members of a group via the Provisioning API
+      summary: Gets all members of a group via the provisioning API
+      operationId: getGroupMembers
+      parameters:
+        - name: groupName
+          description: Name of the group to list members
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /groupExists:
+    get:
+      tags:
+        - Group Management
+      description: Checks a group via the provisioning API
+      summary: Checks a group via provisioning API
+      operationId: groupExists
+      parameters:
+        - name: groupName
+          description: Name of the group to be checked
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getConfig:
+    get:
+      tags:
+        - General
+      description: Returns ownCloud config information
+      summary: Returns ownCloud config information
+      operationId: getConfig
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getAttribute:
+    get:
+      tags:
+        - Apps Management
+      description: Returns an application attribute
+      summary: Returns an application attribute
+      operationId: getAttribute
+      parameters:
+        - name: app
+          description: application ID
+          in: query
+          type: string
+        - name: key
+          description: attribute key or None to retrieve all values for the given application
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /setAttribute:
+    get:
+      tags:
+        - Apps Management
+      description: Sets an application attribute
+      summary: Sets an application attribute
+      operationId: setAttribute
+      parameters:
+        - name: app
+          description: application ID
+          in: query
+          type: string
+        - name: key
+          description: attribute key or None to set for the given application
+          in: query
+          type: string
+        - name: value
+          description: attribute value to set for the given key
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /deleteAttribute:
+    get:
+      tags:
+        - Apps Management
+      description: Deletes an application attribute
+      summary: Deletes an application attribute
+      operationId: deleteAttribute
+      parameters:
+        - name: app
+          description: application ID
+          in: query
+          type: string
+        - name: key
+          description: attribute key or None to set for the given application
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getVersion:
+    get:
+      tags:
+        - General
+      description: Gets the ownCloud version of the connected server
+      summary: Gets the ownCloud version of the connected server
+      operationId: getVersion
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getCapabilities:
+    get:
+      tags:
+        - General
+      description: Gets the ownCloud app capabilities
+      summary: Gets the ownCloud app capabilities
+      operationId: getCapabilities
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /enableApp:
+    get:
+      tags:
+        - Apps Management
+      description: enables an app via the Provisioning API
+      summary: enables an app via the Provisioning API
+      operationId: enableApp
+      parameters:
+        - name: appname
+          description: name of application to be enabled
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /disableApp:
+    get:
+      tags:
+        - Apps Management
+      description: disables an app via the Provisioning API
+      summary: disables an app via the Provisioning API
+      operationId: disableApp
+      parameters:
+        - name: appname
+          description: name of application to be disabled
           in: query
           type: string
       responses:

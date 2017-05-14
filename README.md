@@ -32,9 +32,32 @@ oc.shareFileWithLink('linkToYourFile', function(error, shareInfo) {
 
 ```
 
+## Building the Documentation
+
+### Swagger Documentation
+
+Want to see a cool live demo of the library in action, just type these and see it for yourself :
+
+```
+$ cd docs-swagger
+$ node server.js
+```
+
+### JSDocs
+
+To build the jsdocs, type this command and follow the instructions on the terminal :
+
+```
+$ make docs
+```
+
+## Unit tests
+
+Coming up.
+
 ## Team
 
-[![Noveen Sachdeva](http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144)](http://noveensachdeva.me) &nbsp; &nbsp; &nbsp; &nbsp; [![Vincent Petry](https://avatars1.githubusercontent.com/u/277525?v=3&s=144)](https://github.com/PVince81)
+[![Noveen Sachdeva](http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144)](https://github.com/noveens) &nbsp; &nbsp; &nbsp; &nbsp; [![Vincent Petry](https://avatars1.githubusercontent.com/u/277525?v=3&s=144)](https://github.com/PVince81)
 <br>Noveen Sachdeva &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Vincent Petry
 
 # ![pageres](http://cltk.org/assets/GSoC2016Logo.jpg)

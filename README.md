@@ -42,6 +42,10 @@ Want to see a cool live demo of the library in action? Just type these and see i
 $ cd docs-swagger
 $ node server.js
 ```
+If you open the link showed by running the node server, you will see something like this :
+# ![SwaggerDemo](http://i63.tinypic.com/33o41s0.jpg)
+Here, you can click on any method and type in values, to experiment with the methods in the browser itself!<br>
+Now isn't that cool? :wink:
 
 ### JSDocs
 
@@ -60,4 +64,4 @@ Coming up.
 [![Noveen Sachdeva](http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144)](https://github.com/noveens) &nbsp; &nbsp; &nbsp; &nbsp; [![Vincent Petry](https://avatars1.githubusercontent.com/u/277525?v=3&s=144)](https://github.com/PVince81)
 <br>Noveen Sachdeva &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Vincent Petry
 
-# ![pageres](http://cltk.org/assets/GSoC2016Logo.jpg)
+# ![GSoC'17](http://cltk.org/assets/GSoC2016Logo.jpg)

@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "dependencies": {
+    "jsdoc": "^3.4.3",
     "querystring": "^0.2.0",
     "request": "^2.81.0",
     "utf8": "^2.1.2",

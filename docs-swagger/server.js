@@ -75,6 +75,35 @@ app.get('/shareFileWithLink', function(request, response) {
 	});
 });
 
+app.get('/updateShare', function(request, response) {
+	var shareId = request.query.shareId;
+
+	var optional = {};
+
+	if (request.query.perms) {
+		optional['perms'] = request.query.perms;
+	}
+
+	if (request.query.publicUpload) {
+		optional['publicUpload'] = request.query.publicUpload;
+	}
+
+	if (request.query.password) {
+		optional['password'] = request.query.password;
+	}
+
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.updateShare(shareId, optional, function(error, body) {
+		//response.send("path = " + body.getPath());
+		response.send(error || body);
+	});
+});
+
 app.get('/shareFileWithUser', function(request, response) {
 	var path = request.query.path;
 	var username = request.query.username;
@@ -551,6 +580,57 @@ app.get('/disableApp', function(request, response) {
 		});
 	}
 	oc.disableApp(appname, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/listOpenRemoteShare', function(request, response) {
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.listOpenRemoteShare(function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/acceptRemoteShare', function(request, response) {
+	var shareId = request.query.shareId;
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.acceptRemoteShare(shareId, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/declineRemoteShare', function(request, response) {
+	var shareId = request.query.shareId;
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.declineRemoteShare(shareId, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/deleteShare', function(request, response) {
+	var shareId = request.query.shareId;
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.deleteShare(shareId, function (error, body) {
 		response.send(error || body);
 	});
 });

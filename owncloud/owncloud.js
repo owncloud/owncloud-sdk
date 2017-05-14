@@ -6,13 +6,85 @@ var querystring = require('querystring');
 
 
 /**
- * @class
- * @classdesc ownCloud class, where everything works
- * @param {string} URL of the ownCloud instance
+ * @class ownCloud
+ * @classdesc 
+ * <b><i> The ownCloud class, where everything works!</i></b><br><br>
+ * Supported Methods are:
+ * <ul>
+ *     <li><b>General</b>
+ *         <ul>
+ *          <li>initLibrary</li>
+ *          <li>login</li>
+ *          <li>getConfig</li>
+ *          <li>getVersion</li>
+ *          <li>getCapabilities</li>
+ *         </ul>
+ *     </li><br>
+ *     
+ *     <li><b>Apps Management</b>
+ *         <ul>
+ *         	<li>getApps</li>
+ *         	<li>getAttribute</li>
+ *         	<li>setAttribute</li>
+ *         	<li>deleteAttribute</li>
+ *         	<li>enableApp</li>
+ *         	<li>disableApp</li>
+ *         </ul>
+ *     </li><br>
+ *     
+ *     <li><b>Sharing</b>
+ *         <ul>
+ *          <li>shareFileWithLink</li>
+ *          <li>updateShare</li>
+ *          <li>shareFileWithUser</li>
+ *          <li>shareFileWithGroup</li>
+ *          <li>getShares</li>
+ *          <li>isShared</li>
+ *          <li>getShare</li>
+ *          <li>listOpenRemoteShare</li>
+ *          <li>acceptRemoteShare</li>
+ *          <li>declineRemoteShare</li>
+ *          <li>deleteShare</li>
+
+ *         </ul>
+ *     </li><br>
+ *     
+ *     <li><b>User Management</b>
+ *         <ul>
+ *         	<li>createUser</li>
+ *          <li>deleteUser</li>
+ *          <li>searchUsers</li>
+ *          <li>userExists</li>
+ *          <li>getUsers</li>
+ *          <li>setUserAttribute</li>
+ *          <li>addUserToGroup</li>
+ *          <li>getUserGroups</li>
+ *          <li>userIsInGroup</li>
+ *          <li>getUser</li>
+ *          <li>removeUserFromGroup</li>
+ *          <li>addUserToSubadminGroup</li>
+ *          <li>getUserSubadminGroups</li>
+ *          <li>userIsInSubadminGroup</li>
+ *         </ul>
+ *     </li><br>
+ *
+ *     <li><b>Group Management</b>
+ *         <ul>
+ *         	<li>createGroup</li>
+ *          <li>deleteGroup</li>
+ *          <li>getGroups</li>
+ *          <li>getGroupMembers</li>
+ *          <li>groupExists</li>
+ *         </ul>
+ *     </li><br>
+ *     
+ * @author Noveen Sachdeva
+ * @version 1.0.0
+ * @param {string} 		URL 	URL of the ownCloud instance
  */
 function ownCloud(instance) {
 	console.log("Inited Library");
-	this.initRoutes();
+	this._initRoutes();
 
 	if (!instance) {
 		instance = "localhost/core";
@@ -36,34 +108,10 @@ function ownCloud(instance) {
 }
 
 /**
- * Initializes constants of the class ownCloud
- */
-ownCloud.prototype.initRoutes = function() {
-	this.OCS_BASEPATH = 'ocs/v1.php/';
-    this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1';
-    this.OCS_SERVICE_PRIVATEDATA = 'privatedata';
-    this.OCS_SERVICE_CLOUD = 'cloud';
-
-    // constants from lib/public/constants.php
-    this.OCS_PERMISSION_READ = 1;
-    this.OCS_PERMISSION_UPDATE = 2;
-    this.OCS_PERMISSION_CREATE = 4;
-    this.OCS_PERMISSION_DELETE = 8;
-    this.OCS_PERMISSION_SHARE = 16;
-    this.OCS_PERMISSION_ALL = 31;
-    
-    // constants from lib/public/share.php
-    this.OCS_SHARE_TYPE_USER = 0;
-    this.OCS_SHARE_TYPE_GROUP = 1;
-    this.OCS_SHARE_TYPE_LINK = 3;
-    this.OCS_SHARE_TYPE_REMOTE = 6;
-};
-
-/**
  * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param {string} username
- * @param {string} password
- * @param {callback} error, body(status message)
+ * @param {string} 		username 	name of the user to login
+ * @param {string} 		password 	password of the user to login
+ * @param {Function} 	callback 	error, body(status message)
  */
 ownCloud.prototype.login = function(username, password, callback) {
 	this._username = /*username*/'noveens';
@@ -81,7 +129,7 @@ ownCloud.prototype.login = function(username, password, callback) {
 
 /**
  * Gets all enabled and non-enabled apps downloaded on the instance.
- * @param {callback} error, body(apps)
+ * @param {Function} 	callback 	 error, body(apps)
  */
 ownCloud.prototype.getApps = function(callback) {
 	var self = this;
@@ -97,31 +145,33 @@ ownCloud.prototype.getApps = function(callback) {
 				send[body[i]] = false;
 			}
 
-			self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", function(error2, response2, body2) {
-				if (!error2) {
-					var tree = parser.toJson(body2, {object : true});
+			self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", 
+				function(error2, response2, body2) {
+					if (!error2) {
+						var tree = parser.toJson(body2, {object : true});
 
-					body2 = tree.ocs.data.apps.element; 
-					/*<ocs>
-						<data>
-							<apps>
-								<element></element>
-								<element></element> ..
-							</apps>
-						</data>
-					</ocs>*/
+						body2 = tree.ocs.data.apps.element; 
+						/*<ocs>
+							<data>
+								<apps>
+									<element></element>
+									<element></element> ..
+								</apps>
+							</data>
+						</ocs>*/
 
-					for (var i=0;i<body2.length;i++) {
-						send[body2[i]] = true;
+						for (var i=0;i<body2.length;i++) {
+							send[body2[i]] = true;
+						}
+
+						callback(error2, send);
 					}
 
-					callback(error2, send);
+					else {
+						callback(error2, body2);
+					}
 				}
-
-				else {
-					callback(error2, body2);
-				}
-			});
+			);
 		}
 
 		else {
@@ -132,11 +182,11 @@ ownCloud.prototype.getApps = function(callback) {
 
 /**
  * Shares a remote file with specified user
- * @param {string} 				path 					path to the remote file share
- * @param {string (optional)}  	perms					permission of the shared object defaults to read only (1)
- * @param {string (optional)}   publicUpload 			allows users to upload files or folders
- * @param {string (optional)}   password 				sets a password
- * @param {Function}            shareCallbackcallback 	error, body (instance of class shareInfo)
+ * @param {string} 		path 					path to the remote file share
+ * @param {string}  	[perms = 1]					permission of the shared object defaults to read only (1)
+ * @param {string}   	[publicUpload] 			allows users to upload files or folders
+ * @param {string}   	[password] 				sets a password
+ * @param {Function}    shareCallbackcallback 	error, body (instance of class shareInfo)
  */
 ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) {
     var args = [];
@@ -154,7 +204,7 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
     };
 
     if (args.length == 1) {
-    	var optionalParams = args[0];
+    	optionalParams = args[0];
 
 	    if ('perms' in optionalParams) {
 		    postData['permissions'] = optionalParams['perms'];
@@ -199,8 +249,8 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
  * Shares a remote file with specified user
  * @param {string} 				path 				path to the remote file share
  * @param {string} 				username    		name of user to share file/folder with
- * @param {string (optional)}  	perms				permission of the shared object defaults to read only (1)
- * @param {boolean (optional)}  remoteUser 			user is remote or not
+ * @param {string}  			[perms = 1]			permission of the shared object defaults to read only (1)
+ * @param {boolean}  			[remoteUser] 		user is remote or not
  * @param {Function}            shareCallback 		error, body (instance of class shareInfo)
  */
 ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, callback) {
@@ -222,7 +272,7 @@ ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, 
     };
 
     if (args.length == 1) {
-    	var optionalParams = args[0];
+    	optionalParams = args[0];
 
 	    if ('perms' in optionalParams) {
 		    postData['permissions'] = optionalParams['perms'];
@@ -263,7 +313,7 @@ ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, 
  * Shares a remote file with specified group
  * @param {string} 				path 				path to the remote file share
  * @param {string} 				groupName    		name of group to share file/folder with
- * @param {string (optional)}  	perms				permission of the shared object defaults to read only (1)
+ * @param {string}  			[perms = 1]			permission of the shared object defaults to read only (1)
  * @param {Function}            shareCallback 		error, body (instance of class shareInfo)
  */
 ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams, callback) {
@@ -285,7 +335,7 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
     };
 
     if (args.length == 1) {
-    	var optionalParams = args[0];
+    	optionalParams = args[0];
 
 	    if ('perms' in optionalParams) {
 		    postData['permissions'] = optionalParams['perms'];
@@ -321,7 +371,8 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
 /**
  * Returns array of shares
  * @param  {string}   path           path to the file whose share needs to be checked
- * @param  {object}   optionalParams object of values {"reshares": boolean, "subfiles": boolean, "shared_with_me": boolean}
+ * @param  {object}   optionalParams object of values {"reshares": boolean, 
+ *                                   "subfiles": boolean, "shared_with_me": boolean}
  * @param  {Function} callback       error, body(array of shareInfo objects)
  */
 ownCloud.prototype.getShares = function(path, optionalParams, callback){
@@ -457,8 +508,8 @@ ownCloud.prototype.getShare = function(shareId, callback) {
 };
 
 /**
- * Creates user via the provisioning API
- * If user already exists, an error is given back : "User already exists"
+ * Creates user via the provisioning API<br>
+ * If user already exists, an error is given back : "User already exists"<br>
  * If provisoning API has been disabled, an error is given back saying the same.
  * @param  {string}   username username of the new user to be created
  * @param  {string}   password password of the new user to be created
@@ -627,8 +678,6 @@ ownCloud.prototype.getUserGroups = function(username, callback) {
  * @param  {Function} callback  error, body(boolean)
  */
 ownCloud.prototype.userIsInGroup = function(username, groupName, callback) {
-	var self = this;
-
 	this.getUserGroups(username, function(error, body) {
 		var ret;
 		if (!error) {
@@ -759,8 +808,6 @@ ownCloud.prototype.getUserSubadminGroups = function(username, callback) {
  * @param  {Function} callback  error, body(boolean)
  */
 ownCloud.prototype.userIsInSubadminGroup = function(username, groupName, callback) {
-	var self = this;
-
 	this.getUserSubadminGroups(username, function(error, body) {
 		var ret;
 		if (!error) {
@@ -889,8 +936,6 @@ ownCloud.prototype.getGroupMembers = function(groupName, callback) {
  * @param  {Function} callback  error, body(boolean)
  */
 ownCloud.prototype.groupExists = function(groupName, callback) {
-	var self = this;
-
 	this.getGroups(function (error, body) {
 		var ret;
 
@@ -1064,7 +1109,6 @@ ownCloud.prototype.getVersion = function(callback) {
  */
 ownCloud.prototype.getCapabilities = function(callback) {
 	var self = this;
-	var err, cap;
 
 	if (!(this._capabilities)) {
 		this._updateCapabilities(function (error, response, body) {
@@ -1116,13 +1160,188 @@ ownCloud.prototype.disableApp = function(appname, callback) {
 	);
 };
 
+/**
+ * List all pending remote share
+ * @param  {Function} callback error, body(array of shares)
+ */
+ownCloud.prototype.listOpenRemoteShare = function(callback) {
+	var self = this;
+
+	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'remote_shares/pending', function (error, response, body) {
+		var shares;
+
+		if (!error && response.statusCode === 200) {
+			var tree = parser.toJson(body, {object: true});
+
+			error = self._checkOCSstatus(tree);
+
+			if (!error) {
+				shares = tree.ocs.data.element;
+				if (!shares) {
+					shares = [];
+				}
+			}
+		}
+
+		callback(error, shares);
+	});
+};
+
+/**
+ * Accepts a remote share
+ * @param  {integer}  shareId  ID of the share to accept
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.acceptRemoteShare = function(shareId, callback) {
+	if (!parseInt(shareId)) {
+		callback("Please pass a valid share ID (Integer)", null);
+		return;
+	}
+
+	var self = this;
+	var ret;
+
+	this._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 
+		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
+		function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				ret = true;
+			}
+
+			callback(error, ret);
+		}
+	);
+};
+
+/**
+ * Declines a remote share
+ * @param  {integer}  shareId  ID of the share to decline
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.declineRemoteShare = function(shareId, callback) {
+	if (!parseInt(shareId)) {
+		callback("Please pass a valid share ID (Integer)", null);
+		return;
+	}
+
+	var self = this;
+	var ret;
+
+	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
+		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
+		function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				ret = true;
+			}
+
+			callback(error, ret);
+		}
+	);
+};
+
+/**
+ * Deletes a share
+ * @param  {integer}  shareId  ID of the share to delete
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.deleteShare = function(shareId, callback) {
+	if (!parseInt(shareId)) {
+		callback("Please pass a valid share ID (Integer)", null);
+		return;
+	}
+
+	var self = this;
+	var ret;
+
+	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
+		'shares/' + encodeURIComponent(shareId.toString()),
+		function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				ret = true;
+			}
+
+			callback(error, ret);
+		}
+	);
+};
+
+/**
+ * Updates a given share
+ * @param 	{integer}	  shareId		   Share ID
+ * @param 	{integer}	  perms			   update permissions (see shareFileWithUser() method)
+ * @param 	{string}	  password		   updated password for public link Share
+ * @param 	{boolean}	  publicUpload	   enable/disable public upload for public shares
+ * @param 	{Function}	  callback		   error, body(boolean)
+ */
+ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
+	var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args.push(arguments[i]);
+    }
+
+    callback = args.pop();
+    shareId = args.shift();
+
+    if (args.length == 1) {
+    	optionalParams = args[0];
+    }
+
+    var postData = {};
+
+    if (optionalParams.perms) {
+    	postData.permissions = optionalParams.perms;
+    }
+    if (optionalParams.password) {
+    	postData.password = optionalParams.password;
+    }
+    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
+    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
+    }
+
+    this._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
+    	'shares/' + encodeURIComponent(shareId.toString()), postData, 
+    	function (error, response, body) {
+    		var ret;
+    		if (!error && response.statusCode === 200) {
+    			ret = true;
+    		}
+
+    		callback(error, ret);
+    	}
+    );
+};
+
 /////////////
 // HELPERS //
 /////////////
 
 /**
+ * Initializes constants of the class ownCloud
+ */
+ownCloud.prototype._initRoutes = function() {
+	this.OCS_BASEPATH = 'ocs/v1.php/';
+    this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1';
+    this.OCS_SERVICE_PRIVATEDATA = 'privatedata';
+    this.OCS_SERVICE_CLOUD = 'cloud';
+
+    // constants from lib/public/constants.php
+    this.OCS_PERMISSION_READ = 1;
+    this.OCS_PERMISSION_UPDATE = 2;
+    this.OCS_PERMISSION_CREATE = 4;
+    this.OCS_PERMISSION_DELETE = 8;
+    this.OCS_PERMISSION_SHARE = 16;
+    this.OCS_PERMISSION_ALL = 31;
+    
+    // constants from lib/public/share.php
+    this.OCS_SHARE_TYPE_USER = 0;
+    this.OCS_SHARE_TYPE_GROUP = 1;
+    this.OCS_SHARE_TYPE_LINK = 3;
+    this.OCS_SHARE_TYPE_REMOTE = 6;
+};
+
+/**
  * Updates the capabilities of user logging in.
- * @param {callback} error, reponse, body(capabilities)
+ * @param {Function} callback error, reponse, body(capabilities)
  */
 ownCloud.prototype._updateCapabilities = function(callback) {
 	var self = this;
@@ -1143,10 +1362,10 @@ ownCloud.prototype._updateCapabilities = function(callback) {
 
 /**
  * Makes an OCS API request.
- * @param {string} method of request (GET, POST etc.)
- * @param {string} service (cloud, privatedata etc.)
- * @param {string} action (apps?filter=enabled, capabilities etc.)
- * @param {callback} error, reponse, body
+ * @param {string} 		method 		method of request (GET, POST etc.)
+ * @param {string} 		service		service (cloud, privatedata etc.)
+ * @param {string} 		action		action (apps?filter=enabled, capabilities etc.)
+ * @param {Function} 	callback 	error, reponse, body
  */
 ownCloud.prototype._makeOCSrequest = function (method, service, action, callback) {
 	var args = [];
@@ -1183,7 +1402,7 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action, callback
 	var slash = '';
     
     if (service) {
-        slash = '/'
+        slash = '/';
     }
 
     var path = this.OCS_BASEPATH + service + slash + action;
@@ -1215,11 +1434,11 @@ ownCloud.prototype._normalizePath = function (path) {
 		path = '';
 	}
 
-    if (path.length == 0) {
+    if (path.length === 0) {
         return '/';
     }
 
-    if (path[0] != '/') {
+    if (path[0] !== '/') {
         path = '/' + path;
     }
     
@@ -1281,11 +1500,11 @@ ownCloud.prototype._convertObjectToBool = function(object) {
 		return object;
 	}
 
-	for (key in object) {
-		if (object[key] == "true") {
+	for (var key in object) {
+		if (object[key] === "true") {
 			object[key] = true;
 		} 
-		if (object[key] == "false") {
+		if (object[key] === "false") {
 			object[key] = false;
 		}
 	}
@@ -1312,17 +1531,17 @@ ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, opt
     body = args.shift();
     optionalStatusCodes = null;
 
-    if (args.length == 1) {
+    if (args.length === 1) {
 	    optionalStatusCodes = args.shift();
 	}
 
 	var status = false;
 	var self = this;
-	if (!error && response.statusCode == 200) {
+	if (!error && response.statusCode === 200) {
 		var tree = parser.toJson(body, {object : true});
-		var statusCode = self._checkOCSstatusCode(tree);
+		var statusCode = parseInt(self._checkOCSstatusCode(tree));
 
-		if (statusCode == 999) {
+		if (statusCode === 999) {
 			error = "Provisioning API has been disabled at your instance";
 		}
 		else {

@@ -1,3 +1,4 @@
 node_modules/
 owncloud/test/config.js
 docs-swagger/node_modules
+jsdocs/

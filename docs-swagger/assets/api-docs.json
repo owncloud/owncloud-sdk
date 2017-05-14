@@ -149,25 +149,82 @@
       "type": "string"
      },
      {
-      "name": "perms (optional)",
+      "name": "perms",
       "in": "query",
       "required": false,
-      "description": "permission of the shared object defaults to read only",
+      "description": "permission of the shared object defaults to read only (OPTIONAL)",
       "type": "integer"
      },
      {
-      "name": "publicUpload (optional)",
+      "name": "publicUpload",
       "in": "query",
       "required": false,
-      "description": "allows users to upload files or folders",
+      "description": "allows users to upload files or folders (OPTIONAL)",
       "type": "boolean"
      },
      {
-      "name": "password (optional)",
+      "name": "password",
       "in": "query",
       "required": false,
-      "description": "sets a password",
-      "type": "string"
+      "description": "sets a password (OPTIONAL)",
+      "type": "string",
+      "format": "password"
+     }
+    ],
+    "produces": [
+     "application/json"
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/updateShare": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Updates a given share",
+    "summary": "Updates a given share",
+    "operationId": "updateShare",
+    "parameters": [
+     {
+      "name": "shareId",
+      "in": "query",
+      "description": "ID of share to update",
+      "type": "integer"
+     },
+     {
+      "name": "perms",
+      "in": "query",
+      "required": false,
+      "description": "permission of the shared object defaults to read only (OPTIONAL)",
+      "type": "integer"
+     },
+     {
+      "name": "publicUpload",
+      "in": "query",
+      "required": false,
+      "description": "allows users to upload files or folders (OPTIONAL)",
+      "type": "boolean"
+     },
+     {
+      "name": "password",
+      "in": "query",
+      "required": false,
+      "description": "sets a password (OPTIONAL)",
+      "type": "string",
+      "format": "password"
      }
     ],
     "produces": [
@@ -210,17 +267,17 @@
       "type": "string"
      },
      {
-      "name": "perms (optional)",
+      "name": "perms",
       "in": "query",
       "required": false,
-      "description": "permission of the shared object defaults to read only",
+      "description": "permission of the shared object defaults to read only (OPTIONAL)",
       "type": "integer"
      },
      {
-      "name": "remoteUser (optional)",
+      "name": "remoteUser",
       "in": "query",
       "required": false,
-      "description": "allows users to upload files or folders",
+      "description": "allows users to upload files or folders (OPTIONAL)",
       "type": "boolean"
      }
     ],
@@ -264,10 +321,10 @@
       "type": "string"
      },
      {
-      "name": "perms (optional)",
+      "name": "perms",
       "in": "query",
       "required": false,
-      "description": "permission of the shared object defaults to read only",
+      "description": "permission of the shared object defaults to read only (OPTIONAL)",
       "type": "integer"
      }
     ],
@@ -1259,6 +1316,106 @@
       "description": "name of application to be disabled",
       "in": "query",
       "type": "string"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/listOpenRemoteShare": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "List all pending remote share",
+    "summary": "List all pending remote share",
+    "operationId": "listOpenRemoteShare",
+    "responses": {
+     "200": {
+      "description": "success",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "status": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/acceptRemoteShare": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Accepts a remote share",
+    "summary": "Accepts a remote share",
+    "operationId": "acceptRemoteShare",
+    "parameters": [
+     {
+      "name": "shareId",
+      "description": "ID of share to accept",
+      "in": "query",
+      "type": "integer"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success"
+     }
+    }
+   }
+  },
+  "/declineRemoteShare": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Declines a remote share",
+    "summary": "Declines a remote share",
+    "operationId": "declineRemoteShare",
+    "parameters": [
+     {
+      "name": "shareId",
+      "description": "ID of share to decline",
+      "in": "query",
+      "type": "integer"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "success"
+     }
+    }
+   }
+  },
+  "/deleteShare": {
+   "get": {
+    "tags": [
+     "Sharing"
+    ],
+    "description": "Unshares a file or directory",
+    "summary": "Unshares a file or directory",
+    "operationId": "deleteShare",
+    "parameters": [
+     {
+      "name": "shareId",
+      "description": "ID of share to delete",
+      "in": "query",
+      "type": "integer"
      }
     ],
     "responses": {

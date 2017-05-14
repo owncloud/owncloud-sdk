@@ -34,4 +34,5 @@ oc.shareFileWithLink('linkToYourFile', function(error, shareInfo) {
 
 ## Team
 
-[![Noveen Sachdeva](http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144)](http://noveensachdeva.me) | [![Vincent Petry](https://avatars1.githubusercontent.com/u/277525?v=3&s=144)](https://github.com/PVince81)
+[![Noveen Sachdeva](http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144)](http://noveensachdeva.me)   [![Vincent Petry](https://avatars1.githubusercontent.com/u/277525?v=3&s=144)](https://github.com/PVince81)
+Noveen Sachdeva                          Vincent Petry

@@ -660,5 +660,6 @@ app.get('/deleteShare', function(request, response) {
 
 var port = process.env.PORT || 8080
 var server = app.listen(port, function() {
-	console.log("server started");
+	console.log("Swagger documentation here : http://localhost:8080/");
+	console.log("Caution : Don't close the process until you're done experimenting with the documentation!");
 });

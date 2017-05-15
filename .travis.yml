@@ -18,3 +18,8 @@ before_install:
   - '[ "${TRAVIS_NODE_VERSION}" != "0.8" ] || npm install -g npm@3.5.2'
   - npm install -g npm@latest
   - npm install -g node@latest
+
+script:
+    - cp owncloud/test/config.sample.js owncloud/test/config.js
+    # execute unit tests
+    - npm test

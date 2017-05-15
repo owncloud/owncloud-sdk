@@ -5,4 +5,5 @@ node_js:
   - 0.6
   - 0.8
 
-# configure notifications (email, IRC, campfire etc)
+before_script:
+  - npm update -g npm

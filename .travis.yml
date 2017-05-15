@@ -6,7 +6,7 @@ node_js:
 
 env:
   - CXX=g++-4.8
-  
+
 addons:
   apt:
     sources:
@@ -15,7 +15,6 @@ addons:
       - g++-4.8
 
 before_install:
-  - sudo apt-get install g++ g++11
   - '[ "${TRAVIS_NODE_VERSION}" != "0.8" ] || npm install -g npm@3.5.2'
   - npm install -g npm@latest
   - npm install -g node@latest

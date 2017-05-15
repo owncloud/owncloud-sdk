@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/noveens/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client) [![Dependencies Status](https://david-dm.org/noveens/js-owncloud-client.svg)](https://david-dm.org/noveens/js-owncloud-client.svg)
+[![Build Status](https://travis-ci.org/noveens/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client) [![Dependencies Status](https://david-dm.org/noveens/js-owncloud-client.svg)](https://david-dm.org/noveens/js-owncloud-client.svg) [![devDependencies Status](https://david-dm.org/noveens/js-owncloud-client/dev-status.svg)](https://david-dm.org/noveens/js-owncloud-client?type=dev)
 
 # ![ownCloud](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/OwnCloud_logo_and_wordmark.svg/1200px-OwnCloud_logo_and_wordmark.svg.png)
 

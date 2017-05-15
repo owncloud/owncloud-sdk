@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "devDependencies": {
-    "jasmine": "^3.5.2",
+    "jasmine": "^2.6.0",
     "jsdoc": "^3.4.3"
   },
   "dependencies": {

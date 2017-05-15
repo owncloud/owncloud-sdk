@@ -502,7 +502,7 @@ app.get('/getAttribute', function(request, response) {
 app.get('/setAttribute', function(request, response) {
 	var app = request.query.app;
 	var key = request.query.key;
-	var value = request.query.value;
+	var value = request.query.value || '';
 
 	if (!oc) {
 		oc = new owncloud('');

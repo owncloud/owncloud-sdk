@@ -6,7 +6,9 @@
   "keywords": [
     "owncloud",
     "api",
-    "ownCloud"
+    "ownCloud",
+    "javascript",
+    "client"
   ],
   "repository": {
     "type": "git",
@@ -17,9 +19,15 @@
   "bugs": {
     "url": "https://github.com/noveens/js-owncloud-client/issues"
   },
+  "scripts" : {
+    "test": "node_modules/.bin/jasmine ./owncloud/test/test.js"
+  },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
+  "devDependencies": {
+    "jasmine": "^3.5.2",
+    "jsdoc": "^3.4.3"
+  },
   "dependencies": {
-    "jsdoc": "^3.4.3",
     "querystring": "^0.2.0",
     "request": "^2.81.0",
     "utf8": "^2.1.2",

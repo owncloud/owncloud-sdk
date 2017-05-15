@@ -83,12 +83,7 @@ var querystring = require('querystring');
  * @param {string} 		URL 	URL of the ownCloud instance
  */
 function ownCloud(instance) {
-	console.log("Inited Library");
 	this._initRoutes();
-
-	if (!instance) {
-		instance = "localhost/core";
-	}
 
 	var slash = '';
 	if (instance.slice(-1) !== '/') {
@@ -100,30 +95,34 @@ function ownCloud(instance) {
 		http = 'http://';
 	}
 
-	this.instance = /*http + instance + slash*/'http://localhost/core/';
-	this._username = '';
-	this._password = '';
-	this._version = '';
-	this._capabilities = [];
+	this.instance = http + instance + slash;
+	this._username = null;
+	this._password = null;
+	this._version = null;
+	this._capabilities = null;
 }
 
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
  * @param {string} 		username 	name of the user to login
  * @param {string} 		password 	password of the user to login
- * @param {Function} 	callback 	error, body(status message)
+ * @param {Function} 	callback 	error, body(boolean)
  */
 ownCloud.prototype.login = function(username, password, callback) {
-	this._username = /*username*/'noveens';
-	this._password = /*password*/'123';
+	this._username = username;
+	this._password = password;
 
 	this._updateCapabilities(function (error, response, body) {
+		var send = null;
 		if (!error && response.statusCode == 200) {
-			callback(error, true);
+			send = true;
 		}
-		else {
-			callback(error, false);
+		if (!error) {
+			// always sending null instead of undefined
+			error = null;
 		}
+
+		callback(error, send);
 	});
 };
 
@@ -967,6 +966,10 @@ ownCloud.prototype.getConfig = function(callback) {
 			}
 		}
 
+		if (!error) {
+			error = null;
+		}
+
 		callback(error, ret);
 	});
 };
@@ -978,6 +981,19 @@ ownCloud.prototype.getConfig = function(callback) {
  * @param  {Function} callback error, body(object {key1 : value1, key2 : value2 etc...})
  */
 ownCloud.prototype.getAttribute = function(app, key, callback) {
+	var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args.push(arguments[i]);
+    }
+
+    callback = args.pop();
+    app = args.shift();
+    key = null;
+
+    if (args.length == 1) {
+    	key = args.shift();
+    }
+
 	var send = "getattribute";
 	if (app) {
 		send += '/' + encodeURIComponent(app);
@@ -1007,9 +1023,12 @@ ownCloud.prototype.getAttribute = function(app, key, callback) {
 					if (elements && elements.constructor !== Array) {
 						elements = [ elements ];
 					}
-
 					for (var i in elements) {
 						if (elements[i]) {
+							if (Object.keys(elements[i].value).length === 0) {
+								elements[i].value = '';
+							}
+
 							if (!key) {
 								send[elements[i].key] = elements[i].value;
 							}
@@ -1019,6 +1038,8 @@ ownCloud.prototype.getAttribute = function(app, key, callback) {
 							}
 						}
 					}
+
+					error = null;
 				}
 			}
 
@@ -1050,6 +1071,7 @@ ownCloud.prototype.setAttribute = function(app, key, value, callback) {
 
 				if (!error) {
 					status = true;
+					error = null;
 				}
 			}
 			callback(error, status);
@@ -1076,6 +1098,7 @@ ownCloud.prototype.deleteAttribute = function(app, key, callback) {
 
 			if (!error) {
 				deleted = true;
+				error = null;
 			}
 		}
 		callback(error, deleted);
@@ -1091,9 +1114,10 @@ ownCloud.prototype.getVersion = function(callback) {
 
 	if (!(this._version)) {
 		this._updateCapabilities(function (error, response, body) {
-			var ret;
+			var ret = null;
 			if (!error) {
 				ret = self._version;
+				error = null;
 			}
 			callback(error, ret);
 		});
@@ -1115,6 +1139,7 @@ ownCloud.prototype.getCapabilities = function(callback) {
 			var ret;
 			if (!error) {
 				ret = self._capabilities;
+				error = null;
 			}
 			callback(error, ret);
 		});
@@ -1135,6 +1160,9 @@ ownCloud.prototype.enableApp = function(appname, callback) {
 	this._makeOCSrequest('POST', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname),
 		function (error, response, body) {
 			if (body) {
+				if (!error) {
+					error = null;
+				}
 				self._OCSuserResponseHandler(error, response, body, callback);
 			}
 			else {
@@ -1348,13 +1376,13 @@ ownCloud.prototype._updateCapabilities = function(callback) {
 	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities", function(error, response, body) {
 		if (!error && response.statusCode == 200) {
 			var tree = parser.toJson(body, {object : true});
-			body = tree.ocs.data;
-			/*for (var app in body.capabilities) {
-				self._capabilities.push(app);
-			}*/
-			self._capabilities = body.capabilities;
-			//console.log(self._capabilities);
-			self._version = body.version.string + '-' + body.version.edition;
+			error = self._checkOCSstatus(tree);
+
+			if (!error) {
+				body = tree.ocs.data;
+				self._capabilities = body.capabilities;
+				self._version = body.version.string + '-' + body.version.edition;
+			}
 		}
 		callback(error, response, self._capabilities);
 	});
@@ -1420,6 +1448,15 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action, callback
 
 	// Start the request
 	request(options, function (error, response, body) {
+		// JSON / XML
+		if (response) { // Will not go in if owncloud instance isn't valid
+			var responseFormat = response.headers['content-type'].split(';')[0].split('/')[1];
+
+			if (responseFormat === "json" || responseFormat === "JSON") {
+				error = JSON.parse(body).message;
+				body = null;
+			}
+	    }
         callback(error, response, body);
 	});
 };
@@ -1456,10 +1493,13 @@ ownCloud.prototype._checkOCSstatus = function (json, acceptedCodes) {
 		acceptedCodes = [100];
 	}
 
-	var meta = json.ocs.meta;
+	var meta;
+	if (json.ocs) {
+		meta = json.ocs.meta;
+	}
 	var ret;
 
-	if (acceptedCodes.indexOf(parseInt(meta.statuscode)) == -1) {
+	if (meta && acceptedCodes.indexOf(parseInt(meta.statuscode)) === -1) {
 		ret = meta.message;
 
 		if (Object.keys(meta.message).length === 0) {
@@ -1477,8 +1517,11 @@ ownCloud.prototype._checkOCSstatus = function (json, acceptedCodes) {
  * @return {Number} status-code
  */
 ownCloud.prototype._checkOCSstatusCode = function (json) {
-	var meta = json.ocs.meta;
-	return parseInt(meta.statuscode);
+	if (json.ocs) {
+		var meta = json.ocs.meta;
+		return parseInt(meta.statuscode);
+	}
+	return null;
 };
 
 /**
@@ -1554,6 +1597,7 @@ ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, opt
 		}
 		
 		if (!error) {
+			error = null;
 			status = true;
 		}
 	}

@@ -4,6 +4,16 @@ language: node_js
 node_js:
   - 4.2.6
 
+env:
+  - CXX=g++-4.8
+  
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
+    packages:
+      - g++-4.8
+
 before_install:
   - sudo apt-get install g++ g++11
   - '[ "${TRAVIS_NODE_VERSION}" != "0.8" ] || npm install -g npm@3.5.2'

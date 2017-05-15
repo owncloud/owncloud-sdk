@@ -138,39 +138,50 @@ ownCloud.prototype.getApps = function(callback) {
 		if (!error) {
 			var tree = parser.toJson(body, {object : true});
 
-			body = tree.ocs.data.apps.element;
+			error = self._checkOCSstatus(tree);
 
-			for (var i=0;i<body.length;i++) {
-				send[body[i]] = false;
-			}
+			if (!error) {
+				body = tree.ocs.data.apps.element;
 
-			self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", 
-				function(error2, response2, body2) {
-					if (!error2) {
-						var tree = parser.toJson(body2, {object : true});
+				for (var i=0;i<body.length;i++) {
+					send[body[i]] = false;
+				}
 
-						body2 = tree.ocs.data.apps.element; 
-						/*<ocs>
-							<data>
-								<apps>
-									<element></element>
-									<element></element> ..
-								</apps>
-							</data>
-						</ocs>*/
+				self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", 
+					function(error2, response2, body2) {
+						if (!error2) {
+							var tree2 = parser.toJson(body2, {object : true});
 
-						for (var i=0;i<body2.length;i++) {
-							send[body2[i]] = true;
+							error2 = self._checkOCSstatus(tree2);
+
+							if (!error2) {
+								body2 = tree2.ocs.data.apps.element; 
+								/*<ocs>
+									<data>
+										<apps>
+											<element></element>
+											<element></element> ..
+										</apps>
+									</data>
+								</ocs>*/
+
+								for (var i=0;i<body2.length;i++) {
+									send[body2[i]] = true;
+								}
+								error2 = null;
+							}
+							callback(error2, send);
 						}
 
-						callback(error2, send);
+						else {
+							callback(error2, null);
+						}
 					}
-
-					else {
-						callback(error2, body2);
-					}
-				}
-			);
+				);
+			}
+			else {
+				callback(error, null);
+			}
 		}
 
 		else {

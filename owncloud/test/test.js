@@ -314,7 +314,7 @@ describe("Currently testing apps management,", function () {
 	});
 });
 
-describe("Currently testing file/folder sharing,", function () {
+/*describe("Currently testing file/folder sharing,", function () {
 	beforeEach(function () {
 		oc = new ownCloud(config.owncloudURL);
 		oc.login(config.username, config.password, function() {});
@@ -509,4 +509,4 @@ describe("Currently testing group management,", function () {
 
 		oc.getApps(callback);
 	});
-});
+});*/

@@ -3,7 +3,7 @@ var testId = new Date().getTime();
 
 var config = {
     // Change this to your ownCloud's URL
-    'owncloudURL': 'noveen.tk/core',
+    'owncloudURL': 'noveen.tk/testInstance/core',
     // ownCloud login
     'username': 'testUser',
     // ownCloud password

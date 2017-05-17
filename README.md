@@ -51,12 +51,12 @@ Now isn't that cool? :wink:
 To build the jsdocs, type this command and follow the instructions on the terminal :
 
 ```
-$ make docs
+$ make jsdocs
 ```
 
 ## Unit tests
 
-The following command will run all unit tests. Before running the command, make sure you have edited the `config.js` file according to the comments above each config.
+The following command will run all unit tests. Before running the command, make sure you have edited the `owncloud/test/config.js` file according to the comments above each config.
 
 ```
 $ make test

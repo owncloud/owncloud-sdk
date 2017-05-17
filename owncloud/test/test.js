@@ -2,8 +2,34 @@ var config = require('./config.js');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
 var oc;
+var share2user = null;
+var testGroup = null;
+var shareIDs = {};
 
 describe("Currently testing Login and initLibrary,", function() {
+	beforeAll(function (done) {
+		oc = new ownCloud(config.owncloudURL);
+
+		var callback2 = function (error, data) {
+			if (!error && data === true) {
+				testGroup = config.testGroup;
+			}
+
+			done();
+		}
+
+		var callback = function (error, data) {
+			if (!error && data === true) {
+				share2user = config.owncloudShare2user;
+			}
+
+			oc.createGroup(config.testGroup, callback2);
+		};
+
+		oc.login(config.username, config.password, function (error, data) {
+			oc.createUser(config.owncloudShare2user, "sharePassword", callback);
+		});
+	});
 	beforeEach(function () {
 		oc = null;
 	});
@@ -314,135 +340,227 @@ describe("Currently testing apps management,", function () {
 	});
 });
 
-/*describe("Currently testing file/folder sharing,", function () {
+describe("Currently testing file/folder sharing,", function () {
 	beforeEach(function () {
 		oc = new ownCloud(config.owncloudURL);
 		oc.login(config.username, config.password, function() {});
 	});
 
-	it('checking method : shareFileWithLink', function (done) {
-		var callback = function (error, data) {
-			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+	afterAll(function (done) {
+		oc = new ownCloud(config.owncloudURL);
+		oc.login(config.username, config.password, function() {});
 
+		var callback2 = function (error, data) {
 			done();
 		};
 
-		oc.getApps(callback);
+		var callback = function (error, data) {
+			oc.deleteGroup(testGroup, callback2);
+		};
+
+		oc.deleteUser(share2user, callback);
 	});
 
-	it('checking method : updateShare', function (done) {
+	it('checking method : shareFileWithLink with existent file', function (done) {
+		var testFiles = config.testFile;
+
+		if (testFiles === '') {
+			testFiles = ['/test.txt', '/test space and + and #.txt', '/文件.txt'];
+
+			for (var i=0;i<3;i++) {
+				oc.putFileContents(testFiles[i], 'testContent', function (error, data) {});
+			}
+		}
+		else {
+			testFiles = [ oc._normalizePath(testFiles) ];
+		}
 		var callback = function (error, data) {
 			expect(error).toBe(null);
 			expect(data).not.toBe(null);
+			expect(typeof(data)).toBe('object');
+			expect(testFiles.indexOf(utf8.decode(data.getPath()))).toBeGreaterThan(-1);
+			expect(typeof(data.getId())).toBe('number');
+			expect(typeof(data.getLink())).toBe('string');
+			expect(typeof(data.getToken())).toBe('string');
 
 			done();
 		};
 
-		oc.getApps(callback);
+		for (var i=0;i<testFiles.length;i++) {
+			oc.shareFileWithLink(testFiles[i], {password : 'testPassword'}, callback);
+		}
 	});
 
-	it('checking method : shareFileWithUser', function (done) {
-		var callback = function (error, data) {
-			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+	it('checking method : shareFileWithLink with non-existent file', function (done) {
+		var testFile = 'nonExistentTestFile' + new Date().getTime();
 
+		var callback = function (error, data) {
+			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(data).toBe(null);
+			
 			done();
 		};
 
-		oc.getApps(callback);
+		oc.shareFileWithLink(testFile, {password : 'testPassword'}, callback);
 	});
 
-	it('checking method : shareFileWithGroup', function (done) {
+	it('checking method : shareFileWithUser with existent File', function (done) {
+		var testFiles = config.testFile;
+
+		if (testFiles === '') {
+			// already present since created in the previous to previous test
+			testFiles = ['/test.txt', '/test space and + and #.txt', '/文件.txt'];
+		}
+		else {
+			testFiles = [ oc._normalizePath(testFiles) ];
+		}
+
 		var callback = function (error, data) {
 			expect(error).toBe(null);
 			expect(data).not.toBe(null);
+			expect(typeof(data)).toBe('object');
+			expect(typeof(data.getId())).toBe('number');
+			shareIDs[data.getPath()] = data.getId();
 
 			done();
 		};
 
-		oc.getApps(callback);
+		for (var i=0;i<testFiles.length;i++) {
+			oc.shareFileWithUser(testFiles[i], config.owncloudShare2user, callback);
+		}
 	});
 
-	it('checking method : getShares', function (done) {
+	it('checking method : shareFileWithUser for the user file is shared with', function (done) {
+		oc.login(share2user, "sharePassword", function (error, data) {
+			for (var key in shareIDs) {
+				oc.getShare(shareIDs[key], callback);
+			}
+		});
+
 		var callback = function (error, data) {
 			expect(error).toBe(null);
 			expect(data).not.toBe(null);
+			expect(typeof(data)).toBe('object');
+			expect(typeof(data.getId())).toBe('number');
+			expect(data.getShareWith()).toEqual(share2user);
 
 			done();
 		};
-
-		oc.getApps(callback);
 	});
 
-	it('checking method : isShared', function (done) {
+	it('checking method : shareFileWithGroup with existent file', function (done) {
 		var callback = function (error, data) {
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(typeof(data)).toBe("object");
+			expect(data.getPermissions()).toEqual(19);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		for (var key in shareIDs) {
+			oc.shareFileWithGroup(key, testGroup, {perms: 19}, callback);
+		}
 	});
 
-	it('checking method : getShare', function (done) {
+	it('checking method : shareFileWithGroup with non existent file', function (done) {
 		var callback = function (error, data) {
-			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(data).toBe(null);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		for (var key in shareIDs) {
+			oc.shareFileWithGroup('nonExistentTestFile', testGroup, {perms: 19}, callback);
+		}
 	});
 
-	it('checking method : listOpenRemoteShare', function (done) {
+	it('checking method : isShared with non existent file', function (done) {
 		var callback = function (error, data) {
-			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(data).toBe(false);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		oc.isShared('nonExistentTestFile', callback);
 	});
 
-	it('checking method : acceptOpenRemoteShare', function (done) {
+	// PLEASE UN-COMMENT ME AFTER IMPLEMENTING "putFileContents"
+
+	/*it('checking method : isShared with non shared but existent file', function (done) {
 		var callback = function (error, data) {
-			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(data).toBe(null);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			oc.isShared('existentFile', callback);
+		};
+
+		oc.putFileContents('existentFile', 'testContent', callback2);
+	});*/
+
+	it('checking method : isShared with shared file', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			done();
+		};
+
+		for (var key in shareIDs) {
+			oc.isShared(key, callback);
+		}
 	});
 
-	it('checking method : declineOpenRemoteShare', function (done) {
-		var callback = function (error, data) {
-			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+	it('checking method : deleteShare with existent share', function (done) {
+		var callbackFalse = function (error, data) {
+			expect(error).toEqual('Wrong share ID, share doesn\'t exist');
+			expect(data).toBe(null);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			oc.getShare(this.id, callbackFalse);
+		};
+
+		var callbackTrue = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toBe("object");
+			this.id = data.getId();
+
+			oc.deleteShare(data.getId(), callback);
+		};
+
+		for (var key in shareIDs) {
+			oc.getShare(shareIDs[key], callbackTrue);
+		}
 	});
 
-	it('checking method : deleteShare', function (done) {
+	it('checking method : deleteShare with non existent share', function (done) {
 		var callback = function (error, data) {
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			//ownCloud API somehow returns no error when a non-existent share is deleted
+			expect(data).toBe(true);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		oc.deleteShare(-1, callback);
 	});
 });
 
-describe("Currently testing user management,", function () {
+/*describe("Currently testing user management,", function () {
 	beforeEach(function () {
 		oc = new ownCloud(config.owncloudURL);
 		oc.login(config.username, config.password, function() {});

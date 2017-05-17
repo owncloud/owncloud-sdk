@@ -217,7 +217,7 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
     	optionalParams = args[0];
 
 	    if ('perms' in optionalParams) {
-		    postData['permissions'] = optionalParams['perms'];
+		    postData['permissions'] = parseInt(optionalParams['perms']);
 	    }
 
 	    if ('publicUpload' in optionalParams) {
@@ -237,7 +237,7 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
         'shares',
         postData,
         function(error, response, body) {
-        	var share;
+        	var share = null;
 
 		    var tree = parser.toJson(body, {object : true});
 		    
@@ -249,6 +249,8 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
 				body = tree.ocs.data;
 
 			    share = new shareInfo(body);
+
+			    error = null;
 			}
 			callback(error, share);
         }
@@ -313,6 +315,8 @@ ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, 
 				body = tree.ocs.data;
 
 			    share = new shareInfo(body);
+
+			    error = null;
 			}
 			callback(error, share);
         }
@@ -360,7 +364,7 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
         'shares',
         postData,
         function(error, response, body) {
-        	var share;
+        	var share = null;
 
 		    var tree = parser.toJson(body, {object : true});
 		    
@@ -372,6 +376,8 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
 				body = tree.ocs.data;
 
 			    share = new shareInfo(body);
+
+			    error = null;
 			}
 			callback(error, share);
         }
@@ -481,6 +487,7 @@ ownCloud.prototype.isShared = function(path, callback) {
 
 				if (!err) {
 					bod = shares.length > 0;
+					err = null;
 				}
 
 				callback(err, bod);
@@ -504,13 +511,20 @@ ownCloud.prototype.getShare = function(shareId, callback) {
 
 	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'shares/' + shareId.toString(), 
 		function (error, response, body) {
-			var shareInstance;
+			var shareInstance = null;
 
 			if (!error && response.statusCode == 200) {
 				var tree = parser.toJson(body, {object : true});
-		    	var share = tree.ocs.data.element;
 
-		    	shareInstance = new shareInfo(share);
+				error = self._checkOCSstatus(tree);
+
+				if (!error) {
+			    	var share = tree.ocs.data.element;
+
+			    	shareInstance = new shareInfo(share);
+
+			    	error = null;
+				}
 			}
 
 			callback(error, shareInstance);
@@ -1390,6 +1404,7 @@ ownCloud.prototype._updateCapabilities = function(callback) {
 			error = self._checkOCSstatus(tree);
 
 			if (!error) {
+				// console.log(tree);
 				body = tree.ocs.data;
 				self._capabilities = body.capabilities;
 				self._version = body.version.string + '-' + body.version.edition;

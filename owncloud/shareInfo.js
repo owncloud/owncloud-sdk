@@ -37,7 +37,7 @@ shareInfo.prototype.getShareType = function() {
  * @returns {string} shareWith of share
  */
 shareInfo.prototype.getShareWith = function() {
-	if ('shareWith' in this.shareInfo) {
+	if (this.shareInfo.hasOwnProperty('share_with')) {
 		return this.shareInfo['share_with'];
 	}
 	return null;
@@ -48,7 +48,7 @@ shareInfo.prototype.getShareWith = function() {
  * @returns {string} display name of share
  */
 shareInfo.prototype.getShareWithDisplayName = function() {
-	if ('share_with_displayname' in this.shareInfo) {
+	if (this.shareInfo.hasOwnProperty('share_with_displayname')) {
 		return this.shareInfo['share_with_displayname'];
 	}
 	return null;
@@ -59,7 +59,7 @@ shareInfo.prototype.getShareWithDisplayName = function() {
  * @returns {string} Path of share
  */
 shareInfo.prototype.getPath = function() {
-	if ('path' in this.shareInfo) {
+	if (this.shareInfo.hasOwnProperty('path')) {
 		return this.shareInfo['path'];
 	}
 	return null;
@@ -78,9 +78,7 @@ shareInfo.prototype.getPermissions = function() {
  * @returns {Number} Share time of share
  */
 shareInfo.prototype.getShareTime = function() {
-	return datetime.datetime.fromtimestamp(
-    	this._getInt('stime')
-    );
+	this._getInt('stime');
 };
 
 /**
@@ -88,13 +86,7 @@ shareInfo.prototype.getShareTime = function() {
  * @returns {Number} Expiration time of share
  */
 shareInfo.prototype.getExpiration = function() {
-	var exp = this._getInt('expiration')
-    if (exp) {
-		return datetime.datetime.fromtimestamp(
-		    exp
-		);
-	}
-    return null;
+	return this._getInt('expiration') || null;
 };
 
 /**
@@ -102,7 +94,7 @@ shareInfo.prototype.getExpiration = function() {
  * @returns {string} token of share
  */
 shareInfo.prototype.getToken = function() {
-	if ('token' in this.shareInfo) {
+	if (this.shareInfo.hasOwnProperty('token')) {
         return this.shareInfo['token']
     }
 	return null;
@@ -113,7 +105,7 @@ shareInfo.prototype.getToken = function() {
  * @returns {string} Link of share
  */
 shareInfo.prototype.getLink = function() {
-	if ('url' in this.shareInfo) {
+	if (this.shareInfo.hasOwnProperty('url')) {
 		return this.shareInfo['url'];
 	}
 	return null;
@@ -124,7 +116,7 @@ shareInfo.prototype.getLink = function() {
  * @returns {string} UID owner of share
  */
 shareInfo.prototype.getUidOwner = function () {
-    if ('uid_file_owner' in this.shareInfo) {
+    if (this.shareInfo.hasOwnProperty('uid_file_owner')) {
         return this.shareInfo['uid_file_owner'];
     }
     return null;
@@ -135,7 +127,7 @@ shareInfo.prototype.getUidOwner = function () {
  * @returns {string} name of owner of share
  */
 shareInfo.prototype.getDisplaynameOwner = function () {
-    if ('displayname_file_owner' in this.shareInfo) {
+    if (this.shareInfo.hasOwnProperty('displayname_file_owner')) {
         return this.shareInfo['displayname_file_owner'];
     }
     return null;

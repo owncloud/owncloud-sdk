@@ -6,6 +6,12 @@ ifndef VERBOSE
 .SILENT:
 endif
 
+swagger:
+	node docs-swagger/server.js
+
+test:
+	npm test
+
 docs:
 	#Install jsdoc if it doesn't exist
 	if [ ! -f node_modules/.bin/jsdoc ] ; then sudo npm i ; fi;

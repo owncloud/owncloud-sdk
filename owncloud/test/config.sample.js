@@ -10,7 +10,8 @@ var config = {
     'password': 'testPassword',
     // test user whom we want to share a file (make sure the user shouldn't exist)
     'owncloudShare2user': 'owncloud',
-    // test file/folder to share, leave empty to create a new file
+    // test file/folder to share, leave empty to create a new file, 
+    // otherwise make sure the file exists
     'testFile': 'testFile.txt',
     // test group, uses to add owncloud_share2user to it etc
     'testGroup': 'testGroup',

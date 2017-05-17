@@ -12,7 +12,7 @@ swagger:
 test:
 	npm test
 
-docs:
+jsdocs:
 	#Install jsdoc if it doesn't exist
 	if [ ! -f node_modules/.bin/jsdoc ] ; then sudo npm i ; fi;
 	

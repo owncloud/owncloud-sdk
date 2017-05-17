@@ -39,10 +39,9 @@ oc.shareFileWithLink('linkToYourFile', function(error, shareInfo) {
 Want to see a cool live demo of the library in action? Just type these and see it for yourself :
 
 ```
-$ cd docs-swagger
-$ node server.js
+$ make swagger
 ```
-If you open the link showed by running the node server, you will see something like this :
+If you open the link showed by running the above command, you will see something like this :
 # ![SwaggerDemo](http://i63.tinypic.com/33o41s0.jpg)
 Here, you can click on any method and type in values, to experiment with the methods in the browser itself!<br>
 Now isn't that cool? :wink:
@@ -57,7 +56,11 @@ $ make docs
 
 ## Unit tests
 
-Coming up.
+The following command will run all unit tests. Before running the command, make sure you have edited the `config.js` file according to the comments above each config.
+
+```
+$ make test
+```
 
 ## Team
 

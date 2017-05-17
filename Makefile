@@ -10,6 +10,7 @@ swagger:
 	node docs-swagger/server.js
 
 test:
+	if [ ! -f owncloud/test/config.js ] ; then cp owncloud/test/config.sample.js owncloud/test/config.js ; fi;
 	npm test
 
 jsdocs:

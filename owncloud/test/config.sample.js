@@ -11,7 +11,7 @@ var config = {
     // test user whom we want to share a file (make sure the user shouldn't exist)
     'owncloudShare2user': 'owncloud',
     // test file/folder to share, leave empty to create a new file
-    'testFile': '',
+    'testFile': 'testFile.txt',
     // test group, uses to add owncloud_share2user to it etc
     'testGroup': 'testGroup',
     // remote root path to use for testing

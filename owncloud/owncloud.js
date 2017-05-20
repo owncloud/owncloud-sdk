@@ -468,6 +468,7 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
     });
 };
 
+// PLEASE UN-COMMENT ME AFTER IMPLEMENTING "fileInfo"
 /**
  * Checks wether a path is already shared
  * @param  {string}   path     path to the share to be checked

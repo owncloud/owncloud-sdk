@@ -4,11 +4,12 @@ var cors = require('cors');
 var app = express();
 var oc;
 
+app.use(express.static('docs-swagger/assets'));
 app.use(express.static('assets'));
 app.use(cors());
 
 app.get('/', function(request, response) {
-	response.redirect("doc.html");
+	response.redirect("index.html");
 });
 
 app.get('/initLibrary', function(request, response) {

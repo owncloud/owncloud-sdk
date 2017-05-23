@@ -13,6 +13,9 @@ var config = {
     // test file/folder to share, leave empty to create a new file, 
     // otherwise make sure the file exists
     'testFile': 'testFile.txt',
+    // test folder to share, leave empty to create a new folder,
+    // otherwise make sure the file exists
+    'testFolder': 'testFolder',
     // test group, uses to add owncloud_share2user to it etc
     'testGroup': 'testGroup' + testId,
     // remote root path to use for testing

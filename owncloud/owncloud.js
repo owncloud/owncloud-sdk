@@ -111,9 +111,11 @@ function ownCloud(instance) {
 ownCloud.prototype.login = function(username, password, callback) {
 	this._username = username;
 	this._password = password;
+	var self = this;
 
 	this._updateCapabilities(function (error, response, body) {
 		var send = null;
+
 		if (!error && response.statusCode == 200) {
 			send = true;
 		}
@@ -463,6 +465,7 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
 	    		var share = new shareInfo(elements[i]);
 	    		shares.push(share);
 	    	}
+	    	error = null;
 	    }
     	callback(error, shares);
     });
@@ -1341,6 +1344,7 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
     }
 
     var postData = {};
+    var self = this;
 
     if (optionalParams.perms) {
     	postData.permissions = optionalParams.perms;
@@ -1355,9 +1359,15 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
     this._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
     	'shares/' + encodeURIComponent(shareId.toString()), postData, 
     	function (error, response, body) {
-    		var ret;
+    		var ret = null;
     		if (!error && response.statusCode === 200) {
-    			ret = true;
+    			var tree = parser.toJson(body, {object: true});
+    			error = self._checkOCSstatus(tree);
+
+    			if (!error) {
+    				error = null;
+	    			ret = true;
+    			}
     		}
 
     		callback(error, ret);
@@ -1476,6 +1486,7 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action, callback
 	// Start the request
 	request(options, function (error, response, body) {
 		// JSON / XML
+		
 		if (response) { // Will not go in if owncloud instance isn't valid
 			var responseFormat = response.headers['content-type'].split(';')[0].split('/')[1];
 

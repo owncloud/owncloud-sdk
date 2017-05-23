@@ -5,17 +5,26 @@ var oc;
 var share2user = null;
 var testGroup = null;
 var shareIDs = {};
+var sharedFilesByLink = {};
+var testFolder = config.testFolder || 'testFolder' + new Date().getTime();
+var testFolderShareID = null;
 
 describe("Currently testing Login and initLibrary,", function() {
+	// UNCOMMENT INSIDE AFTER COMPLETING createFolder
 	beforeAll(function (done) {
 		oc = new ownCloud(config.owncloudURL);
+
+		var callback3 = function (error, data) {
+			done();
+		};
 
 		var callback2 = function (error, data) {
 			if (!error && data === true) {
 				testGroup = config.testGroup;
 			}
 
-			done();
+			//oc.createFolder(testFolder, callback3);
+			callback3(null, null);
 		}
 
 		var callback = function (error, data) {
@@ -30,6 +39,7 @@ describe("Currently testing Login and initLibrary,", function() {
 			oc.createUser(config.owncloudShare2user, "sharePassword", callback);
 		});
 	});
+
 	beforeEach(function () {
 		oc = null;
 	});
@@ -346,10 +356,35 @@ describe("Currently testing file/folder sharing,", function () {
 		oc.login(config.username, config.password, function() {});
 	});
 
-	afterAll(function (done) {
+	// UN-COMMENT AFTER COMPLETING deleteFile, deleteFolder
+	/*afterAll(function (done) {
 		oc = new ownCloud(config.owncloudURL);
 		oc.login(config.username, config.password, function() {});
 
+		var callback4 = function (error, data) {
+			done();
+		}
+
+		var callback3 = function (error, data) {
+			oc.deleteFolder(testFolder, callback4);
+		};
+		
+		var callback2 = function (error, data) {
+			oc.deleteFile('existentFile', callback3);
+		};
+
+		var callback = function (error, data) {
+			oc.deleteGroup(testGroup, callback2);
+		};
+
+		oc.deleteUser(share2user, callback);
+	});*/
+
+	// DELETE THIS METHOD AFTER COMPLETING deleteFile
+	afterAll(function (done) {
+		oc = new ownCloud(config.owncloudURL);
+		oc.login(config.username, config.password, function() {});
+		
 		var callback2 = function (error, data) {
 			done();
 		};
@@ -382,12 +417,13 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(typeof(data.getId())).toBe('number');
 			expect(typeof(data.getLink())).toBe('string');
 			expect(typeof(data.getToken())).toBe('string');
+			sharedFilesByLink[data.getPath()] = data.getId();
 
 			done();
 		};
 
 		for (var i=0;i<testFiles.length;i++) {
-			oc.shareFileWithLink(testFiles[i], {password : 'testPassword'}, callback);
+			oc.shareFileWithLink(testFiles[i], callback);
 		}
 	});
 
@@ -487,7 +523,6 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	// PLEASE UN-COMMENT ME AFTER IMPLEMENTING "putFileContents"
-
 	/*it('checking method : isShared with non shared but existent file', function (done) {
 		var callback = function (error, data) {
 			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
@@ -517,6 +552,198 @@ describe("Currently testing file/folder sharing,", function () {
 		for (var key in shareIDs) {
 			oc.isShared(key, callback);
 		}
+	});
+
+	it('checking method : getShare with existent share', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toBe('object');
+			expect(shareIDs.hasOwnProperty(data.getId())).toBeGreaterThan(-1);
+
+			done();
+		};
+
+		for (var key in shareIDs) {
+			oc.getShare(shareIDs[key], callback);
+		}
+	});
+
+	it('checking method : getShare with existent share', function (done) {
+		var callback = function (error, data) {
+			expect(error).toEqual('Wrong share ID, share doesn\'t exist');
+			expect(data).toBe(null);
+
+			done();
+		};
+
+		for (var key in shareIDs) {
+			oc.getShare(-1, callback);
+		}
+	});
+
+	it('checking method : getShares for shared file', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toBe('object');
+			var flag = 0;
+			for (var i=0;i<data.length;i++) {
+				var share = data[i];
+				if (shareIDs.hasOwnProperty(share.getId()) > -1) {
+					flag = 1;
+				}
+			}
+			expect(flag).toEqual(1);
+
+			done();
+		};
+
+		for (var key in shareIDs) {
+			oc.getShares(key, callback);
+		}
+	});
+
+	it('checking method : getShares for non existent file', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(typeof(data)).toBe('object');
+			expect(data.length).toEqual(0);
+			
+			done();
+		};
+
+		for (var key in shareIDs) {
+			oc.getShares('nonExistentTestFile', callback);
+		}
+	});
+
+	// PLEASE UN-COMMENT ME AFTER IMPLEMENTING "putFileContents"
+	/*it('checking method : getShares for existent but non shared file', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(data).toBe(null);
+
+			done();
+		};
+
+		// already have made a new non shared file in the test for isShared
+		oc.getShares('existentFile', callback);
+	});*/
+
+	it('checking method : updateShare for existent share, editing permissions', function (done) {
+		var callback3 = function (error, data) {
+			expect(error).toBe('Can\'t change permissions for public share links');
+			expect(data).toBe(null);
+
+			done();
+		};
+
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toBe('object');
+			testFolderShareID = data.getId();
+			oc.updateShare(testFolderShareID, {perms: 31}, callback3); // max-permissions
+		};
+
+		oc.shareFileWithLink(testFolder, callback2);	
+	});
+
+	it('checking method : updateShare for existent share, confirming changed permissions', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			// permissions would still be read only as the share is public
+			expect(data.getPermissions()).toEqual(1);
+			
+			done();
+		};
+
+		oc.getShare(testFolderShareID, callback);
+	});
+
+	it('checking method : updateShare for existent share, making publicUpload true', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			done();
+		};
+
+		oc.updateShare(testFolderShareID, {publicUpload: true}, callback);
+	});
+
+	it('checking method : updateShare for existent share, confirming publicUpload', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data.getPermissions() & oc.OCS_PERMISSION_CREATE).toBeGreaterThan(0);
+			expect(data.getPermissions() & oc.OCS_PERMISSION_UPDATE).toBeGreaterThan(0);
+
+			done();
+		};
+
+		oc.getShare(testFolderShareID, callback);
+	});
+
+	it('checking method : updateShare for existent share, adding password', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			done();
+		};
+
+		oc.updateShare(testFolderShareID, {password: 'testPassword'}, callback);
+	});
+
+	it('checking method : updateShare for existent share, confirming password', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data.getShareWith())).toEqual('string');
+			expect(typeof(data.getShareWithDisplayName())).toEqual('string');
+
+			done();
+		};
+
+		oc.getShare(testFolderShareID, callback);
+	});
+
+	it('checking method : updateShare for existent share with user, editing permissions', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+
+			done();
+		};
+
+		var maxPerms = oc.OCS_PERMISSION_READ + oc.OCS_PERMISSION_UPDATE + oc.OCS_PERMISSION_SHARE;
+
+		for (var key in shareIDs) {
+			oc.updateShare(shareIDs[key], {perms: maxPerms}, callback);
+		}
+	});
+
+	it('checking method : updateShare for existent share with user, confirming permissions', function (done) {
+		var maxPerms = oc.OCS_PERMISSION_READ + oc.OCS_PERMISSION_UPDATE + oc.OCS_PERMISSION_SHARE;
+		
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data.getPermissions()).toEqual(maxPerms);
+
+			done();
+		};
+
+		for (var key in shareIDs) {
+			oc.getShare(shareIDs[key], callback);
+		}
+	});
+
+	it('checking method : updateShare for non existent share', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe('Wrong share ID, share doesn\'t exist');
+			expect(data).toBe(null);
+
+			done();
+		};
+
+		oc.updateShare(-1, callback);
 	});
 
 	it('checking method : deleteShare with existent share', function (done) {

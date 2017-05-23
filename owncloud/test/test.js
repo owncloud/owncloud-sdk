@@ -8,6 +8,7 @@ var shareIDs = {};
 var sharedFilesByLink = {};
 var testFolder = config.testFolder || 'testFolder' + new Date().getTime();
 var testFolderShareID = null;
+var timeRightNow = new Date().getTime();
 
 describe("Currently testing Login and initLibrary,", function() {
 	// UNCOMMENT INSIDE AFTER COMPLETING createFolder
@@ -395,6 +396,7 @@ describe("Currently testing file/folder sharing,", function () {
 
 		oc.deleteUser(share2user, callback);
 	});
+
 
 	it('checking method : shareFileWithLink with existent file', function (done) {
 		var testFiles = config.testFile;
@@ -787,10 +789,466 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 });
 
-/*describe("Currently testing user management,", function () {
+describe("Currently testing user management,", function () {
 	beforeEach(function () {
 		oc = new ownCloud(config.owncloudURL);
 		oc.login(config.username, config.password, function() {});
+	});
+
+	afterAll(function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+			
+			done();
+		};
+
+		oc.deleteGroup(config.testGroup, callback);
+	});
+
+	beforeAll(function (done) {
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+			
+			done();
+		};
+
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+			
+			oc.createGroup(config.testGroup, callback2);
+		};
+
+		oc.createUser('existingUser' + timeRightNow, 'password', callback);
+	});
+
+	it('checking method : getUser on an existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.displayname).toEqual(config.username);
+
+			done();
+		};
+		oc.getUser(config.username, callback);
+	});
+
+	it('checking method : getUser on a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe('The requested user could not be found');
+			expect(data).toBe(null);
+
+			done();
+		};
+		oc.getUser('nonExistentUsername' + timeRightNow, callback);
+	});
+
+	it('checking method : createUser', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.displayname).toEqual('existingUser' + timeRightNow);
+			
+			done();
+		};
+
+		oc.getUser('existingUser' + timeRightNow, callback);
+	});
+
+	it('checking method : searchUsers', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.indexOf(config.username)).toBeGreaterThan(-1);
+			expect(data.indexOf('existingUser' + timeRightNow)).toBeGreaterThan(-1);
+			
+			done();
+		};
+
+		oc.searchUsers('', callback);
+	});
+
+	it('checking method : searchUsers with zero user results', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.length).toEqual(0);
+			
+			done();
+		};
+
+		oc.searchUsers('nonExistentUsername' + timeRightNow, callback);
+	});
+
+	it('checking method : userExists with existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			done();
+		};
+
+		oc.userExists(config.username, callback);
+	});
+
+	it('checking method : userExists with non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(false);
+			
+			done();
+		};
+
+		oc.userExists('nonExistentUsername' + timeRightNow, callback);
+	});
+
+	it('checking method : setUserAttribute of an existent user, allowed attribute', function (done) {
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.email).toEqual('asd@a.com');
+			
+			done();
+		};
+
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			oc.getUser('existingUser' + timeRightNow, callback2);
+		};
+
+		oc.setUserAttribute('existingUser' + timeRightNow, 'email', 'asd@a.com', callback);
+	});
+
+	it('checking method : setUserAttribute of an existent user, not allowed attribute', function (done) {
+		var callback = function (error, data) {
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('102');
+			expect(data).toEqual(false);
+				
+			done();
+		};
+
+		oc.setUserAttribute('existingUser' + timeRightNow, 'email', 'äöüää_sfsdf+$%/)%&=', callback);
+	});
+
+	it('checking method : setUserAttribute of a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('997');
+			expect(data).toEqual(false);
+				
+			done();
+		};
+
+		oc.setUserAttribute('nonExistingUser' + timeRightNow, 'email', 'asd@a.com', callback);
+	});
+
+	it('checking method : addUserToGroup with existent user, existent group', function (done) {
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			done();
+		};
+
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			oc.userIsInGroup('existingUser' + timeRightNow, config.testGroup, callback2);
+		};
+
+		oc.addUserToGroup('existingUser' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : addUserToGroup with existent user, non existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('102');
+			
+			done();
+		};
+
+		oc.addUserToGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow, callback);
+	});
+
+	it('checking method : addUserToGroup with non existent user, existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('103');
+			
+			done();
+		};
+
+		oc.addUserToGroup('nonExistentUsername' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : getUserGroups with an existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1);
+
+			done();
+		};
+
+		oc.getUserGroups('existingUser' + timeRightNow, callback);
+	});
+
+	it('checking method : getUserGroups with a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(typeof(data)).toBe('object');
+			expect(data.length).toEqual(0);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('998');
+			
+			done();
+		};
+
+		oc.getUserGroups('nonExistingUser' + timeRightNow, callback);
+	});
+
+	it('checking method : userIsInGroup with an existent user, existent group', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+
+			done();
+		};
+
+		oc.userIsInGroup('existingUser' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : userIsInGroup with an existent user but a group the user isn\'t part of', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(false);
+
+			done();
+		};
+
+		oc.userIsInGroup('existingUser' + timeRightNow, 'admin', callback);
+	});
+
+	it('checking method : userIsInGroup with an existent user, non existent group', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(false);
+
+			done();
+		};
+
+		oc.userIsInGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow, callback);
+	});
+
+	it('checking method : userIsInGroup with a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(data).toEqual(null);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('998');
+
+			done();
+		};
+
+		oc.userIsInGroup('nonExistingUser' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : getUser with an existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.displayname).toEqual('existingUser' + timeRightNow);
+
+			done();
+		};
+
+		oc.getUser('existingUser' + timeRightNow, callback);
+	});
+
+	it('checking method : getUser with a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(data).toEqual(null);
+			expect(error).toEqual('The requested user could not be found');
+
+			done();
+		};
+
+		oc.getUser('nonExistentUsername' + timeRightNow, callback);
+	});
+
+	it('checking method : removeUserFromGroup with existent user, existent group', function (done) {
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(false);
+			
+			done();
+		};
+
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			oc.userIsInGroup('existingUser' + timeRightNow, config.testGroup, callback2);
+		};
+
+		oc.removeUserFromGroup('existingUser' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : removeUserFromGroup with existent user, non existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('102');
+			
+			done();
+		};
+
+		oc.removeUserFromGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow, callback);
+	});
+
+	it('checking method : removeUserFromGroup with non existent user, existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('103');
+			
+			done();
+		};
+
+		oc.removeUserFromGroup('nonExistentUsername' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : addUserToSubadminGroup with existent user, existent group', function (done) {
+		var callback2 = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			done();
+		};
+
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			oc.userIsInSubadminGroup('existingUser' + timeRightNow, config.testGroup, callback2);
+		};
+
+		oc.addUserToSubadminGroup('existingUser' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : addUserToSubadminGroup with existent user, non existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(error).toBe('Group:nonExistingGroup' + timeRightNow + ' does not exist');
+			
+			done();
+		};
+
+		oc.addUserToSubadminGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow, callback);
+	});
+
+	it('checking method : addUserToSubadminGroup with non existent user, existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(error).toBe('User does not exist');
+			
+			done();
+		};
+
+		oc.addUserToSubadminGroup('nonExistentUsername' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : getUserSubadminGroups with an existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(typeof(data)).toEqual('object');
+			expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1);
+			
+			done();
+		};
+
+		oc.getUserSubadminGroups('existingUser' + timeRightNow, callback);
+	});
+
+	it('checking method : getUserSubadminGroups with a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe('User does not exist');
+			expect(typeof(data)).toBe('object');
+			expect(data.length).toEqual(0);
+			
+			done();
+		};
+
+		oc.getUserSubadminGroups('nonExistentUsername' + timeRightNow, callback);
+	});
+
+	it('checking method : userIsInSubadminGroup with existent user, existent group', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toEqual(true);
+			
+			done();
+		};
+
+		oc.userIsInSubadminGroup('existingUser' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : userIsInSubadminGroup with existent user, non existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(error).toBe(null);
+			
+			done();
+		};
+
+		oc.userIsInSubadminGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow, callback);
+	});
+
+	it('checking method : userIsInSubadminGroup with non existent user, existent group', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(null);
+			expect(error).toBe('User does not exist');
+			
+			done();
+		};
+
+		oc.userIsInSubadminGroup('nonExistentUsername' + timeRightNow, config.testGroup, callback);
+	});
+
+	it('checking method : deleteUser on a non existent user', function (done) {
+		var callback = function (error, data) {
+			expect(data).toBe(false);
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('101');
+
+			done();
+		};
+
+		oc.deleteUser('nonExistingUser' + timeRightNow, callback);
+	});
+
+	it('checking method : deleteUser on an existent user', function (done) {
+		var callback2 = function (error, data) {
+			expect(error).toBe('The requested user could not be found');
+			expect(data).toBe(null);
+			
+			done();
+		};
+
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			oc.getUser('existingUser' + timeRightNow, callback2);
+		};
+
+		oc.deleteUser('existingUser' + timeRightNow, callback);
 	});
 });
 
@@ -801,57 +1259,90 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : createGroup', function (done) {
-		var callback = function (error, data) {
+		var callback2 = function (error, data) {
+			expect(data).toBe(true);
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
 
 			done();
 		};
 
-		oc.getApps(callback);
-	});
-
-	it('checking method : deleteGroup', function (done) {
 		var callback = function (error, data) {
+			expect(data).toBe(true);
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
 
-			done();
+			oc.groupExists(config.testGroup, callback2);
 		};
 
-		oc.getApps(callback);
+		oc.createGroup(config.testGroup, callback);
 	});
 
 	it('checking method : getGroups', function (done) {
 		var callback = function (error, data) {
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(typeof(data)).toBe('object');
+			expect(data.indexOf('admin')).toBeGreaterThan(-1);
+			expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		oc.getGroups(callback);
+	});
+
+	it('checking method : groupExists with an existing group', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(true);
+
+			done();
+		};
+
+		oc.groupExists('admin', callback);
+	});
+
+	it('checking method : groupExists with a non existing group', function (done) {
+		var callback = function (error, data) {
+			expect(error).toBe(null);
+			expect(data).toBe(false);
+
+			done();
+		};
+
+		oc.groupExists('nonExistingGroup' + timeRightNow, callback);
 	});
 
 	it('checking method : getGroupMembers', function (done) {
 		var callback = function (error, data) {
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(typeof(data)).toBe('object');
+			expect(data.indexOf(config.username)).toBeGreaterThan(-1);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		oc.getGroupMembers('admin', callback);
 	});
 
-	it('checking method : groupExists', function (done) {
+	it('checking method : deleteGroup with an existing group', function (done) {
 		var callback = function (error, data) {
 			expect(error).toBe(null);
-			expect(data).not.toBe(null);
+			expect(data).toBe(true);
 
 			done();
 		};
 
-		oc.getApps(callback);
+		oc.deleteGroup(config.testGroup, callback);
 	});
-});*/
+
+	it('checking method : deleteGroup with a non existing group', function (done) {
+		var callback = function (error, data) {
+			expect(typeof(error)).toBe('object');
+			expect(error.ocs.meta.statuscode).toEqual('101');
+			expect(data).toBe(false);
+
+			done();
+		};
+
+		oc.deleteGroup('nonExistingGroup' + timeRightNow, callback);
+	});
+});

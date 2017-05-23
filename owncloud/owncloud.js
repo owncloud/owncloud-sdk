@@ -583,7 +583,37 @@ ownCloud.prototype.searchUsers = function(name, callback) {
 	var self = this;
 
 	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action, function(error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
+			var users = [];
+
+			if (!error && response.statusCode == 200) {
+				var tree = parser.toJson(body, {object : true});
+				var statusCode = self._checkOCSstatusCode(tree);
+
+				if (statusCode == 999) {
+					error = "Provisioning API has been disabled at your instance";
+				}
+				else {
+					error = self._checkOCSstatus(tree);
+				}
+				
+				if (!error) {
+					users = tree.ocs.data.users.element;
+
+					if (users && typeof(users) !== "object") {
+						// single element
+						users = [ users ];
+					}
+
+					if (!users) {
+						// no element, return empty array
+						users = [];
+					}
+
+					error = null;
+				}
+			}
+
+			callback(error, users);
 		}
 	);
 };
@@ -666,7 +696,7 @@ ownCloud.prototype.getUserGroups = function(username, callback) {
 
 	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/groups', 
 		function(error, response, body) {
-			var groups;
+			var groups = [];
 
 			if (!error && response.statusCode == 200) {
 				var tree = parser.toJson(body, {object : true});
@@ -691,6 +721,8 @@ ownCloud.prototype.getUserGroups = function(username, callback) {
 						// no element, return empty array
 						groups = [];
 					}
+
+					error = null;
 				}
 			}
 
@@ -707,9 +739,10 @@ ownCloud.prototype.getUserGroups = function(username, callback) {
  */
 ownCloud.prototype.userIsInGroup = function(username, groupName, callback) {
 	this.getUserGroups(username, function(error, body) {
-		var ret;
+		var ret = null;
 		if (!error) {
 			ret = body.indexOf(groupName) > -1;
+			error = null;
 		}
 		callback(error, ret);
 	});
@@ -725,7 +758,7 @@ ownCloud.prototype.getUser = function(username, callback) {
 
 	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
 		function (error, response, body) {
-			var info;
+			var info = null;
 
 			if (!error && response.statusCode == 200) {
 				var tree = parser.toJson(body, {object : true});
@@ -740,6 +773,7 @@ ownCloud.prototype.getUser = function(username, callback) {
 				
 				if (!error) {
 					info = tree.ocs.data;
+					error = null;
 				}
 			}
 
@@ -796,7 +830,7 @@ ownCloud.prototype.getUserSubadminGroups = function(username, callback) {
 
 	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/subadmins',
 		function(error, response, body) {
-			var groups;
+			var groups = [];
 
 			if (!error && response.statusCode == 200) {
 				var tree = parser.toJson(body, {object : true});
@@ -821,6 +855,8 @@ ownCloud.prototype.getUserSubadminGroups = function(username, callback) {
 						// no element, return empty array
 						groups = [];
 					}
+
+					error = null;
 				}
 			}
 
@@ -837,9 +873,10 @@ ownCloud.prototype.getUserSubadminGroups = function(username, callback) {
  */
 ownCloud.prototype.userIsInSubadminGroup = function(username, groupName, callback) {
 	this.getUserSubadminGroups(username, function(error, body) {
-		var ret;
+		var ret = null;
 		if (!error) {
 			ret = body.indexOf(groupName) > -1;
+			error = null;
 		}
 		callback(error, ret);
 	});
@@ -908,6 +945,8 @@ ownCloud.prototype.getGroups = function(callback) {
 					// no element, return empty array
 					groups = [];
 				}
+
+				error = null;
 			}
 		}
 
@@ -950,6 +989,8 @@ ownCloud.prototype.getGroupMembers = function(groupName, callback) {
 						// no element, return empty array
 						members = [];
 					}
+
+					error = null;
 				}
 			}
 
@@ -965,10 +1006,11 @@ ownCloud.prototype.getGroupMembers = function(groupName, callback) {
  */
 ownCloud.prototype.groupExists = function(groupName, callback) {
 	this.getGroups(function (error, body) {
-		var ret;
+		var ret = false;
 
 		if (!error) {
 			ret = body.indexOf(groupName) > -1;
+			error = null;
 		}
 
 		callback(error, ret);
@@ -1618,7 +1660,7 @@ ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, opt
 
 	var status = false;
 	var self = this;
-	if (!error && response.statusCode === 200) {
+	if (!error) {
 		var tree = parser.toJson(body, {object : true});
 		var statusCode = parseInt(self._checkOCSstatusCode(tree));
 

@@ -112,8 +112,8 @@
     "tags": [
      "Apps Management"
     ],
-    "description": "Get all the enabled and disbaled apps",
-    "summary": "Get all the enabled and disbaled apps",
+    "description": "Get all the enabled and disbaled apps via the Provisioning API",
+    "summary": "Get all the enabled and disbaled apps via the Provisioning API",
     "operationId": "getApps",
     "produces": [
      "application/json"

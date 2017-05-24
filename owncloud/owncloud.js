@@ -3,7 +3,7 @@ var parser = require('xml2json');
 var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
-
+var Promise = require('es6-promise').Promise;
 
 /**
  * @class ownCloud
@@ -45,7 +45,7 @@ var querystring = require('querystring');
  *          <li>acceptRemoteShare</li>
  *          <li>declineRemoteShare</li>
  *          <li>deleteShare</li>
-
+ *
  *         </ul>
  *     </li><br>
  *     
@@ -102,95 +102,265 @@ function ownCloud(instance) {
 	this._capabilities = null;
 }
 
+/////////////////////////////
+///////    GENERAL    ///////
+/////////////////////////////
+
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
  * @param {string} 		username 	name of the user to login
  * @param {string} 		password 	password of the user to login
  * @param {Function} 	callback 	error, body(boolean)
  */
-ownCloud.prototype.login = function(username, password, callback) {
+ownCloud.prototype.login = function(username, password) {
 	this._username = username;
 	this._password = password;
 	var self = this;
 
-	this._updateCapabilities(function (error, response, body) {
-		var send = null;
-
-		if (!error && response.statusCode == 200) {
-			send = true;
-		}
-		if (!error) {
-			// always sending null instead of undefined
-			error = null;
-		}
-
-		callback(error, send);
+	return new Promise((resolve, reject) => {
+		self._updateCapabilities()
+		.then(body => {
+			resolve(true);
+		}).catch(error => {
+			reject(error);
+		});
 	});
 };
+
+/**
+ * Returns ownCloud config information
+ * @param  {Function} callback error, body(object : {"version" : "1.7", "website" : "ownCloud" etc...})
+ */
+ownCloud.prototype.getConfig = function() {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', '', 'config')
+		.then(data => {
+			var tree = parser.toJson(data.body, {object: true});
+			resolve(tree.ocs.data);
+		}).catch(error => {
+			reject(error);
+		})
+	})
+};
+
+/**
+ * Gets the ownCloud version of the connected server
+ * @param {Function}  callback  error, body(string : version)
+ */
+ownCloud.prototype.getVersion = function() {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		if (self._version === null) {
+			self._updateCapabilities()
+			.then(body => {
+				resolve(self._version);
+			}).catch(error => {
+				reject(error);
+			});
+		}
+		else {
+			resolve(self._version);
+		}
+	});
+};
+
+/**
+ * Gets the ownCloud app capabilities
+ * @param {Function}  callback 	error, body(object containing capabilities)
+ */
+ownCloud.prototype.getCapabilities = function() {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		if (self._capabilities === null) {
+			self._updateCapabilities()
+			.then(body => {
+				resolve(self._capabilities);
+			}).catch(error => {
+				reject(error);
+			});
+		}
+		else {
+			resolve(self._capabilities);
+		}
+	});
+};
+
+///////////////////////////////////
+///////    APP MANGEMENT    ///////
+///////////////////////////////////
 
 /**
  * Gets all enabled and non-enabled apps downloaded on the instance.
  * @param {Function} 	callback 	 error, body(apps)
  */
-ownCloud.prototype.getApps = function(callback) {
+ownCloud.prototype.getApps = function() {
 	var self = this;
 	var send = {};
 
-	this._makeOCSrequest('GET', String(self.OCS_SERVICE_CLOUD), "apps", function(error, response, body) {
-		if (!error) {
-			var tree = parser.toJson(body, {object : true});
+	var allAppsP = this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps");
+	var allEnabledAppsP = self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled");
 
-			error = self._checkOCSstatus(tree);
-
-			if (!error) {
-				body = tree.ocs.data.apps.element;
-
-				for (var i=0;i<body.length;i++) {
-					send[body[i]] = false;
-				}
-
-				self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled", 
-					function(error2, response2, body2) {
-						if (!error2) {
-							var tree2 = parser.toJson(body2, {object : true});
-
-							error2 = self._checkOCSstatus(tree2);
-
-							if (!error2) {
-								body2 = tree2.ocs.data.apps.element; 
-								/*<ocs>
-									<data>
-										<apps>
-											<element></element>
-											<element></element> ..
-										</apps>
-									</data>
-								</ocs>*/
-
-								for (var i=0;i<body2.length;i++) {
-									send[body2[i]] = true;
-								}
-								error2 = null;
-							}
-							callback(error2, send);
-						}
-
-						else {
-							callback(error2, null);
-						}
-					}
-				);
+	return new Promise((resolve, reject) => {
+		Promise.all([allAppsP, allEnabledAppsP])
+		.then(apps => {
+			var statuscode = parseInt(this._checkOCSstatusCode(parser.toJson(apps[0].body, {object: true})));
+			if (statuscode === 999) {
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
-			else {
-				callback(error, null);
-			}
-		}
 
-		else {
-			callback(error, body);
-		}
+			var allApps = parser.toJson(apps[0].body, {object: true}).ocs.data.apps.element;
+			var allEnabledApps = parser.toJson(apps[1].body, {object: true}).ocs.data.apps.element;
+
+			for (var i=0;i<allApps.length;i++) {
+				send[allApps[i]] = false;
+			}
+			for (var i=0;i<allEnabledApps.length;i++) {
+				send[allEnabledApps[i]] = true;
+			}
+
+			resolve(send);
+		}).catch(error => {
+			reject(error);
+		});
 	});
 };
+
+/**
+ * Returns an application attribute
+ * @param  {string}   app      application ID (Generally app-name)
+ * @param  {string}   key      attribute key or None to retrieve all values for the given application
+ * @param  {Function} callback error, body(object {key1 : value1, key2 : value2 etc...})
+ */
+ownCloud.prototype.getAttribute = function(app, key) {
+	var self = this;
+
+	var send = "getattribute";
+	if (app) {
+		send += '/' + encodeURIComponent(app);
+
+		if (key) {
+			send += '/' + encodeURIComponent(this._encodeString(key));
+		}
+	}
+
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', this.OCS_SERVICE_PRIVATEDATA, send)
+		.then(data => {
+			var elements = parser.toJson(data.body, {object: true}).ocs.data.element;
+			if (key) {
+				if (!elements) resolve('');
+				else resolve(elements.value);
+			}
+			else {
+				if (!elements) {
+					resolve({});
+					return;
+				}
+				if (elements && elements.constructor !== Array) elements = [ elements ];
+
+				var allAttributes = {};
+				for (var i=0;i<elements.length;i++) {
+					allAttributes[elements[i].key] = elements[i].value;
+				}
+				resolve(allAttributes);
+			}
+		})
+		.catch(error => {
+			console.log(error);
+			reject(error);
+		});
+	});
+};
+
+/**
+ * Sets an application attribute
+ * @param  {string}   app      application ID (Generally app-name)
+ * @param  {string}   key      attribute key or None to retrieve all values for the given application
+ * @param  {string}   value    value to set of given attribute
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.setAttribute = function(app, key, value) {
+	var self = this;
+	var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(this._encodeString(key));
+
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path, 
+		{'value' : self._encodeString(value)})
+		.then(data => {
+			resolve(true);
+		}).catch(error => {
+			reject(error);
+		});
+	});
+};
+
+/**
+ * Deletes an application attribute
+ * @param  {string}   app      application ID (generally app-name)
+ * @param  {string}   key      attribute key to delete for the given application
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.deleteAttribute = function(app, key, callback) {
+	var self = this;
+	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(self._encodeString(key));
+
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path)
+		.then(data => {
+			resolve(true);
+		}).catch(error => {
+			reject(error);
+		})
+	});
+};
+
+/**
+ * enables an app via the Provisioning API
+ * @param  {string}   appname  name of the app to be enabled
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.enableApp = function(appname) {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('POST', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+		.then(data => {
+			if (!data.body) {
+				reject("No app found by the name \"" + appname + "\"");
+			}
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
+};
+
+/**
+ * disables an app via the Provisioning API
+ * @param  {string}   appname  name of the app to be disabled
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.disableApp = function(appname, callback) {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('DELETE', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+		.then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
+};
+
+/////////////////////////////
+///////    SHARING    ///////
+/////////////////////////////
 
 /**
  * Shares a remote file with specified user
@@ -256,6 +426,59 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
 			}
 			callback(error, share);
         }
+    );
+};
+
+/**
+ * Updates a given share
+ * @param 	{integer}	  shareId		   Share ID
+ * @param 	{integer}	  perms			   update permissions (see shareFileWithUser() method)
+ * @param 	{string}	  password		   updated password for public link Share
+ * @param 	{boolean}	  publicUpload	   enable/disable public upload for public shares
+ * @param 	{Function}	  callback		   error, body(boolean)
+ */
+ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
+	var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args.push(arguments[i]);
+    }
+
+    callback = args.pop();
+    shareId = args.shift();
+
+    if (args.length == 1) {
+    	optionalParams = args[0];
+    }
+
+    var postData = {};
+    var self = this;
+
+    if (optionalParams.perms) {
+    	postData.permissions = optionalParams.perms;
+    }
+    if (optionalParams.password) {
+    	postData.password = optionalParams.password;
+    }
+    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
+    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
+    }
+
+    this._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
+    	'shares/' + encodeURIComponent(shareId.toString()), postData, 
+    	function (error, response, body) {
+    		var ret = null;
+    		if (!error && response.statusCode === 200) {
+    			var tree = parser.toJson(body, {object: true});
+    			error = self._checkOCSstatus(tree);
+
+    			if (!error) {
+    				error = null;
+	    			ret = true;
+    			}
+    		}
+
+    		callback(error, ret);
+    	}
     );
 };
 
@@ -534,6 +757,115 @@ ownCloud.prototype.getShare = function(shareId, callback) {
 			callback(error, shareInstance);
 		});
 };
+
+/**
+ * List all pending remote share
+ * @param  {Function} callback error, body(array of shares)
+ */
+ownCloud.prototype.listOpenRemoteShare = function(callback) {
+	var self = this;
+
+	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'remote_shares/pending', function (error, response, body) {
+		var shares;
+
+		if (!error && response.statusCode === 200) {
+			var tree = parser.toJson(body, {object: true});
+
+			error = self._checkOCSstatus(tree);
+
+			if (!error) {
+				shares = tree.ocs.data.element;
+				if (!shares) {
+					shares = [];
+				}
+			}
+		}
+
+		callback(error, shares);
+	});
+};
+
+/**
+ * Accepts a remote share
+ * @param  {integer}  shareId  ID of the share to accept
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.acceptRemoteShare = function(shareId, callback) {
+	if (!parseInt(shareId)) {
+		callback("Please pass a valid share ID (Integer)", null);
+		return;
+	}
+
+	var self = this;
+	var ret;
+
+	this._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 
+		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
+		function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				ret = true;
+			}
+
+			callback(error, ret);
+		}
+	);
+};
+
+/**
+ * Declines a remote share
+ * @param  {integer}  shareId  ID of the share to decline
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.declineRemoteShare = function(shareId, callback) {
+	if (!parseInt(shareId)) {
+		callback("Please pass a valid share ID (Integer)", null);
+		return;
+	}
+
+	var self = this;
+	var ret;
+
+	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
+		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
+		function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				ret = true;
+			}
+
+			callback(error, ret);
+		}
+	);
+};
+
+/**
+ * Deletes a share
+ * @param  {integer}  shareId  ID of the share to delete
+ * @param  {Function} callback error, body(boolean)
+ */
+ownCloud.prototype.deleteShare = function(shareId, callback) {
+	if (!parseInt(shareId)) {
+		callback("Please pass a valid share ID (Integer)", null);
+		return;
+	}
+
+	var self = this;
+	var ret;
+
+	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
+		'shares/' + encodeURIComponent(shareId.toString()),
+		function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				ret = true;
+			}
+
+			callback(error, ret);
+		}
+	);
+};
+
+/////////////////////////////////////
+///////    USER MANAGEMENT    ///////
+/////////////////////////////////////
 
 /**
  * Creates user via the provisioning API<br>
@@ -882,6 +1214,10 @@ ownCloud.prototype.userIsInSubadminGroup = function(username, groupName, callbac
 	});
 };
 
+//////////////////////////////////////
+///////    GROUP MANAGEMENT    ///////
+//////////////////////////////////////
+
 /**
  * creates a new group
  * @param  {string}   groupName name of group to be created
@@ -1017,406 +1353,6 @@ ownCloud.prototype.groupExists = function(groupName, callback) {
 	});
 };
 
-/**
- * Returns ownCloud config information
- * @param  {Function} callback error, body(object : {"version" : "1.7", "website" : "ownCloud" etc...})
- */
-ownCloud.prototype.getConfig = function(callback) {
-	var self = this;
-
-	this._makeOCSrequest('GET', '', 'config', function (error, response, body) {
-		var ret;
-
-		if (!error && response.statusCode == 200) {
-			var tree = parser.toJson(body, {object : true});
-
-			error = self._checkOCSstatus(tree);
-
-			if (!error) {
-				ret = tree.ocs.data;
-			}
-		}
-
-		if (!error) {
-			error = null;
-		}
-
-		callback(error, ret);
-	});
-};
-
-/**
- * Returns an application attribute
- * @param  {string}   app      application ID (Generally app-name)
- * @param  {string}   key      attribute key or None to retrieve all values for the given application
- * @param  {Function} callback error, body(object {key1 : value1, key2 : value2 etc...})
- */
-ownCloud.prototype.getAttribute = function(app, key, callback) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    app = args.shift();
-    key = null;
-
-    if (args.length == 1) {
-    	key = args.shift();
-    }
-
-	var send = "getattribute";
-	if (app) {
-		send += '/' + encodeURIComponent(app);
-
-		if (key) {
-			send += '/' + encodeURIComponent(this._encodeString(key));
-		}
-	}
-
-	var self = this;
-
-	this._makeOCSrequest('GET', this.OCS_SERVICE_PRIVATEDATA, send, 
-		function (error, response, body) {
-			var send;
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object: true});
-
-				error = self._checkOCSstatus(tree);
-
-				if (!error) {
-					elements = tree.ocs.data.element;
-
-					if (!key) {
-						send = {};
-					}
-
-					if (elements && elements.constructor !== Array) {
-						elements = [ elements ];
-					}
-					for (var i in elements) {
-						if (elements[i]) {
-							if (Object.keys(elements[i].value).length === 0) {
-								elements[i].value = '';
-							}
-
-							if (!key) {
-								send[elements[i].key] = elements[i].value;
-							}
-
-							else {
-								send = elements[i].value.toString();
-							}
-						}
-					}
-
-					error = null;
-				}
-			}
-
-			callback(error, send);
-		}
-	);
-};
-
-/**
- * Sets an application attribute
- * @param  {string}   app      application ID (Generally app-name)
- * @param  {string}   key      attribute key or None to retrieve all values for the given application
- * @param  {string}   value    value to set of given attribute
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.setAttribute = function(app, key, value, callback) {
-	var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(this._encodeString(key));
-	var self = this;
-
-	this._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path, 
-		{
-			'value' : self._encodeString(value)
-		},
-		function (error, response, body) {
-			var status = false;
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object: true});
-				error = self._checkOCSstatus(tree);
-
-				if (!error) {
-					status = true;
-					error = null;
-				}
-			}
-			callback(error, status);
-		}
-	);
-};
-
-/**
- * Deletes an application attribute
- * @param  {string}   app      application ID (generally app-name)
- * @param  {string}   key      attribute key to delete for the given application
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.deleteAttribute = function(app, key, callback) {
-	var self = this;
-	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(self._encodeString(key));
-
-	this._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path, function (error, response, body) {
-		var deleted;
-		if (!error && response.statusCode == 200) {
-			var tree = parser.toJson(body, {object: true});
-
-			error = self._checkOCSstatus(tree);
-
-			if (!error) {
-				deleted = true;
-				error = null;
-			}
-		}
-		callback(error, deleted);
-	});
-};
-
-/**
- * Gets the ownCloud version of the connected server
- * @param {Function}  callback  error, body(string : version)
- */
-ownCloud.prototype.getVersion = function(callback) {
-	var self = this;
-
-	if (!(this._version)) {
-		this._updateCapabilities(function (error, response, body) {
-			var ret = null;
-			if (!error) {
-				ret = self._version;
-				error = null;
-			}
-			callback(error, ret);
-		});
-	}
-	else {
-		callback(null, this._version);
-	}
-};
-
-/**
- * Gets the ownCloud app capabilities
- * @param {Function}  callback 	error, body(object containing capabilities)
- */
-ownCloud.prototype.getCapabilities = function(callback) {
-	var self = this;
-
-	if (!(this._capabilities)) {
-		this._updateCapabilities(function (error, response, body) {
-			var ret;
-			if (!error) {
-				ret = self._capabilities;
-				error = null;
-			}
-			callback(error, ret);
-		});
-	}
-	else {
-		callback(null, this._capabilities);
-	}
-};
-
-/**
- * enables an app via the Provisioning API
- * @param  {string}   appname  name of the app to be enabled
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.enableApp = function(appname, callback) {
-	var self = this;
-
-	this._makeOCSrequest('POST', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname),
-		function (error, response, body) {
-			if (body) {
-				if (!error) {
-					error = null;
-				}
-				self._OCSuserResponseHandler(error, response, body, callback);
-			}
-			else {
-				// There is no response from the API if the queried app doesn't exist, hence returning error
-				callback("No app found by the name \"" + appname + "\"", null);
-			}
-		}
-	);
-};
-
-/**
- * disables an app via the Provisioning API
- * @param  {string}   appname  name of the app to be disabled
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.disableApp = function(appname, callback) {
-	var self = this;
-
-	this._makeOCSrequest('DELETE', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname),
-		function (error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
-};
-
-/**
- * List all pending remote share
- * @param  {Function} callback error, body(array of shares)
- */
-ownCloud.prototype.listOpenRemoteShare = function(callback) {
-	var self = this;
-
-	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'remote_shares/pending', function (error, response, body) {
-		var shares;
-
-		if (!error && response.statusCode === 200) {
-			var tree = parser.toJson(body, {object: true});
-
-			error = self._checkOCSstatus(tree);
-
-			if (!error) {
-				shares = tree.ocs.data.element;
-				if (!shares) {
-					shares = [];
-				}
-			}
-		}
-
-		callback(error, shares);
-	});
-};
-
-/**
- * Accepts a remote share
- * @param  {integer}  shareId  ID of the share to accept
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.acceptRemoteShare = function(shareId, callback) {
-	if (!parseInt(shareId)) {
-		callback("Please pass a valid share ID (Integer)", null);
-		return;
-	}
-
-	var self = this;
-	var ret;
-
-	this._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 
-		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
-		function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				ret = true;
-			}
-
-			callback(error, ret);
-		}
-	);
-};
-
-/**
- * Declines a remote share
- * @param  {integer}  shareId  ID of the share to decline
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.declineRemoteShare = function(shareId, callback) {
-	if (!parseInt(shareId)) {
-		callback("Please pass a valid share ID (Integer)", null);
-		return;
-	}
-
-	var self = this;
-	var ret;
-
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
-		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
-		function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				ret = true;
-			}
-
-			callback(error, ret);
-		}
-	);
-};
-
-/**
- * Deletes a share
- * @param  {integer}  shareId  ID of the share to delete
- * @param  {Function} callback error, body(boolean)
- */
-ownCloud.prototype.deleteShare = function(shareId, callback) {
-	if (!parseInt(shareId)) {
-		callback("Please pass a valid share ID (Integer)", null);
-		return;
-	}
-
-	var self = this;
-	var ret;
-
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
-		'shares/' + encodeURIComponent(shareId.toString()),
-		function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				ret = true;
-			}
-
-			callback(error, ret);
-		}
-	);
-};
-
-/**
- * Updates a given share
- * @param 	{integer}	  shareId		   Share ID
- * @param 	{integer}	  perms			   update permissions (see shareFileWithUser() method)
- * @param 	{string}	  password		   updated password for public link Share
- * @param 	{boolean}	  publicUpload	   enable/disable public upload for public shares
- * @param 	{Function}	  callback		   error, body(boolean)
- */
-ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    shareId = args.shift();
-
-    if (args.length == 1) {
-    	optionalParams = args[0];
-    }
-
-    var postData = {};
-    var self = this;
-
-    if (optionalParams.perms) {
-    	postData.permissions = optionalParams.perms;
-    }
-    if (optionalParams.password) {
-    	postData.password = optionalParams.password;
-    }
-    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
-    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
-    }
-
-    this._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
-    	'shares/' + encodeURIComponent(shareId.toString()), postData, 
-    	function (error, response, body) {
-    		var ret = null;
-    		if (!error && response.statusCode === 200) {
-    			var tree = parser.toJson(body, {object: true});
-    			error = self._checkOCSstatus(tree);
-
-    			if (!error) {
-    				error = null;
-	    			ret = true;
-    			}
-    		}
-
-    		callback(error, ret);
-    	}
-    );
-};
-
 /////////////
 // HELPERS //
 /////////////
@@ -1449,21 +1385,20 @@ ownCloud.prototype._initRoutes = function() {
  * Updates the capabilities of user logging in.
  * @param {Function} callback error, reponse, body(capabilities)
  */
-ownCloud.prototype._updateCapabilities = function(callback) {
+ownCloud.prototype._updateCapabilities = function() {
 	var self = this;
-	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities", function(error, response, body) {
-		if (!error && response.statusCode == 200) {
-			var tree = parser.toJson(body, {object : true});
-			error = self._checkOCSstatus(tree);
 
-			if (!error) {
-				// console.log(tree);
-				body = tree.ocs.data;
-				self._capabilities = body.capabilities;
-				self._version = body.version.string + '-' + body.version.edition;
-			}
-		}
-		callback(error, response, self._capabilities);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
+		.then(data => {
+			var response = data.response;
+			var body = parser.toJson(data.body, {object: true}).ocs.data;
+			self._capabilities = body.capabilities;
+			self._version = body.version.string + '-' + body.version.edition;
+			resolve(self._capabilities);
+		}).catch(error => {
+			reject(error);
+		});
 	});
 };
 
@@ -1474,30 +1409,30 @@ ownCloud.prototype._updateCapabilities = function(callback) {
  * @param {string} 		action		action (apps?filter=enabled, capabilities etc.)
  * @param {Function} 	callback 	error, reponse, body
  */
-ownCloud.prototype._makeOCSrequest = function (method, service, action, callback) {
+ownCloud.prototype._makeOCSrequest = function (method, service, action) {
 	var args = [];
     for (var i = 0; i < arguments.length; i++) {
         args.push(arguments[i]);
     }
 
-    callback = args.pop();
+    var err = null;
+
     method = args.shift();
     service = args.shift();
     action = args.shift();
     var data;
+    var self = this;
 
     if (args.length == 1) {
     	data = args[0];
     }
 
 	if (!this.instance) {
-		callback("Please specify a server URL first.", null, null);
-		return;
+		err = "Please specify a server URL first";
 	}
 
 	if (!this._username || !this._password) {
-		callback("Please specify a username AND password first.", null, null);
-		return;
+		err = "Please specify a username AND password first.";
 	}
 
 	// Set the headers
@@ -1525,20 +1460,71 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action, callback
 		options.body = querystring.stringify(data);
 	}
 
-	// Start the request
-	request(options, function (error, response, body) {
-		// JSON / XML
-		
-		if (response) { // Will not go in if owncloud instance isn't valid
-			var responseFormat = response.headers['content-type'].split(';')[0].split('/')[1];
+	return new Promise((resolve, reject) => {
+		if (err) {
+			reject(err);
+		}
 
-			if (responseFormat === "json" || responseFormat === "JSON") {
-				error = JSON.parse(body).message;
+		// Start the request
+		request(options, function (error, response, body) {		 
+			var validXml = self._isValidXML(body);
+			var validJson = self._isValidJSON(body);
+			
+			if (validJson) {
+				body = JSON.parse(body);
+				if ("message" in body) {
+					error = body.message;
+				}
+			}
+
+			if (!error && !validXml) {
+				error = "Please provide a valid owncloud instance";
 				body = null;
 			}
-	    }
-        callback(error, response, body);
+
+			if (!error && response.statuscode === 200) {
+				var tree = parser.toJson(body, {object: true});
+				error = self._checkOCSstatus(tree);
+			}
+
+	    	if (error) {
+	    		reject(error);
+	    	}
+	    	else {
+	    		resolve({response : response, body: body});
+	    	}
+		});
 	});
+};
+
+/**
+ * Checks whether a response body is valid XML 
+ * @param  {string}  	body 	the response to be checked
+ * @return {Boolean}      		true if valid XML, else false
+ */
+ownCloud.prototype._isValidXML = function(body) {
+	try {
+		parser.toJson(body);
+	}
+	catch (e) {
+		return false;
+	}
+	return true;
+};
+
+/**
+ * Checks whether a response body is valid JSON 
+ * @param  {string}  	body 	the response to be checked
+ * @return {Boolean}      		true if valid JSON, else false
+ */
+ownCloud.prototype._isValidJSON = function(body) {
+	try {
+		JSON.parse(body);
+	}
+	catch (e) {
+		return false;
+	}
+	return true;
 };
 
 /**
@@ -1635,6 +1621,18 @@ ownCloud.prototype._convertObjectToBool = function(object) {
 	return object;
 };
 
+ownCloud.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
+	var response = data.response;
+	var tree = parser.toJson(data.body, {object: true});
+
+	var statuscode = parseInt(this._checkOCSstatusCode(tree));
+	if (statuscode === 999) {
+		reject("Provisioning API has been disabled at your instance");
+	}
+
+	resolve(true);
+};
+
 /**
  * Used for handling the response of boolean returning OCS-User related methods
  * @param  {string}   error    error to be returned (from _makeOCSrequest)
@@ -1642,7 +1640,7 @@ ownCloud.prototype._convertObjectToBool = function(object) {
  * @param  {string/object}   body     body/data from _makeOCSrequest
  * @param  {Function} callback callback to be returned
  */
-ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, optionalStatusCodes, callback) {
+/*ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, optionalStatusCodes) {
 	var args = [];
     for (var i = 0; i < arguments.length; i++) {
         args.push(arguments[i]);
@@ -1683,6 +1681,6 @@ ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, opt
 	}
 
 	callback(error, status);
-};
+};*/
 
 module.exports = ownCloud;

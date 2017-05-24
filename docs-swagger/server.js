@@ -8,6 +8,15 @@ app.use(express.static('docs-swagger/assets'));
 app.use(express.static('assets'));
 app.use(cors());
 
+function init() {
+	oc = new owncloud('localhost/core');
+	oc.login('noveens', '123');
+}
+
+/////////////////////////////
+///////    GENERAL    ///////
+/////////////////////////////
+
 app.get('/', function(request, response) {
 	response.redirect("index.html");
 });
@@ -21,31 +30,116 @@ app.get('/initLibrary', function(request, response) {
 app.get('/login', function(request, response) {
 	var uname = request.query.user;
 	var pass = request.query.pass;
-	if (request.query.sessionUrl) {
-		var url = request.query.sessionUrl;
-		oc = new owncloud(url);
-	}
 
-	if (!oc) {
-		oc = new owncloud('');
-	}
-
-	oc.login(uname, pass, function (error, body) {
-		response.send(error || body);
+	oc.login(uname, pass).then(result => {
+		response.send(result);
+	}).catch(error => {
+		response.send(error);
 	});
 });
+
+app.get('/getConfig', function(request, response) {
+	init();
+	oc.getConfig().then(result => {
+		response.send(result);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/getVersion', function(request, response) {
+	init();
+	oc.getVersion().then(result => {
+		response.send(result);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/getCapabilities', function(request, response) {
+	init();
+	oc.getCapabilities().then(result => {
+		response.send(result);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+///////////////////////////////////
+///////    APP MANGEMENT    ///////
+///////////////////////////////////
 
 app.get('/getApps', function(request, response) {
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.getApps(function (error, body) {
-		response.send(error || body);
+	init();
+	oc.getApps().then(apps => {
+		response.send(apps);
+	}).catch(error => {
+		response.send(error);
 	});
 });
+
+app.get('/getAttribute', function(request, response) {
+	var app = request.query.app;
+	var key = request.query.key;
+
+	init();
+	oc.getAttribute(app, key).then(attr => {
+		response.send(attr);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/setAttribute', function(request, response) {
+	var app = request.query.app;
+	var key = request.query.key;
+	var value = request.query.value || '';
+
+	init();
+	oc.setAttribute(app, key, value).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/deleteAttribute', function(request, response) {
+	var app = request.query.app;
+	var key = request.query.key;
+
+	init();
+	oc.deleteAttribute(app, key).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/enableApp', function(request, response) {
+	var appname = request.query.appname;
+	
+	init();
+	oc.enableApp(appname).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/disableApp', function(request, response) {
+	var appname = request.query.appname;
+	
+	init();
+	oc.disableApp(appname).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+/////////////////////////////
+///////    SHARING    ///////
+/////////////////////////////
 
 app.get('/shareFileWithLink', function(request, response) {
 	var path = request.query.path;
@@ -206,6 +300,61 @@ app.get('/getShare', function(request, response) {
 		response.send(error || body);
 	});
 });
+
+app.get('/listOpenRemoteShare', function(request, response) {
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.listOpenRemoteShare(function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/acceptRemoteShare', function(request, response) {
+	var shareId = request.query.shareId;
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.acceptRemoteShare(shareId, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/declineRemoteShare', function(request, response) {
+	var shareId = request.query.shareId;
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.declineRemoteShare(shareId, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+app.get('/deleteShare', function(request, response) {
+	var shareId = request.query.shareId;
+	if (!oc) {
+		oc = new owncloud('');
+		oc.login('', '', function(error, body) {
+			//response.send(error || body);
+		});
+	}
+	oc.deleteShare(shareId, function (error, body) {
+		response.send(error || body);
+	});
+});
+
+/////////////////////////////////////
+///////    USER MANAGEMENT    ///////
+/////////////////////////////////////
 
 app.get('/createUser', function(request, response) {
 	var uname = request.query.username;
@@ -405,6 +554,10 @@ app.get('/userIsInSubadminGroup', function(request, response) {
 	});
 });
 
+//////////////////////////////////////
+///////    GROUP MANAGEMENT    ///////
+//////////////////////////////////////
+
 app.get('/createGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
@@ -472,192 +625,6 @@ app.get('/groupExists', function(request, response) {
 		response.send(error || body);
 	});
 });
-
-app.get('/getConfig', function(request, response) {
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.getConfig(function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/getAttribute', function(request, response) {
-	var app = request.query.app;
-	var key = request.query.key;
-
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.getAttribute(app, key, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/setAttribute', function(request, response) {
-	var app = request.query.app;
-	var key = request.query.key;
-	var value = request.query.value || '';
-
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.setAttribute(app, key, value, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/deleteAttribute', function(request, response) {
-	var app = request.query.app;
-	var key = request.query.key;
-
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.deleteAttribute(app, key, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/getVersion', function(request, response) {
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.getVersion(function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/getCapabilities', function(request, response) {
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			oc.getCapabilities(function (error, body) {
-				response.send(error || body);
-			});
-		});
-	}
-	else {
-		oc.getCapabilities(function (error, body) {
-			response.send(error || body);
-		});
-	}
-});
-
-app.get('/enableApp', function(request, response) {
-	var appname = request.query.appname;
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.enableApp(appname, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/disableApp', function(request, response) {
-	var appname = request.query.appname;
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.disableApp(appname, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/listOpenRemoteShare', function(request, response) {
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.listOpenRemoteShare(function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/acceptRemoteShare', function(request, response) {
-	var shareId = request.query.shareId;
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.acceptRemoteShare(shareId, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/declineRemoteShare', function(request, response) {
-	var shareId = request.query.shareId;
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.declineRemoteShare(shareId, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-app.get('/deleteShare', function(request, response) {
-	var shareId = request.query.shareId;
-	if (!oc) {
-		oc = new owncloud('');
-		oc.login('', '', function(error, body) {
-			//response.send(error || body);
-		});
-	}
-	oc.deleteShare(shareId, function (error, body) {
-		response.send(error || body);
-	});
-});
-
-/*app.get('/asd', function(request , response) {
-	var requestPromise = require('request-promise');
-
-	var user = 'I2ZBdPYcNokkcmI643kqfS7UsAfVyGapAzyZFIsV2Zj9jw4YRExoMuB97ityA89W';
-	var password = 'pUQIp4tNA76m1w2wViZ2vZRa3hXaJGiQTzumcWIDpKxNVfFJgXVIkmRZSt2HAkVd';
-
-	var base64encodedData = new Buffer(user + ':' + password).toString('base64');
-
-	requestPromise.get({
-		uri: 'http://localhost/core/index.php/apps/oauth2/api/v1/token',
-		headers: {
-			'Authorization': 'Basic ' + base64encodedData
-		},
-		qs : {
-			'grant_type' : 'authorization_code',
-			'code' : 'KmedYjYlEtMwVPnSX0DQFgqAeUSzFunauYWmLUTDZIEquO1hVd5vFpKwHk035gqt',
-			'redirect_uri' : encodeURIComponent('http://localhost:8080'),
-		}
-	}).then(function ok(jsonData) {
-		console.dir(jsonData);
-	});
-});*/
 
 var port = process.env.PORT || 8080
 var server = app.listen(port, function() {

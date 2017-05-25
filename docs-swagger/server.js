@@ -227,14 +227,16 @@ app.get('/getShares', function(request, response) {
 	var optional = {};
 
 	if (request.query.reshares) {
-		optional['reshares'] = request.query.reshares;
+		optional.reshares = request.query.reshares;
 	}
 	if (request.query.subfiles) { 
-		optional['subfiles'] = request.query.subfiles;
+		optional.subfiles = request.query.subfiles;
 	}
+	/*jshint camelcase: false */
 	if (request.query.shared_with_me) {
-		optional['shared_with_me'] = request.query.shared_with_me;
+		optional.shared_with_me = request.query.shared_with_me;
 	}
+	/*jshint camelcase: true */
 
 	init();
 	oc.getShares(path, optional).then(status => {
@@ -529,8 +531,8 @@ app.get('/groupExists', function(request, response) {
 	});
 });
 
-var port = process.env.PORT || 8080
-var server = app.listen(port, function() {
+var port = process.env.PORT || 8080;
+app.listen(port, function() {
 	console.log("Swagger documentation here : http://localhost:8080/");
 	console.log("Caution : Don't close the process until you're done experimenting with the documentation!");
 });

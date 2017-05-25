@@ -15,6 +15,8 @@
 	"indent": 4,
 	"browser": true,
 	"laxbreak": true,
+	"esversion": 6,
+	"node": true,
 	"globals": {
 		"console": true,
 		"it": true,

@@ -116,7 +116,8 @@ ownCloud.prototype.login = function(username, password) {
 	this._username = username;
 	this._password = password;
 	var self = this;
-
+	
+	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		self._updateCapabilities()
 		.then(body => {
@@ -141,8 +142,8 @@ ownCloud.prototype.getConfig = function() {
 			resolve(tree.ocs.data);
 		}).catch(error => {
 			reject(error);
-		})
-	})
+		});
+	});
 };
 
 /**
@@ -152,6 +153,7 @@ ownCloud.prototype.getConfig = function() {
 ownCloud.prototype.getVersion = function() {
 	var self = this;
 
+	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		if (self._version === null) {
 			self._updateCapabilities()
@@ -174,6 +176,7 @@ ownCloud.prototype.getVersion = function() {
 ownCloud.prototype.getCapabilities = function() {
 	var self = this;
 
+	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		if (self._capabilities === null) {
 			self._updateCapabilities()
@@ -219,7 +222,7 @@ ownCloud.prototype.getApps = function() {
 			for (var i=0;i<allApps.length;i++) {
 				send[allApps[i]] = false;
 			}
-			for (var i=0;i<allEnabledApps.length;i++) {
+			for (i=0;i<allEnabledApps.length;i++) {
 				send[allEnabledApps[i]] = true;
 			}
 
@@ -253,15 +256,21 @@ ownCloud.prototype.getAttribute = function(app, key) {
 		.then(data => {
 			var elements = parser.toJson(data.body, {object: true}).ocs.data.element;
 			if (key) {
-				if (!elements) resolve('');
-				else resolve(elements.value);
+				if (elements) {
+					resolve('');
+				}
+				else {
+					resolve(elements.value);
+				}
 			}
 			else {
 				if (!elements) {
 					resolve({});
 					return;
 				}
-				if (elements.length > 0 && elements.constructor !== Array) elements = [ elements ];
+				if (elements.length > 0 && elements.constructor !== Array) {
+					elements = [ elements ];
+				}
 
 				var allAttributes = {};
 				for (var i=0;i<elements.length;i++) {
@@ -287,6 +296,7 @@ ownCloud.prototype.setAttribute = function(app, key, value) {
 	var self = this;
 	var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(this._encodeString(key));
 
+	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		self._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path, 
 		{'value' : self._encodeString(value)})
@@ -308,13 +318,14 @@ ownCloud.prototype.deleteAttribute = function(app, key) {
 	var self = this;
 	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(self._encodeString(key));
 
+	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		self._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path)
 		.then(data => {
 			resolve(true);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -335,7 +346,7 @@ ownCloud.prototype.enableApp = function(appname) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -353,7 +364,7 @@ ownCloud.prototype.disableApp = function(appname) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -425,6 +436,7 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams) {
     	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
     }
 
+    /* jshint unused: false */
     return new Promise((resolve, reject) => {
     	self._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
     		'shares/' + encodeURIComponent(shareId.toString()), postData
@@ -432,7 +444,7 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams) {
     		resolve(true);
     	}).catch(error => {
     		reject(error);
-    	})
+    	});
     });
 };
 
@@ -473,7 +485,7 @@ ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams) 
     		resolve(share);
     	}).catch(error => {
     		reject(error);
-    	})
+    	});
     });
 };
 
@@ -506,7 +518,7 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
     		resolve(share);
     	}).catch(error => {
     		reject(error);
-    	})
+    	});
     });
 };
 
@@ -537,9 +549,11 @@ ownCloud.prototype.getShares = function(path, optionalParams){
     			send.subfiles = optionalParams.subfiles;
     		}
 
+    		/*jshint camelcase: false */
     		if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
     			send.shared_with_me = optionalParams.shared_with_me;
     		}
+    		/*jshint camelcase: true */
     	}
 
     	var urlString = '';
@@ -569,7 +583,7 @@ ownCloud.prototype.getShares = function(path, optionalParams){
 	    	resolve(shares);
     	}).catch(error => {
     		reject(error);
-    	})
+    	});
     });
 };
 
@@ -582,9 +596,9 @@ ownCloud.prototype.getShares = function(path, optionalParams){
 ownCloud.prototype.isShared = function(path) {
 	var self = this;
 
-	var bod = false;
-	var err;
-
+	// var bod = false;
+	// var err;
+	
 	// check if file exists (webDAV)
 	return new Promise((resolve, reject) => {
 		//this.fileInfo(path, function (err, res, bod) {
@@ -622,7 +636,7 @@ ownCloud.prototype.getShare = function(shareId) {
 			resolve(share);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -640,7 +654,7 @@ ownCloud.prototype.listOpenRemoteShare = function() {
 			resolve(shares);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -658,13 +672,14 @@ ownCloud.prototype.acceptRemoteShare = function(shareId) {
 			return;
 		}
 
+		/* jshint unused: false */
 		self._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 
 			'remote_shares/pending' + encodeURIComponent(shareId.toString())
 		).then(data => {
 			resolve(true);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -682,13 +697,14 @@ ownCloud.prototype.declineRemoteShare = function(shareId) {
 			return;
 		}
 
+		/* jshint unused: false */
 		self._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
 		'remote_shares/pending' + encodeURIComponent(shareId.toString())
 		).then(data => {
 			resolve(true);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -706,13 +722,14 @@ ownCloud.prototype.deleteShare = function(shareId) {
 			return;
 		}
 
+		/* jshint unused: false */
 		self._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
 			'shares/' + encodeURIComponent(shareId.toString())
 		).then(data => {
 			resolve(true);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -738,7 +755,7 @@ ownCloud.prototype.createUser = function(username, password) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -756,7 +773,7 @@ ownCloud.prototype.deleteUser = function(username) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -768,15 +785,17 @@ ownCloud.prototype.deleteUser = function(username) {
 ownCloud.prototype.searchUsers = function(name) {
 	var self = this;
 	
-	action = 'users';
-	if(name) action += '?search=' + name;
+	var action = 'users';
+	if(name) { 
+		action += '?search=' + name;
+	}
 
 	return new Promise((resolve, reject) => {
 		self._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action)
 		.then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-			if (statusCode == 999) {
+			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
@@ -788,7 +807,7 @@ ownCloud.prototype.searchUsers = function(name) {
 			resolve(users);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -799,14 +818,16 @@ ownCloud.prototype.searchUsers = function(name) {
  */
 ownCloud.prototype.userExists = function(name) {
 	var self = this;
-	if (!name) name = '';
+	if (!name) {
+		name = '';
+	}
 
 	return new Promise((resolve, reject) => {
 		self.searchUsers(name).then(users => {
 			resolve(users.indexOf(name) > -1);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -822,7 +843,7 @@ ownCloud.prototype.getUsers = function() {
 			resolve(users);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -843,7 +864,7 @@ ownCloud.prototype.setUserAttribute = function(username, key, value) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -856,14 +877,14 @@ ownCloud.prototype.setUserAttribute = function(username, key, value) {
 ownCloud.prototype.addUserToGroup = function(username, groupName) {
 	var self = this;
 
-	return new Promise((resolve, response) => {
+	return new Promise((resolve, reject) => {
 		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
 		).then(data => {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -880,8 +901,8 @@ ownCloud.prototype.getUserGroups = function(username) {
 			'users/' + encodeURIComponent(username) + '/groups'
 		).then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-			if (statusCode == 999) {
+			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
@@ -893,7 +914,7 @@ ownCloud.prototype.getUserGroups = function(username) {
 			resolve(groups);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -911,7 +932,7 @@ ownCloud.prototype.userIsInGroup = function(username, groupName) {
 			resolve(groups.indexOf(groupName) > -1);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -928,8 +949,8 @@ ownCloud.prototype.getUser = function(username) {
 			'users/' + encodeURIComponent(username)
 		).then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-			if (statusCode == 999) {
+			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
@@ -938,7 +959,7 @@ ownCloud.prototype.getUser = function(username) {
 			resolve(userInfo);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -958,7 +979,7 @@ ownCloud.prototype.removeUserFromGroup = function(username, groupName) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -978,7 +999,7 @@ ownCloud.prototype.addUserToSubadminGroup = function(username, groupName) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -995,8 +1016,8 @@ ownCloud.prototype.getUserSubadminGroups = function(username) {
 			'users/' + encodeURIComponent(username) + '/subadmins'
 		).then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-			if (statusCode == 999) {
+			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
@@ -1008,7 +1029,7 @@ ownCloud.prototype.getUserSubadminGroups = function(username) {
 			resolve(groups);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -1026,7 +1047,7 @@ ownCloud.prototype.userIsInSubadminGroup = function(username, groupName) {
 			resolve(groups.indexOf(groupName) > -1);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -1048,7 +1069,7 @@ ownCloud.prototype.createGroup = function(groupName) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -1066,7 +1087,7 @@ ownCloud.prototype.deleteGroup = function(groupName) {
 			self._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -1081,8 +1102,8 @@ ownCloud.prototype.getGroups = function() {
 		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups')
 		.then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-			if (statusCode == 999) {
+			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
@@ -1095,7 +1116,7 @@ ownCloud.prototype.getGroups = function() {
 			resolve(groups);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -1111,8 +1132,8 @@ ownCloud.prototype.getGroupMembers = function(groupName) {
 		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
 		.then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = self._checkOCSstatusCode(tree);
-			if (statusCode == 999) {
+			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
@@ -1125,7 +1146,7 @@ ownCloud.prototype.getGroupMembers = function(groupName) {
 			resolve(groups);
 		}).catch(error => {
 			reject(error);
-		})
+		});
 	});
 };
 
@@ -1184,7 +1205,6 @@ ownCloud.prototype._updateCapabilities = function() {
 	return new Promise((resolve, reject) => {
 		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
 		.then(data => {
-			var response = data.response;
 			var body = parser.toJson(data.body, {object: true}).ocs.data;
 			self._capabilities = body.capabilities;
 			self._version = body.version.string + '-' + body.version.edition;
@@ -1216,7 +1236,7 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action) {
     var data;
     var self = this;
 
-    if (args.length == 1) {
+    if (args.length === 1) {
     	data = args[0];
     }
 
@@ -1415,7 +1435,6 @@ ownCloud.prototype._convertObjectToBool = function(object) {
 };
 
 ownCloud.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
-	var response = data.response;
 	var tree = parser.toJson(data.body, {object: true});
 
 	var statuscode = parseInt(this._checkOCSstatusCode(tree));

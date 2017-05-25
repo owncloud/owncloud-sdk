@@ -126,6 +126,7 @@ ownCloud.prototype.login = function(username, password) {
 			reject(error);
 		});
 	});
+	/* jshint unused: true */
 };
 
 /**
@@ -254,12 +255,16 @@ ownCloud.prototype.getAttribute = function(app, key) {
 	return new Promise((resolve, reject) => {
 		self._makeOCSrequest('GET', this.OCS_SERVICE_PRIVATEDATA, send)
 		.then(data => {
+
 			var elements = parser.toJson(data.body, {object: true}).ocs.data.element;
+
 			if (key) {
-				if (elements) {
-					resolve('');
+				if (!elements) {
+					resolve(null);
 				}
 				else {
+					var value = elements.value;
+					elements.value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value;
 					resolve(elements.value);
 				}
 			}
@@ -268,10 +273,9 @@ ownCloud.prototype.getAttribute = function(app, key) {
 					resolve({});
 					return;
 				}
-				if (elements.length > 0 && elements.constructor !== Array) {
+				if (elements.constructor !== Array) {
 					elements = [ elements ];
 				}
-
 				var allAttributes = {};
 				for (var i=0;i<elements.length;i++) {
 					allAttributes[elements[i].key] = elements[i].value;
@@ -426,15 +430,17 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams) {
     var postData = {};
     var self = this;
 
-    if (optionalParams.perms) {
-    	postData.permissions = optionalParams.perms;
-    }
-    if (optionalParams.password) {
-    	postData.password = optionalParams.password;
-    }
-    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
-    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
-    }
+    if (optionalParams) {
+	    if (optionalParams.perms) {
+	    	postData.permissions = optionalParams.perms;
+	    }
+	    if (optionalParams.password) {
+	    	postData.password = optionalParams.password;
+	    }
+	    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
+	    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
+	    }
+	}
 
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
@@ -571,7 +577,7 @@ ownCloud.prototype.getShares = function(path, optionalParams){
     		var elements = parser.toJson(data.body, {object: true}).ocs.data.element || [];
     		var shares = [];
 
-    		if (elements.length > 0 && elements.constructor !== Array) {
+    		if (elements && elements.constructor !== Array) {
     			// just a single element
     			elements = [ elements ];
     		}
@@ -801,7 +807,7 @@ ownCloud.prototype.searchUsers = function(name) {
 			}
 
 			var users = tree.ocs.data.users.element || [];
-			if (users.length > 0 && users.constructor !== Array) {
+			if (users && users.constructor !== Array) {
 				users = [ users ];
 			}
 			resolve(users);
@@ -908,7 +914,7 @@ ownCloud.prototype.getUserGroups = function(username) {
 			}
 
 			var groups = tree.ocs.data.groups.element || [];
-			if (groups.length > 0 && groups.constructor !== Array) {
+			if (groups && groups.constructor !== Array) {
 				groups = [ groups ];
 			}
 			resolve(groups);
@@ -1023,7 +1029,7 @@ ownCloud.prototype.getUserSubadminGroups = function(username) {
 			}
 
 			var groups = tree.ocs.data.element || [];
-			if (groups.length > 0 && groups.constructor !== Array) {
+			if (groups && groups.constructor !== Array) {
 				groups = [ groups ];
 			}
 			resolve(groups);
@@ -1109,7 +1115,7 @@ ownCloud.prototype.getGroups = function() {
 			}
 
 			var groups = tree.ocs.data.groups.element || [];
-			if (groups.length > 0 && groups.constructor !== Array) {
+			if (groups && groups.constructor !== Array) {
 				// single element
 				groups = [ groups ];
 			}
@@ -1139,7 +1145,7 @@ ownCloud.prototype.getGroupMembers = function(groupName) {
 			}
 
 			var groups = tree.ocs.data.users.element || [];
-			if (groups.length > 0 && groups.constructor !== Array) {
+			if (groups && groups.constructor !== Array) {
 				// single element
 				groups = [ groups ];
 			}
@@ -1295,7 +1301,7 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action) {
 				body = null;
 			}
 
-			if (!error && response.statuscode === 200) {
+			if (!error) {
 				var tree = parser.toJson(body, {object: true});
 				error = self._checkOCSstatus(tree);
 			}

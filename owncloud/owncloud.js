@@ -261,7 +261,7 @@ ownCloud.prototype.getAttribute = function(app, key) {
 					resolve({});
 					return;
 				}
-				if (elements && elements.constructor !== Array) elements = [ elements ];
+				if (elements.length > 0 && elements.constructor !== Array) elements = [ elements ];
 
 				var allAttributes = {};
 				for (var i=0;i<elements.length;i++) {
@@ -271,7 +271,6 @@ ownCloud.prototype.getAttribute = function(app, key) {
 			}
 		})
 		.catch(error => {
-			console.log(error);
 			reject(error);
 		});
 	});
@@ -305,7 +304,7 @@ ownCloud.prototype.setAttribute = function(app, key, value) {
  * @param  {string}   key      attribute key to delete for the given application
  * @param  {Function} callback error, body(boolean)
  */
-ownCloud.prototype.deleteAttribute = function(app, key, callback) {
+ownCloud.prototype.deleteAttribute = function(app, key) {
 	var self = this;
 	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(self._encodeString(key));
 
@@ -345,7 +344,7 @@ ownCloud.prototype.enableApp = function(appname) {
  * @param  {string}   appname  name of the app to be disabled
  * @param  {Function} callback error, body(boolean)
  */
-ownCloud.prototype.disableApp = function(appname, callback) {
+ownCloud.prototype.disableApp = function(appname) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
@@ -370,63 +369,38 @@ ownCloud.prototype.disableApp = function(appname, callback) {
  * @param {string}   	[password] 				sets a password
  * @param {Function}    shareCallbackcallback 	error, body (instance of class shareInfo)
  */
-ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) {
-    var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    path = args.shift();
+ownCloud.prototype.shareFileWithLink = function(path, optionalParams) {
     path = this._normalizePath(path);
+    var self = this;
     
     var postData = {
         'shareType': this.OCS_SHARE_TYPE_LINK,
         'path': this._encodeString(path)
     };
 
-    if (args.length == 1) {
-    	optionalParams = args[0];
-
-	    if ('perms' in optionalParams) {
-		    postData['permissions'] = parseInt(optionalParams['perms']);
+    if (optionalParams) {
+	    if (optionalParams.perms) {
+	    	postData.permissions = optionalParams.perms;
 	    }
-
-	    if ('publicUpload' in optionalParams) {
-		    postData['publicUpload'] = optionalParams['publicUpload'].toString().toLowerCase();
+	    if (optionalParams.password) {
+	    	postData.password = optionalParams.password;
 	    }
-
-	    if ('password' in optionalParams) {
-		    postData['password'] = optionalParams['password'].toString();
+	    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
+	    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
 	    }
     }
 
-    var self = this;
+    return new Promise((resolve, reject) => {
+    	self._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 'shares', postData)
+    	.then(data => {
+    		var shareDetails = parser.toJson(data.body, {object : true}).ocs.data;
+    		var share = new shareInfo(shareDetails);
 
-    this._makeOCSrequest(
-        'POST',
-        this.OCS_SERVICE_SHARE,
-        'shares',
-        postData,
-        function(error, response, body) {
-        	var share = null;
-
-		    var tree = parser.toJson(body, {object : true});
-		    
-		    if (!error) {
-			    error = self._checkOCSstatus(tree);
-		    }
-        	
-        	if (!error) {
-				body = tree.ocs.data;
-
-			    share = new shareInfo(body);
-
-			    error = null;
-			}
-			callback(error, share);
-        }
-    );
+    		resolve(share);
+    	}).catch(error => {
+    		reject(error);
+    	});
+    });
 };
 
 /**
@@ -437,19 +411,7 @@ ownCloud.prototype.shareFileWithLink = function(path, optionalParams, callback) 
  * @param 	{boolean}	  publicUpload	   enable/disable public upload for public shares
  * @param 	{Function}	  callback		   error, body(boolean)
  */
-ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    shareId = args.shift();
-
-    if (args.length == 1) {
-    	optionalParams = args[0];
-    }
-
+ownCloud.prototype.updateShare = function(shareId, optionalParams) {
     var postData = {};
     var self = this;
 
@@ -463,23 +425,15 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
     	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
     }
 
-    this._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
-    	'shares/' + encodeURIComponent(shareId.toString()), postData, 
-    	function (error, response, body) {
-    		var ret = null;
-    		if (!error && response.statusCode === 200) {
-    			var tree = parser.toJson(body, {object: true});
-    			error = self._checkOCSstatus(tree);
-
-    			if (!error) {
-    				error = null;
-	    			ret = true;
-    			}
-    		}
-
-    		callback(error, ret);
-    	}
-    );
+    return new Promise((resolve, reject) => {
+    	self._makeOCSrequest('PUT', this.OCS_SERVICE_SHARE, 
+    		'shares/' + encodeURIComponent(shareId.toString()), postData
+    	).then(data => {
+    		resolve(true);
+    	}).catch(error => {
+    		reject(error);
+    	})
+    });
 };
 
 /**
@@ -490,17 +444,9 @@ ownCloud.prototype.updateShare = function(shareId, optionalParams, callback) {
  * @param {boolean}  			[remoteUser] 		user is remote or not
  * @param {Function}            shareCallback 		error, body (instance of class shareInfo)
  */
-ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, callback) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    path = args.shift();
+ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams) {
     path = this._normalizePath(path);
-
-    username = args.shift();
+    var self = this;
     
     var postData = {
         'shareType': this.OCS_SHARE_TYPE_USER,
@@ -508,44 +454,27 @@ ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, 
         'path': this._encodeString(path)
     };
 
-    if (args.length == 1) {
-    	optionalParams = args[0];
-
-	    if ('perms' in optionalParams) {
-		    postData['permissions'] = optionalParams['perms'];
+    if (optionalParams) {
+	    if (optionalParams.perms) {
+		    postData.permissions = optionalParams.perms;
 	    }
 
-	    if ('remoteUser' in optionalParams) {
-		    postData['shareType'] = this.OCS_SHARE_TYPE_REMOTE;
+	    if (optionalParams.remoteUser) {
+		    postData.shareType = this.OCS_SHARE_TYPE_REMOTE;
 	    }
     }
 
-    var self = this;
+    return new Promise((resolve, reject) => {
+    	self._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 'shares', postData)
+    	.then(data => {
+    		var shareData = parser.toJson(data.body, {object: true}).ocs.data;
 
-    this._makeOCSrequest(
-        'POST',
-        this.OCS_SERVICE_SHARE,
-        'shares',
-        postData,
-        function(error, response, body) {
-        	var share;
-
-		    var tree = parser.toJson(body, {object : true});
-		    
-		    if (!error) {
-			    error = self._checkOCSstatus(tree);
-		    }
-        	
-        	if (!error) {
-				body = tree.ocs.data;
-
-			    share = new shareInfo(body);
-
-			    error = null;
-			}
-			callback(error, share);
-        }
-    );
+    		var share = new shareInfo(shareData);
+    		resolve(share);
+    	}).catch(error => {
+    		reject(error);
+    	})
+    });
 };
 
 /**
@@ -555,17 +484,9 @@ ownCloud.prototype.shareFileWithUser = function(path, username, optionalParams, 
  * @param {string}  			[perms = 1]			permission of the shared object defaults to read only (1)
  * @param {Function}            shareCallback 		error, body (instance of class shareInfo)
  */
-ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams, callback) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    path = args.shift();
-    path = this._normalizePath(path);
-
-    groupName = args.shift();
+ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams) {
+	path = this._normalizePath(path);
+	var self = this;
     
     var postData = {
         'shareType': this.OCS_SHARE_TYPE_GROUP,
@@ -573,40 +494,20 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
         'path': this._encodeString(path)
     };
 
-    if (args.length == 1) {
-    	optionalParams = args[0];
-
-	    if ('perms' in optionalParams) {
-		    postData['permissions'] = optionalParams['perms'];
-	    }
+    if (optionalParams && optionalParams.perms) {
+	    postData.permissions = optionalParams.perms;
     }
 
-    var self = this;
-
-    this._makeOCSrequest(
-        'POST',
-        this.OCS_SERVICE_SHARE,
-        'shares',
-        postData,
-        function(error, response, body) {
-        	var share = null;
-
-		    var tree = parser.toJson(body, {object : true});
-		    
-		    if (!error) {
-			    error = self._checkOCSstatus(tree);
-		    }
-        	
-        	if (!error) {
-				body = tree.ocs.data;
-
-			    share = new shareInfo(body);
-
-			    error = null;
-			}
-			callback(error, share);
-        }
-    );
+    return new Promise((resolve, reject) => {
+    	self._makeOCSrequest('POST', this.OCS_SERVICE_SHARE, 'shares', postData)
+    	.then(data => {
+    		var shareData = parser.toJson(data.body, {object: true}).ocs.data;
+    		var share = new shareInfo(shareData);
+    		resolve(share);
+    	}).catch(error => {
+    		reject(error);
+    	})
+    });
 };
 
 /**
@@ -616,41 +517,28 @@ ownCloud.prototype.shareFileWithGroup = function(path, groupName, optionalParams
  *                                   "subfiles": boolean, "shared_with_me": boolean}
  * @param  {Function} callback       error, body(array of shareInfo objects)
  */
-ownCloud.prototype.getShares = function(path, optionalParams, callback){
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    path = args.shift();
-
-    if (args.length == 1) {
-    	optionalParams = args[0];
-    }
-
+ownCloud.prototype.getShares = function(path, optionalParams){
     var data = 'shares';
+    var self = this;
+	var send = {};
 
     if (path !== '') {
     	data += '?';
 
-    	path = this._encodeString(this._normalizePath(path));
-    	var send = {};
+    	send.path = this._encodeString(this._normalizePath(path));
     	optionalParams = this._convertObjectToBool(optionalParams);
 
-    	send['path'] = path;
-
     	if (optionalParams) {
-    		if ('reshares' in optionalParams && typeof(optionalParams['reshares']) === "boolean") {
-    			send['reshares'] = optionalParams['reshares'];
+    		if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
+    			send.reshares = optionalParams.reshares;
     		}
 
-			if ('subfiles' in optionalParams && typeof(optionalParams['subfiles']) === "boolean") {
-    			send['subfiles'] = optionalParams['subfiles'];
+			if (optionalParams.subfiles && typeof(optionalParams.subfiles) === "boolean") {
+    			send.subfiles = optionalParams.subfiles;
     		}
 
-    		if ('shared_with_me' in optionalParams && typeof(optionalParams['shared_with_me']) === "boolean") {
-    			send['shared_with_me'] = optionalParams['shared_with_me'];
+    		if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
+    			send.shared_with_me = optionalParams.shared_with_me;
     		}
     	}
 
@@ -658,39 +546,30 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
     	for (var key in send) {
     		urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key]);
     	}
-
     	urlString = urlString.slice(1); // removing the first '&'
 
     	data += urlString;
     }
 
-    var self = this;
+    return new Promise((resolve, reject) => {
+    	self._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, data)
+    	.then(data => {
+    		var elements = parser.toJson(data.body, {object: true}).ocs.data.element || [];
+    		var shares = [];
 
-    this._makeOCSrequest('GET', this.OCS_SERVICE_SHARE, data, function (error, response, body) {
-    	var tree, elements, shares;
-
-    	if (!error) {
-	    	tree = parser.toJson(body, {object : true});
-	    	elements = tree.ocs.data.element;
-	    	shares = [];
-	    }
-
-    	if (!error) {
-    		error = self._checkOCSstatus(tree);
-    	}
-
-    	if (!error) {
-    		if (elements && typeof(elements) !== "object") {
+    		if (elements.length > 0 && elements.constructor !== Array) {
     			// just a single element
-    			elements = [elements];
+    			elements = [ elements ];
     		}
-	    	for (var i in elements) {
+	    	for (var i=0;i<elements.length;i++) {
 	    		var share = new shareInfo(elements[i]);
 	    		shares.push(share);
 	    	}
-	    	error = null;
-	    }
-    	callback(error, shares);
+
+	    	resolve(shares);
+    	}).catch(error => {
+    		reject(error);
+    	})
     });
 };
 
@@ -700,27 +579,25 @@ ownCloud.prototype.getShares = function(path, optionalParams, callback){
  * @param  {string}   path     path to the share to be checked
  * @param  {Function} callback error, body(boolean : true if shared, false if not)
  */
-ownCloud.prototype.isShared = function(path, callback) {
+ownCloud.prototype.isShared = function(path) {
 	var self = this;
 
 	var bod = false;
 	var err;
 
 	// check if file exists (webDAV)
-	//this.fileInfo(path, function (err, res, bod) {
-		//if (!err) {
-			self.getShares(path, function(error, shares) {
-				err = error;
-
-				if (!err) {
-					bod = shares.length > 0;
-					err = null;
-				}
-
-				callback(err, bod);
-			});
-		//}
-	//});
+	return new Promise((resolve, reject) => {
+		//this.fileInfo(path, function (err, res, bod) {
+			//if (!err) {
+				self.getShares(path)
+				.then(shares => {
+					resolve(shares.length > 0);
+				}).catch(error => {
+					reject(error);
+				});
+			//}
+		//});
+	});
 };
 
 /**
@@ -728,60 +605,42 @@ ownCloud.prototype.isShared = function(path, callback) {
  * @param  {Number}   shareId  ID of the share to be checked
  * @param  {Function} callback error, body(instance of class shareInfo)
  */
-ownCloud.prototype.getShare = function(shareId, callback) {
+ownCloud.prototype.getShare = function(shareId) {
 	var self = this;
 
-	if (isNaN((parseInt(shareId)))) {
-		callback("share ID specified should be a number", null);
-		return;
-	}
+	return new Promise((resolve, reject) => {
+		if (isNaN((parseInt(shareId)))) {
+			reject("share ID specified should be a number");
+			return;
+		}
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'shares/' + shareId.toString(), 
-		function (error, response, body) {
-			var shareInstance = null;
+		self._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
+		.then(data => {
+			var shareData = parser.toJson(data.body, {object: true}).ocs.data.element;
+			var share = new shareInfo(shareData);
 
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-
-				error = self._checkOCSstatus(tree);
-
-				if (!error) {
-			    	var share = tree.ocs.data.element;
-
-			    	shareInstance = new shareInfo(share);
-
-			    	error = null;
-				}
-			}
-
-			callback(error, shareInstance);
-		});
+			resolve(share);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
  * List all pending remote share
  * @param  {Function} callback error, body(array of shares)
  */
-ownCloud.prototype.listOpenRemoteShare = function(callback) {
+ownCloud.prototype.listOpenRemoteShare = function() {
 	var self = this;
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'remote_shares/pending', function (error, response, body) {
-		var shares;
-
-		if (!error && response.statusCode === 200) {
-			var tree = parser.toJson(body, {object: true});
-
-			error = self._checkOCSstatus(tree);
-
-			if (!error) {
-				shares = tree.ocs.data.element;
-				if (!shares) {
-					shares = [];
-				}
-			}
-		}
-
-		callback(error, shares);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', self.OCS_SERVICE_SHARE, 'remote_shares/pending')
+		.then(data => {
+			var shares = parser.toJson(data.body, {object: true}).ocs.data.element || [];
+			resolve(shares);
+		}).catch(error => {
+			reject(error);
+		})
 	});
 };
 
@@ -790,25 +649,23 @@ ownCloud.prototype.listOpenRemoteShare = function(callback) {
  * @param  {integer}  shareId  ID of the share to accept
  * @param  {Function} callback error, body(boolean)
  */
-ownCloud.prototype.acceptRemoteShare = function(shareId, callback) {
-	if (!parseInt(shareId)) {
-		callback("Please pass a valid share ID (Integer)", null);
-		return;
-	}
-
+ownCloud.prototype.acceptRemoteShare = function(shareId) {
 	var self = this;
-	var ret;
 
-	this._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 
-		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
-		function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				ret = true;
-			}
-
-			callback(error, ret);
+	return new Promise((resolve, reject) => {
+		if (isNaN((parseInt(shareId)))) {
+			reject("Please pass a valid share ID (Integer)", null);
+			return;
 		}
-	);
+
+		self._makeOCSrequest('POST', self.OCS_SERVICE_SHARE, 
+			'remote_shares/pending' + encodeURIComponent(shareId.toString())
+		).then(data => {
+			resolve(true);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -816,25 +673,23 @@ ownCloud.prototype.acceptRemoteShare = function(shareId, callback) {
  * @param  {integer}  shareId  ID of the share to decline
  * @param  {Function} callback error, body(boolean)
  */
-ownCloud.prototype.declineRemoteShare = function(shareId, callback) {
-	if (!parseInt(shareId)) {
-		callback("Please pass a valid share ID (Integer)", null);
-		return;
-	}
-
+ownCloud.prototype.declineRemoteShare = function(shareId) {
 	var self = this;
-	var ret;
 
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
-		'remote_shares/pending' + encodeURIComponent(shareId.toString()),
-		function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				ret = true;
-			}
-
-			callback(error, ret);
+	return new Promise((resolve, reject) => {
+		if (isNaN((parseInt(shareId)))) {
+			reject("Please pass a valid share ID (Integer)", null);
+			return;
 		}
-	);
+
+		self._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
+		'remote_shares/pending' + encodeURIComponent(shareId.toString())
+		).then(data => {
+			resolve(true);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -842,25 +697,23 @@ ownCloud.prototype.declineRemoteShare = function(shareId, callback) {
  * @param  {integer}  shareId  ID of the share to delete
  * @param  {Function} callback error, body(boolean)
  */
-ownCloud.prototype.deleteShare = function(shareId, callback) {
-	if (!parseInt(shareId)) {
-		callback("Please pass a valid share ID (Integer)", null);
-		return;
-	}
-
+ownCloud.prototype.deleteShare = function(shareId) {
 	var self = this;
-	var ret;
 
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
-		'shares/' + encodeURIComponent(shareId.toString()),
-		function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				ret = true;
-			}
-
-			callback(error, ret);
+	return new Promise((resolve, reject) => {
+		if (isNaN((parseInt(shareId)))) {
+			reject("Please pass a valid share ID (Integer)", null);
+			return;
 		}
-	);
+
+		self._makeOCSrequest('DELETE', self.OCS_SERVICE_SHARE, 
+			'shares/' + encodeURIComponent(shareId.toString())
+		).then(data => {
+			resolve(true);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /////////////////////////////////////
@@ -875,14 +728,18 @@ ownCloud.prototype.deleteShare = function(shareId, callback) {
  * @param  {string}   password password of the new user to be created
  * @param  {Function} callback error, body(boolean : whether user was created or not)
  */
-ownCloud.prototype.createUser = function(username, password, callback) {
+ownCloud.prototype.createUser = function(username, password) {
 	var self = this;
 
-	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users', 
-		{'password' : password, 'userid' : username}, function(error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users', 
+			{'password' : password, 'userid' : username}
+		).then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -890,14 +747,17 @@ ownCloud.prototype.createUser = function(username, password, callback) {
  * @param  {string}   username name of user to be deleted
  * @param  {Function} callback error, body(boolean)
  */
-ownCloud.prototype.deleteUser = function(username, callback) {
+ownCloud.prototype.deleteUser = function(username) {
 	var self = this;
 
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'users/' + username, 
-		function(error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'users/' + username)
+		.then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -905,49 +765,31 @@ ownCloud.prototype.deleteUser = function(username, callback) {
  * @param  {string}   name     username of the user to be searched
  * @param  {Function} callback error, body(array of search results i.e users)
  */
-ownCloud.prototype.searchUsers = function(name, callback) {
-	action = 'users';
-
-	if (name) {
-		action += '?search=' + name;
-	}
-
+ownCloud.prototype.searchUsers = function(name) {
 	var self = this;
+	
+	action = 'users';
+	if(name) action += '?search=' + name;
 
-	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action, function(error, response, body) {
-			var users = [];
-
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-				
-				if (!error) {
-					users = tree.ocs.data.users.element;
-
-					if (users && typeof(users) !== "object") {
-						// single element
-						users = [ users ];
-					}
-
-					if (!users) {
-						// no element, return empty array
-						users = [];
-					}
-
-					error = null;
-				}
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action)
+		.then(data => {
+			var tree = parser.toJson(data.body, {object : true});
+			var statusCode = self._checkOCSstatusCode(tree);
+			if (statusCode == 999) {
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
 
-			callback(error, users);
-		}
-	);
+			var users = tree.ocs.data.users.element || [];
+			if (users.length > 0 && users.constructor !== Array) {
+				users = [ users ];
+			}
+			resolve(users);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -955,16 +797,16 @@ ownCloud.prototype.searchUsers = function(name, callback) {
  * @param  {string}   name     name of user to be checked
  * @param {Function} callback error, body(boolean; whether exists or not)
  */
-ownCloud.prototype.userExists = function(name, callback) {
-	if (!name) {
-		name = '';
-	}
-	this.searchUsers(name, function(error, body) {
-		var ret;
-		if (!error) {
-			ret = body.indexOf(name) > -1;
-		}
-		callback(error, ret);
+ownCloud.prototype.userExists = function(name) {
+	var self = this;
+	if (!name) name = '';
+
+	return new Promise((resolve, reject) => {
+		self.searchUsers(name).then(users => {
+			resolve(users.indexOf(name) > -1);
+		}).catch(error => {
+			reject(error);
+		})
 	});
 };
 
@@ -972,9 +814,15 @@ ownCloud.prototype.userExists = function(name, callback) {
  * Get all users via Provisioning API
  * @param  {Function} callback error, body(array of all users)
  */
-ownCloud.prototype.getUsers = function(callback) {
-	this.searchUsers('', function(error, body) {
-		callback(error, body);
+ownCloud.prototype.getUsers = function() {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		self.searchUsers('').then(users => {
+			resolve(users);
+		}).catch(error => {
+			reject(error);
+		})
 	});
 };
 
@@ -985,18 +833,18 @@ ownCloud.prototype.getUsers = function(callback) {
  * @param {string}   value    value to be set
  * @param {Function} callback error, body(boolean)
  */
-ownCloud.prototype.setUserAttribute = function(username, key, value, callback) {
+ownCloud.prototype.setUserAttribute = function(username, key, value) {
 	var self = this;
 
-	this._makeOCSrequest('PUT', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
-		{
-			'key' :   self._encodeString(key),
-		 	'value' : self._encodeString(value)
-		}, 
-		function(error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('PUT', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
+			{'key' :   self._encodeString(key), 'value' : self._encodeString(value)}
+		).then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1005,17 +853,18 @@ ownCloud.prototype.setUserAttribute = function(username, key, value, callback) {
  * @param {string}   groupName name of group user is to be added to
  * @param {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.addUserToGroup = function(username, groupName, callback) {
+ownCloud.prototype.addUserToGroup = function(username, groupName) {
 	var self = this;
 
-	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/groups', 
-		{
-			'groupid' : groupName
-		}, 
-		function(error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, response) => {
+		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 
+			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
+		).then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1023,44 +872,29 @@ ownCloud.prototype.addUserToGroup = function(username, groupName, callback) {
  * @param  {string}   username name of user to list groups
  * @param  {Function} callback error, body(array of user groups)
  */
-ownCloud.prototype.getUserGroups = function(username, callback) {
+ownCloud.prototype.getUserGroups = function(username) {
 	var self = this;
 
-	this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/groups', 
-		function(error, response, body) {
-			var groups = [];
-
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-				
-				if (!error) {
-					groups = tree.ocs.data.groups.element;
-
-					if (groups && typeof(groups) !== "object") {
-						// single element
-						groups = [ groups ];
-					}
-
-					if (!groups) {
-						// no element, return empty array
-						groups = [];
-					}
-
-					error = null;
-				}
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 
+			'users/' + encodeURIComponent(username) + '/groups'
+		).then(data => {
+			var tree = parser.toJson(data.body, {object : true});
+			var statusCode = self._checkOCSstatusCode(tree);
+			if (statusCode == 999) {
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
 
-			callback(error, groups);
-		}
-	);
+			var groups = tree.ocs.data.groups.element || [];
+			if (groups.length > 0 && groups.constructor !== Array) {
+				groups = [ groups ];
+			}
+			resolve(groups);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1069,14 +903,15 @@ ownCloud.prototype.getUserGroups = function(username, callback) {
  * @param  {string}   groupName name of group
  * @param  {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.userIsInGroup = function(username, groupName, callback) {
-	this.getUserGroups(username, function(error, body) {
-		var ret = null;
-		if (!error) {
-			ret = body.indexOf(groupName) > -1;
-			error = null;
-		}
-		callback(error, ret);
+ownCloud.prototype.userIsInGroup = function(username, groupName) {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		self.getUserGroups(username).then(groups => {
+			resolve(groups.indexOf(groupName) > -1);
+		}).catch(error => {
+			reject(error);
+		})
 	});
 };
 
@@ -1085,33 +920,26 @@ ownCloud.prototype.userIsInGroup = function(username, groupName, callback) {
  * @param  {string}   username name of the user
  * @param  {Function} callback error, body(object having details of the user)
  */
-ownCloud.prototype.getUser = function(username, callback) {
+ownCloud.prototype.getUser = function(username) {
 	var self = this;
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
-		function (error, response, body) {
-			var info = null;
-
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-				
-				if (!error) {
-					info = tree.ocs.data;
-					error = null;
-				}
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 
+			'users/' + encodeURIComponent(username)
+		).then(data => {
+			var tree = parser.toJson(data.body, {object : true});
+			var statusCode = self._checkOCSstatusCode(tree);
+			if (statusCode == 999) {
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
 
-			callback(error, info);
-		}
-	);
+			var userInfo = tree.ocs.data || null;
+			resolve(userInfo);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1120,17 +948,18 @@ ownCloud.prototype.getUser = function(username, callback) {
  * @param  {string}   groupName name of group
  * @param  {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.removeUserFromGroup = function(username, groupName, callback) {
+ownCloud.prototype.removeUserFromGroup = function(username, groupName) {
 	var self = this;
 
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/groups',
-		{
-			'groupid' : groupName
-		}, 
-		function (error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 
+			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
+		).then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1139,17 +968,18 @@ ownCloud.prototype.removeUserFromGroup = function(username, groupName, callback)
  * @param {string}   groupName name of group
  * @param {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.addUserToSubadminGroup = function(username, groupName, callback) {
+ownCloud.prototype.addUserToSubadminGroup = function(username, groupName) {
 	var self = this;
 
-	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/subadmins', 
-		{
-			'groupid' : groupName
-		}, 
-		function(error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, [100, 103], callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 
+			'users/' + encodeURIComponent(username) + '/subadmins', {'groupid' : groupName}
+		).then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1157,44 +987,29 @@ ownCloud.prototype.addUserToSubadminGroup = function(username, groupName, callba
  * @param  {string}   username name of user
  * @param  {Function} callback error, body(array of subadmin groups)
  */
-ownCloud.prototype.getUserSubadminGroups = function(username, callback) {
+ownCloud.prototype.getUserSubadminGroups = function(username) {
 	var self = this;
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username) + '/subadmins',
-		function(error, response, body) {
-			var groups = [];
-
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-				
-				if (!error) {
-					groups = tree.ocs.data.element;
-
-					if (groups && typeof(groups) !== "object") {
-						// single element
-						groups = [ groups ];
-					}
-
-					if (!groups) {
-						// no element, return empty array
-						groups = [];
-					}
-
-					error = null;
-				}
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 
+			'users/' + encodeURIComponent(username) + '/subadmins'
+		).then(data => {
+			var tree = parser.toJson(data.body, {object : true});
+			var statusCode = self._checkOCSstatusCode(tree);
+			if (statusCode == 999) {
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
 
-			callback(error, groups);
-		}
-	);
+			var groups = tree.ocs.data.element || [];
+			if (groups.length > 0 && groups.constructor !== Array) {
+				groups = [ groups ];
+			}
+			resolve(groups);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1203,14 +1018,15 @@ ownCloud.prototype.getUserSubadminGroups = function(username, callback) {
  * @param  {string}   groupName name of group
  * @param  {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.userIsInSubadminGroup = function(username, groupName, callback) {
-	this.getUserSubadminGroups(username, function(error, body) {
-		var ret = null;
-		if (!error) {
-			ret = body.indexOf(groupName) > -1;
-			error = null;
-		}
-		callback(error, ret);
+ownCloud.prototype.userIsInSubadminGroup = function(username, groupName) {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		self.getUserSubadminGroups(username).then(groups => {
+			resolve(groups.indexOf(groupName) > -1);
+		}).catch(error => {
+			reject(error);
+		})
 	});
 };
 
@@ -1223,14 +1039,17 @@ ownCloud.prototype.userIsInSubadminGroup = function(username, groupName, callbac
  * @param  {string}   groupName name of group to be created
  * @param  {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.createGroup = function(groupName, callback) {
+ownCloud.prototype.createGroup = function(groupName) {
 	var self = this;
 
-	this._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'groups', {'groupid' : groupName},
-		function (error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'groups', {'groupid' : groupName})
+		.then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1238,55 +1057,45 @@ ownCloud.prototype.createGroup = function(groupName, callback) {
  * @param  {string}   groupName name of group to be created
  * @param  {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.deleteGroup = function(groupName, callback) {
+ownCloud.prototype.deleteGroup = function(groupName) {
 	var self = this;
 
-	this._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'groups/' + groupName, 
-		function (error, response, body) {
-			self._OCSuserResponseHandler(error, response, body, callback);
-		}
-	);
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'groups/' + groupName)
+		.then(data => {
+			self._OCSuserResponseHandler(data, resolve, reject);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
  * Gets all groups in the instance
  * @param  {Function} callback error, body(array of all groups)
  */
-ownCloud.prototype.getGroups = function(callback) {
+ownCloud.prototype.getGroups = function() {
 	var self = this;
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups', function (error, response, body) {
-		var groups;
-
-		if (!error && response.statusCode == 200) {
-			var tree = parser.toJson(body, {object : true});
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups')
+		.then(data => {
+			var tree = parser.toJson(data.body, {object : true});
 			var statusCode = self._checkOCSstatusCode(tree);
-
 			if (statusCode == 999) {
-				error = "Provisioning API has been disabled at your instance";
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
-			else {
-				error = self._checkOCSstatus(tree);
+
+			var groups = tree.ocs.data.groups.element || [];
+			if (groups.length > 0 && groups.constructor !== Array) {
+				// single element
+				groups = [ groups ];
 			}
-			
-			if (!error) {
-				groups = tree.ocs.data.groups.element;
-
-				if (groups && typeof(groups) !== "object") {
-					// single element
-					groups = [ groups ];
-				}
-
-				if (!groups) {
-					// no element, return empty array
-					groups = [];
-				}
-
-				error = null;
-			}
-		}
-
-		callback(error, groups);
+			resolve(groups);
+		}).catch(error => {
+			reject(error);
+		})
 	});
 };
 
@@ -1295,44 +1104,29 @@ ownCloud.prototype.getGroups = function(callback) {
  * @param  {string}   groupName name of group to list members
  * @param  {Function} callback  error, body(array of all members)
  */
-ownCloud.prototype.getGroupMembers = function(groupName, callback) {
+ownCloud.prototype.getGroupMembers = function(groupName) {
 	var self = this;
 
-	this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName), 
-		function (error, response, body) {
-			var members;
-
-			if (!error && response.statusCode == 200) {
-				var tree = parser.toJson(body, {object : true});
-				var statusCode = self._checkOCSstatusCode(tree);
-
-				if (statusCode == 999) {
-					error = "Provisioning API has been disabled at your instance";
-				}
-				else {
-					error = self._checkOCSstatus(tree);
-				}
-				
-				if (!error) {
-					members = tree.ocs.data.users.element;
-
-					if (members && typeof(members) !== "object") {
-						// single element
-						members = [ members ];
-					}
-
-					if (!members) {
-						// no element, return empty array
-						members = [];
-					}
-
-					error = null;
-				}
+	return new Promise((resolve, reject) => {
+		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
+		.then(data => {
+			var tree = parser.toJson(data.body, {object : true});
+			var statusCode = self._checkOCSstatusCode(tree);
+			if (statusCode == 999) {
+				reject("Provisioning API has been disabled at your instance");
+				return;
 			}
 
-			callback(error, members);
-		}
-	);
+			var groups = tree.ocs.data.users.element || [];
+			if (groups.length > 0 && groups.constructor !== Array) {
+				// single element
+				groups = [ groups ];
+			}
+			resolve(groups);
+		}).catch(error => {
+			reject(error);
+		})
+	});
 };
 
 /**
@@ -1340,16 +1134,15 @@ ownCloud.prototype.getGroupMembers = function(groupName, callback) {
  * @param  {string}   groupName name of group to check
  * @param  {Function} callback  error, body(boolean)
  */
-ownCloud.prototype.groupExists = function(groupName, callback) {
-	this.getGroups(function (error, body) {
-		var ret = false;
+ownCloud.prototype.groupExists = function(groupName) {
+	var self = this;
 
-		if (!error) {
-			ret = body.indexOf(groupName) > -1;
-			error = null;
-		}
-
-		callback(error, ret);
+	return new Promise((resolve, reject) => {
+		self.getGroups().then(groups => {
+			resolve(groups.indexOf(groupName) > -1);
+		}).catch(error => {
+			reject(error);
+		});
 	});
 };
 
@@ -1632,55 +1425,5 @@ ownCloud.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
 
 	resolve(true);
 };
-
-/**
- * Used for handling the response of boolean returning OCS-User related methods
- * @param  {string}   error    error to be returned (from _makeOCSrequest)
- * @param  {object}   response response from _makeOCSrequest
- * @param  {string/object}   body     body/data from _makeOCSrequest
- * @param  {Function} callback callback to be returned
- */
-/*ownCloud.prototype._OCSuserResponseHandler = function(error, response, body, optionalStatusCodes) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    callback = args.pop();
-    error = args.shift();
-    response = args.shift();
-    body = args.shift();
-    optionalStatusCodes = null;
-
-    if (args.length === 1) {
-	    optionalStatusCodes = args.shift();
-	}
-
-	var status = false;
-	var self = this;
-	if (!error) {
-		var tree = parser.toJson(body, {object : true});
-		var statusCode = parseInt(self._checkOCSstatusCode(tree));
-
-		if (statusCode === 999) {
-			error = "Provisioning API has been disabled at your instance";
-		}
-		else {
-			if (optionalStatusCodes) {
-				error = self._checkOCSstatus(tree, optionalStatusCodes);
-			}
-			else {
-				error = self._checkOCSstatus(tree);
-			}
-		}
-		
-		if (!error) {
-			error = null;
-			status = true;
-		}
-	}
-
-	callback(error, status);
-};*/
 
 module.exports = ownCloud;

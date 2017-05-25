@@ -48,7 +48,7 @@ describe("Currently testing Login and initLibrary,", function() {
 		oc = new ownCloud('someRandomName');
 
 		oc.login(config.username, config.password).then(status => {
-			expect(status).tobe(null);
+			expect(status).toBe(null);
 			done();
 		}).catch(error => {
 			expect(error).toBe("Please provide a valid owncloud instance");

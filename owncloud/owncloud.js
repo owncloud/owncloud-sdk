@@ -1285,7 +1285,7 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action) {
 		}
 
 		// Start the request
-		request(options, function (error, response, body) {		 
+		request(options, function (error, response, body) {
 			var validXml = self._isValidXML(body);
 			var validJson = self._isValidJSON(body);
 			
@@ -1293,6 +1293,9 @@ ownCloud.prototype._makeOCSrequest = function (method, service, action) {
 				body = JSON.parse(body);
 				if ("message" in body) {
 					error = body.message;
+				}
+				else {
+					error = "Please provide a valid owncloud instance";	
 				}
 			}
 

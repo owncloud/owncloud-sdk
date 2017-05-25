@@ -21,13 +21,17 @@ var owncloud = require('js-owncloud-client/owncloud');
 var oc = new owncloud('*owncloud instance URL*')
 
 // Login
-oc.login('username', 'password', function(error, status) {
+oc.login('username', 'password').then(status => {
   // STUFF
+}).catch(error => {
+  // HANDLE ERROR
 });
 
 // Share File With Link
-oc.shareFileWithLink('linkToYourFile', function(error, shareInfo) {
+oc.shareFileWithLink('linkToYourFile').then(shareInfo => {
   console.log("Link is : " + shareInfo.getLink());
+}).catch(error => {
+  // HANDLE ERROR
 });
 
 ```

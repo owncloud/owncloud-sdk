@@ -6,6 +6,12 @@ ifndef VERBOSE
 .SILENT:
 endif
 
+.PHONY: all
+
+all:
+	sudo npm i
+	sudo npm --prefix ./docs-swagger/ i ./docs-swagger/
+
 swagger:
 	node docs-swagger/server.js
 

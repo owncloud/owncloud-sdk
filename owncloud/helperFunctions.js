@@ -128,6 +128,10 @@ helpers.prototype.getVersion = function() {
 	return this._version;
 };
 
+helpers.prototype.getCapabilities = function() {
+	return this._capabilities;
+};
+
 /**
  * Updates the capabilities of user logging in.
  * @param {Function} callback error, reponse, body(capabilities)

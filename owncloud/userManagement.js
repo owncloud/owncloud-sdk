@@ -8,6 +8,7 @@ var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
 var Promise = require('es6-promise').Promise;
+var helpers;
 
 /**
  * @class ownCloud
@@ -86,7 +87,8 @@ var Promise = require('es6-promise').Promise;
  * @version 1.0.0
  * @param {string} 		URL 	URL of the ownCloud instance
  */
-function users() {
+function users(helperFile) {
+	helpers = helperFile;
 }
 
 /**
@@ -101,10 +103,10 @@ users.prototype.createUser = function(username, password) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'users', 
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'users', 
 			{'password' : password, 'userid' : username}
 		).then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -120,9 +122,9 @@ users.prototype.deleteUser = function(username) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'users/' + username)
+		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'users/' + username)
 		.then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -143,10 +145,10 @@ users.prototype.searchUsers = function(name) {
 	}
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, action)
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, action)
 		.then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
@@ -191,7 +193,7 @@ users.prototype.getUsers = function() {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self.searchUsers('').then(users => {
+		helpers.searchUsers('').then(users => {
 			resolve(users);
 		}).catch(error => {
 			reject(error);
@@ -210,10 +212,10 @@ users.prototype.setUserAttribute = function(username, key, value) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('PUT', self.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
-			{'key' :   self._encodeString(key), 'value' : self._encodeString(value)}
+		helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
+			{'key' :   helpers._encodeString(key), 'value' : helpers._encodeString(value)}
 		).then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -230,10 +232,10 @@ users.prototype.addUserToGroup = function(username, groupName) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
 		).then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -249,11 +251,11 @@ users.prototype.getUserGroups = function(username) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups'
 		).then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
@@ -297,11 +299,11 @@ users.prototype.getUser = function(username) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username)
 		).then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
@@ -325,10 +327,10 @@ users.prototype.removeUserFromGroup = function(username, groupName) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 
+		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
 		).then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -345,10 +347,10 @@ users.prototype.addUserToSubadminGroup = function(username, groupName) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/subadmins', {'groupid' : groupName}
 		).then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -364,11 +366,11 @@ users.prototype.getUserSubadminGroups = function(username) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/subadmins'
 		).then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;

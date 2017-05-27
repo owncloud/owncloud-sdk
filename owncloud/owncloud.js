@@ -9,6 +9,7 @@ var apps = require('./appManagement.js');
 var shares = require('./shareManagement.js');
 var users = require('./userManagement.js');
 var groups = require('./groupManagement.js');
+var files = require('./fileManagement.js');
 var helpers = new helperFile();
 
 /**
@@ -100,31 +101,13 @@ function ownCloud(instance) {
 	}
 
 	helpers.setInstance(http + instance + slash);
+
+	this.apps = new apps(helpers);
+	this.shares = new shares(helpers);
+	this.users = new users(helpers);
+	this.groups = new groups(helpers);
+	this.files = new files(helpers);
 }
-
-/**
- * module to interface with owncloud instance's Apps
- * @type {Class}
- */
-ownCloud.prototype.apps = new apps();
-
-/**
- * module to interface with owncloud instance's Shares
- * @type {Class}
- */
-ownCloud.prototype.shares = new shares();
-
-/**
- * module to interface with owncloud instance's Users
- * @type {Class}
- */
-ownCloud.prototype.users = new users();
-
-/**
- * module to interface with owncloud instance's Groups
- * @type {Class}
- */
-ownCloud.prototype.groups = new groups();
 
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
@@ -175,7 +158,7 @@ ownCloud.prototype.getVersion = function() {
 	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		if (version === null) {
-			self._updateCapabilities()
+			helpers._updateCapabilities()
 			.then(body => {
 				resolve(helpers.getVersion());
 			}).catch(error => {
@@ -198,7 +181,7 @@ ownCloud.prototype.getCapabilities = function() {
 	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
 		if (capabilities === null) {
-			self._updateCapabilities()
+			helpers._updateCapabilities()
 			.then(body => {
 				resolve(body);
 			}).catch(error => {

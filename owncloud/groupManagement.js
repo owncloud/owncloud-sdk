@@ -8,6 +8,7 @@ var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
 var Promise = require('es6-promise').Promise;
+var helpers;
 
 /**
  * @class ownCloud
@@ -86,7 +87,8 @@ var Promise = require('es6-promise').Promise;
  * @version 1.0.0
  * @param {string} 		URL 	URL of the ownCloud instance
  */
-function groups() {
+function groups(helperFile) {
+	helpers = helperFile;
 }
 
 /**
@@ -98,9 +100,9 @@ groups.prototype.createGroup = function(groupName) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', self.OCS_SERVICE_CLOUD, 'groups', {'groupid' : groupName})
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {'groupid' : groupName})
 		.then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -116,9 +118,9 @@ groups.prototype.deleteGroup = function(groupName) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('DELETE', self.OCS_SERVICE_CLOUD, 'groups/' + groupName)
+		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
 		.then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -133,10 +135,10 @@ groups.prototype.getGroups = function() {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups')
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups')
 		.then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
@@ -163,10 +165,10 @@ groups.prototype.getGroupMembers = function(groupName) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
 		.then(data => {
 			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(self._checkOCSstatusCode(tree));
+			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;

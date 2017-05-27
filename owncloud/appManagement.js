@@ -8,6 +8,7 @@ var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
 var Promise = require('es6-promise').Promise;
+var helpers;
 
 /**
  * @class ownCloud
@@ -86,7 +87,8 @@ var Promise = require('es6-promise').Promise;
  * @version 1.0.0
  * @param {string} 		URL 	URL of the ownCloud instance
  */
-function apps() {
+function apps(helperFile) {
+	helpers = helperFile;
 }
 
 /**
@@ -97,13 +99,13 @@ apps.prototype.getApps = function() {
 	var self = this;
 	var send = {};
 
-	var allAppsP = this._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps");
-	var allEnabledAppsP = self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "apps?filter=enabled");
+	var allAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps");
+	var allEnabledAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps?filter=enabled");
 
 	return new Promise((resolve, reject) => {
 		Promise.all([allAppsP, allEnabledAppsP])
 		.then(apps => {
-			var statuscode = parseInt(this._checkOCSstatusCode(parser.toJson(apps[0].body, {object: true})));
+			var statuscode = parseInt(helpers._checkOCSstatusCode(parser.toJson(apps[0].body, {object: true})));
 			if (statuscode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
@@ -140,12 +142,12 @@ apps.prototype.getAttribute = function(app, key) {
 		send += '/' + encodeURIComponent(app);
 
 		if (key) {
-			send += '/' + encodeURIComponent(this._encodeString(key));
+			send += '/' + encodeURIComponent(helpers._encodeString(key));
 		}
 	}
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', this.OCS_SERVICE_PRIVATEDATA, send)
+		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
 		.then(data => {
 
 			var elements = parser.toJson(data.body, {object: true}).ocs.data.element;
@@ -190,12 +192,12 @@ apps.prototype.getAttribute = function(app, key) {
  */
 apps.prototype.setAttribute = function(app, key, value) {
 	var self = this;
-	var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(this._encodeString(key));
+	var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key));
 
 	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path, 
-		{'value' : self._encodeString(value)})
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path, 
+		{'value' : helpers._encodeString(value)})
 		.then(data => {
 			resolve(true);
 		}).catch(error => {
@@ -212,11 +214,11 @@ apps.prototype.setAttribute = function(app, key, value) {
  */
 apps.prototype.deleteAttribute = function(app, key) {
 	var self = this;
-	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(self._encodeString(key));
+	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key));
 
 	/* jshint unused: false */
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', self.OCS_SERVICE_PRIVATEDATA, path)
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path)
 		.then(data => {
 			resolve(true);
 		}).catch(error => {
@@ -234,12 +236,12 @@ apps.prototype.enableApp = function(appname) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('POST', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
 		.then(data => {
 			if (!data.body) {
 				reject("No app found by the name \"" + appname + "\"");
 			}
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});
@@ -255,9 +257,9 @@ apps.prototype.disableApp = function(appname) {
 	var self = this;
 
 	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('DELETE', this.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
 		.then(data => {
-			self._OCSuserResponseHandler(data, resolve, reject);
+			helpers._OCSuserResponseHandler(data, resolve, reject);
 		}).catch(error => {
 			reject(error);
 		});

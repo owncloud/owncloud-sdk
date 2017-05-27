@@ -156,7 +156,7 @@ app.get('/shareFileWithLink', function(request, response) {
 	}
 
 	init();
-	oc.shareFileWithLink(path, optional).then(status => {
+	oc.shares.shareFileWithLink(path, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -178,7 +178,7 @@ app.get('/updateShare', function(request, response) {
 	}
 
 	init();
-	oc.updateShare(shareId, optional).then(status => {
+	oc.shares.updateShare(shareId, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -198,7 +198,7 @@ app.get('/shareFileWithUser', function(request, response) {
 	}
 
 	init();
-	oc.shareFileWithUser(path, username, optional).then(status => {
+	oc.shares.shareFileWithUser(path, username, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -215,7 +215,7 @@ app.get('/shareFileWithGroup', function(request, response) {
 	}
 
 	init();
-	oc.shareFileWithGroup(path, groupName, optional).then(status => {
+	oc.shares.shareFileWithGroup(path, groupName, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -239,7 +239,7 @@ app.get('/getShares', function(request, response) {
 	/*jshint camelcase: true */
 
 	init();
-	oc.getShares(path, optional).then(status => {
+	oc.shares.getShares(path, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -250,7 +250,7 @@ app.get('/isShared', function(request, response) {
 	var path = request.query.path;
 	
 	init();
-	oc.isShared(path).then(status => {
+	oc.shares.isShared(path).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -261,7 +261,7 @@ app.get('/getShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
 	init();
-	oc.getShare(shareId).then(status => {
+	oc.shares.getShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -270,7 +270,7 @@ app.get('/getShare', function(request, response) {
 
 app.get('/listOpenRemoteShare', function(request, response) {
 	init();
-	oc.listOpenRemoteShare().then(status => {
+	oc.shares.listOpenRemoteShare().then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -281,7 +281,7 @@ app.get('/acceptRemoteShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
 	init();
-	oc.acceptRemoteShare(shareId).then(status => {
+	oc.shares.acceptRemoteShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -292,7 +292,7 @@ app.get('/declineRemoteShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
 	init();
-	oc.declineRemoteShare(shareId).then(status => {
+	oc.shares.declineRemoteShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -303,7 +303,7 @@ app.get('/deleteShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
 	init();
-	oc.deleteShare(shareId).then(status => {
+	oc.shares.deleteShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);

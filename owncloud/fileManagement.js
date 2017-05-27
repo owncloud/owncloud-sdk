@@ -8,6 +8,7 @@ var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
 var Promise = require('es6-promise').Promise;
+var helpers;
 
 /**
  * @class ownCloud
@@ -86,7 +87,8 @@ var Promise = require('es6-promise').Promise;
  * @version 1.0.0
  * @param {string} 		URL 	URL of the ownCloud instance
  */
-function files() {
+function files(helperFile) {
+	helpers = helperFile;
 }
 
 module.exports = files;

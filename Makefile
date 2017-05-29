@@ -11,6 +11,7 @@ endif
 all:
 	sudo npm i
 	sudo npm --prefix ./docs-swagger/ i ./docs-swagger/
+	cp owncloud/test/config.sample.js owncloud/test/config.js
 
 swagger:
 	node docs-swagger/server.js

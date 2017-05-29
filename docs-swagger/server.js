@@ -4,8 +4,8 @@ var cors = require('cors');
 var app = express();
 var oc;
 
-app.use(express.static('docs-swagger/assets'));
-app.use(express.static('assets'));
+app.use(express.static('docs-swagger/api/swagger'));
+app.use(express.static('api/swagger'));
 app.use(cors());
 
 function init() {

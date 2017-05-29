@@ -31,7 +31,23 @@ paths:
     get:
       tags:
         - General
-      description: Initialze the owncloud session by specifying an owncloud instance URL.
+      description: |
+        
+        ```json
+        oc.login(username, password).then(status => { 
+          
+          // boolean status
+
+        }).catch(error => {
+          
+          // error messages
+          
+        })
+        
+        ```
+        examples:
+          application/json:
+            - {a : "123"=\>}
       summary: Initialize owncloud session
       operationId: initLibrary
       parameters:

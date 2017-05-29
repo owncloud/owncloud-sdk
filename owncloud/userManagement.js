@@ -2,58 +2,20 @@
 ///////    USER MANAGEMENT    ///////
 /////////////////////////////////////
 
+var Promise = require('es6-promise').Promise;
 var request = require('request');
 var parser = require('xml2json');
 var shareInfo = require('./shareInfo.js');
 var utf8 = require('utf8');
 var querystring = require('querystring');
-var Promise = require('es6-promise').Promise;
 var helpers;
 
 /**
- * @class ownCloud
+ * @class users
  * @classdesc 
- * <b><i> The ownCloud class, where everything works!</i></b><br><br>
+ * <b><i> The users class, has all the methods for user management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
- *     <li><b>General</b>
- *         <ul>
- *          <li>initLibrary</li>
- *          <li>login</li>
- *          <li>getConfig</li>
- *          <li>getVersion</li>
- *          <li>getCapabilities</li>
- *         </ul>
- *     </li><br>
- *     
- *     <li><b>Apps Management</b>
- *         <ul>
- *         	<li>getApps</li>
- *         	<li>getAttribute</li>
- *         	<li>setAttribute</li>
- *         	<li>deleteAttribute</li>
- *         	<li>enableApp</li>
- *         	<li>disableApp</li>
- *         </ul>
- *     </li><br>
- *     
- *     <li><b>Sharing</b>
- *         <ul>
- *          <li>shareFileWithLink</li>
- *          <li>updateShare</li>
- *          <li>shareFileWithUser</li>
- *          <li>shareFileWithGroup</li>
- *          <li>getShares</li>
- *          <li>isShared</li>
- *          <li>getShare</li>
- *          <li>listOpenRemoteShare</li>
- *          <li>acceptRemoteShare</li>
- *          <li>declineRemoteShare</li>
- *          <li>deleteShare</li>
- *
- *         </ul>
- *     </li><br>
- *     
  *     <li><b>User Management</b>
  *         <ul>
  *         	<li>createUser</li>
@@ -71,21 +33,12 @@ var helpers;
  *          <li>getUserSubadminGroups</li>
  *          <li>userIsInSubadminGroup</li>
  *         </ul>
- *     </li><br>
- *
- *     <li><b>Group Management</b>
- *         <ul>
- *         	<li>createGroup</li>
- *          <li>deleteGroup</li>
- *          <li>getGroups</li>
- *          <li>getGroupMembers</li>
- *          <li>groupExists</li>
- *         </ul>
- *     </li><br>
- *     
+ *     </li>
+ * </ul>
+ * 
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {string} 		URL 	URL of the ownCloud instance
+ * @param {object} 		helperFile  	instance of the helpers class
  */
 function users(helperFile) {
 	helpers = helperFile;
@@ -147,18 +100,7 @@ users.prototype.searchUsers = function(name) {
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, action)
 		.then(data => {
-			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-			if (statusCode === 999) {
-				reject("Provisioning API has been disabled at your instance");
-				return;
-			}
-
-			var users = tree.ocs.data.users.element || [];
-			if (users && users.constructor !== Array) {
-				users = [ users ];
-			}
-			resolve(users);
+			self.handleObjectResponse(resolve, reject, data, 'users');
 		}).catch(error => {
 			reject(error);
 		});
@@ -254,18 +196,7 @@ users.prototype.getUserGroups = function(username) {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups'
 		).then(data => {
-			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-			if (statusCode === 999) {
-				reject("Provisioning API has been disabled at your instance");
-				return;
-			}
-
-			var groups = tree.ocs.data.groups.element || [];
-			if (groups && groups.constructor !== Array) {
-				groups = [ groups ];
-			}
-			resolve(groups);
+			self.handleObjectResponse(resolve, reject, data, 'groups');
 		}).catch(error => {
 			reject(error);
 		});
@@ -369,18 +300,7 @@ users.prototype.getUserSubadminGroups = function(username) {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/subadmins'
 		).then(data => {
-			var tree = parser.toJson(data.body, {object : true});
-			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-			if (statusCode === 999) {
-				reject("Provisioning API has been disabled at your instance");
-				return;
-			}
-
-			var groups = tree.ocs.data.element || [];
-			if (groups && groups.constructor !== Array) {
-				groups = [ groups ];
-			}
-			resolve(groups);
+			self.handleObjectResponse(resolve, reject, data);
 		}).catch(error => {
 			reject(error);
 		});
@@ -403,6 +323,27 @@ users.prototype.userIsInSubadminGroup = function(username, groupName) {
 			reject(error);
 		});
 	});
+};
+
+users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
+	var tree = parser.toJson(data.body, {object : true});
+	var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+	if (statusCode === 999) {
+		reject("Provisioning API has been disabled at your instance");
+		return;
+	}
+
+	var toReturn;
+	if (what) {
+		toReturn = tree.ocs.data[what].element || [];
+	}
+	else {
+		toReturn = tree.ocs.data.element || [];
+	}
+	if (toReturn && toReturn.constructor !== Array) {
+		toReturn = [ toReturn ];
+	}
+	resolve(toReturn);
 };
 
 module.exports = users;

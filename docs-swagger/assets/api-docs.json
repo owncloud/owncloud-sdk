@@ -43,7 +43,7 @@
     "tags": [
      "General"
     ],
-    "description": "Initialze the owncloud session by specifying an owncloud instance URL.",
+    "description": "Initialize the owncloud session by specifying an owncloud instance URL.",
     "summary": "Initialize owncloud session",
     "operationId": "initLibrary",
     "parameters": [

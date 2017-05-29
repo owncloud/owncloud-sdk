@@ -33,21 +33,11 @@ paths:
         - General
       description: |
         
-        ```json
-        oc.login(username, password).then(status => { 
-          
-          // boolean status
-
-        }).catch(error => {
-          
-          // error messages
-          
-        })
+        ```js
+        var owncloud = require('js-owncloud-client');
         
+        var oc = new owncloud(instance);
         ```
-        examples:
-          application/json:
-            - {a : "123"=\>}
       summary: Initialize owncloud session
       operationId: initLibrary
       parameters:
@@ -68,7 +58,19 @@ paths:
     get:
       tags:
         - General
-      description: Login into the URL specified in the "/initLibrary" API
+      description: |
+        
+        ```js
+        oc.login(username, password).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       operationId: login
       summary: Logs you in to your specified ownCloud instance
       parameters:
@@ -94,7 +96,19 @@ paths:
     get:
       tags:
         - Apps Management
-      description: Get all the enabled and disbaled apps via the Provisioning API
+      description: |
+        
+        ```js
+        oc.apps.getApps().then(apps => { 
+          
+          // All Apps
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Get all the enabled and disbaled apps via the Provisioning API
       operationId: getApps
       produces:
@@ -112,7 +126,28 @@ paths:
     get:
       tags:
         - Sharing
-      description: Shares a remote file with link
+      description: |+
+        
+        ```js
+        oc.shares.shareFileWithLink(path, {
+          
+          perms: perms, 
+          publicUpload: publicUpload, 
+          password: password
+          
+        }).then(share => { 
+          
+          /* 
+            Object of class shareInfo
+            Use methods like getId(), getPath(), getLink() etc. 
+          */
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Shares a remote file with link
       operationId: shareFileWithLink
       parameters:
@@ -154,7 +189,28 @@ paths:
     get:
       tags:
         - Sharing
-      description: Updates a given share
+      description: |+
+        
+        ```js
+        oc.shares.updateShare(shareId, {
+          
+          perms: perms, 
+          publicUpload: publicUpload, 
+          password: password
+          
+        }).then(share => { 
+          
+          /* 
+            Object of class shareInfo
+            Use methods like getId(), getPath(), getLink() etc. 
+          */
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Updates a given share
       operationId: updateShare
       parameters:
@@ -196,7 +252,27 @@ paths:
     get:
       tags:
         - Sharing
-      description: Shares a remote file with User
+      description: |+
+        
+        ```js
+        oc.shares.shareFileWithUser(path, username, {
+          
+          perms: perms, 
+          remoteUser: remoteUser
+          
+        }).then(share => { 
+          
+          /* 
+            Object of class shareInfo
+            Use methods like getId(), getPath(), getLink() etc. 
+          */
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Shares a remote file with User
       operationId: shareFileWithUser
       parameters:
@@ -236,7 +312,26 @@ paths:
     get:
       tags:
         - Sharing
-      description: Shares a remote file with Group
+      description: |+
+        
+        ```js
+        oc.shares.shareFileWithGroup(path, groupname, {
+          
+          perms: perms
+          
+        }).then(share => { 
+          
+          /* 
+            Object of class shareInfo
+            Use methods like getId(), getPath(), getLink() etc. 
+          */
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Shares a remote file with Group
       operationId: shareFileWithGroup
       parameters:
@@ -270,7 +365,19 @@ paths:
     get:
       tags:
         - Sharing
-      description: Returns array of shares
+      description: |+
+        
+        ```js
+        oc.shares.getShares().then(shares => { 
+          
+          // Array containing all shares
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Returns array of shares
       operationId: getShares
       parameters:
@@ -311,7 +418,19 @@ paths:
     get:
       tags:
         - Sharing
-      description: Checks wether a path is already shared
+      description: |+
+        
+        ```js
+        oc.shares.isShared(path).then(status => { 
+          
+          // True if shared
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Checks wether a path is already shared
       operationId: isShared
       parameters:
@@ -332,7 +451,22 @@ paths:
     get:
       tags:
         - Sharing
-      description: Gets share information about known share
+      description: |+
+        
+        ```js
+        oc.shares.getShare(shareId).then(share => { 
+          
+          /* 
+            Object of class shareInfo
+            Use methods like getId(), getPath(), getLink() etc. 
+          */
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Gets share information about known share
       operationId: getShare
       parameters:
@@ -353,7 +487,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Creates user via the provisioning API
+      description: |
+        
+        ```js
+        oc.users.createUser(username, password).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Creates user via the provisioning API
       operationId: createUser
       parameters:
@@ -379,7 +525,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Deletes user via the provisioning API
+      description: |
+        
+        ```js
+        oc.users.deleteUser(username).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Deletes user via the provisioning API
       operationId: deleteUser
       parameters:
@@ -400,7 +558,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Searches for users via the provisioning API
+      description: |
+        
+        ```js
+        oc.users.searchUsers(username).then(users => { 
+          
+          // Array of all matching usernames
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Searches for users via the provisioning API
       operationId: searchUsers
       parameters:
@@ -421,7 +591,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Checks a user via the provisioning API
+      description: |
+        
+        ```js
+        oc.users.userExists(username).then(status => { 
+          
+          // True if exists
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Checks a user via the provisioning API
       operationId: userExists
       parameters:
@@ -442,7 +624,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Get all users via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.getUsers().then(users => { 
+          
+          // Array of all usernames
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Get all users via the Provisioning API
       operationId: getUsers
       responses:
@@ -458,7 +652,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Sets a user attribute via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.setUserAttribute(username, key, value).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Sets a user attribute via the Provisioning API
       operationId: setUserAttribute
       parameters:
@@ -487,7 +693,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Adds user to group via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.addUserToGroup(username, groupName).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Adds user to group via the Provisioning API
       operationId: addUserToGroup
       parameters:
@@ -512,7 +730,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Get a list of groups associated to a user via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.getUserGroups(username).then(status => { 
+          
+          // Array of all groups user is member of
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Get a list of groups associated to a user via the Provisioning API
       operationId: getUserGroups
       parameters:
@@ -533,7 +763,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Checks if a user is in a group via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.userIsInGroup(username, groupName).then(status => { 
+          
+          // True if user is part of group
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Checks if a user is in a group via the Provisioning API
       operationId: userIsInGroup
       parameters:
@@ -558,7 +800,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Retrieves information about a user via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.getUser(username).then(user => { 
+          
+          // Object of all user details
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Retrieves information about a user via the Provisioning API
       operationId: getUser
       parameters:
@@ -579,7 +833,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Removes user from a group via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.removeUserFromGroup(username, groupName).then(status => { 
+          
+          // true if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Removes user from a group via the Provisioning API
       operationId: removeUserFromGroup
       parameters:
@@ -604,7 +870,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Adds user to a subadmin group via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.addUserToSubadminGroup(username, groupName).then(status => { 
+          
+          // true if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Adds user to a subadmin group via the Provisioning API
       operationId: addUserToSubadminGroup
       parameters:
@@ -629,7 +907,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Get a list of subadmin groups associated to a user via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.getUserSubadminGroups(username).then(groups => { 
+          
+          // Array of all groups the user is subadmin of
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Get a list of subadmin groups associated to a user via the Provisioning API
       operationId: getUserSubadminGroups
       parameters:
@@ -650,7 +940,19 @@ paths:
     get:
       tags:
         - User Management
-      description: Checks if a user is in a subadmin group via the Provisioning API
+      description: |
+        
+        ```js
+        oc.users.userIsInSubadminGroup(username, groupName).then(status => { 
+          
+          // true if user is a subadmin of the group
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Checks if a user is in a subadmin group via the Provisioning API
       operationId: userIsInSubadminGroup
       parameters:
@@ -675,7 +977,19 @@ paths:
     get:
       tags:
         - Group Management
-      description: Creates a group via the provisioning API
+      description: |
+        
+        ```js
+        oc.groups.createGroup(groupName).then(status => { 
+          
+          // true if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Creates a group via the provisioning API
       operationId: createGroup
       parameters:
@@ -696,7 +1010,19 @@ paths:
     get:
       tags:
         - Group Management
-      description: Deletes a group via the provisioning API
+      description: |
+        
+        ```js
+        oc.groups.deleteGroup(groupName).then(status => { 
+          
+          // true if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Deletes a group via the provisioning API
       operationId: deleteGroup
       parameters:
@@ -717,7 +1043,19 @@ paths:
     get:
       tags:
         - Group Management
-      description: Gets all groups via the Provisioning API
+      description: |
+        
+        ```js
+        oc.groups.getGroups().then(groups => { 
+          
+          // Array of all group names
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Gets all groups via the provisioning API
       operationId: getGroups
       responses:
@@ -733,7 +1071,19 @@ paths:
     get:
       tags:
         - Group Management
-      description: Gets all members of a group via the Provisioning API
+      description: |
+        
+        ```js
+        oc.groups.getGroupMembers(groupName).then(members => { 
+          
+          // Array of all group members
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Gets all members of a group via the provisioning API
       operationId: getGroupMembers
       parameters:
@@ -754,7 +1104,19 @@ paths:
     get:
       tags:
         - Group Management
-      description: Checks a group via the provisioning API
+      description: |
+        
+        ```js
+        oc.groups.groupExists(groupName).then(status => { 
+          
+          // true if exists
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Checks a group via provisioning API
       operationId: groupExists
       parameters:
@@ -775,7 +1137,19 @@ paths:
     get:
       tags:
         - General
-      description: Returns ownCloud config information
+      description: |
+        
+        ```js
+        oc.getConfig().then(config => { 
+          
+          // object with all config settings of the OC instance
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Returns ownCloud config information
       operationId: getConfig
       responses:
@@ -791,7 +1165,19 @@ paths:
     get:
       tags:
         - Apps Management
-      description: Returns an application attribute
+      description: |
+        
+        ```js
+        oc.apps.getAttribute(app, key).then(value => { 
+          
+          // value of the key
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Returns an application attribute
       operationId: getAttribute
       parameters:
@@ -816,8 +1202,19 @@ paths:
     get:
       tags:
         - Apps Management
-      description: Sets an application attribute
-      summary: Sets an application attribute
+      description: |
+        
+        ```js
+        oc.apps.setAttribute(app, key, value).then(status => { 
+          
+          // true if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       operationId: setAttribute
       parameters:
         - name: app
@@ -845,7 +1242,19 @@ paths:
     get:
       tags:
         - Apps Management
-      description: Deletes an application attribute
+      description: |
+        
+        ```js
+        oc.apps.deleteAttribute(app, key).then(status => { 
+          
+          // true if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Deletes an application attribute
       operationId: deleteAttribute
       parameters:
@@ -870,7 +1279,19 @@ paths:
     get:
       tags:
         - General
-      description: Gets the ownCloud version of the connected server
+      description: |
+        
+        ```js
+        oc.getVersion().then(version => { 
+          
+          // version string of the OC instance
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Gets the ownCloud version of the connected server
       operationId: getVersion
       responses:
@@ -886,7 +1307,19 @@ paths:
     get:
       tags:
         - General
-      description: Gets the ownCloud app capabilities
+      description: |
+        
+        ```js
+        oc.getCapabilities().then(capabilities => { 
+          
+          // object with all the capabilities of the logged in user
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Gets the ownCloud app capabilities
       operationId: getCapabilities
       responses:
@@ -902,7 +1335,19 @@ paths:
     get:
       tags:
         - Apps Management
-      description: enables an app via the Provisioning API
+      description: |
+        
+        ```js
+        oc.apps.enableApp(appname).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: enables an app via the Provisioning API
       operationId: enableApp
       parameters:
@@ -923,7 +1368,19 @@ paths:
     get:
       tags:
         - Apps Management
-      description: disables an app via the Provisioning API
+      description: |
+        
+        ```js
+        oc.apps.disbleApp(appname).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: disables an app via the Provisioning API
       operationId: disableApp
       parameters:
@@ -944,7 +1401,19 @@ paths:
     get:
       tags:
         - Sharing
-      description: List all pending remote share
+      description: |+
+        
+        ```js
+        oc.shares.listOpenRemoteShare().then(shares => { 
+          
+          // Array containing all shares
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: List all pending remote share
       operationId: listOpenRemoteShare
       responses:
@@ -960,7 +1429,19 @@ paths:
     get:
       tags:
         - Sharing
-      description: Accepts a remote share
+      description: |+
+        
+        ```js
+        oc.shares.acceptRemoteShare(shareId).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Accepts a remote share
       operationId: acceptRemoteShare
       parameters:
@@ -976,7 +1457,19 @@ paths:
     get:
       tags:
         - Sharing
-      description: Declines a remote share
+      description: |+
+        
+        ```js
+        oc.shares.declineRemoteShare(shareId).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Declines a remote share
       operationId: declineRemoteShare
       parameters:
@@ -992,7 +1485,19 @@ paths:
     get:
       tags:
         - Sharing
-      description: Unshares a file or directory
+      description: |+
+        
+        ```js
+        oc.shares.deleteShare(shareId).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
       summary: Unshares a file or directory
       operationId: deleteShare
       parameters:

@@ -38,6 +38,10 @@
     .url {
       display: none;
     }
+
+    .wrapper .clear span a {
+      display: none;
+    }
   </style>
 </head>
 
@@ -85,7 +89,7 @@
 window.onload = function() {
   // Build a system
   const ui = SwaggerUIBundle({
-    url: "./swagger.yaml",
+    url: "swagger.yaml",
     dom_id: '#swagger-ui',
     presets: [
       SwaggerUIBundle.presets.apis,
@@ -94,10 +98,22 @@ window.onload = function() {
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout"
+    layout: "StandaloneLayout",
+    validatorUrl: null,
+    docExpansion: 'none'
   })
 
   window.ui = ui
+
+  setTimeout(function(){ 
+    foldAllMethods();
+  }, 300);
+  
+  function foldAllMethods() { 
+    var buttons = document.getElementsByClassName('expand-operation');
+    for(var i = 0; i < buttons.length; i++)  
+      buttons[i].click();
+  }
 }
 </script>
 </body>

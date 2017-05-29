@@ -71,7 +71,7 @@ app.get('/getCapabilities', function(request, response) {
 
 app.get('/getApps', function(request, response) {
 	init();
-	oc.getApps().then(apps => {
+	oc.apps.getApps().then(apps => {
 		response.send(apps);
 	}).catch(error => {
 		response.send(error);
@@ -83,7 +83,7 @@ app.get('/getAttribute', function(request, response) {
 	var key = request.query.key;
 
 	init();
-	oc.getAttribute(app, key).then(attr => {
+	oc.apps.getAttribute(app, key).then(attr => {
 		response.send(attr);
 	}).catch(error => {
 		response.send(error);
@@ -96,7 +96,7 @@ app.get('/setAttribute', function(request, response) {
 	var value = request.query.value || '';
 
 	init();
-	oc.setAttribute(app, key, value).then(status => {
+	oc.apps.setAttribute(app, key, value).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -108,7 +108,7 @@ app.get('/deleteAttribute', function(request, response) {
 	var key = request.query.key;
 
 	init();
-	oc.deleteAttribute(app, key).then(status => {
+	oc.apps.deleteAttribute(app, key).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -119,7 +119,7 @@ app.get('/enableApp', function(request, response) {
 	var appname = request.query.appname;
 	
 	init();
-	oc.enableApp(appname).then(status => {
+	oc.apps.enableApp(appname).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -130,7 +130,7 @@ app.get('/disableApp', function(request, response) {
 	var appname = request.query.appname;
 	
 	init();
-	oc.disableApp(appname).then(status => {
+	oc.apps.disableApp(appname).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -319,7 +319,7 @@ app.get('/createUser', function(request, response) {
 	var pass = request.query.password;
 	
 	init();
-	oc.createUser(uname, pass).then(status => {
+	oc.users.createUser(uname, pass).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -330,7 +330,7 @@ app.get('/deleteUser', function(request, response) {
 	var username = request.query.username;
 	
 	init();
-	oc.deleteUser(username).then(status => {
+	oc.users.deleteUser(username).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -341,7 +341,7 @@ app.get('/searchUsers', function(request, response) {
 	var username = request.query.username;
 	
 	init();
-	oc.searchUsers(username).then(status => {
+	oc.users.searchUsers(username).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -352,7 +352,7 @@ app.get('/userExists', function(request, response) {
 	var username = request.query.username;
 	
 	init();
-	oc.userExists(username).then(status => {
+	oc.users.userExists(username).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -361,7 +361,7 @@ app.get('/userExists', function(request, response) {
 
 app.get('/getUsers', function(request, response) {
 	init();
-	oc.getUsers().then(status => {
+	oc.users.getUsers().then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -374,7 +374,7 @@ app.get('/setUserAttribute', function(request, response) {
 	var value = request.query.value;
 
 	init();
-	oc.setUserAttribute(username, key, value).then(status => {
+	oc.users.setUserAttribute(username, key, value).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -386,7 +386,7 @@ app.get('/addUserToGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.addUserToGroup(username, groupName).then(status => {
+	oc.users.addUserToGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -397,7 +397,7 @@ app.get('/getUserGroups', function(request, response) {
 	var username = request.query.username;
 
 	init();
-	oc.getUserGroups(username).then(status => {
+	oc.users.getUserGroups(username).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -409,7 +409,7 @@ app.get('/userIsInGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.userIsInGroup(username, groupName).then(status => {
+	oc.users.userIsInGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -420,7 +420,7 @@ app.get('/getUser', function(request, response) {
 	var username = request.query.username;
 
 	init();
-	oc.getUser(username).then(status => {
+	oc.users.getUser(username).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -432,7 +432,7 @@ app.get('/removeUserFromGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.removeUserFromGroup(username, groupName).then(status => {
+	oc.users.removeUserFromGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -444,7 +444,7 @@ app.get('/addUserToSubadminGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.addUserToSubadminGroup(username, groupName).then(status => {
+	oc.users.addUserToSubadminGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -455,7 +455,7 @@ app.get('/getUserSubadminGroups', function(request, response) {
 	var username = request.query.username;
 
 	init();
-	oc.getUserSubadminGroups(username).then(status => {
+	oc.users.getUserSubadminGroups(username).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -467,7 +467,7 @@ app.get('/userIsInSubadminGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.userIsInSubadminGroup(username, groupName).then(status => {
+	oc.users.userIsInSubadminGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -482,7 +482,7 @@ app.get('/createGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.createGroup(groupName).then(status => {
+	oc.groups.createGroup(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -493,7 +493,7 @@ app.get('/deleteGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.deleteGroup(groupName).then(status => {
+	oc.groups.deleteGroup(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -502,7 +502,7 @@ app.get('/deleteGroup', function(request, response) {
 
 app.get('/getGroups', function(request, response) {
 	init();
-	oc.getGroups().then(status => {
+	oc.groups.getGroups().then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -513,7 +513,7 @@ app.get('/getGroupMembers', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.getGroupMembers(groupName).then(status => {
+	oc.groups.getGroupMembers(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);
@@ -524,7 +524,7 @@ app.get('/groupExists', function(request, response) {
 	var groupName = request.query.groupName;
 
 	init();
-	oc.groupExists(groupName).then(status => {
+	oc.groups.groupExists(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
 		response.send(error);

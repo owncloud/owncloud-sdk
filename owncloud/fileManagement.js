@@ -2,12 +2,6 @@
 ///////    FILES MANAGEMENT    ///////
 //////////////////////////////////////
 
-var request = require('request');
-var parser = require('xml2json');
-var shareInfo = require('./shareInfo.js');
-var utf8 = require('utf8');
-var querystring = require('querystring');
-var Promise = require('es6-promise').Promise;
 var helpers;
 
 /**

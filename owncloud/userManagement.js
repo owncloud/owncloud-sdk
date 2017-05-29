@@ -3,11 +3,7 @@
 /////////////////////////////////////
 
 var Promise = require('es6-promise').Promise;
-var request = require('request');
 var parser = require('xml2json');
-var shareInfo = require('./shareInfo.js');
-var utf8 = require('utf8');
-var querystring = require('querystring');
 var helpers;
 
 /**
@@ -53,8 +49,6 @@ function users(helperFile) {
  * @param  {Function} callback error, body(boolean : whether user was created or not)
  */
 users.prototype.createUser = function(username, password) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'users', 
 			{'password' : password, 'userid' : username}
@@ -72,8 +66,6 @@ users.prototype.createUser = function(username, password) {
  * @param  {Function} callback error, body(boolean)
  */
 users.prototype.deleteUser = function(username) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'users/' + username)
 		.then(data => {
@@ -132,8 +124,6 @@ users.prototype.userExists = function(name) {
  * @param  {Function} callback error, body(array of all users)
  */
 users.prototype.getUsers = function() {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers.searchUsers('').then(users => {
 			resolve(users);
@@ -151,8 +141,6 @@ users.prototype.getUsers = function() {
  * @param {Function} callback error, body(boolean)
  */
 users.prototype.setUserAttribute = function(username, key, value) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
 			{'key' :   helpers._encodeString(key), 'value' : helpers._encodeString(value)}
@@ -171,8 +159,6 @@ users.prototype.setUserAttribute = function(username, key, value) {
  * @param {Function} callback  error, body(boolean)
  */
 users.prototype.addUserToGroup = function(username, groupName) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
@@ -227,8 +213,6 @@ users.prototype.userIsInGroup = function(username, groupName) {
  * @param  {Function} callback error, body(object having details of the user)
  */
 users.prototype.getUser = function(username) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username)
@@ -255,8 +239,6 @@ users.prototype.getUser = function(username) {
  * @param  {Function} callback  error, body(boolean)
  */
 users.prototype.removeUserFromGroup = function(username, groupName) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
@@ -275,8 +257,6 @@ users.prototype.removeUserFromGroup = function(username, groupName) {
  * @param {Function} callback  error, body(boolean)
  */
 users.prototype.addUserToSubadminGroup = function(username, groupName) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username) + '/subadmins', {'groupid' : groupName}

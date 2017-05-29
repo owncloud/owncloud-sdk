@@ -14,9 +14,7 @@ var timeRightNow = new Date().getTime();
 var OCS_PERMISSION_READ = 1;
 var OCS_PERMISSION_UPDATE = 2;
 var OCS_PERMISSION_CREATE = 4;
-var OCS_PERMISSION_DELETE = 8;
 var OCS_PERMISSION_SHARE = 16;
-var OCS_PERMISSION_ALL = 31;
 
 function normalizePath(path) {
 	if (!path) {
@@ -32,7 +30,7 @@ function normalizePath(path) {
     }
     
     return path;
-};
+}
 
 describe("Currently testing Login and initLibrary,", function() {
 	// UNCOMMENT INSIDE AFTER COMPLETING createFolder

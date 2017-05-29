@@ -3,11 +3,7 @@
 //////////////////////////////////////
 
 var Promise = require('es6-promise').Promise;
-var request = require('request');
 var parser = require('xml2json');
-var shareInfo = require('./shareInfo.js');
-var utf8 = require('utf8');
-var querystring = require('querystring');
 var helpers;
 
 /**
@@ -41,8 +37,6 @@ function groups(helperFile) {
  * @param  {Function} callback  error, body(boolean)
  */
 groups.prototype.createGroup = function(groupName) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {'groupid' : groupName})
 		.then(data => {
@@ -59,8 +53,6 @@ groups.prototype.createGroup = function(groupName) {
  * @param  {Function} callback  error, body(boolean)
  */
 groups.prototype.deleteGroup = function(groupName) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
 		.then(data => {

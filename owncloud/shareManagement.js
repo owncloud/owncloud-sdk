@@ -3,11 +3,8 @@
 /////////////////////////////
 
 var Promise = require('es6-promise').Promise;
-var request = require('request');
 var parser = require('xml2json');
 var shareInfo = require('./shareInfo.js');
-var utf8 = require('utf8');
-var querystring = require('querystring');
 var helpers;
 
 /**
@@ -51,7 +48,6 @@ function shares(helperFile) {
  */
 shares.prototype.shareFileWithLink = function(path, optionalParams) {
     path = helpers._normalizePath(path);
-    var self = this;
     
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_LINK,
@@ -129,7 +125,6 @@ shares.prototype.updateShare = function(shareId, optionalParams) {
  */
 shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     path = helpers._normalizePath(path);
-    var self = this;
     
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_USER,
@@ -169,7 +164,6 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
  */
 shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) {
 	path = helpers._normalizePath(path);
-	var self = this;
     
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_GROUP,
@@ -202,7 +196,6 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
  */
 shares.prototype.getShares = function(path, optionalParams){
     var data = 'shares';
-    var self = this;
 	var send = {};
 
     if (path !== '') {
@@ -291,8 +284,6 @@ shares.prototype.isShared = function(path) {
  * @param  {Function} callback error, body(instance of class shareInfo)
  */
 shares.prototype.getShare = function(shareId) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		if (isNaN((parseInt(shareId)))) {
 			reject("share ID specified should be a number");
@@ -316,8 +307,6 @@ shares.prototype.getShare = function(shareId) {
  * @param  {Function} callback error, body(array of shares)
  */
 shares.prototype.listOpenRemoteShare = function() {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
 		.then(data => {
@@ -335,8 +324,6 @@ shares.prototype.listOpenRemoteShare = function() {
  * @param  {Function} callback error, body(boolean)
  */
 shares.prototype.acceptRemoteShare = function(shareId) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		if (isNaN((parseInt(shareId)))) {
 			reject("Please pass a valid share ID (Integer)", null);
@@ -360,8 +347,6 @@ shares.prototype.acceptRemoteShare = function(shareId) {
  * @param  {Function} callback error, body(boolean)
  */
 shares.prototype.declineRemoteShare = function(shareId) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		if (isNaN((parseInt(shareId)))) {
 			reject("Please pass a valid share ID (Integer)", null);
@@ -385,8 +370,6 @@ shares.prototype.declineRemoteShare = function(shareId) {
  * @param  {Function} callback error, body(boolean)
  */
 shares.prototype.deleteShare = function(shareId) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		if (isNaN((parseInt(shareId)))) {
 			reject("Please pass a valid share ID (Integer)", null);

@@ -3,11 +3,7 @@
 ///////////////////////////////////
 
 var Promise = require('es6-promise').Promise;
-var request = require('request');
 var parser = require('xml2json');
-var shareInfo = require('./shareInfo.js');
-var utf8 = require('utf8');
-var querystring = require('querystring');
 var helpers;
 
 /**
@@ -41,7 +37,6 @@ function apps(helperFile) {
  * @param {Function} 	callback 	 error, body(apps)
  */
 apps.prototype.getApps = function() {
-	var self = this;
 	var send = {};
 
 	var allAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps");
@@ -80,8 +75,6 @@ apps.prototype.getApps = function() {
  * @param  {Function} callback error, body(object {key1 : value1, key2 : value2 etc...})
  */
 apps.prototype.getAttribute = function(app, key) {
-	var self = this;
-
 	var send = "getattribute";
 	if (app) {
 		send += '/' + encodeURIComponent(app);
@@ -178,8 +171,6 @@ apps.prototype.deleteAttribute = function(app, key) {
  * @param  {Function} callback error, body(boolean)
  */
 apps.prototype.enableApp = function(appname) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
 		.then(data => {
@@ -199,8 +190,6 @@ apps.prototype.enableApp = function(appname) {
  * @param  {Function} callback error, body(boolean)
  */
 apps.prototype.disableApp = function(appname) {
-	var self = this;
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
 		.then(data => {

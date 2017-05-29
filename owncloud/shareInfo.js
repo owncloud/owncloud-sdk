@@ -1,7 +1,7 @@
 /*jshint camelcase: false */
 
 /**
- * @class
+ * @class shareInfo
  * @classdesc shareInfo class, stores information regarding a share
  * @param {object} containing information like id, url etc. of the share
  */

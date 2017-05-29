@@ -10,21 +10,46 @@ var testFolder = config.testFolder || 'testFolder' + new Date().getTime();
 var testFolderShareID = null;
 var timeRightNow = new Date().getTime();
 
+// constants from lib/public/constants.php
+var OCS_PERMISSION_READ = 1;
+var OCS_PERMISSION_UPDATE = 2;
+var OCS_PERMISSION_CREATE = 4;
+var OCS_PERMISSION_DELETE = 8;
+var OCS_PERMISSION_SHARE = 16;
+var OCS_PERMISSION_ALL = 31;
+
+function normalizePath(path) {
+	if (!path) {
+		path = '';
+	}
+
+    if (path.length === 0) {
+        return '/';
+    }
+
+    if (path[0] !== '/') {
+        path = '/' + path;
+    }
+    
+    return path;
+};
+
 describe("Currently testing Login and initLibrary,", function() {
 	// UNCOMMENT INSIDE AFTER COMPLETING createFolder
 	beforeAll(function (done) {
 		oc = new ownCloud(config.owncloudURL);
 		/* jshint unused: false */
 		oc.login(config.username, config.password).then(status => {
-			return oc.createUser(config.owncloudShare2user, "sharePassword");
+			return oc.users.createUser(config.owncloudShare2user, "sharePassword");
 		}).then(status => {
 			share2user = config.owncloudShare2user;
-			return oc.createGroup(config.testGroup);
+			return oc.groups.createGroup(config.testGroup);
 		}).then(status => {
 			testGroup = config.testGroup;
 			// return oc.createFolder(testFolder);
 			done();
 		}).catch(error => {
+			expect(error).toBe(null);
 			done();
 		});
 		/* jshint unused: true */
@@ -93,7 +118,7 @@ describe("Currently testing Login and initLibrary,", function() {
 	});
 });
 
-describe("Currently testing getConfig, getVersion and getCapabilities,", function () {
+describe("Currently testing getConfig, getVersion and getCapabilities", function () {
 	beforeEach(function () {
 		oc = new ownCloud(config.owncloudURL);
 		oc.login(config.username, config.password);
@@ -148,7 +173,7 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : getApps', function (done) {
-		oc.getApps().then(apps => {
+		oc.apps.getApps().then(apps => {
 			expect(apps).not.toBe(null);
 			expect(typeof(apps)).toBe('object');
 			expect(apps.files).toBe(true);
@@ -164,7 +189,7 @@ describe("Currently testing apps management,", function () {
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
 
 		for (var i=0;i<key.length;i++) {
-			oc.setAttribute(config.appName, key[i], value[i]).then(status => {
+			oc.apps.setAttribute(config.appName, key[i], value[i]).then(status => {
 				expect(status).toBe(true);
 				done();
 			}).catch(error => {
@@ -179,7 +204,7 @@ describe("Currently testing apps management,", function () {
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
 
 		for (var i=0;i<key.length;i++) {
-			oc.getAttribute(config.appName, key[i]).then(data => {
+			oc.apps.getAttribute(config.appName, key[i]).then(data => {
 				expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1);
 				done();
 			}).catch(error => {
@@ -193,7 +218,7 @@ describe("Currently testing apps management,", function () {
 		var key = ['attr2', 'attr+plus space ', '属性12'];
 		
 		for (var i=0;i<key.length;i++) {
-			oc.getAttribute(config.appName, key[i]).then(data => {
+			oc.apps.getAttribute(config.appName, key[i]).then(data => {
 				expect(data).toEqual(null);
 				done();
 			}).catch(error => {
@@ -207,7 +232,7 @@ describe("Currently testing apps management,", function () {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
 		
-		oc.getAttribute(config.appName).then(allAttributes => {
+		oc.apps.getAttribute(config.appName).then(allAttributes => {
 			for (var i=0;i<key.length;i++) {
 				expect(typeof(allAttributes)).toBe('object');
 				expect(utf8.encode(key[i]) in allAttributes).toBe(true);
@@ -225,7 +250,7 @@ describe("Currently testing apps management,", function () {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 
 		for (var i=0;i<key.length;i++) {
-			oc.setAttribute(config.appName, key[i], '').then(status => {
+			oc.apps.setAttribute(config.appName, key[i], '').then(status => {
 				expect(status).toBe(true);
 				done();
 			}).catch(error => {
@@ -239,7 +264,7 @@ describe("Currently testing apps management,", function () {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 
 		for (var i=0;i<key.length;i++) {
-			oc.getAttribute(config.appName, key[i]).then(value => {
+			oc.apps.getAttribute(config.appName, key[i]).then(value => {
 				expect(value).toEqual('');
 				done();
 			}).catch(error => {
@@ -253,7 +278,7 @@ describe("Currently testing apps management,", function () {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 
 		for (var i=0;i<key.length;i++) {
-			oc.deleteAttribute(config.appName, key[i]).then(status => {
+			oc.apps.deleteAttribute(config.appName, key[i]).then(status => {
 				expect(status).toBe(true);
 				done();
 			}).catch(error => {
@@ -264,7 +289,7 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : enableApp when app exists', function (done) {
-		oc.enableApp('files').then(status => {
+		oc.apps.enableApp('files').then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -274,11 +299,11 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : disableApp when app exists', function (done) {
-		oc.disableApp('files').then(status => {
+		oc.apps.disableApp('files').then(status => {
 			expect(status).toBe(true);
 
 			// Re-Enabling the Files App
-			return oc.enableApp('files');
+			return oc.apps.enableApp('files');
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -289,7 +314,7 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : enableApp when app doesn\'t exist', function (done) {
-		oc.enableApp('someAppWhichDoesntExists' + timeRightNow).then(status => {
+		oc.apps.enableApp('someAppWhichDoesntExists' + timeRightNow).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -299,7 +324,7 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : disableApp when app doesn\'t exist', function (done) {
-		oc.disableApp('someAppWhichDoesntExists').then(status => {
+		oc.apps.disableApp('someAppWhichDoesntExists').then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -333,10 +358,10 @@ describe("Currently testing file/folder sharing,", function () {
 	// 	};
 
 	// 	var callback = function (error, data) {
-	// 		oc.deleteGroup(testGroup, callback2);
+	// 		oc.groups.deleteGroup(testGroup, callback2);
 	// 	};
 
-	// 	oc.deleteUser(share2user, callback);
+	// 	oc.users.deleteUser(share2user, callback);
 	// });
 
 	// DELETE THIS METHOD AFTER COMPLETING deleteFile
@@ -345,10 +370,10 @@ describe("Currently testing file/folder sharing,", function () {
 
 		oc.login(config.username, config.password).then(status => {
 			expect(status).toBe(true);
-			return oc.deleteUser(share2user);
+			return oc.users.deleteUser(share2user);
 		}).then(status => {
 			expect(status).toBe(true);
-			return oc.deleteGroup(testGroup);
+			return oc.groups.deleteGroup(testGroup);
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -367,15 +392,15 @@ describe("Currently testing file/folder sharing,", function () {
 			testFiles = ['/test.txt', '/test space and + and #.txt', '/文件.txt'];
 
 			for (i=0;i<3;i++) {
-				oc.putFileContents(testFiles[i], 'testContent');
+				oc.files.putFileContents(testFiles[i], 'testContent');
 			}
 		}
 		else {
-			testFiles = [ oc._normalizePath(testFiles) ];
+			testFiles = [ normalizePath(testFiles) ];
 		}
 
 		for (i=0;i<testFiles.length;i++) {
-			oc.shareFileWithLink(testFiles[i]).then(share => {
+			oc.shares.shareFileWithLink(testFiles[i]).then(share => {
 				expect(share).not.toBe(null);
 				expect(typeof(share)).toBe('object');
 				expect(testFiles.indexOf(utf8.decode(share.getPath()))).toBeGreaterThan(-1);
@@ -394,7 +419,7 @@ describe("Currently testing file/folder sharing,", function () {
 	it('checking method : shareFileWithLink with non-existent file', function (done) {
 		var testFile = 'nonExistentTestFile' + timeRightNow;
 
-		oc.shareFileWithLink(testFile, {password : 'testPassword'}).then(status => {
+		oc.shares.shareFileWithLink(testFile, {password : 'testPassword'}).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -411,11 +436,11 @@ describe("Currently testing file/folder sharing,", function () {
 			testFiles = ['/test.txt', '/test space and + and #.txt', '/文件.txt'];
 		}
 		else {
-			testFiles = [ oc._normalizePath(testFiles) ];
+			testFiles = [ normalizePath(testFiles) ];
 		}
 
 		for (var i=0;i<testFiles.length;i++) {
-			oc.shareFileWithUser(testFiles[i], config.owncloudShare2user).then(share => {
+			oc.shares.shareFileWithUser(testFiles[i], config.owncloudShare2user).then(share => {
 				expect(share).not.toBe(null);
 				expect(typeof(share)).toBe('object');
 				expect(typeof(share.getId())).toBe('number');
@@ -433,7 +458,7 @@ describe("Currently testing file/folder sharing,", function () {
 		oc.login(share2user, "sharePassword").then(status => {
 			expect(status).toBe(true);
 			for (var key in shareIDs) {
-				return oc.getShare(shareIDs[key]);
+				return oc.shares.getShare(shareIDs[key]);
 			}
 		}).then(share => {
 			expect(share).not.toBe(null);
@@ -449,7 +474,7 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : shareFileWithGroup with existent file', function (done) {
 		for (var key in shareIDs) {
-			oc.shareFileWithGroup(key, testGroup, {perms: 19}).then(share => {
+			oc.shares.shareFileWithGroup(key, testGroup, {perms: 19}).then(share => {
 				expect(typeof(share)).toEqual('object');
 				expect(share.getPermissions()).toEqual(19);
 				done();
@@ -461,7 +486,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : shareFileWithGroup with non existent file', function (done) {
-		oc.shareFileWithGroup('nonExistentTestFile', testGroup, {perms: 19}).then(share => {
+		oc.shares.shareFileWithGroup('nonExistentTestFile', testGroup, {perms: 19}).then(share => {
 			expect(share).toBe(null);
 			done();
 		}).catch(error => {
@@ -471,7 +496,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : isShared with non existent file', function (done) {
-		oc.isShared('nonExistentTestFile').then(status => {
+		oc.shares.isShared('nonExistentTestFile').then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -501,7 +526,7 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : isShared with shared file', function (done) {
 		for (var key in shareIDs) {
-			oc.isShared(key).then(status => {
+			oc.shares.isShared(key).then(status => {
 				expect(status).toEqual(true);
 				done();
 			}).catch(error => {
@@ -513,7 +538,7 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : getShare with existent share', function (done) {
 		for (var key in shareIDs) {
-			oc.getShare(shareIDs[key]).then(share => {
+			oc.shares.getShare(shareIDs[key]).then(share => {
 				expect(typeof(share)).toBe('object');
 				expect(shareIDs.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
 				done();				
@@ -525,7 +550,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : getShare with non existent share', function (done) {
-		oc.getShare(-1).then(share => {
+		oc.shares.getShare(-1).then(share => {
 			expect(share).toBe(null);
 			done();
 		}).catch(error => {
@@ -536,7 +561,7 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : getShares for shared file', function (done) {
 		for (var key in shareIDs) {
-			oc.getShares(key).then(shares => {
+			oc.shares.getShares(key).then(shares => {
 				expect(shares.constructor).toBe(Array);
 				var flag = 0;
 				for (var i=0;i<shares.length;i++) {
@@ -555,7 +580,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : getShares for non existent file', function (done) {
-		oc.getShares('nonExistentTestFile').then(shares => {
+		oc.shares.getShares('nonExistentTestFile').then(shares => {
 			expect(shares).toBe(null);
 			done();
 		}).catch(error => {
@@ -578,10 +603,10 @@ describe("Currently testing file/folder sharing,", function () {
 	// });
 
 	it('checking method : updateShare for existent share, editing permissions', function (done) {
-		oc.shareFileWithLink(testFolder).then(share => {
+		oc.shares.shareFileWithLink(testFolder).then(share => {
 			expect(typeof(share)).toBe('object');
 			testFolderShareID = share.getId();
-			return oc.updateShare(testFolderShareID, {perms: 31}); // max-permissions
+			return oc.shares.updateShare(testFolderShareID, {perms: 31}); // max-permissions
 		}).then(share => {
 			expect(share).toBe(null);
 			done();
@@ -592,7 +617,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share, confirming changed permissions', function (done) {
-		oc.getShare(testFolderShareID).then(share => {
+		oc.shares.getShare(testFolderShareID).then(share => {
 			// permissions would still be read only as the share is public
 			expect(share.getPermissions()).toEqual(1);
 			done();
@@ -603,7 +628,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share, making publicUpload true', function (done) {
-		oc.updateShare(testFolderShareID, {publicUpload: true}).then(data => {
+		oc.shares.updateShare(testFolderShareID, {publicUpload: true}).then(data => {
 			expect(data).toBe(true);
 			done();
 		}).catch(error => {
@@ -613,9 +638,9 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share, confirming publicUpload', function (done) {
-		oc.getShare(testFolderShareID).then(share => {
-			expect(share.getPermissions() & oc.OCS_PERMISSION_CREATE).toBeGreaterThan(0);
-			expect(share.getPermissions() & oc.OCS_PERMISSION_UPDATE).toBeGreaterThan(0);
+		oc.shares.getShare(testFolderShareID).then(share => {
+			expect(share.getPermissions() & OCS_PERMISSION_CREATE).toBeGreaterThan(0);
+			expect(share.getPermissions() & OCS_PERMISSION_UPDATE).toBeGreaterThan(0);
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);
@@ -624,7 +649,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share, adding password', function (done) {
-		oc.updateShare(testFolderShareID, {password: 'testPassword'}).then(status => {
+		oc.shares.updateShare(testFolderShareID, {password: 'testPassword'}).then(status => {
 			expect(status).toEqual(true);
 			done();
 		}).catch(error => {
@@ -634,7 +659,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share, confirming password', function (done) {
-		oc.getShare(testFolderShareID).then(share => {
+		oc.shares.getShare(testFolderShareID).then(share => {
 			expect(typeof(share.getShareWith())).toEqual('string');
 			expect(typeof(share.getShareWithDisplayName())).toEqual('string');
 			done();
@@ -645,10 +670,10 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share with user, editing permissions', function (done) {
-		var maxPerms = oc.OCS_PERMISSION_READ + oc.OCS_PERMISSION_UPDATE + oc.OCS_PERMISSION_SHARE;
+		var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
 
 		for (var key in shareIDs) {
-			oc.updateShare(shareIDs[key], {perms: maxPerms}).then(status => {
+			oc.shares.updateShare(shareIDs[key], {perms: maxPerms}).then(status => {
 				expect(status).toEqual(true);
 				done();
 			}).catch(error => {
@@ -659,10 +684,10 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for existent share with user, confirming permissions', function (done) {
-		var maxPerms = oc.OCS_PERMISSION_READ + oc.OCS_PERMISSION_UPDATE + oc.OCS_PERMISSION_SHARE;
+		var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
 
 		for (var key in shareIDs) {
-			oc.getShare(shareIDs[key]).then(share => {
+			oc.shares.getShare(shareIDs[key]).then(share => {
 				expect(share.getPermissions()).toEqual(maxPerms);
 				done();
 			}).catch(error => {
@@ -673,7 +698,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : updateShare for non existent share', function (done) {
-		oc.updateShare(-1).then(status => {
+		oc.shares.updateShare(-1).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -684,13 +709,13 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : deleteShare with existent share', function (done) {
 		for (var key in shareIDs) {
-			oc.getShare(shareIDs[key]).then(share => {
+			oc.shares.getShare(shareIDs[key]).then(share => {
 				expect(typeof(share)).toBe("object");
 				this.id = share.getId();
-				return oc.deleteShare(share.getId());
+				return oc.shares.deleteShare(share.getId());
 			}).then(status => {
 				expect(status).toBe(true);
-				return oc.getShare(this.id);
+				return oc.shares.getShare(this.id);
 			}).then(share => {
 				expect(share).toBe(null);
 				done();
@@ -702,7 +727,7 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : deleteShare with non existent share', function (done) {
-		oc.deleteShare(-1).then(status => {
+		oc.shares.deleteShare(-1).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -719,7 +744,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	afterAll(function (done) {
-		oc.deleteGroup(config.testGroup).then(status => {
+		oc.groups.deleteGroup(config.testGroup).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -729,9 +754,9 @@ describe("Currently testing user management,", function () {
 	});
 
 	beforeAll(function (done) {
-		oc.createUser('existingUser' + timeRightNow, 'password').then(status => {
+		oc.users.createUser('existingUser' + timeRightNow, 'password').then(status => {
 			expect(status).toBe(true);
-			return oc.createGroup(config.testGroup);
+			return oc.groups.createGroup(config.testGroup);
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -742,7 +767,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUser on an existent user', function (done) {
-		oc.getUser(config.username).then(data => {
+		oc.users.getUser(config.username).then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.displayname).toEqual(config.username);
 			done();
@@ -753,7 +778,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUser on a non existent user', function (done) {
-		oc.getUser('nonExistentUsername' + timeRightNow).then(user => {
+		oc.users.getUser('nonExistentUsername' + timeRightNow).then(user => {
 			expect(user).toBe(null);
 			done();
 		}).catch(error => {
@@ -763,7 +788,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : createUser', function (done) {
-		oc.getUser('existingUser' + timeRightNow).then(data => {
+		oc.users.getUser('existingUser' + timeRightNow).then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.displayname).toEqual('existingUser' + timeRightNow);
 			done();
@@ -774,7 +799,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : searchUsers', function (done) {
-		oc.searchUsers('').then(data => {
+		oc.users.searchUsers('').then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.indexOf(config.username)).toBeGreaterThan(-1);
 			expect(data.indexOf('existingUser' + timeRightNow)).toBeGreaterThan(-1);
@@ -786,7 +811,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : searchUsers with zero user results', function (done) {
-		oc.searchUsers('nonExistentUsername' + timeRightNow).then(data => {
+		oc.users.searchUsers('nonExistentUsername' + timeRightNow).then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.length).toEqual(0);
 			done();
@@ -797,7 +822,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userExists with existent user', function (done) {
-		oc.userExists(config.username).then(status => {
+		oc.users.userExists(config.username).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -807,7 +832,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userExists with non existent user', function (done) {
-		oc.userExists('nonExistentUsername' + timeRightNow).then(status => {
+		oc.users.userExists('nonExistentUsername' + timeRightNow).then(status => {
 			expect(status).toBe(false);
 			done();
 		}).catch(error => {
@@ -817,9 +842,9 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : setUserAttribute of an existent user, allowed attribute', function (done) {
-		oc.setUserAttribute('existingUser' + timeRightNow, 'email', 'asd@a.com').then(data => {
+		oc.users.setUserAttribute('existingUser' + timeRightNow, 'email', 'asd@a.com').then(data => {
 			expect(data).toEqual(true);
-			return oc.getUser('existingUser' + timeRightNow);
+			return oc.users.getUser('existingUser' + timeRightNow);
 		}).then(user => {
 			expect(typeof(user)).toEqual('object');
 			expect(user.email).toEqual('asd@a.com');
@@ -831,7 +856,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : setUserAttribute of an existent user, not allowed attribute', function (done) {
-		oc.setUserAttribute('existingUser' + timeRightNow, 'email', 'äöüää_sfsdf+$%/)%&=')
+		oc.users.setUserAttribute('existingUser' + timeRightNow, 'email', 'äöüää_sfsdf+$%/)%&=')
 		.then(status => {
 			expect(status).toBe(null);
 			done();
@@ -843,7 +868,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : setUserAttribute of a non existent user', function (done) {
-		oc.setUserAttribute('nonExistingUser' + timeRightNow, 'email', 'asd@a.com').then(status => {
+		oc.users.setUserAttribute('nonExistingUser' + timeRightNow, 'email', 'asd@a.com').then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -854,9 +879,9 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : addUserToGroup with existent user, existent group', function (done) {
-		oc.addUserToGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
+		oc.users.addUserToGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(true);
-			return oc.userIsInGroup('existingUser' + timeRightNow, config.testGroup);
+			return oc.users.userIsInGroup('existingUser' + timeRightNow, config.testGroup);
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -867,7 +892,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : addUserToGroup with existent user, non existent group', function (done) {
-		oc.addUserToGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
+		oc.users.addUserToGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
 		.then(status => {
 			expect(status).toBe(null);
 			done();
@@ -879,7 +904,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : addUserToGroup with non existent user, existent group', function (done) {
-		oc.addUserToGroup('nonExistentUsername' + timeRightNow, config.testGroup).then(status => {
+		oc.users.addUserToGroup('nonExistentUsername' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -890,7 +915,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUserGroups with an existent user', function (done) {
-		oc.getUserGroups('existingUser' + timeRightNow).then(data => {
+		oc.users.getUserGroups('existingUser' + timeRightNow).then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1);
 			done();
@@ -901,7 +926,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUserGroups with a non existent user', function (done) {
-		oc.getUserGroups('nonExistingUser' + timeRightNow).then(data => {
+		oc.users.getUserGroups('nonExistingUser' + timeRightNow).then(data => {
 			expect(typeof(data)).toBe('object');
 			expect(data.length).toEqual(0);
 			done();
@@ -913,7 +938,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInGroup with an existent user, existent group', function (done) {
-		oc.userIsInGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
+		oc.users.userIsInGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -923,7 +948,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInGroup with an existent user but a group the user isn\'t part of', function (done) {
-		oc.userIsInGroup('existingUser' + timeRightNow, 'admin').then(status => {
+		oc.users.userIsInGroup('existingUser' + timeRightNow, 'admin').then(status => {
 			expect(status).toEqual(false);
 			done();
 		}).catch(error => {
@@ -933,7 +958,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInGroup with an existent user, non existent group', function (done) {
-		oc.userIsInGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
+		oc.users.userIsInGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
 		.then(status => {
 			expect(status).toEqual(false);
 			done();
@@ -944,7 +969,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInGroup with a non existent user', function (done) {
-		oc.userIsInGroup('nonExistingUser' + timeRightNow, config.testGroup).then(status => {
+		oc.users.userIsInGroup('nonExistingUser' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -955,7 +980,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUser with an existent user', function (done) {
-		oc.getUser('existingUser' + timeRightNow).then(data => {
+		oc.users.getUser('existingUser' + timeRightNow).then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.displayname).toEqual('existingUser' + timeRightNow);
 			done();
@@ -966,7 +991,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUser with a non existent user', function (done) {
-		oc.getUser('nonExistentUsername' + timeRightNow).then(status => {
+		oc.users.getUser('nonExistentUsername' + timeRightNow).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -976,9 +1001,9 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : removeUserFromGroup with existent user, existent group', function (done) {
-		oc.removeUserFromGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
+		oc.users.removeUserFromGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(true);
-			return oc.userIsInGroup('existingUser' + timeRightNow, config.testGroup);
+			return oc.users.userIsInGroup('existingUser' + timeRightNow, config.testGroup);
 		}).then(status => {
 			expect(status).toBe(false);
 			done();
@@ -989,7 +1014,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : removeUserFromGroup with existent user, non existent group', function (done) {
-		oc.removeUserFromGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
+		oc.users.removeUserFromGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
 		.then(status => {
 			expect(status).toBe(null);
 			done();
@@ -1001,7 +1026,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : removeUserFromGroup with non existent user, existent group', function (done) {
-		oc.removeUserFromGroup('nonExistentUsername' + timeRightNow, config.testGroup)
+		oc.users.removeUserFromGroup('nonExistentUsername' + timeRightNow, config.testGroup)
 		.then(status => {
 			expect(status).toBe(null);
 			done();
@@ -1013,9 +1038,9 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : addUserToSubadminGroup with existent user, existent group', function (done) {
-		oc.addUserToSubadminGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
+		oc.users.addUserToSubadminGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(true);
-			return oc.userIsInSubadminGroup('existingUser' + timeRightNow, config.testGroup);			
+			return oc.users.userIsInSubadminGroup('existingUser' + timeRightNow, config.testGroup);			
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -1026,7 +1051,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : addUserToSubadminGroup with existent user, non existent group', function (done) {
-		oc.addUserToSubadminGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
+		oc.users.addUserToSubadminGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
 		.then(status => {
 			expect(status).toBe(null);
 			done();
@@ -1037,7 +1062,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : addUserToSubadminGroup with non existent user, existent group', function (done) {
-		oc.addUserToSubadminGroup('nonExistentUsername' + timeRightNow, config.testGroup).then(status => {
+		oc.users.addUserToSubadminGroup('nonExistentUsername' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -1047,7 +1072,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUserSubadminGroups with an existent user', function (done) {
-		oc.getUserSubadminGroups('existingUser' + timeRightNow).then(data => {
+		oc.users.getUserSubadminGroups('existingUser' + timeRightNow).then(data => {
 			expect(typeof(data)).toEqual('object');
 			expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1);
 			done();
@@ -1058,7 +1083,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : getUserSubadminGroups with a non existent user', function (done) {
-		oc.getUserSubadminGroups('nonExistentUsername' + timeRightNow).then(data => {
+		oc.users.getUserSubadminGroups('nonExistentUsername' + timeRightNow).then(data => {
 			expect(typeof(data)).toBe('object');
 			expect(data.length).toEqual(0);
 			done();
@@ -1069,7 +1094,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInSubadminGroup with existent user, existent group', function (done) {
-		oc.userIsInSubadminGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
+		oc.users.userIsInSubadminGroup('existingUser' + timeRightNow, config.testGroup).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -1079,7 +1104,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInSubadminGroup with existent user, non existent group', function (done) {
-		oc.userIsInSubadminGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
+		oc.users.userIsInSubadminGroup('existingUser' + timeRightNow, 'nonExistingGroup' + timeRightNow)
 		.then(status => {
 			expect(status).toBe(false);
 			done();
@@ -1090,7 +1115,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userIsInSubadminGroup with non existent user, existent group', function (done) {
-		oc.userIsInSubadminGroup('nonExistentUsername' + timeRightNow, config.testGroup)
+		oc.users.userIsInSubadminGroup('nonExistentUsername' + timeRightNow, config.testGroup)
 		.then(status => {
 			expect(status).toBe(null);
 			done();
@@ -1101,7 +1126,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : deleteUser on a non existent user', function (done) {
-		oc.deleteUser('nonExistingUser' + timeRightNow).then(status => {
+		oc.users.deleteUser('nonExistingUser' + timeRightNow).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -1112,9 +1137,9 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : deleteUser on an existent user', function (done) {
-		oc.deleteUser('existingUser' + timeRightNow).then(status => {
+		oc.users.deleteUser('existingUser' + timeRightNow).then(status => {
 			expect(status).toBe(true);
-			return oc.getUser('existingUser' + timeRightNow);
+			return oc.users.getUser('existingUser' + timeRightNow);
 		}).then(user => {
 			expect(user).toBe(null);
 			done();
@@ -1132,9 +1157,9 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : createGroup', function (done) {
-		oc.createGroup(config.testGroup).then(status => {
+		oc.groups.createGroup(config.testGroup).then(status => {
 			expect(status).toBe(true);
-			return oc.groupExists(config.testGroup);
+			return oc.groups.groupExists(config.testGroup);
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -1145,7 +1170,7 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : getGroups', function (done) {
-		oc.getGroups().then(data => {
+		oc.groups.getGroups().then(data => {
 			expect(typeof(data)).toBe('object');
 			expect(data.indexOf('admin')).toBeGreaterThan(-1);
 			expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1);
@@ -1157,7 +1182,7 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : groupExists with an existing group', function (done) {
-		oc.groupExists('admin').then(status => {
+		oc.groups.groupExists('admin').then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -1167,7 +1192,7 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : groupExists with a non existing group', function (done) {
-		oc.groupExists('nonExistingGroup' + timeRightNow).then(status => {
+		oc.groups.groupExists('nonExistingGroup' + timeRightNow).then(status => {
 			expect(status).toBe(false);
 			done();
 		}).catch(error => {
@@ -1177,7 +1202,7 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : getGroupMembers', function (done) {
-		oc.getGroupMembers('admin').then(data => {
+		oc.groups.getGroupMembers('admin').then(data => {
 			expect(typeof(data)).toBe('object');
 			expect(data.indexOf(config.username)).toBeGreaterThan(-1);
 			done();
@@ -1188,7 +1213,7 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : deleteGroup with an existing group', function (done) {
-		oc.deleteGroup(config.testGroup).then(status => {
+		oc.groups.deleteGroup(config.testGroup).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -1198,7 +1223,7 @@ describe("Currently testing group management,", function () {
 	});
 
 	it('checking method : deleteGroup with a non existing group', function (done) {
-		oc.deleteGroup('nonExistingGroup' + timeRightNow).then(status => {
+		oc.groups.deleteGroup('nonExistingGroup' + timeRightNow).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {

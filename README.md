@@ -40,13 +40,13 @@ oc.shareFileWithLink('linkToYourFile').then(shareInfo => {
 
 ### Swagger Documentation
 
-Want to see a cool live demo of the library in action? Just type these and see it for yourself :
+Want to see a cool live demo of the library in action? Just type this and see for yourself :
 
 ```
 $ make swagger
 ```
 If you open the link showed by running the above command, you will see something like this :
-# ![SwaggerDemo](http://i63.tinypic.com/33o41s0.jpg)
+# ![SwaggerDemo](http://imgh.us/swagger_github_upload.jpg)
 Here, you can click on any method and type in values, to experiment with the methods in the browser itself!<br>
 Now isn't that cool? :wink:
 

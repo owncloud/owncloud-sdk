@@ -18,14 +18,8 @@ var config = {
     'testFolder': 'testFolder',
     // test group, uses to add owncloud_share2user to it etc
     'testGroup': 'testGroup' + testId,
-    // remote root path to use for testing
-    'testRoot': 'someRoot' + testId,
     // app name to use when testing privatedata API, shouldn't necessarily exist
-    'appName': 'someAppName' + testId,
-    //groups to be created
-    'groupsToCreate': ["group1","group2","group3"],
-    //not existing group
-    'notExistingGroup': 'someRandomGroupNameWhichDoesntExist'
+    'appName': 'someAppName' + testId
 };
 
 module.exports = config;

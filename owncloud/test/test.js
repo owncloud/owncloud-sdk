@@ -608,6 +608,7 @@ describe("Currently testing file/folder sharing,", function () {
 		oc.shares.shareFileWithLink(testFolder).then(share => {
 			expect(typeof(share)).toBe('object');
 			testFolderShareID = share.getId();
+			allShareIDs.push(testFolderShareID);
 			return oc.shares.updateShare(testFolderShareID, {perms: 31}); // max-permissions
 		}).then(share => {
 			expect(share).toBe(null);
@@ -714,6 +715,10 @@ describe("Currently testing file/folder sharing,", function () {
 			oc.shares.getShare(shareIDs[key]).then(share => {
 				expect(typeof(share)).toBe("object");
 				this.id = share.getId();
+				var shareIDtoRemove = allShareIDs.indexOf(this.id);
+				if (shareIDtoRemove > -1)  {
+					allShareIDs.splice(shareIDtoRemove, 1);
+				}
 				return oc.shares.deleteShare(share.getId());
 			}).then(status => {
 				expect(status).toBe(true);
@@ -1294,18 +1299,10 @@ describe("checking if all created elements have been deleted,", function () {
 
 	it('checking created shares', function (done) {
 		for (var i=0;i<allShareIDs.length;i++) {
-			/* jshint unused: false */
-			oc.shares.getShare(allShareIDs[i]).then(share => {
-				oc.shares.deleteShare(allShareIDs[i]).then(status2 => {
-					expect(status2).toBe(true);
-					done();
-				}).catch(error2 => {
-					expect(error2).toBe(null);
-					done();
-				});
+			oc.shares.deleteShare(allShareIDs[i]).then(status2 => {
+				expect(status2).toBe(true);
+				done();
 			});
-			/* jshint unused: true */
-			done();
 		}
 	});
 });

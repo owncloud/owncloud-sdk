@@ -286,7 +286,7 @@ shares.prototype.isShared = function(path) {
 shares.prototype.getShare = function(shareId) {
 	return new Promise((resolve, reject) => {
 		if (isNaN((parseInt(shareId)))) {
-			reject("share ID specified should be a number");
+			reject("Please pass a valid share ID (Integer)");
 			return;
 		}
 

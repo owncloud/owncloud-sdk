@@ -9,6 +9,7 @@ var sharedFilesByLink = {};
 var testFolder = config.testFolder || 'testFolder' + new Date().getTime();
 var testFolderShareID = null;
 var timeRightNow = new Date().getTime();
+var allShareIDs = [];
 
 // constants from lib/public/constants.php
 var OCS_PERMISSION_READ = 1;
@@ -406,6 +407,7 @@ describe("Currently testing file/folder sharing,", function () {
 				expect(typeof(share.getLink())).toBe('string');
 				expect(typeof(share.getToken())).toBe('string');
 				sharedFilesByLink[share.getPath()] = share.getId();
+				allShareIDs.push(share.getId());
 				done();
 			}).catch(error => {
 				expect(error).toBe(null);
@@ -443,6 +445,7 @@ describe("Currently testing file/folder sharing,", function () {
 				expect(typeof(share)).toBe('object');
 				expect(typeof(share.getId())).toBe('number');
 				shareIDs[share.getPath()] = share.getId();
+				allShareIDs.push(share.getId());
 
 				done();
 			}).catch(error => {
@@ -475,6 +478,7 @@ describe("Currently testing file/folder sharing,", function () {
 			oc.shares.shareFileWithGroup(key, testGroup, {perms: 19}).then(share => {
 				expect(typeof(share)).toEqual('object');
 				expect(share.getPermissions()).toEqual(19);
+				allShareIDs.push(share.getId());
 				done();
 			}).catch(error => {
 				expect(error).toBe(null);
@@ -1229,5 +1233,79 @@ describe("Currently testing group management,", function () {
 			expect(error.ocs.meta.statuscode).toEqual('101');
 			done();
 		});
+	});
+});
+
+describe("checking if all created elements have been deleted,", function () {
+	beforeEach(function () {
+		oc = new ownCloud(config.owncloudURL);
+		oc.login(config.username, config.password);
+	});
+
+	it('checking created user', function (done) {
+		oc.users.userExists(config.owncloudShare2user).then(status => {
+			if (status === true)  {
+				oc.users.deleteUser(config.owncloudShare2user).then(status2 => {
+					expect(status2).toBe(true);
+					done();
+				}).catch(error2 => {
+					expect(error2).toBe(null);
+					done();
+				});
+			}
+			else {
+				done();
+			}
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	// delete created files after completing putFile / createFile
+	it('checking created files', function (done) {
+		done();
+	});
+
+	// delete folder after completing mkdir / createFolder
+	it('checking created folder', function (done) {
+		done();
+	});
+
+	it('checking created group', function (done) {
+		oc.groups.groupExists(config.testGroup).then(status => {
+			if (status === true) {
+				oc.groups.deleteGroup(config.testGroup).then(status2 => {
+					expect(status2).toBe(true);
+					done();
+				}).catch(error2 => {
+					expect(error2).toBe(null);
+					done();
+				});
+			}
+			else {
+				done();
+			}
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking created shares', function (done) {
+		for (var i=0;i<allShareIDs.length;i++) {
+			/* jshint unused: false */
+			oc.shares.getShare(allShareIDs[i]).then(share => {
+				oc.shares.deleteShare(allShareIDs[i]).then(status2 => {
+					expect(status2).toBe(true);
+					done();
+				}).catch(error2 => {
+					expect(error2).toBe(null);
+					done();
+				});
+			});
+			/* jshint unused: true */
+			done();
+		}
 	});
 });

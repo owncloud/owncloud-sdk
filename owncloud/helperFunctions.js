@@ -7,6 +7,7 @@ var request = require('request');
 var parser = require('xml2json');
 var utf8 = require('utf8');
 var querystring = require('querystring');
+var fileInfo = require('./fileInfo.js');
 
 /**
  * @class helpers
@@ -49,6 +50,13 @@ helpers.prototype.setInstance = function(instance) {
 
 helpers.prototype.setUsername = function(username) {
 	this._username = username;
+
+	var instancePath = '/' + this.instance.split('/').slice(3).join('/');
+
+	this._davPath = instancePath + 'remote.php/dav/files/' 
+				  + encodeURIComponent(this._encodeString(this._username));
+
+	this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
 helpers.prototype.setPassword = function(password) {
@@ -76,6 +84,7 @@ helpers.prototype._updateCapabilities = function() {
 			var body = parser.toJson(data.body, {object: true}).ocs.data;
 			self._capabilities = body.capabilities;
 			self._version = body.version.string + '-' + body.version.edition;
+
 			resolve(self._capabilities);
 		}).catch(error => {
 			reject(error);
@@ -90,23 +99,9 @@ helpers.prototype._updateCapabilities = function() {
  * @param {string} 		action		action (apps?filter=enabled, capabilities etc.)
  * @param {Function} 	callback 	error, reponse, body
  */
-helpers.prototype._makeOCSrequest = function (method, service, action) {
-	var args = [];
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    var err = null;
-
-    method = args.shift();
-    service = args.shift();
-    action = args.shift();
-    var data;
-    var self = this;
-
-    if (args.length === 1) {
-    	data = args[0];
-    }
+helpers.prototype._makeOCSrequest = function (method, service, action, data) {
+	var self = this;
+	var err = null;
 
 	if (!this.instance) {
 		err = "Please specify a server URL first";
@@ -183,6 +178,99 @@ helpers.prototype._makeOCSrequest = function (method, service, action) {
 	    	}
 		});
 	});
+};
+
+helpers.prototype._makeDAVrequest = function (method, path, data) {
+	var self = this;
+	var err = null;
+	
+	if (!this.instance) {
+		err = "Please specify a server URL first";
+	}
+
+	if (!this._username || !this._password) {
+		err = "Please specify a username AND password first.";
+	}
+	
+	path = self._normalizePath(path);
+	var url = self._webdavUrl + self._encodeString(path);
+
+	
+	// Set the headers
+	var headers = {
+	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64')	
+	};
+
+	//Configure the request
+	var options = {
+	    url: url,
+	    method: method,
+	    headers: headers	
+	};
+
+	for (var key in data) {
+		options.headers[key] = data[key];
+	}
+
+	return new Promise((resolve, reject) => {
+		if (err) {
+			reject(err);
+		}
+
+		// Start the request
+		request(options, function (error, response, body) {
+			if (error) {
+				reject(error);
+			}
+
+			if ([200, 207].indexOf(response.statusCode) > -1) {
+				self._parseDAVresponse(resolve, reject, body);
+			}
+			else if ([201, 204].indexOf(response.statusCode) > -1) {
+				resolve(true);
+			}
+			else {
+				reject('Please specify a valid file');
+			}
+		});
+	});
+};
+
+helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
+	var tree = parser.toJson(body, {object: true})['d:multistatus']['d:response'];
+	var items = [];
+
+	if (tree.constructor !== Array) {
+		tree = [ tree ];
+	}
+
+	for (var item=0;item<tree.length;item++) {
+		items.push(this._parseDAVelement(tree[item]));
+	}
+
+	resolve(items);
+};
+
+helpers.prototype._parseDAVelement = function(item) {
+	var name = item['d:href'];
+	var attrs = item['d:propstat']['d:prop'];
+	var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
+
+	var start = 0;
+	name = name.split('/');
+	for (var i=0;i<name.length;i++) {
+		if (name[i] === 'webdav') {
+			start = i;
+			break;
+		}
+	}
+	name.splice(0, start+1);
+	name = '/' + name.join('/');
+
+	name = decodeURIComponent(name);
+	name = utf8.decode(name);
+
+	return new fileInfo(name, fileType, attrs);
 };
 
 /**

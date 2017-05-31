@@ -17,6 +17,9 @@ tags:
     
   - name: "Group Management"
     description: "Group Creation/Deletion/Updation methods"
+    
+  - name: "Files Management"
+    description: "File and Folder Creation/Deletion/Updation methods"
 
 host: localhost:8080
 basePath: /
@@ -1505,6 +1508,43 @@ paths:
           description: ID of share to delete
           in: query
           type: integer
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /list:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.list(path, depth).then(files => { 
+          
+          // All files in an object
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Returns the listing/contents of the given remote directory
+      operationId: list
+      parameters:
+        - name: path
+          description: path to the remote directory
+          in: query
+          type: string
+        - name: depth
+          description: depth of the listing, integer or "infinity"
+          in: query
+          type: string
       responses:
         "200":
           description: success

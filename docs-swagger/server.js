@@ -531,6 +531,22 @@ app.get('/groupExists', function(request, response) {
 	});
 });
 
+//////////////////////////////////////
+///////    FILES MANAGEMENT    ///////
+//////////////////////////////////////
+
+app.get('/list', function(request, response) {
+	var path = request.query.path || '/';
+	var depth = request.query.depth;
+
+	init();
+	oc.files.list(path, depth).then(files => {
+		response.send(files);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
 var port = process.env.PORT || 8080;
 app.listen(port, function() {
 	console.log("Swagger documentation here : http://localhost:8080/");

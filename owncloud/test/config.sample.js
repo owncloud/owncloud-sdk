@@ -7,7 +7,7 @@ var config = {
     // ownCloud login
     'username': 'testUser',
     // ownCloud password
-    'password': 'testPassword',
+    'password': 'testPassword'/*,
     // test user whom we want to share a file (make sure the user shouldn't exist)
     'owncloudShare2user': 'owncloud' + testId,
     // test file/folder to share, leave empty to create a new file, 
@@ -19,7 +19,7 @@ var config = {
     // test group, uses to add owncloud_share2user to it etc
     'testGroup': 'testGroup' + testId,
     // app name to use when testing privatedata API, shouldn't necessarily exist
-    'appName': 'someAppName' + testId
+    'appName': 'someAppName' + testId*/
 };
 
 module.exports = config;

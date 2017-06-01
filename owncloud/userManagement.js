@@ -2,7 +2,7 @@
 ///////    USER MANAGEMENT    ///////
 /////////////////////////////////////
 
-var Promise = require('es6-promise').Promise;
+var Promise = require('promise');
 var parser = require('xml2json');
 var helpers;
 

@@ -2,7 +2,7 @@
 ///////    HELPERS    ///////
 /////////////////////////////
 
-var Promise = require('es6-promise').Promise;
+var Promise = require('promise');
 var request = require('request');
 var parser = require('xml2json');
 var utf8 = require('utf8');
@@ -180,7 +180,7 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	});
 };
 
-helpers.prototype._makeDAVrequest = function (method, path, data) {
+helpers.prototype._makeDAVrequest = function (method, path, headerData, body) {
 	var self = this;
 	var err = null;
 	
@@ -208,9 +208,11 @@ helpers.prototype._makeDAVrequest = function (method, path, data) {
 	    headers: headers	
 	};
 
-	for (var key in data) {
-		options.headers[key] = data[key];
+	for (var key in headerData) {
+		options.headers[key] = headerData[key];
 	}
+
+	options.body = body;
 
 	return new Promise((resolve, reject) => {
 		if (err) {
@@ -230,7 +232,8 @@ helpers.prototype._makeDAVrequest = function (method, path, data) {
 				resolve(true);
 			}
 			else {
-				reject('Please specify a valid file');
+				var err = self._parseDAVerror(body);
+				reject(err);
 			}
 		});
 	});
@@ -271,6 +274,41 @@ helpers.prototype._parseDAVelement = function(item) {
 	name = utf8.decode(name);
 
 	return new fileInfo(name, fileType, attrs);
+};
+
+helpers.prototype._get = function(url) {
+	var headers = {
+	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+	    'Content-Type': 'application/x-www-form-urlencoded'
+	};
+
+	//Configure the request
+	var options = {
+	    url: url,
+	    method: 'GET',
+	    headers: headers	
+	};
+
+	return new Promise((resolve, reject) => {
+		// Start the request
+		request(options, function (error, response, body) {
+	    	if (error) {
+	    		reject(error);
+	    	}
+	    	else {
+	    		resolve({response : response, body: body});
+	    	}
+		});
+	});
+};
+
+helpers.prototype._parseDAVerror = function(body) {
+	var tree = parser.toJson(body, {object: true});
+
+	if (tree['d:error']['s:message']) {
+		return tree['d:error']['s:message'];
+	}
+	return tree;
 };
 
 /**
@@ -372,7 +410,7 @@ helpers.prototype._checkOCSstatusCode = function (json) {
  * @returns {string} encoded path
  */
 helpers.prototype._encodeString = function(path) {
-	return utf8.encode(path);	
+	return utf8.encode(path);
 };
 
 /**

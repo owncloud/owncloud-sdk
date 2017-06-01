@@ -2,8 +2,9 @@
 ///////    SHARING    ///////
 /////////////////////////////
 
-var Promise = require('es6-promise').Promise;
+var Promise = require('promise');
 var parser = require('xml2json');
+var utf8 = require('utf8');
 var shareInfo = require('./shareInfo.js');
 var helpers;
 
@@ -48,10 +49,11 @@ function shares(helperFile) {
  */
 shares.prototype.shareFileWithLink = function(path, optionalParams) {
     path = helpers._normalizePath(path);
+    path = helpers._encodeString(path);
     
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_LINK,
-        'path': helpers._encodeString(path)
+        'path': path
     };
 
     if (optionalParams) {
@@ -74,6 +76,7 @@ shares.prototype.shareFileWithLink = function(path, optionalParams) {
 
     		resolve(share);
     	}).catch(error => {
+    		console.log("caught error : " + error + "for file : " + path);
     		reject(error);
     	});
     });

@@ -2,7 +2,7 @@
 ///////    GENERAL    ///////
 /////////////////////////////
 
-var Promise = require('es6-promise').Promise;
+var Promise = require('promise');
 var parser = require('xml2json');
 var helperFile = require('./helperFunctions.js');
 var apps = require('./appManagement.js');

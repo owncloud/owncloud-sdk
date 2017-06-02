@@ -1,5 +1,5 @@
 {
-    "owncloudURL": "noveen.tk/testInstance/core",
-    "username": "testUser",
-    "password": "testPassword"
+    "owncloudURL": "localhost/core",
+    "username": "testing",
+    "password": "123"
 }

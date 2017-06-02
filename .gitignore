@@ -1,4 +1,4 @@
 node_modules/
-owncloud/test/config.js
+owncloud/test/config.json
 docs-swagger/node_modules
 jsdoc/

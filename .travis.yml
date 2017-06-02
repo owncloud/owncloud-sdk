@@ -9,6 +9,8 @@ env:
   - OC_VERSION=9.0
   - OC_VERSION=9.1
 
+sudo: required
+
 services:
   - docker
 

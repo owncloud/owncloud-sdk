@@ -20,6 +20,4 @@ before_install:
   - npm install -g node@latest
 
 script:
-    - cp owncloud/test/config.sample.js owncloud/test/config.js
-    # execute unit tests
-    - npm test
+    - make test

@@ -13,13 +13,6 @@ sudo: required
 services:
   - docker
 
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:ubuntu-toolchain-r/test'
-    packages:
-      - g++-4.8
-
 before_install:
   - travisBuild/setupOCdocker.sh $OC_VERSION
   - '[ "${TRAVIS_NODE_VERSION}" != "0.8" ] || npm install -g npm@3.5.2'

@@ -4,7 +4,6 @@ node_js:
   - 4.2.6
 
 env:
-  - CXX=g++-4.8
   - OC_VERSION=8.2
   - OC_VERSION=9.0
   - OC_VERSION=9.1

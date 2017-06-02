@@ -11,13 +11,13 @@ endif
 all:
 	sudo npm i
 	sudo npm --prefix ./docs-swagger/ i ./docs-swagger/
-	cp owncloud/test/config.sample.js owncloud/test/config.js
+	cp owncloud/test/config.sample.json owncloud/test/config.json
 
 swagger:
 	node docs-swagger/server.js
 
 test:
-	if [ ! -f owncloud/test/config.js ] ; then cp owncloud/test/config.sample.js owncloud/test/config.js ; fi;
+	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
 	npm test
 
 jsdocs:

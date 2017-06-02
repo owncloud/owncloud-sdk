@@ -72,7 +72,6 @@ files.prototype.getFileContents = function(path) {
 files.prototype.putFileContents = function(path, content) {
 	return new Promise((resolve, reject) => {
 		helpers._makeDAVrequest('PUT', path, null, content).then(status => {
-			console.log("created file : " + path);
 			resolve(status);
 		}).catch(error => {
 			reject(error);

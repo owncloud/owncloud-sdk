@@ -42,14 +42,14 @@ function shares(helperFile) {
 /**
  * Shares a remote file with specified user
  * @param {string} 		path 					path to the remote file share
- * @param {string}  	[perms = 1]					permission of the shared object defaults to read only (1)
- * @param {string}   	[publicUpload] 			allows users to upload files or folders
+ * @param {string}  	[perms = 1]				permission of the shared object defaults to read only (1)
+ * @param {boolean}   	[publicUpload] 			allows users to upload files or folders
  * @param {string}   	[password] 				sets a password
  * @param {Function}    shareCallbackcallback 	error, body (instance of class shareInfo)
  */
 shares.prototype.shareFileWithLink = function(path, optionalParams) {
     path = helpers._normalizePath(path);
-    path = helpers._encodeString(path);
+    //path = helpers._encodeString(path);
     
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_LINK,
@@ -71,12 +71,12 @@ shares.prototype.shareFileWithLink = function(path, optionalParams) {
     return new Promise((resolve, reject) => {
     	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
     	.then(data => {
+    		data.body = utf8.encode(data.body);
     		var shareDetails = parser.toJson(data.body, {object : true}).ocs.data;
     		var share = new shareInfo(shareDetails);
 
     		resolve(share);
     	}).catch(error => {
-    		console.log("caught error : " + error + "for file : " + path);
     		reject(error);
     	});
     });
@@ -109,7 +109,7 @@ shares.prototype.updateShare = function(shareId, optionalParams) {
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
     	helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE, 
-    		'shares/' + encodeURIComponent(shareId.toString()), postData
+    		'shares/' + shareId.toString(), postData, 1
     	).then(data => {
     		resolve(true);
     	}).catch(error => {
@@ -128,11 +128,12 @@ shares.prototype.updateShare = function(shareId, optionalParams) {
  */
 shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     path = helpers._normalizePath(path);
-    
+	// path = helpers._encodeString(path);
+
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_USER,
         'shareWith': username,
-        'path': helpers._encodeString(path)
+        'path': path
     };
 
     if (optionalParams) {
@@ -171,7 +172,7 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_GROUP,
         'shareWith': groupName,
-        'path': helpers._encodeString(path)
+        'path': path
     };
 
     if (optionalParams && optionalParams.perms) {
@@ -204,7 +205,7 @@ shares.prototype.getShares = function(path, optionalParams){
     if (path !== '') {
     	data += '?';
 
-    	send.path = helpers._encodeString(helpers._normalizePath(path));
+    	send.path = helpers._normalizePath(path);
     	optionalParams = helpers._convertObjectToBool(optionalParams);
 
     	if (optionalParams) {

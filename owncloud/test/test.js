@@ -1,4 +1,4 @@
-var config = require('./config.js');
+var config = require('./config.json');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
 
@@ -20,9 +20,9 @@ var nonExistingFile  = 'nonExistingFile' + timeRightNow;
 var nonExistingUser  = 'nonExistingUser' + timeRightNow;
 var nonExistingGroup = 'nonExistingGroup' + timeRightNow;
 var testFiles   	 = [
-						'/test.txt' + timeRightNow,
-						'/test space and + and #.txt' + timeRightNow,
-						'/文件.txt' + timeRightNow
+					   '/文件' + timeRightNow + '.txt',
+					   '/test' + timeRightNow + '.txt',
+					   '/test space and + and #' + timeRightNow + '.txt'
 					   ];
 
 // CREATED SHARES
@@ -383,7 +383,9 @@ describe("Currently testing file/folder sharing,", function () {
 				expect(typeof(share.getToken())).toBe('string');
 				sharedFilesByLink[share.getPath()] = share.getId();
 				allShareIDs.push(share.getId());
-				done();
+				if (share.getPath() === testFiles[testFiles.length - 1]) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -501,7 +503,7 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : getShare with existent share', function (done) {
 		for (var key in sharedFilesByLink) {
-			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
+			oc.shares.getShare(sharedFilesWithUser[utf8.decode(key)]).then(share => {
 				expect(typeof(share)).toBe('object');
 				expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
 				done();				
@@ -576,8 +578,8 @@ describe("Currently testing file/folder sharing,", function () {
 			testFolderShareID = share.getId();
 			allShareIDs.push(testFolderShareID);
 			return oc.shares.updateShare(testFolderShareID, {perms: 31}); // max-permissions
-		}).then(share => {
-			expect(share).toBe(null);
+		}).then(status => {
+			expect(status).toBe(null);
 			done();
 		}).catch(error => {
 			expect(error).toBe('Can\'t change permissions for public share links');
@@ -738,9 +740,8 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : createUser', function (done) {
-		oc.users.createUser('newUser' + timeRightNow).then(data => {
-			expect(typeof(data)).toEqual('object');
-			expect(data.displayname).toEqual('newUser' + timeRightNow);
+		oc.users.createUser('newUser' + timeRightNow, testUserPassword).then(data => {
+			expect(data).toEqual(true);
 			return oc.users.deleteUser('newUser' + timeRightNow);
 		}).then(status => {
 			expect(status).toBe(true);

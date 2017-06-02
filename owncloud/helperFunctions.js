@@ -6,7 +6,6 @@ var Promise = require('promise');
 var request = require('request');
 var parser = require('xml2json');
 var utf8 = require('utf8');
-var querystring = require('querystring');
 var fileInfo = require('./fileInfo.js');
 
 /**
@@ -114,7 +113,7 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	// Set the headers
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
-	    'Content-Type': 'application/x-www-form-urlencoded'
+	    'OCS-APIREQUEST': true
 	};
 
 	var slash = '';
@@ -129,11 +128,17 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	var options = {
 	    url: this.instance + path,
 	    method: method,
-	    headers: headers	
+	    headers: headers,
 	};
 
-	if (data) {
-		options.body = querystring.stringify(data);
+	if (method === 'PUT' || method === 'DELETE') {
+		options.headers['content-type'] = 'application/x-www-form-urlencoded';
+		options.form = data;
+	}
+
+	else {
+		options.headers['content-type'] = 'multipart/form-data';
+		options.formData = data;
 	}
 
 	return new Promise((resolve, reject) => {
@@ -193,9 +198,10 @@ helpers.prototype._makeDAVrequest = function (method, path, headerData, body) {
 	}
 	
 	path = self._normalizePath(path);
+	path = encodeURIComponent(path);
+	path = path.split('%2F').join('/'); // '/' => %2F
 	var url = self._webdavUrl + self._encodeString(path);
 
-	
 	// Set the headers
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64')	

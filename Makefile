@@ -18,6 +18,7 @@ swagger:
 
 test:
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
+	echo owncloud/test/config.json
 	npm test
 
 jsdocs:

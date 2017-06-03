@@ -142,13 +142,13 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	}
 
 	return new Promise((resolve, reject) => {
-		console.log("url sent : " + options.url + ' response : ' + body);
-		if (err) {
-			reject(err);
-		}
-
 		// Start the request
 		request(options, function (error, response, body) {
+			console.log("url sent : " + options.url + ' response : ' + body);
+			
+			if (err) {
+				reject(err);
+			}
 			var validXml = self._isValidXML(body);
 			var validJson = self._isValidJSON(body);
 

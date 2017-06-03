@@ -20,8 +20,8 @@ test:
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
 	cat owncloud/test/config.json
 	wget http://127.0.0.1/
-	wget http://127.0.0.1:80/
-	ls /var/www/
+	cat index.html
+	
 	npm test
 
 jsdocs:

@@ -399,7 +399,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist');
 			done();
 		});
 	});
@@ -458,7 +458,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(share).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist');
 			done();
 		});
 	});
@@ -468,7 +468,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist');
 			done();
 		});
 	});
@@ -520,7 +520,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(share).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toEqual('Wrong share ID, share doesn\'t exist');
+			expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
 			done();
 		});
 	});
@@ -550,7 +550,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(shares).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Wrong path, file/folder doesn\'t exist');
+			expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist');
 			done();
 		});
 	});
@@ -583,7 +583,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Can\'t change permissions for public share links');
+			expect(error.toLowerCase()).toBe('can\'t change permissions for public share links');
 			done();
 		});	
 	});
@@ -674,7 +674,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Wrong share ID, share doesn\'t exist');
+			expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist');
 			done();
 		});
 	});
@@ -696,7 +696,7 @@ describe("Currently testing file/folder sharing,", function () {
 				expect(share).toBe(null);
 				done();
 			}).catch(error => {
-				expect(error).toEqual('Wrong share ID, share doesn\'t exist');
+				expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
 				done();
 			});
 		}
@@ -707,7 +707,7 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Wrong share ID, share doesn\'t exist');
+			expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist');
 			done();
 		});
 	});

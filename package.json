@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "promise": "^7.1.1",
-    "querystring": "^0.2.0",
     "request": "^2.81.0",
     "utf8": "^2.1.2",
     "xml2json": "^0.11.0"

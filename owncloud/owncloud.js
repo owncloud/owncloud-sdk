@@ -40,7 +40,7 @@ function ownCloud(instance) {
 	}
 
 	var http = '';
-	if (instance.slice(4) !== "http") {
+	if (instance.slice(0, 4) !== "http") {
 		http = 'http://';
 	}
 

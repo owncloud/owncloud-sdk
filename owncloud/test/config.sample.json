@@ -1,5 +1,5 @@
 {
-    "owncloudURL": "http://127.0.0.1/core",
+    "owncloudURL": "http://127.0.0.1/",
     "username": "admin",
     "password": "admin"
 }

@@ -281,11 +281,14 @@ describe("Currently testing apps management,", function () {
 
 	it('checking method : setAttribute with empty value', function (done) {
 		var key = ['attr1', 'attr+plus space', '属性1'];
-
+		var count = 0;
 		for (var i=0;i<key.length;i++) {
 			oc.apps.setAttribute(testApp, key[i], '').then(status => {
 				expect(status).toBe(true);
-				done();
+				count++;
+				if (count == key.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -293,13 +296,16 @@ describe("Currently testing apps management,", function () {
 		}
 	});
 
-	it('checking method : getAttribute with empty value', function (done) {
+	it('checking method : setAttribute confirming empty value', function (done) {
 		var key = ['attr1', 'attr+plus space', '属性1'];
-
+		var count = 0;
 		for (var i=0;i<key.length;i++) {
-			oc.apps.getAttribute(testApp, key[i]).then(value => {
-				expect(value).toEqual('');
-				done();
+			oc.apps.getAttribute(testApp, key[i], '').then(attr => {
+				expect(attr).toBe('');
+				count++;
+				if (count == key.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -520,6 +526,9 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(share).toBe(null);
 			done();
 		}).catch(error => {
+			if (error.slice(-1) === '.') {
+				error = error.slice(0, -1);
+			}
 			expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
 			done();
 		});
@@ -674,6 +683,9 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
+			if (error.slice(-1) === '.') {
+				error = error.slice(0, -1);
+			}
 			expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist');
 			done();
 		});
@@ -696,6 +708,9 @@ describe("Currently testing file/folder sharing,", function () {
 				expect(share).toBe(null);
 				done();
 			}).catch(error => {
+				if (error.slice(-1) === '.') {
+					error = error.slice(0, -1);
+				}
 				expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
 				done();
 			});
@@ -707,6 +722,9 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
+			if (error.slice(-1) === '.') {
+				error = error.slice(0, -1);
+			}
 			expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist');
 			done();
 		});

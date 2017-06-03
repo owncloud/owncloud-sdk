@@ -83,7 +83,6 @@ apps.prototype.getAttribute = function(app, key) {
 			send += '/' + encodeURIComponent(helpers._encodeString(key));
 		}
 	}
-
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
 		.then(data => {

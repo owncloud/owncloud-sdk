@@ -291,7 +291,6 @@ describe("Currently testing apps management,", function () {
 		var count = 0;
 
 		oc.apps.getAttribute(testApp).then(allAttributes => {
-			console.log(allAttributes);
 			for (var i=0;i<key.length;i++) {
 				expect(typeof(allAttributes)).toBe('object');
 				expect(utf8.encode(key[i]) in allAttributes).toBe(true);
@@ -657,7 +656,11 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
-			expect(error.toLowerCase()).toBe('can\'t change permissions for public share links');
+			var check = 'can\'t change permissions for public share links';
+			if (error === 'can\'t change permission for public link share') {
+				check = 'can\'t change permission for public link share';
+			}
+			expect(error.toLowerCase()).toBe(check);
 			done();
 		});	
 	});

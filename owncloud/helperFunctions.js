@@ -143,9 +143,7 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 
 	return new Promise((resolve, reject) => {
 		// Start the request
-		request(options, function (error, response, body) {
-			console.log("url sent : " + options.url + ' response : ' + body);
-			
+		request(options, function (error, response, body) {			
 			if (err) {
 				reject(err);
 			}

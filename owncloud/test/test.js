@@ -121,7 +121,11 @@ describe("Currently testing Login and initLibrary,", function() {
 			expect(status).tobe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Current user is not logged in');
+			var check = 'Current user is not logged in';
+			if (error === 'Unauthorised') {
+				check = 'Unauthorised';
+			}
+			expect(error).toBe(check);
 			done();
 		});
 	});
@@ -133,7 +137,11 @@ describe("Currently testing Login and initLibrary,", function() {
 			expect(status).tobe(null);
 			done();
 		}).catch(error => {
-			expect(error).toBe('Current user is not logged in');
+			var check = 'Current user is not logged in';
+			if (error === 'Unauthorised') {
+				check = 'Unauthorised';
+			}
+			expect(error).toBe(check);
 			done();
 		});
 	});
@@ -266,6 +274,7 @@ describe("Currently testing apps management,", function () {
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
 		
 		oc.apps.getAttribute(testApp).then(allAttributes => {
+			console.log(allAttributes);
 			for (var i=0;i<key.length;i++) {
 				expect(typeof(allAttributes)).toBe('object');
 				expect(utf8.encode(key[i]) in allAttributes).toBe(true);
@@ -354,7 +363,7 @@ describe("Currently testing apps management,", function () {
 
 	it('checking method : enableApp when app doesn\'t exist', function (done) {
 		oc.apps.enableApp(nonExistingApp).then(status => {
-			expect(status).toBe(null);
+			expect(status).toBe(true);
 			done();
 		}).catch(error => {
 			expect(error).toEqual('No app found by the name "' + nonExistingApp + '"');
@@ -509,8 +518,8 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : getShare with existent share', function (done) {
-		for (var key in sharedFilesByLink) {
-			oc.shares.getShare(sharedFilesWithUser[utf8.decode(key)]).then(share => {
+		for (var key in sharedFilesWithUser) {
+			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
 				expect(typeof(share)).toBe('object');
 				expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
 				done();				

@@ -21,6 +21,8 @@ test:
 	cat owncloud/test/config.json
 	wget http://127.0.0.1/
 	wget http://127.0.0.1:80/
+	ls /var/www/html/
+	ls /var/www/
 	npm test
 
 jsdocs:

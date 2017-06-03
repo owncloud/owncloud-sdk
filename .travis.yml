@@ -16,4 +16,5 @@ before_install:
   - travisBuild/setupOCdocker.sh $OC_VERSION
 
 script:
+  - sleep 10
   - make test

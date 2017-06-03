@@ -65,10 +65,14 @@ describe("Currently creating all requirements for running tests,", function () {
 	});
 
 	it('creating test files', function (done) {
+		var count = 0;
 		for (var i=0;i<testFiles.length;i++) {
 			oc.files.putFileContents(testFiles[i], testContent).then(status => {
 				expect(status).toBe(true);
-				done();
+				count++;
+				if (count === testFiles.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -228,11 +232,15 @@ describe("Currently testing apps management,", function () {
 	it('checking method : setAttribute', function (done) {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
+		var count = 0;
 
 		for (var i=0;i<key.length;i++) {
 			oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
 				expect(status).toBe(true);
-				done();
+				count++;
+				if (count === key.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -243,11 +251,15 @@ describe("Currently testing apps management,", function () {
 	it('checking method : valid getAttribute', function (done) {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
+		var count = 0;
 
 		for (var i=0;i<key.length;i++) {
 			oc.apps.getAttribute(testApp, key[i]).then(data => {
 				expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1);
-				done();
+				count++;
+				if (count === key.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -257,11 +269,15 @@ describe("Currently testing apps management,", function () {
 
 	it('checking method : non existent getAttribute', function (done) {
 		var key = ['attr2', 'attr+plus space ', '属性12'];
-		
+		var count = 0;
+
 		for (var i=0;i<key.length;i++) {
 			oc.apps.getAttribute(testApp, key[i]).then(data => {
 				expect(data).toEqual(null);
-				done();
+				count++;
+				if (count === key.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -272,7 +288,8 @@ describe("Currently testing apps management,", function () {
 	it('checking method : getAttribute without key', function (done) {
 		var key = ['attr1', 'attr+plus space', '属性1'];
 		var value = ['value1', 'value+plus space and/slash', '值对1'];
-		
+		var count = 0;
+
 		oc.apps.getAttribute(testApp).then(allAttributes => {
 			console.log(allAttributes);
 			for (var i=0;i<key.length;i++) {
@@ -280,7 +297,10 @@ describe("Currently testing apps management,", function () {
 				expect(utf8.encode(key[i]) in allAttributes).toBe(true);
 				var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])]);
 				expect(value.indexOf(ocValue)).toBeGreaterThan(-1);
-				done();
+				count++;
+				if (count === key.length) {
+					done();
+				}
 			}
 		}).catch(error => {
 			expect(error).toBe(null);
@@ -324,11 +344,15 @@ describe("Currently testing apps management,", function () {
 
 	it('checking method : deleteAttribute', function (done) {
 		var key = ['attr1', 'attr+plus space', '属性1'];
+		var count = 0;
 
 		for (var i=0;i<key.length;i++) {
 			oc.apps.deleteAttribute(testApp, key[i]).then(status => {
 				expect(status).toBe(true);
-				done();
+				count++;
+				if (count === key.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -388,7 +412,7 @@ describe("Currently testing file/folder sharing,", function () {
 		oc.login(config.username, config.password);
 	});
 
-	it('checking method : shareFileWithLink with existent file', function (done) {
+	it('checking method : shareFileWithLink with existent file', function (done) {		
 		for (var i=0;i<testFiles.length;i++) {
 			oc.shares.shareFileWithLink(testFiles[i]).then(share => {
 				expect(share).not.toBe(null);
@@ -420,6 +444,8 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : shareFileWithUser with existent File', function (done) {
+		var count = 0;
+
 		for (var i=0;i<testFiles.length;i++) {
 			oc.shares.shareFileWithUser(testFiles[i], testUser).then(share => {
 				expect(share).not.toBe(null);
@@ -427,8 +453,10 @@ describe("Currently testing file/folder sharing,", function () {
 				expect(typeof(share.getId())).toBe('number');
 				sharedFilesWithUser[share.getPath()] = share.getId();
 				allShareIDs.push(share.getId());
-
-				done();
+				count++;
+				if (count === testFiles.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -437,17 +465,25 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : shareFileWithUser for the user file is shared with', function (done) {
+		var count = 0;
+
 		oc.login(testUser, testUserPassword).then(status => {
 			expect(status).toBe(true);
 			for (var key in sharedFilesWithUser) {
-				return oc.shares.getShare(sharedFilesWithUser[key]);
+				oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
+					expect(share).not.toBe(null);
+					expect(typeof(share)).toBe('object');
+					expect(typeof(share.getId())).toBe('number');
+					expect(share.getShareWith()).toEqual(testUser);
+					count++;
+					if (count === Object.keys(sharedFilesWithUser).length) {
+						done();
+					}
+				}).catch(error => {
+					expect(error).toBe(null);
+					done();
+				});
 			}
-		}).then(share => {
-			expect(share).not.toBe(null);
-			expect(typeof(share)).toBe('object');
-			expect(typeof(share.getId())).toBe('number');
-			expect(share.getShareWith()).toEqual(testUser);
-			done();
 		}).catch(error => {
 			expect(error).toBe(null);
 			done();
@@ -455,12 +491,17 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : shareFileWithGroup with existent file', function (done) {
+		var count = 0;
+
 		for (var i=0;i<testFiles.length;i++) {
 			oc.shares.shareFileWithGroup(testFiles[i], testGroup, {perms: 19}).then(share => {
 				expect(typeof(share)).toEqual('object');
 				expect(share.getPermissions()).toEqual(19);
 				allShareIDs.push(share.getId());
-				done();
+				count++;
+				if (count === testFiles.length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -489,10 +530,15 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : isShared with shared file', function (done) {
+		var count = 0;
+
 		for (var key in sharedFilesWithUser) {
 			oc.shares.isShared(key).then(status => {
 				expect(status).toEqual(true);
-				done();
+				count++;
+				if (count === Object.keys(sharedFilesWithUser).length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -518,11 +564,16 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : getShare with existent share', function (done) {
+		var count = 0;
+
 		for (var key in sharedFilesWithUser) {
 			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
 				expect(typeof(share)).toBe('object');
 				expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
-				done();				
+				count++;
+				if (count === Object.keys(sharedFilesWithUser).length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -544,6 +595,8 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : getShares for shared file', function (done) {
+		var count = 0;
+
 		for (var key in sharedFilesWithUser) {
 			oc.shares.getShares(key).then(shares => {
 				expect(shares.constructor).toBe(Array);
@@ -555,7 +608,10 @@ describe("Currently testing file/folder sharing,", function () {
 					}
 				}
 				expect(flag).toEqual(1);
-				done();
+				count++;
+				if (count === Object.keys(sharedFilesWithUser).length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -661,11 +717,15 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : updateShare for existent share with user, editing permissions', function (done) {
 		var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
+		var count = 0;
 
 		for (var key in sharedFilesWithUser) {
 			oc.shares.updateShare(sharedFilesWithUser[key], {perms: maxPerms}).then(status => {
 				expect(status).toEqual(true);
-				done();
+				count++;
+				if (count === Object.keys(sharedFilesWithUser).length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -675,11 +735,15 @@ describe("Currently testing file/folder sharing,", function () {
 
 	it('checking method : updateShare for existent share with user, confirming permissions', function (done) {
 		var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
+		var count = 0;
 
 		for (var key in sharedFilesWithUser) {
 			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
 				expect(share.getPermissions()).toEqual(maxPerms);
-				done();
+				count++;
+				if (count === Object.keys(sharedFilesWithUser).length) {
+					done();
+				}
 			}).catch(error => {
 				expect(error).toBe(null);
 				done();
@@ -701,27 +765,33 @@ describe("Currently testing file/folder sharing,", function () {
 	});
 
 	it('checking method : deleteShare with existent share', function (done) {
+		var count = 0;
+
 		for (var key in sharedFilesWithUser) {
 			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
 				expect(typeof(share)).toBe("object");
-				this.id = share.getId();
+				
 				var shareIDtoRemove = allShareIDs.indexOf(this.id);
 				if (shareIDtoRemove > -1)  {
 					allShareIDs.splice(shareIDtoRemove, 1);
 				}
-				return oc.shares.deleteShare(share.getId());
-			}).then(status => {
-				expect(status).toBe(true);
-				return oc.shares.getShare(this.id);
-			}).then(share => {
-				expect(share).toBe(null);
-				done();
-			}).catch(error => {
-				if (error.slice(-1) === '.') {
-					error = error.slice(0, -1);
-				}
-				expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
-				done();
+				
+				oc.shares.deleteShare(share.getId()).then(status => {
+					expect(status).toBe(true);
+					oc.shares.getShare(share.getId()).then(share => {
+						expect(share).toBe(null);
+						done();
+					}).catch(error => {
+						if (error.slice(-1) === '.') {
+							error = error.slice(0, -1);
+						}
+						expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
+						count++;
+						if (count === Object.keys(sharedFilesWithUser).length) {
+							done();
+						}
+					});
+				});
 			});
 		}
 	});
@@ -1248,10 +1318,15 @@ describe("checking if all created elements have been deleted,", function () {
 	});
 
 	it('checking created files', function (done) {
+		var count = 0;
+
 		for (var i=0;i<testFiles.length;i++) {
 			oc.files.delete(testFiles[i]).then(status => {
 				expect(status).toBe(true);
-				done();
+				count++;
+				if (count === testFiles.length) {
+					done();
+				}
 			});
 		}
 	});

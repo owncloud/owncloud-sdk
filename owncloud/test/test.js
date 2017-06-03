@@ -1,7 +1,7 @@
 var config = require('./config.json');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
-jasmine.getEnv().defaultTimeoutInterval = 15000;
+// jasmine.getEnv().defaultTimeoutInterval = 15000;
 
 // CURRENT TIME
 var timeRightNow = new Date().getTime();

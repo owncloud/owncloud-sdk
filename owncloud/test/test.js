@@ -1,7 +1,6 @@
 var config = require('./config.json');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
-// jasmine.getEnv().defaultTimeoutInterval = 15000;
 
 // CURRENT TIME
 var timeRightNow = new Date().getTime();
@@ -12,6 +11,9 @@ var oc;
 // TESTING CONFIGS
 var testUserPassword = 'password';
 var testContent 	 = 'testContent';
+var username 		 =  config.username;
+var password 		 =  config.password;
+var owncloudURL 	 =  config.owncloudURL;
 var testUser    	 = 'testUser' + timeRightNow;
 var testGroup   	 = 'testGroup' + timeRightNow;
 var testFolder  	 = 'testFolder' + timeRightNow;
@@ -39,9 +41,12 @@ var OCS_PERMISSION_CREATE = 4;
 var OCS_PERMISSION_SHARE = 16;
 
 describe("Currently creating all requirements for running tests,", function () {
-	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+	beforeEach(function (done) {
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password).then(status => {
+			expect(status).toBe(true);
+			done();
+		});
 	});
 
 	it('creating test user', function (done) {
@@ -109,7 +114,7 @@ describe("Currently testing Login and initLibrary,", function() {
 	it('checking method : login with a non existent instance URL', function(done) {
 		oc = new ownCloud('someRandomName');
 
-		oc.login(config.username, config.password).then(status => {
+		oc.login(username, password).then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -119,7 +124,7 @@ describe("Currently testing Login and initLibrary,", function() {
 	});
 
 	it('checking method : login with wrong username and password', function(done) {
-		oc = new ownCloud(config.owncloudURL);
+		oc = new ownCloud(owncloudURL);
 
 		oc.login(nonExistingUser, 'password' + timeRightNow).then(status => {
 			expect(status).tobe(null);
@@ -135,9 +140,9 @@ describe("Currently testing Login and initLibrary,", function() {
 	});
 
 	it('checking method : login with correct username only', function(done) {
-		oc = new ownCloud(config.owncloudURL);
+		oc = new ownCloud(owncloudURL);
 
-		oc.login(config.username, 'password' + timeRightNow).then(status => {
+		oc.login(username, 'password' + timeRightNow).then(status => {
 			expect(status).tobe(null);
 			done();
 		}).catch(error => {
@@ -151,9 +156,9 @@ describe("Currently testing Login and initLibrary,", function() {
 	});
 
 	it('checking method : login with correct username and password', function(done) {
-		oc = new ownCloud(config.owncloudURL);
+		oc = new ownCloud(owncloudURL);
 
-		oc.login(config.username, config.password).then(status => {
+		oc.login(username, password).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -165,8 +170,8 @@ describe("Currently testing Login and initLibrary,", function() {
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function () {
 	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
 	});
 
 	it('checking method : getConfig', function (done) {
@@ -213,8 +218,8 @@ describe("Currently testing getConfig, getVersion and getCapabilities", function
 
 describe("Currently testing apps management,", function () {
 	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
 	});
 
 	it('checking method : getApps', function (done) {
@@ -407,8 +412,8 @@ describe("Currently testing apps management,", function () {
 
 describe("Currently testing file/folder sharing,", function () {
 	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
 	});
 
 	it('checking method : shareFileWithLink with existent file', function (done) {		
@@ -815,14 +820,14 @@ describe("Currently testing file/folder sharing,", function () {
 
 describe("Currently testing user management,", function () {
 	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
 	});
 
 	it('checking method : getUser on an existent user', function (done) {
-		oc.users.getUser(config.username).then(data => {
+		oc.users.getUser(username).then(data => {
 			expect(typeof(data)).toEqual('object');
-			expect(data.displayname).toEqual(config.username);
+			expect(data.displayname).toEqual(username);
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);
@@ -856,7 +861,7 @@ describe("Currently testing user management,", function () {
 	it('checking method : searchUsers', function (done) {
 		oc.users.searchUsers('').then(data => {
 			expect(typeof(data)).toEqual('object');
-			expect(data.indexOf(config.username)).toBeGreaterThan(-1);
+			expect(data.indexOf(username)).toBeGreaterThan(-1);
 			expect(data.indexOf(testUser)).toBeGreaterThan(-1);
 			done();
 		}).catch(error => {
@@ -877,7 +882,7 @@ describe("Currently testing user management,", function () {
 	});
 
 	it('checking method : userExists with existent user', function (done) {
-		oc.users.userExists(config.username).then(status => {
+		oc.users.userExists(username).then(status => {
 			expect(status).toBe(true);
 			done();
 		}).catch(error => {
@@ -1209,8 +1214,8 @@ describe("Currently testing user management,", function () {
 
 describe("Currently testing group management,", function () {
 	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
 	});
 
 	it('checking method : createGroup', function (done) {
@@ -1264,7 +1269,7 @@ describe("Currently testing group management,", function () {
 	it('checking method : getGroupMembers', function (done) {
 		oc.groups.getGroupMembers('admin').then(data => {
 			expect(typeof(data)).toBe('object');
-			expect(data.indexOf(config.username)).toBeGreaterThan(-1);
+			expect(data.indexOf(username)).toBeGreaterThan(-1);
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);
@@ -1296,8 +1301,8 @@ describe("Currently testing group management,", function () {
 
 describe("checking if all created elements have been deleted,", function () {
 	beforeEach(function () {
-		oc = new ownCloud(config.owncloudURL);
-		oc.login(config.username, config.password);
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
 	});
 
 	it('checking created user', function (done) {

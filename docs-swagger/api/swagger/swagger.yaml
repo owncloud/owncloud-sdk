@@ -1524,7 +1524,7 @@ paths:
       description: |
         
         ```js
-        oc.files.list(path, depth).then(files => { 
+        oc.files.list(remotePath, depth).then(files => { 
           
           // All files in an object
 
@@ -1537,13 +1537,409 @@ paths:
       summary: Returns the listing/contents of the given remote directory
       operationId: list
       parameters:
-        - name: path
+        - name: remotePath
           description: path to the remote directory
           in: query
           type: string
         - name: depth
-          description: depth of the listing, integer or "infinity"
+          description: depth of the listing (0/1) , or "infinity"
           in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getFileContents:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.getFileContents(remotePath).then(content => { 
+          
+          // File Content
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Returns the contents of a remote file
+      operationId: getFileContents
+      parameters:
+        - name: remotePath
+          description: path to the remote file
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /putFileContents:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.putFileContents(remotePath, content).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Write data into a remote file
+      operationId: putFileContents
+      parameters:
+        - name: remotePath
+          description: path to the remote file
+          in: query
+          type: string
+        - name: content
+          in: query
+          description: content to be put
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /mkdir:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.mkdir(remotePath).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Creates a new folder
+      operationId: mkdir
+      parameters:
+        - name: remotePath
+          description: path of the new folder to be created
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /delete:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.delete(remotePath).then(status => { 
+          
+          // True if successful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Deletes a new file/folder
+      operationId: delete
+      parameters:
+        - name: remotePath
+          description: path of the file/folder to be deleted
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /fileInfo:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.fileInfo(remotePath).then(info => { 
+          
+          // File Information
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Returns the file info for the given remote file
+      operationId: fileInfo
+      parameters:
+        - name: remotePath
+          description: path of the file/folder whose information is needed
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getFile:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.getFile(remotePath, localPath).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Downloads remote file at the localPath specified
+      operationId: getFile
+      parameters:
+        - name: remotePath
+          description: path to the remote file
+          in: query
+          type: string
+        - name: localPath
+          in: query
+          description: path where to download
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /getDirectoryAsZip:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.getDirectoryAsZip(remotePath, localPath).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Downloads remote folder at the localPath specified
+      operationId: getDirectoryAsZip
+      parameters:
+        - name: remotePath
+          description: path to the remote file
+          in: query
+          type: string
+        - name: localPath
+          in: query
+          description: path where to download folder as zip
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /putFile:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.putFile(remotePath, localPath, keepMTime).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: uploads a file
+      operationId: putFile
+      parameters:
+        - name: remotePath
+          description: path at the OC instance where to upload
+          in: query
+          type: string
+        - name: localPath
+          in: query
+          description: path from where to upload
+          type: string
+        - name: keepMTime
+          in: query
+          description: also update the remote file to the same
+            mtime as the local one, defaults to True
+          type: boolean
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /putDirectory:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.putDirectory(remotePath, localPath).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Uploads a folder
+      operationId: putDirectory
+      parameters:
+        - name: remotePath
+          description: path at the OC instance where to upload
+          in: query
+          type: string
+        - name: localPath
+          in: query
+          description: path from where to upload
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /move:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.move(source, target).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Moves a file/folder at the OC instance
+      operationId: move
+      parameters:
+        - name: source
+          description: path to the remote file to be moved
+          in: query
+          type: string
+        - name: target
+          in: query
+          description: path where to move
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: object
+            properties:
+              status: 
+                type: string
+                
+  /copy:
+    get:
+      tags:
+        - Files Management
+      description: |
+        
+        ```js
+        oc.files.move(source, target).then(status => { 
+          
+          // True if succesful
+
+        }).catch(error => {
+          
+          // error message
+          
+        });
+        ```
+      summary: Copies a file/folder at the OC instance
+      operationId: copy
+      parameters:
+        - name: source
+          description: path to the remote file to be copied
+          in: query
+          type: string
+        - name: target
+          in: query
+          description: path where to copy
           type: string
       responses:
         "200":

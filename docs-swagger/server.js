@@ -547,6 +547,135 @@ app.get('/list', function(request, response) {
 	});
 });
 
+app.get('/getFileContents', function(request, response) {
+	var remotePath = request.query.remotePath;
+
+	init();
+	oc.files.getFileContents(remotePath).then(content => {
+		response.send(content);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/putFileContents', function(request, response) {
+	var remotePath = request.query.remotePath;
+	var content = request.query.content;
+
+	init();
+	oc.files.putFileContents(remotePath, content).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/mkdir', function(request, response) {
+	var remotePath = request.query.remotePath;
+
+	init();
+	oc.files.mkdir(remotePath).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/delete', function(request, response) {
+	var remotePath = request.query.remotePath;
+
+	init();
+	oc.files.delete(remotePath).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/fileInfo', function(request, response) {
+	var remotePath = request.query.remotePath;
+
+	init();
+	oc.files.fileInfo(remotePath).then(info => {
+		response.send(info);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/getFile', function(request, response) {
+	var remotePath = request.query.remotePath;
+	var localPath = request.query.localPath;
+
+	init();
+	oc.files.getFile(remotePath, localPath).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/getDirectoryAsZip', function(request, response) {
+	var remotePath = request.query.remotePath;
+	var localPath = request.query.localPath;
+
+	init();
+	oc.files.getDirectoryAsZip(remotePath, localPath).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/putFile', function(request, response) {
+	var remotePath = request.query.remotePath;
+	var localPath = request.query.localPath;
+	var keepMTime = request.query.keepMTime;
+
+	init();
+	oc.files.putFile(remotePath, localPath, keepMTime).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/putDirectory', function(request, response) {
+	var remotePath = request.query.remotePath;
+	var localPath = request.query.localPath;
+
+	init();
+	oc.files.putDirectory(remotePath, localPath).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/move', function(request, response) {
+	var source = request.query.source;
+	var target = request.query.target;
+
+	init();
+	oc.files.move(source, target).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
+app.get('/copy', function(request, response) {
+	var source = request.query.source;
+	var target = request.query.target;
+
+	init();
+	oc.files.copy(source, target).then(status => {
+		response.send(status);
+	}).catch(error => {
+		response.send(error);
+	});
+});
+
 var port = process.env.PORT || 8080;
 app.listen(port, function() {
 	console.log("Swagger documentation here : http://localhost:8080/");

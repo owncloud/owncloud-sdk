@@ -319,7 +319,7 @@ describe("Currently testing apps management,", function () {
 			oc.apps.setAttribute(testApp, key[i], '').then(status => {
 				expect(status).toBe(true);
 				count++;
-				if (count == key.length) {
+				if (count === key.length) {
 					done();
 				}
 			}).catch(error => {
@@ -336,7 +336,7 @@ describe("Currently testing apps management,", function () {
 			oc.apps.getAttribute(testApp, key[i], '').then(attr => {
 				expect(attr).toBe('');
 				count++;
-				if (count == key.length) {
+				if (count === key.length) {
 					done();
 				}
 			}).catch(error => {

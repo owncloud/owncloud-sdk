@@ -5,6 +5,7 @@
 var Promise = require('promise');
 var request = require('request');
 var parser = require('xml2json');
+var fs = require('fs');
 var utf8 = require('utf8');
 var fileInfo = require('./fileInfo.js');
 
@@ -307,6 +308,84 @@ helpers.prototype._get = function(url) {
 	});
 };
 
+helpers.prototype._writeData = function(url, fileName) {
+	var headers = {
+	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+	    'Content-Type': 'application/octet-stream'
+	};
+
+	//Configure the request
+	var options = {
+	    url: url,
+	    method: 'GET',
+	    headers: headers	
+	};
+
+	return new Promise((resolve, reject) => {
+		var isPossible = 1;
+
+		try {
+			fs.closeSync(fs.openSync(fileName, 'w'));
+		}
+		catch (error) {
+			isPossible = 0;
+			reject(error.message);
+			return;
+		}
+
+		// Start the request
+		/* jshint unused : false */
+		request(options, function (err, response, body) {
+			if (response.statusCode === 200 && isPossible === 1) {
+				resolve(true);
+			}
+		})
+		.on('error', function(error){
+			reject(error);
+			return;
+		})
+		.pipe(fs.createWriteStream(fileName));
+		/* jshint unused : true */
+	});
+};
+
+helpers.prototype._readFile = function(path, localPath, headers) {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		try {
+			path = self._normalizePath(path);
+			path = encodeURIComponent(path);
+			path = path.split('%2F').join('/'); // '/' => %2F
+			var url = self._webdavUrl + self._encodeString(path);
+
+			/* jshint unused : false */
+			fs.createReadStream(localPath)
+			.pipe(request.put({url: url, headers: headers}, function(error, response, body) {
+				if (response.statusCode >= 400) {
+					reject('not allowed');
+				}
+				else {
+					resolve(true);
+				}
+			}));
+			/* jshint unused : true */
+		}
+
+		catch(err) {
+			reject(err);
+		}
+	});
+};
+
+helpers.prototype._checkExtensionZip = function(path) {
+	var extension = path.slice(-4);
+	if (extension !== '.zip') {
+		path += '.zip';
+	}
+	return path;
+};
+
 helpers.prototype._parseDAVerror = function(body) {
 	var tree = parser.toJson(body, {object: true});
 
@@ -449,6 +528,117 @@ helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
 	}
 
 	resolve(true);
+};
+
+helpers.prototype._getAllFileInfo = function(path, pathToStore) {
+	function getAllFileInfo(path, pathToStore, localPath) {
+		if (path.slice(-1) !== '/') {
+			path += '/';
+		}
+
+		var files = fs.readdirSync(path);
+
+		for (var i=0;i<files.length;i++) {
+			var file = files[i];
+			var stat = fs.statSync(path + file);
+
+			if (stat.isDirectory()) {
+				getAllFileInfo(path + file + '/', pathToStore + file + '/', localPath + file + '/');
+			}
+			else {
+				var baseAddr = pathToStore;
+				var fl = 0;
+
+				for (var j=0;j<filesToPut.length;j++) {
+					if (filesToPut[j].path === baseAddr) {
+						filesToPut[j].files.push(file);
+						fl = 1;
+						break;
+					}
+				}
+
+				if (fl === 0) {
+					var count = filesToPut.length;
+					filesToPut[count] = {};
+					filesToPut[count].path = baseAddr;
+					filesToPut[count].localPath = localPath; ////////
+					filesToPut[count].files = [ file ];
+					count++;
+				}
+			}
+		}
+	}
+
+	var filesToPut = [];
+	var targetPath = pathToStore;
+	var localPath = path;
+
+	if (!targetPath || targetPath === '') {
+		targetPath = '/';
+	}
+
+	targetPath = this._normalizePath(targetPath);
+	var slash = '';
+	if (targetPath.slice(-1) !== '/') {
+		targetPath += '/';
+	}
+	if (localPath.slice(-1) !== '/') {
+		localPath += '/';
+	}
+	if (targetPath.slice(0, 1) !== '/') {
+		slash = '/';
+	}
+
+	var pathToAdd = localPath.split('/');
+	pathToAdd = pathToAdd.filter(function(n){ return n !== ''; });
+	var slash2 = '/';
+
+	if (pathToAdd[pathToAdd.length - 1] === '.') {
+		pathToAdd[pathToAdd.length - 1] = '';
+		slash = '';
+		slash2 = '';
+	}
+	
+	pathToAdd = targetPath + slash + pathToAdd[pathToAdd.length - 1] + slash2;
+	getAllFileInfo(path, pathToAdd, localPath);
+	return filesToPut;
+};
+
+helpers.prototype._getMTime = function(path) {
+	var info = fs.statSync(path);
+	return info.mtime;
+};
+
+helpers.prototype._getFileSize = function(path) {
+	var info = fs.statSync(path);
+	return info.size;
+};
+
+helpers.prototype._webdavMoveCopy = function(source, target, method) {
+	var self = this;
+
+	return new Promise((resolve, reject) => {
+		if (method !== "MOVE" && method !== "COPY") {
+			reject('Please specify a valid method');
+			return;
+		}
+
+		source = self._normalizePath(source);
+		target = self._normalizePath(target);
+		target = self._encodeString(target);
+		target = encodeURIComponent(target);
+		target = target.split('%2F').join('/');
+
+		var headers = {
+			'Destination' : self._webdavUrl + target
+		};
+
+		self._makeDAVrequest(method, source, headers).then(data => {
+			resolve(data);
+		}).catch(error => {
+			reject(error);
+		});
+	});
 };
 
 module.exports = helpers;

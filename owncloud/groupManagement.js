@@ -33,8 +33,9 @@ function groups(helperFile) {
 
 /**
  * creates a new group
- * @param  {string}   groupName name of group to be created
- * @param  {Function} callback  error, body(boolean)
+ * @param  		{string}   				groupName 		name of group to be created
+ * @returns 	{Promise.<status>}						boolean: true if successful
+ * @returns 	{Promise.<error> }						string: error message, if any.
  */
 groups.prototype.createGroup = function(groupName) {
 	return new Promise((resolve, reject) => {
@@ -49,8 +50,9 @@ groups.prototype.createGroup = function(groupName) {
 
 /**
  * deletes an existing group
- * @param  {string}   groupName name of group to be created
- * @param  {Function} callback  error, body(boolean)
+ * @param  		{string}   				groupName 		name of group to be created
+ * @returns 	{Promise.<status>}						boolean: true if successful
+ * @returns 	{Promise.<error> }						string: error message, if any.
  */
 groups.prototype.deleteGroup = function(groupName) {
 	return new Promise((resolve, reject) => {
@@ -65,7 +67,8 @@ groups.prototype.deleteGroup = function(groupName) {
 
 /**
  * Gets all groups in the instance
- * @param  {Function} callback error, body(array of all groups)
+ * @returns 	{Promise.<groups>}						array: all group-names
+ * @returns 	{Promise.<error> }						string: error message, if any.
  */
 groups.prototype.getGroups = function() {
 	var self = this;
@@ -82,8 +85,9 @@ groups.prototype.getGroups = function() {
 
 /**
  * Gets all the members of a group
- * @param  {string}   groupName name of group to list members
- * @param  {Function} callback  error, body(array of all members)
+ * @param  		{string}   				groupName 		name of group to list members
+ * @returns 	{Promise.<users>}						array: all usernames who are part of the group
+ * @returns 	{Promise.<error> }						string: error message, if any.
  */
 groups.prototype.getGroupMembers = function(groupName) {
 	var self = this;
@@ -100,8 +104,9 @@ groups.prototype.getGroupMembers = function(groupName) {
 
 /**
  * checks whether a group exists
- * @param  {string}   groupName name of group to check
- * @param  {Function} callback  error, body(boolean)
+ * @param  		{string}   				groupName 		name of group to check
+ * @returns 	{Promise.<status>}						boolean: true if group exists
+ * @returns 	{Promise.<error> }						string: error message, if any.
  */
 groups.prototype.groupExists = function(groupName) {
 	var self = this;
@@ -115,6 +120,9 @@ groups.prototype.groupExists = function(groupName) {
 	});
 };
 
+/**
+ * IS A RESPONSE HANDLER
+ */
 groups.prototype.handleObjectResponse = function(resolve, reject, data, what) {
 	var tree = parser.toJson(data.body, {object : true});
 	var statusCode = parseInt(helpers._checkOCSstatusCode(tree));

@@ -20,7 +20,7 @@ function shareInfo(shareInfo) {
 
 /**
  * Gets the ID of share
- * @returns {Number} ID of share
+ * @returns {integer} ID of share
  */
 shareInfo.prototype.getId = function() {
 	return this._getInt('id');
@@ -28,7 +28,7 @@ shareInfo.prototype.getId = function() {
 
 /**
  * Gets share type of share
- * @returns {Number} Share type of share
+ * @returns {integer} Share type of share
  */
 shareInfo.prototype.getShareType = function() {
 	return this._getInt('share_type');
@@ -77,7 +77,7 @@ shareInfo.prototype.getPermissions = function() {
 
 /**
  * Gets share time of share
- * @returns {Number} Share time of share
+ * @returns {integer} Share time of share
  */
 shareInfo.prototype.getShareTime = function() {
 	this._getInt('stime');
@@ -85,7 +85,7 @@ shareInfo.prototype.getShareTime = function() {
 
 /**
  * Gets expiration time of share
- * @returns {Number} Expiration time of share
+ * @returns {integer} Expiration time of share
  */
 shareInfo.prototype.getExpiration = function() {
 	return this._getInt('expiration') || null;
@@ -138,7 +138,7 @@ shareInfo.prototype.getDisplaynameOwner = function () {
 /**
  * Typecasts to integer
  * @param {string} [key] Corresponding key element to be typecasted to an integer
- * @returns {Number} typcasted integer
+ * @returns {integer} typcasted integer
  */
 shareInfo.prototype._getInt = function(key) {
 	return parseInt(this.shareInfo[key]);

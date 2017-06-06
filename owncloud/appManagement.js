@@ -34,7 +34,8 @@ function apps(helperFile) {
 
 /**
  * Gets all enabled and non-enabled apps downloaded on the instance.
- * @param {Function} 	callback 	 error, body(apps)
+ * @returns 	{Promise.<apps> } 					object: {for each app: Boolean("enabled or not")}
+ * @returns 	{Promise.<error>} 					string: error message, if any.
  */
 apps.prototype.getApps = function() {
 	var send = {};
@@ -70,9 +71,10 @@ apps.prototype.getApps = function() {
 
 /**
  * Returns an application attribute
- * @param  {string}   app      application ID (Generally app-name)
- * @param  {string}   key      attribute key or None to retrieve all values for the given application
- * @param  {Function} callback error, body(object {key1 : value1, key2 : value2 etc...})
+ * @param  		{string}   				app      	application ID (Generally app-name)
+ * @param  		{string}   				key      	attribute key or None to retrieve all values for the given application
+ * @returns 	{Promise.<attr> }					string: value of application's key
+ * @returns 	{Promise.<error>}					string: error message, if any.
  */
 apps.prototype.getAttribute = function(app, key) {
 	var send = "getattribute";
@@ -122,10 +124,11 @@ apps.prototype.getAttribute = function(app, key) {
 
 /**
  * Sets an application attribute
- * @param  {string}   app      application ID (Generally app-name)
- * @param  {string}   key      attribute key or None to retrieve all values for the given application
- * @param  {string}   value    value to set of given attribute
- * @param  {Function} callback error, body(boolean)
+ * @param  		{string}   				app      	application ID (Generally app-name)
+ * @param  		{string}   				key      	attribute key or None to retrieve all values for the given application
+ * @param  		{string}   				value    	value to set of given attribute
+ * @returns 	{Promise.<status>}					boolean: true if successful
+ * @returns 	{Promise.<error> }					string: error message, if any.
  */
 apps.prototype.setAttribute = function(app, key, value) {
 	var self = this;
@@ -145,9 +148,10 @@ apps.prototype.setAttribute = function(app, key, value) {
 
 /**
  * Deletes an application attribute
- * @param  {string}   app      application ID (generally app-name)
- * @param  {string}   key      attribute key to delete for the given application
- * @param  {Function} callback error, body(boolean)
+ * @param  		{string}   				app      	application ID (generally app-name)
+ * @param  		{string}   				key      	attribute key to delete for the given application
+ * @returns 	{Promise.<status>}					boolean: true if successful
+ * @returns 	{Promise.<error> }					string: error message, if any.
  */
 apps.prototype.deleteAttribute = function(app, key) {
 	var self = this;
@@ -165,9 +169,10 @@ apps.prototype.deleteAttribute = function(app, key) {
 };
 
 /**
- * enables an app via the Provisioning API
- * @param  {string}   appname  name of the app to be enabled
- * @param  {Function} callback error, body(boolean)
+ * Enables an app via the Provisioning API
+ * @param  		{string}   				app  		name of the app to be enabled
+ * @returns 	{Promise.<status>}					boolean: true if successful
+ * @returns 	{Promise.<error> }					string: error message, if any.
  */
 apps.prototype.enableApp = function(appname) {
 	return new Promise((resolve, reject) => {
@@ -184,9 +189,10 @@ apps.prototype.enableApp = function(appname) {
 };
 
 /**
- * disables an app via the Provisioning API
- * @param  {string}   appname  name of the app to be disabled
- * @param  {Function} callback error, body(boolean)
+ * Disables an app via the Provisioning API
+ * @param  		{string}   				app  		name of the app to be disabled
+ * @returns 	{Promise.<status>}					boolean: true if successful
+ * @returns 	{Promise.<error> }					string: error message, if any.
  */
 apps.prototype.disableApp = function(appname) {
 	return new Promise((resolve, reject) => {

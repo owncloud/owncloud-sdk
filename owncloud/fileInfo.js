@@ -26,8 +26,8 @@ fileInfo.prototype.getName = function() {
 };
 
 /**
- * Gets share type of share
- * @returns {Number} Share type of share
+ * Gets path of file/folder
+ * @returns 	{string} 	Path of file/folder
  */
 fileInfo.prototype.getPath = function() {
 	var name = this.name.split('/');
@@ -40,24 +40,24 @@ fileInfo.prototype.getPath = function() {
 };
 
 /**
- * Gets shareWith of the share
- * @returns {string} shareWith of share
+ * Gets size of the file/folder
+ * @returns 	{Number} 	Size of file/folder
  */
 fileInfo.prototype.getSize = function() {
 	return parseInt(this.fileInfo.getcontentlength) || null;
 };
 
 /**
- * Gets display name of share
- * @returns {string} display name of share
+ * Gets ETag of file/folder
+ * @returns 	{string} 	ETag of file/folder
  */
 fileInfo.prototype.getETag = function() {
 	return this.fileInfo.getetag || null;
 };
 
 /**
- * Gets permissions of share
- * @returns {string} permissions of share
+ * Gets content-type of file/folder
+ * @returns 	{string} 	content-type of file/folder
  */
 fileInfo.prototype.getContentType = function() {
 	var type = this.fileInfo.getcontenttype;
@@ -68,16 +68,16 @@ fileInfo.prototype.getContentType = function() {
 };
 
 /**
- * Gets share time of share
- * @returns {Number} Share time of share
+ * Gets last modified time of file/folder
+ * @returns 	{Number} 	Last modified time of file/folder
  */
 fileInfo.prototype.getLastModified = function() {
 	return new Date(this.fileInfo.getlastmodified);
 };
 
 /**
- * Gets expiration time of share
- * @returns {Number} Expiration time of share
+ * Checks wether the information is for a folder
+ * @returns 	{boolean} 	true if folder
  */
 fileInfo.prototype.isDir = function() {
 	return this.type === 'dir' ? true : false;

@@ -20,7 +20,6 @@ var helpers = new helperFile();
  * <ul>
  *     <li><b>General</b>
  *         <ul>
- *          <li>initLibrary</li>
  *          <li>login</li>
  *          <li>getConfig</li>
  *          <li>getVersion</li>
@@ -55,9 +54,10 @@ function ownCloud(instance) {
 
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param {string} 		username 	name of the user to login
- * @param {string} 		password 	password of the user to login
- * @param {Function} 	callback 	error, body(boolean)
+ * @param 		{string} 			  username 		name of the user to login
+ * @param 		{string} 			  password 		password of the user to login
+ * @returns 	{Promise.<status>} 					boolean: whether login was successful or not
+ * @returns 	{Promise.<error> } 					string: error message, if any.
  */
 ownCloud.prototype.login = function(username, password) {
 	helpers.setUsername(username);
@@ -77,7 +77,8 @@ ownCloud.prototype.login = function(username, password) {
 
 /**
  * Returns ownCloud config information
- * @param  {Function} callback error, body(object : {"version" : "1.7", "website" : "ownCloud" etc...})
+ * @returns 	{Promise.<configs>} 				object: {"version" : "1.7", "website" : "ownCloud" etc...}
+ * @returns 	{Promise.<error>  } 				string: error message, if any.
  */
 ownCloud.prototype.getConfig = function() {
 	return new Promise((resolve, reject) => {
@@ -93,7 +94,8 @@ ownCloud.prototype.getConfig = function() {
 
 /**
  * Gets the ownCloud version of the connected server
- * @param {Function}  callback  error, body(string : version)
+ * @returns 	{Promise.<version>} 				string: ownCloud version
+ * @returns 	{Promise.<error>  } 				string: error message, if any.
  */
 ownCloud.prototype.getVersion = function() {
 	var self = this;
@@ -117,7 +119,8 @@ ownCloud.prototype.getVersion = function() {
 
 /**
  * Gets the ownCloud app capabilities
- * @param {Function}  callback 	error, body(object containing capabilities)
+ * @returns 	{Promise.<capabilities>} 				string: ownCloud version
+ * @returns 	{Promise.<reject>      } 				object: capabilites
  */
 ownCloud.prototype.getCapabilities = function() {
 	var self = this;

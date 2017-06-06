@@ -44,9 +44,11 @@ function users(helperFile) {
  * Creates user via the provisioning API<br>
  * If user already exists, an error is given back : "User already exists"<br>
  * If provisoning API has been disabled, an error is given back saying the same.
- * @param  {string}   username username of the new user to be created
- * @param  {string}   password password of the new user to be created
- * @param  {Function} callback error, body(boolean : whether user was created or not)
+ * 
+ * @param  		{string}   				username 			username of the new user to be created
+ * @param  		{string}   				password 			password of the new user to be created
+ * @returns 	{Promise.<status>} 							boolean: true if successful
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.createUser = function(username, password) {
 	return new Promise((resolve, reject) => {
@@ -62,8 +64,9 @@ users.prototype.createUser = function(username, password) {
 
 /**
  * Deletes a user via provisioning API
- * @param  {string}   username name of user to be deleted
- * @param  {Function} callback error, body(boolean)
+ * @param  		{string}   				username 			name of user to be deleted
+ * @returns 	{Promise.<status>} 							boolean: true if successful
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.deleteUser = function(username) {
 	return new Promise((resolve, reject) => {
@@ -78,8 +81,9 @@ users.prototype.deleteUser = function(username) {
 
 /**
  * Searches for users via provisioning API
- * @param  {string}   name     username of the user to be searched
- * @param  {Function} callback error, body(array of search results i.e users)
+ * @param  		{string}   				usernname     		username of the user to be searched
+ * @returns 	{Promise.<users>}  							array: all users matching the search query
+ * @returns 	{Promise.<error>} 							string: error message, if any.
  */
 users.prototype.searchUsers = function(name) {
 	var self = this;
@@ -101,8 +105,9 @@ users.prototype.searchUsers = function(name) {
 
 /**
  * Checks a user via provisioning API
- * @param  {string}   name     name of user to be checked
- * @param {Function} callback error, body(boolean; whether exists or not)
+ * @param  		{string}   				username     		name of user to be checked
+ * @returns 	{Promise.<status>} 							boolean: true if exists
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.userExists = function(name) {
 	var self = this;
@@ -120,25 +125,12 @@ users.prototype.userExists = function(name) {
 };
 
 /**
- * Get all users via Provisioning API
- * @param  {Function} callback error, body(array of all users)
- */
-users.prototype.getUsers = function() {
-	return new Promise((resolve, reject) => {
-		helpers.searchUsers('').then(users => {
-			resolve(users);
-		}).catch(error => {
-			reject(error);
-		});
-	});
-};
-
-/**
  * Sets a user attribute via the Provisioning API
- * @param {string}   username name of the user to modify
- * @param {string}   key      key of the attribute to be set (email, quota, display, password)
- * @param {string}   value    value to be set
- * @param {Function} callback error, body(boolean)
+ * @param 		{string}   				username 			name of the user to modify
+ * @param 		{string}   				key      			key of the attribute to be set (email, quota, display, password)
+ * @param 		{string}   				value    			value to be set
+ * @returns 	{Promise.<status>} 							boolean: true if successful
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.setUserAttribute = function(username, key, value) {
 	return new Promise((resolve, reject) => {
@@ -154,9 +146,10 @@ users.prototype.setUserAttribute = function(username, key, value) {
 
 /**
  * Adds a user to group
- * @param {string}   username  name of user to be added
- * @param {string}   groupName name of group user is to be added to
- * @param {Function} callback  error, body(boolean)
+ * @param 		{string}   				username  			name of user to be added
+ * @param 		{string}   				groupName 			name of group user is to be added to
+ * @returns 	{Promise.<status>} 							boolean: true if successful
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.addUserToGroup = function(username, groupName) {
 	return new Promise((resolve, reject) => {
@@ -172,8 +165,9 @@ users.prototype.addUserToGroup = function(username, groupName) {
 
 /**
  * Get a list of groups associated to a user
- * @param  {string}   username name of user to list groups
- * @param  {Function} callback error, body(array of user groups)
+ * @param  		{string}   				username 			name of user to list groups
+ * @returns 	{Promise.<groups>} 							array: all groups which user is part of
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.getUserGroups = function(username) {
 	var self = this;
@@ -191,9 +185,10 @@ users.prototype.getUserGroups = function(username) {
 
 /**
  * Checks whether user is in group
- * @param  {string}   username  name of user
- * @param  {string}   groupName name of group
- * @param  {Function} callback  error, body(boolean)
+ * @param  		{string}   				username  			name of user
+ * @param  		{string}   				groupName 			name of group
+ * @returns 	{Promise.<status>} 							boolean: true if user is part of group
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.userIsInGroup = function(username, groupName) {
 	var self = this;
@@ -209,8 +204,9 @@ users.prototype.userIsInGroup = function(username, groupName) {
 
 /**
  * Retrieves information about a user
- * @param  {string}   username name of the user
- * @param  {Function} callback error, body(object having details of the user)
+ * @param  		{string}   				username 			name of the user
+ * @returns 	{Promise.<userInfo>} 						object: all user related information
+ * @returns 	{Promise.<error>   } 						string: error message, if any.
  */
 users.prototype.getUser = function(username) {
 	return new Promise((resolve, reject) => {
@@ -234,9 +230,10 @@ users.prototype.getUser = function(username) {
 
 /**
  * Removes user from a group
- * @param  {string}   username  name of user
- * @param  {string}   groupName name of group
- * @param  {Function} callback  error, body(boolean)
+ * @param  		{string}   				username  			name of user
+ * @param  		{string}   				groupName 			name of group
+ * @returns 	{Promise.<status>} 							boolean: true if successful
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.removeUserFromGroup = function(username, groupName) {
 	return new Promise((resolve, reject) => {
@@ -252,9 +249,10 @@ users.prototype.removeUserFromGroup = function(username, groupName) {
 
 /**
  * Adds user to a subadmin group
- * @param {string}   username  name of user
- * @param {string}   groupName name of group
- * @param {Function} callback  error, body(boolean)
+ * @param 		{string}   				username  			name of user
+ * @param 		{string}   				groupName 			name of group
+ * @returns 	{Promise.<status>} 							boolean: true if successful
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.addUserToSubadminGroup = function(username, groupName) {
 	return new Promise((resolve, reject) => {
@@ -270,8 +268,9 @@ users.prototype.addUserToSubadminGroup = function(username, groupName) {
 
 /**
  * Get a list of subadmin groups associated to a user
- * @param  {string}   username name of user
- * @param  {Function} callback error, body(array of subadmin groups)
+ * @param  		{string}   				username 			name of user
+ * @returns 	{Promise.<groups>} 							array: all groups user is admin of
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.getUserSubadminGroups = function(username) {
 	var self = this;
@@ -289,9 +288,10 @@ users.prototype.getUserSubadminGroups = function(username) {
 
 /**
  * Checks whether user is in subadmin group
- * @param  {string}   username  name of user
- * @param  {string}   groupName name of group
- * @param  {Function} callback  error, body(boolean)
+ * @param  		{string}   				username  			name of user
+ * @param  		{string}   				groupName 			name of group
+ * @returns 	{Promise.<status>} 							boolean: true if user is admin of specified group
+ * @returns 	{Promise.<error> } 							string: error message, if any.
  */
 users.prototype.userIsInSubadminGroup = function(username, groupName) {
 	var self = this;
@@ -305,6 +305,24 @@ users.prototype.userIsInSubadminGroup = function(username, groupName) {
 	});
 };
 
+/**
+ * Get all users via Provisioning API
+ * @returns 	{Promise.<users>} 							array: all users
+ * @returns 	{Promise.<error> } 							string: error message, if any.
+ */
+users.prototype.getUsers = function() {
+	return new Promise((resolve, reject) => {
+		helpers.searchUsers('').then(users => {
+			resolve(users);
+		}).catch(error => {
+			reject(error);
+		});
+	});
+};
+
+/**
+ * IS A RESPONSE HANDLER
+ */
 users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
 	var tree = parser.toJson(data.body, {object : true});
 	var statusCode = parseInt(helpers._checkOCSstatusCode(tree));

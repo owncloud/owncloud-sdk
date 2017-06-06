@@ -44,10 +44,18 @@ function helpers() {
 	this._capabilities = null;
 }
 
+/**
+ * sets the OC instance
+ * @param 		{string} 					instance 			instance to be used for communication
+ */
 helpers.prototype.setInstance = function(instance) {
 	this.instance = instance;
 };
 
+/**
+ * sets the username
+ * @param 		{string} 					username 			username to be used for logging in
+ */
 helpers.prototype.setUsername = function(username) {
 	this._username = username;
 
@@ -59,21 +67,34 @@ helpers.prototype.setUsername = function(username) {
 	this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
+/**
+ * sets the password
+ * @param 		{string} 					password 			password to be used for logging in
+ */
 helpers.prototype.setPassword = function(password) {
 	this._password = password;
 };
 
+/**
+ * gets the OC version
+ * @returns 	{string} 					 					OC version
+ */
 helpers.prototype.getVersion = function() {
 	return this._version;
 };
 
+/**
+ * Gets all capabilities of the logged in user
+ * @returns 	{object} 							 			all capabilities
+ */
 helpers.prototype.getCapabilities = function() {
 	return this._capabilities;
 };
 
 /**
  * Updates the capabilities of user logging in.
- * @param {Function} callback error, reponse, body(capabilities)
+ * @returns 	{Promise.<capabilities>}						object: all capabilities
+ * @returns 	{Promise.<error>       }						string: error message, if any.
  */
 helpers.prototype._updateCapabilities = function() {
 	var self = this;
@@ -94,10 +115,12 @@ helpers.prototype._updateCapabilities = function() {
 
 /**
  * Makes an OCS API request.
- * @param {string} 		method 		method of request (GET, POST etc.)
- * @param {string} 		service		service (cloud, privatedata etc.)
- * @param {string} 		action		action (apps?filter=enabled, capabilities etc.)
- * @param {Function} 	callback 	error, reponse, body
+ * @param 		{string} 					method 				method of request (GET, POST etc.)
+ * @param 		{string} 					service				service (cloud, privatedata etc.)
+ * @param 		{string} 					action				action (apps?filter=enabled, capabilities etc.)
+ * @param 		{string} 				  [ data ]				formData for POST and PUT requests
+ * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
+ * @returns 	{Promise.<error> }								string: error message, if any.
  */
 helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	var self = this;
@@ -185,6 +208,15 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	});
 };
 
+/**
+ * Makes a DAV request.
+ * @param 		{string} 					method 				method of request (PROPFIND, MKCOL etc.)
+ * @param 		{string} 					path				path of file/folder
+ * @param 		{object} 				  [ headerData ]		headerData to be set before the request
+ * @param 		{object} 				  [ body       ]		body of request 
+ * @returns 	{Promise.<body>  }								string: parsed response
+ * @returns 	{Promise.<error> }								string: error message, if any.
+ */
 helpers.prototype._makeDAVrequest = function (method, path, headerData, body) {
 	var self = this;
 	var err = null;
@@ -245,6 +277,9 @@ helpers.prototype._makeDAVrequest = function (method, path, headerData, body) {
 	});
 };
 
+/**
+ * Parses a DAV response.
+ */
 helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
 	var tree = parser.toJson(body, {object: true})['d:multistatus']['d:response'];
 	var items = [];
@@ -260,6 +295,9 @@ helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
 	resolve(items);
 };
 
+/**
+ * Parses a DAV response element.
+ */
 helpers.prototype._parseDAVelement = function(item) {
 	var name = item['d:href'];
 	var attrs = item['d:propstat']['d:prop'];
@@ -282,6 +320,12 @@ helpers.prototype._parseDAVelement = function(item) {
 	return new fileInfo(name, fileType, attrs);
 };
 
+/**
+ * performs a simple GET request
+ * @param  		{string} 					url 				url to perform GET on
+ * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
+ * @returns 	{Promise.<error> }								string: error message, if any.
+ */
 helpers.prototype._get = function(url) {
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
@@ -308,6 +352,13 @@ helpers.prototype._get = function(url) {
 	});
 };
 
+/**
+ * performs a GET request and writes the output into a file
+ * @param  		{string} 					url 				url to perform GET on
+ * @param  		{string} 					fileName 			name of the file to write the response into
+ * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
+ * @returns 	{Promise.<error> }								string: error message, if any.
+ */
 helpers.prototype._writeData = function(url, fileName) {
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
@@ -349,6 +400,14 @@ helpers.prototype._writeData = function(url, fileName) {
 	});
 };
 
+/**
+ * performs a PUT request from a file
+ * @param  		{string} 					path 				path where to put at OC instance
+ * @param  		{string} 					localPath 			path of the file to read the data from
+ * @param  		{object} 					headers				extra headers to add for the PUT request
+ * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
+ * @returns 	{Promise.<error> }								string: error message, if any.
+ */
 helpers.prototype._readFile = function(path, localPath, headers) {
 	var self = this;
 
@@ -378,6 +437,11 @@ helpers.prototype._readFile = function(path, localPath, headers) {
 	});
 };
 
+/**
+ * checks whether a path's extension is ".ZIP"
+ * @param  		{string} 					path 				path to check
+ * @return 		{boolean}      									true if extension is ".ZIP"
+ */
 helpers.prototype._checkExtensionZip = function(path) {
 	var extension = path.slice(-4);
 	if (extension !== '.zip') {
@@ -386,6 +450,9 @@ helpers.prototype._checkExtensionZip = function(path) {
 	return path;
 };
 
+/**
+ * Parses a DAV response error.
+ */
 helpers.prototype._parseDAVerror = function(body) {
 	var tree = parser.toJson(body, {object: true});
 
@@ -397,8 +464,8 @@ helpers.prototype._parseDAVerror = function(body) {
 
 /**
  * Checks whether a response body is valid XML 
- * @param  {string}  	body 	the response to be checked
- * @return {Boolean}      		true if valid XML, else false
+ * @param  		{string}  					body 				the response to be checked
+ * @return 		{Boolean}      									true if valid XML, else false
  */
 helpers.prototype._isValidXML = function(body) {
 	try {
@@ -412,8 +479,8 @@ helpers.prototype._isValidXML = function(body) {
 
 /**
  * Checks whether a response body is valid JSON 
- * @param  {string}  	body 	the response to be checked
- * @return {Boolean}      		true if valid JSON, else false
+ * @param  		{string}  					body 				the response to be checked
+ * @return 		{Boolean}      									true if valid JSON, else false
  */
 helpers.prototype._isValidJSON = function(body) {
 	try {
@@ -427,8 +494,8 @@ helpers.prototype._isValidJSON = function(body) {
 
 /**
  * Makes sure path starts with a '/'
- * @param {string} path to the remote file share
- * @returns {string} normalized path
+ * @param 		{string} 					path 				to the remote file share
+ * @returns 	{string} 										normalized path
  */
 helpers.prototype._normalizePath = function (path) {
 	if (!path) {
@@ -448,9 +515,9 @@ helpers.prototype._normalizePath = function (path) {
 
 /**
  * Checks the status code of an OCS request
- * @param {object} parsed response
- * @param {array} [acceptedCodes = [ 100 ]] array containing accepted codes
- * @returns {string} error message or NULL
+ * @param 		{object} 					json				parsed response
+ * @param 		{array} 			[ acceptedCodes = [ 100 ] ] array containing accepted codes
+ * @returns 	{string} 										error message or NULL
  */
 helpers.prototype._checkOCSstatus = function (json, acceptedCodes) {
 	if (!acceptedCodes) {
@@ -477,8 +544,8 @@ helpers.prototype._checkOCSstatus = function (json, acceptedCodes) {
 
 /**
  * Returns the status code of the xml response
- * @param  {object} xml response parsed into json
- * @return {Number} status-code
+ * @param  		{object} 					json 				parsed response
+ * @return 		{Number} 										status-code
  */
 helpers.prototype._checkOCSstatusCode = function (json) {
 	if (json.ocs) {
@@ -490,8 +557,8 @@ helpers.prototype._checkOCSstatusCode = function (json) {
 
 /**
  * Encodes the string according to UTF-8 standards
- * @param {string} path to be encoded
- * @returns {string} encoded path
+ * @param 		{string} 					path				path to be encoded
+ * @returns 	{string} 										encoded path
  */
 helpers.prototype._encodeString = function(path) {
 	return utf8.encode(path);
@@ -499,8 +566,8 @@ helpers.prototype._encodeString = function(path) {
 
 /**
  * converts all of object's "true" or "false" entries to booleans
- * @param  {object} object object to be typcasted
- * @return {object} object typecasted object
+ * @param  		{object} 					object 				object to be typcasted
+ * @return 		{object} 						 				typecasted object
  */
 helpers.prototype._convertObjectToBool = function(object) {
 	if (typeof(object) !== "object") {
@@ -519,6 +586,9 @@ helpers.prototype._convertObjectToBool = function(object) {
 	return object;
 };
 
+/**
+ * Handles Provisionging API boolean response
+ */
 helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
 	var tree = parser.toJson(data.body, {object: true});
 
@@ -530,6 +600,14 @@ helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
 	resolve(true);
 };
 
+/**
+ * Recursive listing of all files and sub-folders
+ * @param 		{string} 					path        		local path to be recursively listed
+ * @param  		{string} 					pathToStore 		path to be stored at the OC instance
+ * @returns 	{array }             							array of objects { path: path of the folder to be stored at the OC instance, 
+ *                                       						localPath: localPath of the folder, 
+ *                                       						files: contents of the folder }	
+ */
 helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 	function getAllFileInfo(path, pathToStore, localPath) {
 		if (path.slice(-1) !== '/') {
@@ -604,16 +682,34 @@ helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 	return filesToPut;
 };
 
+/**
+ * gets the MTime of a file/folder
+ * @param  		{string} 					path 				path of the file/folder
+ * @returns 	{Date}      									MTime
+ */
 helpers.prototype._getMTime = function(path) {
 	var info = fs.statSync(path);
 	return info.mtime;
 };
 
+/**
+ * gets the size of a file/folder
+ * @param  		{string} 					path 				path of the file/folder
+ * @returns 	{integer}      									size of folder
+ */
 helpers.prototype._getFileSize = function(path) {
 	var info = fs.statSync(path);
-	return info.size;
+	return parseInt(info.size);
 };
 
+/**
+ * performs a PUT request from a file
+ * @param  		{string} 					source 				source path of the file to move/copy
+ * @param  		{string} 					target 				target path of the file to move/copy
+ * @param  		{object} 					headers				extra headers to add for the PUT request
+ * @returns 	{Promise.<status>}								boolean: whether the operation was successful
+ * @returns 	{Promise.<error> }								string: error message, if any.
+ */
 helpers.prototype._webdavMoveCopy = function(source, target, method) {
 	var self = this;
 

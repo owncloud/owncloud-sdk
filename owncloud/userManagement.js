@@ -127,7 +127,8 @@ users.prototype.userExists = function(name) {
 /**
  * Sets a user attribute via the Provisioning API
  * @param 		{string}   				username 			name of the user to modify
- * @param 		{string}   				key      			key of the attribute to be set (email, quota, display, password)
+ * @param 		{string}   				key      			key of the attribute to be set 
+ *                                     						(email, quota, display, password)
  * @param 		{string}   				value    			value to be set
  * @returns 	{Promise.<status>} 							boolean: true if successful
  * @returns 	{Promise.<error> } 							string: error message, if any.

@@ -41,7 +41,9 @@ function files(helperFile) {
 /**
  * Returns the listing/contents of the given remote directory
  * @param 		{string} 			    remotePath		path of the file/folder at OC instance
- * @param 		{string} 			    depth			0: only file/folder, 1: upto 1 depth, infinity: infinite depth
+ * @param 		{string} 			    depth			0: only file/folder, 
+ *                                  					1: upto 1 depth, 
+ *                                  					infinity: infinite depth
  * @returns 	{Promise.<fileInfo>} 				 	Array[objects]: each object is an instance of class fileInfo
  * @returns 	{Promise.<error>} 					 	string: error message, if any.
  */

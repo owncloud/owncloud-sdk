@@ -72,7 +72,8 @@ apps.prototype.getApps = function() {
 /**
  * Returns an application attribute
  * @param  		{string}   				app      	application ID (Generally app-name)
- * @param  		{string}   				key      	attribute key or None to retrieve all values for the given application
+ * @param  		{string}   				key      	attribute key or None to retrieve all values 
+ *                                    				for the given application
  * @returns 	{Promise.<attr> }					string: value of application's key
  * @returns 	{Promise.<error>}					string: error message, if any.
  */
@@ -125,7 +126,8 @@ apps.prototype.getAttribute = function(app, key) {
 /**
  * Sets an application attribute
  * @param  		{string}   				app      	application ID (Generally app-name)
- * @param  		{string}   				key      	attribute key or None to retrieve all values for the given application
+ * @param  		{string}   				key      	attribute key or None to retrieve all values 
+ *                                    				for the given application
  * @param  		{string}   				value    	value to set of given attribute
  * @returns 	{Promise.<status>}					boolean: true if successful
  * @returns 	{Promise.<error> }					string: error message, if any.

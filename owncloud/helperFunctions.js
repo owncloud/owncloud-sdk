@@ -604,9 +604,13 @@ helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
  * Recursive listing of all files and sub-folders
  * @param 		{string} 					path        		local path to be recursively listed
  * @param  		{string} 					pathToStore 		path to be stored at the OC instance
- * @returns 	{array }             							array of objects { path: path of the folder to be stored at the OC instance, 
- *                                       						localPath: localPath of the folder, 
- *                                       						files: contents of the folder }	
+ * @returns 	{array }             							array of objects :
+ *                                       						{ 
+ *                                       							path: path of the folder to be stored 
+ *                                       								  at the OC instance, 
+ *                                       						 	localPath: localPath of the folder, 
+ *                                       						  	files: contents of the folder 
+ *                                       						}	
  */
 helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 	function getAllFileInfo(path, pathToStore, localPath) {

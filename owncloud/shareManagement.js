@@ -42,7 +42,11 @@ function shares(helperFile) {
 /**
  * Shares a remote file with link
  * @param 		{string} 				path 				path to the remote file share
- * @param  		{object}				optionalParams		{perms: integer, publicUpload: boolean, password: string}
+ * @param  		{object}				optionalParams		{
+ *                                       						perms: integer, 
+ *                                       						publicUpload: boolean, 
+ *                                       						password: string
+ *                                       					}
  * @returns 	{Promise.<shareInfo>} 						instance of class shareInfo
  * @returns 	{Promise.<error> } 							string: error message, if any.
  */
@@ -330,7 +334,11 @@ shares.prototype.declineRemoteShare = function(shareId) {
 /**
  * Updates a given share
  * @param 		{integer}	  			shareId		   		ID of the share to update
- * @param  		{object}				optionalParams		{perms: integer, publicUpload: boolean, password: string}
+ * @param  		{object}				optionalParams		{
+ *                                       						perms: integer, 
+ *                                       						publicUpload: boolean, 
+ *                                       						password: string
+ *                                       					}
  * @returns 	{Promise.<status>} 							boolean: true if successful
  * @returns 	{Promise.<error> } 							string: error message, if any.
  */

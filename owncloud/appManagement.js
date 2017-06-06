@@ -89,12 +89,11 @@ apps.prototype.getAttribute = function(app, key) {
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
 		.then(data => {
-
 			var elements = parser.toJson(data.body, {object: true}).ocs.data.element;
 
 			if (key) {
 				if (!elements) {
-					resolve(null);
+					reject(app + ' has no key named "' + key + '"');
 				}
 				else {
 					var value = elements.value;

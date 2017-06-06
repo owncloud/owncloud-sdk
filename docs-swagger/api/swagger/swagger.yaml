@@ -49,13 +49,9 @@ paths:
           description: server URL
           type: string
       responses:
-        "200":
-          description: success
+        "success":
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
   
   /login:
     get:
@@ -87,13 +83,14 @@ paths:
           type: string
           format: password
       responses:
-        "200":
-          description: success
+        "success":
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          schema:
+            type: string
+            example: "Current user is not logged in"
+              
                 
   /getApps:
     get:
@@ -121,9 +118,23 @@ paths:
           description: success
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "encryption": false,
+              "files_sharing": true,
+              "federation": true,
+              "updatenotification": true,
+              "comments": true,
+              "files_versions": true,
+              "systemtags": true,
+              "gallery": false,
+              "files_trashbin": true,
+              "provisioning_api": true,
+              "testing": false,
+              "files": true,
+              "dav": true,
+              "federatedfilesharing": true,
+              "files_external": true
+            }
                 
   /shareFileWithLink:
     get:
@@ -1160,9 +1171,13 @@ paths:
           description: success
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "version": "1.7",
+              "website": "ownCloud",
+              "host": "localhost",
+              "contact": {},
+              "ssl": "false"
+            }
                 
   /getAttribute:
     get:
@@ -1193,14 +1208,21 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success, existent key entered":
+          schema:
+            type: string
+            example: "VALUE"
+        "success, no key entered":
           schema:
             type: object
-            properties:
-              status: 
-                type: string
-                
+            example: {
+              "KEY1": "VALUE1",
+              "KEY2": "VALUE2"
+            }
+        "faliure":
+          schema:
+            type: string
+            example: "APPNAME has no key named KEY"
   /setAttribute:
     get:
       tags:
@@ -1301,10 +1323,8 @@ paths:
         "200":
           description: success
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: string
+            example: "10.0.0-Community"
                 
   /getCapabilities:
     get:
@@ -1330,9 +1350,21 @@ paths:
           description: success
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "core": {
+                "pollinterval": "60",
+                "webdav-root": "remote.php/webdav",
+                "status": {
+                  "installed": "true",
+                  "maintenance": "false",
+                  "needsDbUpgrade": "false",
+                  "version": "10.0.0.12",
+                  "versionstring": "10.0.0",
+                  "edition": "Community",
+                  "productname": "ownCloud"
+                }
+              }
+            }
                 
   /enableApp:
     get:

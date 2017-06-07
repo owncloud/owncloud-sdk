@@ -279,13 +279,19 @@ describe("Currently testing apps management,", function () {
 		for (var i=0;i<key.length;i++) {
 			oc.apps.getAttribute(testApp, key[i]).then(data => {
 				expect(data).toEqual(null);
+				done();
+			}).catch(error => {
+				var fl = 0;
+				for (var j=0;j<key.length;j++) {
+					if (error === testApp + ' has no key named "' + key[j] + '"') {
+						fl = 1;
+					}
+				}
+				expect(fl).toBe(1);
 				count++;
 				if (count === key.length) {
 					done();
 				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
 			});
 		}
 	});

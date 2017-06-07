@@ -313,7 +313,7 @@ users.prototype.userIsInSubadminGroup = function(username, groupName) {
  */
 users.prototype.getUsers = function() {
 	return new Promise((resolve, reject) => {
-		helpers.searchUsers('').then(users => {
+		this.searchUsers('').then(users => {
 			resolve(users);
 		}).catch(error => {
 			reject(error);

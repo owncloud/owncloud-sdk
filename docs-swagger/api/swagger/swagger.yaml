@@ -50,6 +50,7 @@ paths:
           type: string
       responses:
         "success":
+          description: The library was initialised successfuly.
           schema:
             type: boolean
   
@@ -84,9 +85,11 @@ paths:
           format: password
       responses:
         "success":
+          description: Login attemot was successful
           schema:
             type: boolean
         "faliure":
+          description: Login attemot was un-successful
           schema:
             type: string
             example: "Current user is not logged in"
@@ -114,8 +117,8 @@ paths:
       produces:
       - "application/json"
       responses:
-        "200":
-          description: success
+        "success":
+          description: All apps were fetched successfuly
           schema:
             type: object
             example: {
@@ -191,13 +194,24 @@ paths:
       produces:
       - "application/json"
       responses:
-        "200":
-          description: success
+        "success":
+          description: The file/folder was shared successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }
+        "faliure":
+          description: non-existent file entered
+          schema:
+            type: string
+            example: Wrong path, file/folder doesn't exist
+                  
                 
   /updateShare:
     get:
@@ -254,13 +268,10 @@ paths:
       produces:
       - "application/json"
       responses:
-        "200":
-          description: success
+        "success":
+          description: The specified share was updated successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
                 
   /shareFileWithUser:
     get:
@@ -314,13 +325,28 @@ paths:
       produces:
       - "application/json"
       responses:
-        "200":
-          description: success
+        "success":
+          description: The file/folder was shared successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }
+        "faliure":
+          description: non-existent file entered
+          schema:
+            type: string
+            example: Wrong path, file/folder doesn't exist
+        "faliure ":
+          description: non-existent user entered
+          schema:
+            type: string
+            example: Please specify a valid user
                 
   /shareFileWithGroup:
     get:
@@ -367,13 +393,28 @@ paths:
       produces:
       - "application/json"
       responses:
-        "200":
-          description: success
+        "success":
+          description: The file/folder was shared successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }
+        "faliure":
+          description: non-existent file entered
+          schema:
+            type: string
+            example: Wrong path, file/folder doesn't exist
+        "faliure ":
+          description: non-existent group entered
+          schema:
+            type: string
+            example: Please specify a valid group
   
   /getShares:
     get:
@@ -420,13 +461,32 @@ paths:
       produces:
       - "application/json"
       responses:
-        "200":
-          description: success
+        "success":
+          description: All shares were fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [{
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }, {
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }, {
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }]
                 
   /isShared:
     get:
@@ -453,13 +513,15 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Specified share's status was fetched successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: non-exisatent file/folder entered
+          schema:
+            type: string
+            example: "Wrong path, file/folder doesn't exist"
                 
   /getShare:
     get:
@@ -489,13 +551,23 @@ paths:
           in: query
           type: number
       responses:
-        "200":
-          description: success
+        "success":
+          description: share information was fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "shareInfo": {
+                "id": "Integer",
+                "permissions": "Integer",
+                "link": "string",
+                "share_type": "Integer"
+              }
+            }
+        "faliure":
+          description: non-existent share ID entered
+          schema:
+            type: string
+            example: Wrong share ID, share doesn't exist
                 
   /createUser:
     get:
@@ -527,13 +599,15 @@ paths:
           type: string
           format: password
       responses:
-        "200":
-          description: success
+        "success":
+          description: User was created successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: User to create already exists
+          schema:
+            type: string
+            example: "User already exists"
                 
   /deleteUser:
     get:
@@ -560,13 +634,24 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User was removed successfuly
+          schema:
+            type: boolean
+        "faliure":
+          description: User to delete does not exist
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "ocs": {
+                "meta": {
+                  "status": "failure",
+                  "statuscode": "101",
+                  "message": {}
+                },
+                "data": {}
+              }
+            }
                 
   /searchUsers:
     get:
@@ -593,13 +678,15 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: All users matching the query fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "user1",
+              "user2",
+              "user3"
+            ]
                 
   /userExists:
     get:
@@ -626,13 +713,10 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Status fetched successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
                 
   /getUsers:
     get:
@@ -654,13 +738,15 @@ paths:
       summary: Get all users via the Provisioning API
       operationId: getUsers
       responses:
-        "200":
-          description: success
+        "success":
+          description: All users matching the query fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "user1",
+              "user2",
+              "user3"
+            ]
                 
   /setUserAttribute:
     get:
@@ -695,13 +781,36 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Attribute was set successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Entered user or attribute doesn't exist
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "997",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
+        "faliure ":
+          description: "Entered attribute's value isn't possible. eg. \"asd\" is not a valid E-Mail address"
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "102",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
                 
   /addUserToGroup:
     get:
@@ -732,13 +841,36 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User was added to group successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Entered user doesn't exist
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "103",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
+        "faliure ":
+          description: "Entered group doesn't exist"
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "102",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
                 
   /getUserGroups:
     get:
@@ -765,13 +897,27 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User groups were fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "group1",
+              "group2"
+            ]
+        "faliure":
+          description: Entered user doesn't exist
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "998",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
                 
   /userIsInGroup:
     get:
@@ -802,13 +948,23 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User status fetched successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Entered user doesn't exist
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "998",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
                 
   /getUser:
     get:
@@ -835,13 +991,27 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User information fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "enabled": "boolean",
+              "quota": {
+                "free": "XX",
+                "used": "XX",
+                "total": "XX",
+                "relative": "XX"
+              },
+              "email": "email@provider.com",
+              "displayname": "name",
+              "home": "/path/to/OC/instance",
+              "two_factor_auth_enabled": "boolean"
+            }
+        "faliure":
+          description: Entered user doesn't exist
+          type: string
+          example: "The requested user could not be found"
                 
   /removeUserFromGroup:
     get:
@@ -872,13 +1042,36 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User was removed from group successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Entered user doesn't exist
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "103",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
+        "faliure ":
+          description: "Entered group doesn't exist"
+          type: object
+          example: {
+            "ocs": {
+              "meta": {
+                "status": "failure",
+                "statuscode": "102",
+                "message": {}
+              },
+              "data": {}
+            }
+          }
                 
   /addUserToSubadminGroup:
     get:
@@ -909,13 +1102,18 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User was added to subadmin group successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Entered user doesn't exist
+          type: string
+          example: User does not exist
+        "faliure ":
+          description: "Entered group doesn't exist"
+          type: string
+          example: "Group:someGroupName does not exist"
                 
   /getUserSubadminGroups:
     get:
@@ -942,13 +1140,18 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User subadmin groups were fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "group1",
+              "group2"
+            ]
+        "faliure":
+          description: Entered user doesn't exist
+          type: string
+          example: User does not exist
                 
   /userIsInSubadminGroup:
     get:
@@ -979,13 +1182,14 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: User status fetched successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Entered user doesn't exist
+          type: string
+          example: User does not exist
                 
   /createGroup:
     get:
@@ -1167,8 +1371,8 @@ paths:
       summary: Returns ownCloud config information
       operationId: getConfig
       responses:
-        "200":
-          description: success
+        "success":
+          description: Getting all the OC configs went successfuly
           schema:
             type: object
             example: {
@@ -1227,6 +1431,7 @@ paths:
     get:
       tags:
         - Apps Management
+      summary: Sets an application attribute
       description: |
         
         ```js
@@ -1255,13 +1460,9 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
-          schema:
-            type: object
-            properties:
-              status: 
-                type: string
+        "success":
+          description: The attribute was set successfuly
+          type: boolean
                 
   /deleteAttribute:
     get:
@@ -1292,13 +1493,9 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
-          schema:
-            type: object
-            properties:
-              status: 
-                type: string
+        "success":
+          description: The attribute was deleted successfuly
+          type: boolean
                 
   /getVersion:
     get:
@@ -1320,8 +1517,8 @@ paths:
       summary: Gets the ownCloud version of the connected server
       operationId: getVersion
       responses:
-        "200":
-          description: success
+        "success":
+          description: ownCloud version fetched successfuly
           schema:
             type: string
             example: "10.0.0-Community"
@@ -1346,8 +1543,8 @@ paths:
       summary: Gets the ownCloud app capabilities
       operationId: getCapabilities
       responses:
-        "200":
-          description: success
+        "success":
+          description: All capabilities of the logged in user fetched succesfully
           schema:
             type: object
             example: {
@@ -1391,13 +1588,9 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
-          schema:
-            type: object
-            properties:
-              status: 
-                type: string
+        "success":
+          description: The app was enabled successfuly
+          type: boolean
                 
   /disableApp:
     get:
@@ -1424,13 +1617,9 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
-          schema:
-            type: object
-            properties:
-              status: 
-                type: string
+        "success":
+          description: The app was disabled successfuly
+          type: boolean
                 
   /listOpenRemoteShare:
     get:
@@ -1452,13 +1641,15 @@ paths:
       summary: List all pending remote share
       operationId: listOpenRemoteShare
       responses:
-        "200":
-          description: success
+        "success":
+          description: All remote shares were fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "share1",
+              "share2",
+              "share3"
+            ]
                 
   /acceptRemoteShare:
     get:
@@ -1485,8 +1676,10 @@ paths:
           in: query
           type: integer
       responses:
-        "200":
-          description: success
+        "success":
+          description: The share was accepeted
+          schema:
+            type: boolean
           
   /declineRemoteShare:
     get:
@@ -1513,8 +1706,15 @@ paths:
           in: query
           type: integer
       responses:
-        "200":
-          description: success
+        "success":
+          description: The share was accepeted
+          schema:
+            type: boolean
+        "faliure":
+          description: Wrong share ID entered
+          schema:
+            type: string
+            example: Share does not exist
           
   /deleteShare:
     get:
@@ -1541,13 +1741,15 @@ paths:
           in: query
           type: integer
       responses:
-        "200":
-          description: success
+        "success":
+          description: The share was accepeted
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Wrong share ID entered
+          schema:
+            type: string
+            example: "Wrong share ID, share doesn't exist"
                 
   /list:
     get:

@@ -1216,13 +1216,24 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Group was created successfuly
+          schema:
+            type: boolean
+        "faliure":
+          description: Group already exists
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "ocs": {
+                "meta": {
+                  "status": "failure",
+                  "statuscode": "102",
+                  "message": {}
+                },
+                "data": {}
+              }
+            }
                 
   /deleteGroup:
     get:
@@ -1249,13 +1260,24 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Group was deleted successfuly
+          schema:
+            type: boolean
+        "faliure":
+          description: Group does not exist
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "ocs": {
+                "meta": {
+                  "status": "failure",
+                  "statuscode": "101",
+                  "message": {}
+                },
+                "data": {}
+              }
+            }
                 
   /getGroups:
     get:
@@ -1277,13 +1299,15 @@ paths:
       summary: Gets all groups via the provisioning API
       operationId: getGroups
       responses:
-        "200":
-          description: success
+        "success":
+          description: All groups fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "admin",
+              "group1",
+              "group2"
+            ]
                 
   /getGroupMembers:
     get:
@@ -1310,13 +1334,19 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: All group members fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              "user1",
+              "user2"
+            ]
+        "faliure":
+          description: Group does not exist
+          schema:
+            type: string
+            example: The requested group could not be found
                 
   /groupExists:
     get:
@@ -1343,13 +1373,10 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Group status fetched successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
                 
   /getConfig:
     get:
@@ -1780,13 +1807,30 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: All files/folders with corresponding infomation fetched
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: [
+              {
+                "name": "XX",
+                "type": "file/dir",
+                "fileInfo": {
+                  "getlastmodified": "Mon, 01 Jan 1970 00:00:00 GMT",
+                  "resourcetype": {
+                    "d:collection": {}
+                  },
+                  "quota-used-bytes": "XX",
+                  "quota-available-bytes": "XX",
+                  "getetag": "XX"
+                }
+              }
+            ]
+        "faliure":
+          description: Non existent file/folder given
+          schema:
+            type: string
+            example: File with name *FileName* could not be located
                 
   /getFileContents:
     get:
@@ -1813,13 +1857,16 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File contents fetched successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: string
+            example: testContent
+        "faliure":
+          description: Non existent file given
+          schema:
+            type: string
+            example: File with name *FileName* could not be located
                 
   /putFileContents:
     get:
@@ -1850,13 +1897,15 @@ paths:
           description: content to be put
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File contents put successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Non existent path given
+          schema:
+            type: string
+            example: File with name *FolderName* could not be located
                 
   /mkdir:
     get:
@@ -1883,13 +1932,15 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Folder created successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Non existent path given
+          schema:
+            type: string
+            example: Parent node does not exist
                 
   /delete:
     get:
@@ -1916,13 +1967,15 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File/folder deleted successfuly
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Non existent path given
+          schema:
+            type: string
+            example: File with name *FileName* could not be located
                 
   /fileInfo:
     get:
@@ -1949,13 +2002,28 @@ paths:
           in: query
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File/folder information fetched successfuly
           schema:
             type: object
-            properties:
-              status: 
-                type: string
+            example: {
+              "name": "XX",
+              "type": "file/dir",
+              "fileInfo": {
+                "getlastmodified": "Mon, 01 Jan 1970 00:00:00 GMT",
+                "resourcetype": {
+                  "d:collection": {}
+                },
+                "quota-used-bytes": "XX",
+                "quota-available-bytes": "XX",
+                "getetag": "XX"
+              }
+            }
+        "faliure":
+          description: Non existent path given
+          schema:
+            type: string
+            example: File with name *FileName* could not be located
                 
   /getFile:
     get:
@@ -1986,13 +2054,20 @@ paths:
           description: path where to download
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File download successful
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Target path does not exist
+          schema:
+            type: string
+            example: File with name *targetPath* could not be located
+        "faliure ":
+          description: Local path does not exist
+          schema:
+            type: string
+            example: "ENOENT: no such file or directory, open *localPath*"
                 
   /getDirectoryAsZip:
     get:
@@ -2023,13 +2098,20 @@ paths:
           description: path where to download folder as zip
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Directory download successful
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Target path does not exist
+          schema:
+            type: string
+            example: File with name *targetPath* could not be located
+        "faliure ":
+          description: Local path does not exist
+          schema:
+            type: string
+            example: "ENOENT: no such file or directory, open *localPath*"
                 
   /putFile:
     get:
@@ -2065,13 +2147,20 @@ paths:
             mtime as the local one, defaults to True
           type: boolean
       responses:
-        "200":
-          description: success
+        "success":
+          description: File upload successful
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Target path does not exist
+          schema:
+            type: string
+            example: File with name *targetPath* could not be located
+        "faliure ":
+          description: Local path does not exist
+          schema:
+            type: string
+            example: "ENOENT: no such file or directory, open *localPath*"
                 
   /putDirectory:
     get:
@@ -2102,13 +2191,20 @@ paths:
           description: path from where to upload
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: Directory upload successful
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Target path does not exist
+          schema:
+            type: string
+            example: File with name *targetPath* could not be located
+        "faliure ":
+          description: Local path does not exist
+          schema:
+            type: string
+            example: "ENOENT: no such file or directory, open *localPath*"
                 
   /move:
     get:
@@ -2139,13 +2235,20 @@ paths:
           description: path where to move
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File/folder move successful
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Source path does not exist
+          schema:
+            type: string
+            example: File with name *sourceFile* could not be located
+        "faliure ":
+          description: Target path does not exist
+          schema:
+            type: string
+            example: The destination node is not found
                 
   /copy:
     get:
@@ -2176,10 +2279,17 @@ paths:
           description: path where to copy
           type: string
       responses:
-        "200":
-          description: success
+        "success":
+          description: File/folder copy successful
           schema:
-            type: object
-            properties:
-              status: 
-                type: string
+            type: boolean
+        "faliure":
+          description: Source path does not exist
+          schema:
+            type: string
+            example: File with name *sourceFile* could not be located
+        "faliure ":
+          description: Target path does not exist
+          schema:
+            type: string
+            example: The destination node is not found

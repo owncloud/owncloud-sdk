@@ -360,6 +360,8 @@ helpers.prototype._get = function(url) {
  * @returns 	{Promise.<error> }								string: error message, if any.
  */
 helpers.prototype._writeData = function(url, fileName) {
+	var self = this;
+
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
 	    'Content-Type': 'application/octet-stream'
@@ -389,6 +391,10 @@ helpers.prototype._writeData = function(url, fileName) {
 		request(options, function (err, response, body) {
 			if (response.statusCode === 200 && isPossible === 1) {
 				resolve(true);
+			}
+			else {
+				var err = self._parseDAVerror(body);
+				reject(err);
 			}
 		})
 		.on('error', function(error){

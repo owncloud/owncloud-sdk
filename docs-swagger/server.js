@@ -540,7 +540,7 @@ app.get('/groupExists', function(request, response) {
 //////////////////////////////////////
 
 app.get('/list', function(request, response) {
-	var path = request.query.path || '/';
+	var path = request.query.remotePath || '/';
 	var depth = request.query.depth;
 
 	init();

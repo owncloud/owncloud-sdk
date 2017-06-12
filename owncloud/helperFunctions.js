@@ -437,7 +437,9 @@ helpers.prototype._readFile = function(path, localPath, headers) {
 			fs.createReadStream(localPath)
 			.pipe(request.put({url: url, headers: headers}, function(error, response, body) {
 				if (response.statusCode >= 400) {
-					reject('not allowed');
+					var parsedError = self._parseDAVerror(body);
+					parsedError = parsedError || 'not allowed';
+					reject(parsedError);
 				}
 				else {
 					resolve(true);
@@ -754,6 +756,12 @@ helpers.prototype._webdavMoveCopy = function(source, target, method) {
 			reject(error);
 		});
 	});
+};
+
+helpers.prototype._getFileName = function(path) {
+	var pathSplit = path.split('/');
+	pathSplit = pathSplit.filter(function(n){ return n !== ''; });
+	return pathSplit[pathSplit.length - 1];
 };
 
 module.exports = helpers;

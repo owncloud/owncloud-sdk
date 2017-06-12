@@ -17,6 +17,7 @@ swagger:
 	node docs-swagger/server.js
 
 test:
+	if [ owncloud/test/testDownloadDir ] ; then rm -rf owncloud/test/testDownloadDir ; fi;
 	mkdir owncloud/test/testDownloadDir
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
 	echo "CONFIGS : "

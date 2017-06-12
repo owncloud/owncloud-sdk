@@ -248,7 +248,7 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
 	var headers = {};
 
 	if (!path || path === '' || path === '/') {
-		path = localPath;
+		path = helpers._getFileName(localPath);
 	}
 	
 	if (keepMTime) {

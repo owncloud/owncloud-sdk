@@ -16,6 +16,7 @@ var testContent 	 = 'testContent';
 var username 		 =  config.username;
 var password 		 =  config.password;
 var downloadBasePath =  __dirname + '/testDownloadDir/';
+var localFile		 =  downloadBasePath + 'file' + timeRightNow + '.txt';
 var owncloudURL 	 =  config.owncloudURL;
 var testUser    	 = 'testUser' + timeRightNow;
 var testGroup   	 = 'testGroup' + timeRightNow;
@@ -132,6 +133,13 @@ describe("Currently creating all requirements for running tests,", function () {
 				done();
 			});
 		}
+	});
+
+	it('creating a local file to upload later', function (done) {
+		fs.writeFile(localFile, testContent, function (err) {
+			expect(err).toBe(null);
+			done();
+		});
 	});
 });
 
@@ -1565,7 +1573,7 @@ describe("Currently testing files management,", function () {
 		});
 	});
 
-	it('checking method : getDirectoryAsZip for an existent folder', function (done) {		
+	it('checking method : getDirectoryAsZip for an existent folder', function (done) {
 		oc.files.getDirectoryAsZip(testFolder, downloadBasePath + timeRightNow +'.zip').then(status => {
 			expect(status).toBe(true);
 
@@ -1585,7 +1593,7 @@ describe("Currently testing files management,", function () {
 		});
 	});
 
-	it('checking method : getDirectoryAsZip for a non existent folder', function (done) {		
+	it('checking method : getDirectoryAsZip for a non existent folder', function (done) {
 		oc.files.getDirectoryAsZip(testFolder + '123', downloadBasePath + timeRightNow +'.zip').then(status => {
 			expect(status).toBe(null);
 			done();
@@ -1593,6 +1601,66 @@ describe("Currently testing files management,", function () {
 			expect(error).toBe('specified file/folder could not be located');
 			done();
 		});
+	});
+
+	it('checking method : putFile for an existent file', function (done) {
+		oc.files.putFile('/', localFile).then(status => {
+			expect(status).toBe(true);
+			return oc.files.getFileContents('file' + timeRightNow + '.txt');
+		}).then(content => {
+			expect(content).toEqual(testContent);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : putFile for a non existent file', function (done) {
+		try {
+			oc.files.putFile('/', localFile + '123').then(status => {
+				expect(status).toBe(null);
+				done();
+			}).catch(error => {
+				expect(error.toString()).toBe('Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\'');
+				done();
+			});
+		}
+
+		catch(error) {
+			expect(error.toString()).toBe('Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\'');
+			done();
+		}
+	});
+
+	it('checking method : putDirectory for an existent directory', function (done) {
+		oc.files.putDirectory('/', downloadBasePath).then(status => {
+			expect(status).toBe(true);
+			return oc.files.list('testDownloadDir', 'infinity');
+		}).then(files => {
+			expect(files.length).toEqual(4);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : putDirectory for a non existent directory', function (done) {
+		try {
+			oc.files.putDirectory('/', downloadBasePath + '123').then(status => {
+				expect(status).toBe(null);
+				done();
+			}).catch(error => {
+				expect(error.toString()).toBe("Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'");
+				done();
+			});
+		}
+
+		catch(error) {
+			expect(error.toString()).toBe("Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'");
+			done();	
+		}
 	});
 });
 
@@ -1671,4 +1739,18 @@ describe("checking if all created elements have been deleted,", function () {
 			});
 		}
 	});
+
+	it('checking uploaded folder', function (done) {
+		oc.files.delete('testDownloadDir').then(status => {
+			expect(status).toBe(true);
+			done();
+		});
+	})
+
+	it('checking uploaded file', function (done) {
+		oc.files.delete('file' + timeRightNow + '.txt').then(status => {
+			expect(status).toBe(true);
+			done();
+		});
+	})
 });

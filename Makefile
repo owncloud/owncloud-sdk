@@ -17,11 +17,13 @@ swagger:
 	node docs-swagger/server.js
 
 test:
+	mkdir owncloud/test/testDownloadDir
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
 	echo "CONFIGS : "
 	cat owncloud/test/config.json
 	echo ""
 	npm test
+	rm -rf owncloud/test/testDownloadDir
 
 jsdocs:
 	#Install jsdoc if it doesn't exist

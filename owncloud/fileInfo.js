@@ -22,7 +22,11 @@ function fileInfo(name, type, attr) {
  * @returns 	{string}	name of file/folder  
  */
 fileInfo.prototype.getName = function() {
-	return this.name;
+	var name = this.name.split('/');
+	name = name.filter(function(n){ return n !== ''; });
+	var send = name[name.length - 1];
+
+	return send;
 };
 
 /**
@@ -31,9 +35,10 @@ fileInfo.prototype.getName = function() {
  */
 fileInfo.prototype.getPath = function() {
 	var name = this.name.split('/');
+	name = name.filter(function(n){ return n !== ''; });
 	var send = '/';
 	for (var i=0;i<name.length-1;i++) {
-		send += name[i];
+		send += name[i] + '/';
 	}
 
 	return send;

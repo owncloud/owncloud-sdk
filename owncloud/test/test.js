@@ -1,6 +1,8 @@
 var config = require('./config.json');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
+var fs = require('fs');
+var JSZip = require("jszip");
 
 // CURRENT TIME
 var timeRightNow = new Date().getTime();
@@ -13,10 +15,13 @@ var testUserPassword = 'password';
 var testContent 	 = 'testContent';
 var username 		 =  config.username;
 var password 		 =  config.password;
+var downloadBasePath =  __dirname + '/testDownloadDir/';
 var owncloudURL 	 =  config.owncloudURL;
 var testUser    	 = 'testUser' + timeRightNow;
 var testGroup   	 = 'testGroup' + timeRightNow;
-var testFolder  	 = 'testFolder' + timeRightNow;
+var testFolder  	 = '/testFolder' + timeRightNow;
+var testSubDir 		 =  testFolder + '/' + 'subdir';
+var nonExistingDir	 =  testFolder + '/' + 'nonExistingDir';
 var testApp     	 = 'someAppName' + timeRightNow;
 var nonExistingApp   = 'nonExistingApp' + timeRightNow;
 var nonExistingFile  = 'nonExistingFile' + timeRightNow;
@@ -26,6 +31,13 @@ var testFiles   	 = [
 					   '/文件' + timeRightNow + '.txt',
 					   '/test' + timeRightNow + '.txt',
 					   '/test space and + and #' + timeRightNow + '.txt'
+					   ];
+var testSubFiles	 = [
+					   testFolder + '/' + 'file one.txt',
+					   testFolder + '/' + 'zz+z.txt',
+					   testFolder + '/' + '中文.txt',
+					   testFolder + '/' + 'abc.txt',
+					   testFolder + '/' + 'subdir/in dir.txt' 
 					   ];
 
 // CREATED SHARES
@@ -93,6 +105,33 @@ describe("Currently creating all requirements for running tests,", function () {
 			expect(error).toBe(null);
 			done();
 		});
+	});
+
+	it('creating subDirectory under testFolder', function (done) {
+		oc.files.mkdir(testSubDir).then(status => {
+			expect(status).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('creating files under testFolder', function (done) {
+		var count = 0;
+
+		for (var i=0;i<testSubFiles.length;i++) {
+			oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
+				expect(status).toBe(true);
+				count++;
+				if (count === testSubFiles.length) {
+					done();
+				}
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		}
 	});
 });
 
@@ -1300,6 +1339,258 @@ describe("Currently testing group management,", function () {
 		}).catch(error => {
 			expect(typeof(error)).toBe('object');
 			expect(error.ocs.meta.statuscode).toEqual('101');
+			done();
+		});
+	});
+});
+
+describe("Currently testing files management,", function () {
+	beforeEach(function(done) {
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password).then(status => {
+			expect(status).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : list with no depth specified', function (done) {
+		oc.files.list(testFolder).then(files => {
+			expect(typeof(files)).toBe('object');
+			expect(files.length).toEqual(6);
+			expect(files[1].getName()).toEqual('abc.txt');
+			expect(files[2].getName()).toEqual('file one.txt');
+			expect(files[3].getName()).toEqual('subdir');
+			expect(files[4].getName()).toEqual('zz+z.txt');
+			expect(files[5].getName()).toEqual('中文.txt');
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : list with Infinity depth', function (done) {
+		oc.files.list(testFolder, 'infinity').then(files => {
+			expect(typeof(files)).toBe('object');
+			expect(files.length).toEqual(7);
+			expect(files[3].getName()).toEqual('subdir');
+			expect(files[4].getPath()).toEqual(testFolder + '/' + 'subdir/');
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : list with 2 depth', function (done) {
+		oc.files.list(testFolder, 2).then(files => {
+			expect(typeof(files)).toBe('object');
+			expect(files.length).toEqual(7);
+			expect(files[3].getName()).toEqual('subdir');
+			expect(files[4].getPath()).toEqual(testFolder + '/' + 'subdir/');
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : list with non existent file', function (done) {
+		oc.files.list(nonExistingFile).then(files => {
+			expect(files).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + nonExistingFile + ' could not be located');
+			done();
+		});
+	});
+
+	it('checking method : getFileContents for existent files', function (done) {
+		var count = 0;
+
+		for (var i=0;i<testSubFiles.length;i++) {
+			oc.files.getFileContents(testSubFiles[i]).then(content => {
+				expect(content).toEqual(testContent);
+				count++;
+				if (count === testSubFiles.length) {
+					done();
+				}
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		}
+	});
+
+	it('checking method : getFileContents for non existent file', function (done) {
+		oc.files.getFileContents(nonExistingFile).then(content => {
+			expect(content).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + nonExistingFile + ' could not be located');
+			done();
+		});
+	});
+
+	it('checking method : putFileContents for an existing parent path', function (done) {
+		var newFile = testFolder + '/' + 'file.txt';
+
+		oc.files.putFileContents(newFile, testContent).then(status => {
+			expect(status).toBe(true);
+			return oc.files.getFileContents(newFile);
+		}).then(content => {
+			expect(content).toEqual(testContent);
+			return oc.files.delete(newFile);
+		}).then(status2 => {
+			expect(status2).toEqual(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : putFileContents for a non existing parent path', function (done) {
+		oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
+			exepct(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located');
+			done();
+		});
+	});
+
+	it('checking method : mkdir for an existing parent path', function (done) {
+		var newFolder = testFolder + '/' + 'new folder/';
+
+		oc.files.mkdir(newFolder).then(status => {
+			expect(status).toBe(true);
+			return oc.files.list(newFolder, 0);
+		}).then(folder => {
+			folder = folder[0];
+			expect(folder.isDir()).toBe(true);
+			expect(folder.getName()).toEqual('new folder');
+			return oc.files.delete(newFolder);
+		}).then(status2 => {
+			expect(status2).toEqual(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : mkdir for a non existing parent path', function (done) {
+		oc.files.mkdir(nonExistingDir + '/' + 'newFolder/').then(status => {
+			exepct(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('Parent node does not exist');
+			done();
+		});
+	});
+
+	it('checking method : delete for an existing file', function (done) {
+		var newFolder = testFolder + '/' + 'new folder';
+
+		oc.files.mkdir(newFolder).then(status => {
+			expect(status).toBe(true);
+			return oc.files.list(newFolder, 0);
+		}).then(folder => {
+			folder = folder[0];
+			expect(folder.isDir()).toBe(true);
+			expect(folder.getName()).toEqual('new folder');
+			return oc.files.delete(newFolder);
+		}).then(status2 => {
+			expect(status2).toEqual(true);
+			return oc.files.list(newFolder, 0);
+		}).then(folder2 => {
+			expect(folder2).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + newFolder.slice(1) + ' could not be located');
+			done();
+		});
+	});
+
+	it('checking method : delete for a non existing file', function (done) {
+		oc.files.delete(nonExistingDir).then(status => {
+			exepct(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located');
+			done();
+		});
+	});
+
+	// method : fileInfo is simply calling the method "list", hence no tests needed
+	
+	it('checking method : getFile for an existent file', function (done) {
+		var file = 'tempFile' + timeRightNow;
+		oc.files.putFileContents(file, testContent).then(status => {
+			expect(status).toBe(true);
+			return oc.files.getFile(file, downloadBasePath + file);
+		}).then(status2 => {
+			expect(status2).toBe(true);
+			
+			fs.readFile(downloadBasePath + file, function (err, data) {
+				expect(err).toBe(null);
+				expect(data.toString()).toEqual(testContent);
+				
+				oc.files.delete(file).then(status3 => {
+					expect(status3).toBe(true);
+					done();
+				}).catch(error2 => {
+					expect(error2).toBe(null);
+					done();
+				});
+			});
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : getFile for a non existent file', function (done) {
+		var file = 'tempFile' + timeRightNow;
+		oc.files.getFile(file, downloadBasePath + file).then(status => {
+			expect(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + file + ' could not be located');
+			done();
+		});
+	});
+
+	it('checking method : getDirectoryAsZip for an existent folder', function (done) {		
+		oc.files.getDirectoryAsZip(testFolder, downloadBasePath + timeRightNow +'.zip').then(status => {
+			expect(status).toBe(true);
+
+			fs.readFile(downloadBasePath + timeRightNow +'.zip', function(err, data) {
+				var count = 0;
+			    JSZip.loadAsync(data).then(function (zip) {
+			        for (var file in zip.files) {
+			        	count++;
+			        }
+			        expect(count).toEqual(7);
+			        done();
+			    });
+			});
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : getDirectoryAsZip for a non existent folder', function (done) {		
+		oc.files.getDirectoryAsZip(testFolder + '123', downloadBasePath + timeRightNow +'.zip').then(status => {
+			expect(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('specified file/folder could not be located');
 			done();
 		});
 	});

@@ -228,7 +228,7 @@ helpers.prototype._makeDAVrequest = function (method, path, headerData, body) {
 	if (!this._username || !this._password) {
 		err = "Please specify a username AND password first.";
 	}
-	
+
 	path = self._normalizePath(path);
 	path = encodeURIComponent(path);
 	path = path.split('%2F').join('/'); // '/' => %2F
@@ -315,9 +315,12 @@ helpers.prototype._parseDAVelement = function(item) {
 	name = '/' + name.join('/');
 
 	name = decodeURIComponent(name);
+
+	name = utf8.encode(name);
 	name = utf8.decode(name);
 
-	return new fileInfo(name, fileType, attrs);
+	var file = new fileInfo(name, fileType, attrs);
+	return file;
 };
 
 /**
@@ -393,8 +396,14 @@ helpers.prototype._writeData = function(url, fileName) {
 				resolve(true);
 			}
 			else {
-				var err = self._parseDAVerror(body);
-				reject(err);
+				try {
+					var err = self._parseDAVerror(body);
+					reject(err);
+				}
+
+				catch (error) {
+					reject('specified file/folder could not be located');
+				}
 			}
 		})
 		.on('error', function(error){

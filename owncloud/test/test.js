@@ -1579,7 +1579,7 @@ describe("Currently testing files management,", function () {
 
 			fs.readFile(downloadBasePath + timeRightNow +'.zip', function(err, data) {
 			    JSZip.loadAsync(data).then(function (zip) {
-			        var count = zip.files.length;
+			        var count = Object.keys(zip.files).length;
 			        expect(count).toEqual(7);
 			        done();
 			    });

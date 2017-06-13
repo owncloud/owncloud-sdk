@@ -741,8 +741,8 @@ helpers.prototype._webdavMoveCopy = function(source, target, method) {
 		}
 
 		source = self._normalizePath(source);
+
 		target = self._normalizePath(target);
-		target = self._encodeString(target);
 		target = encodeURIComponent(target);
 		target = target.split('%2F').join('/');
 

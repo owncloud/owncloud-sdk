@@ -1662,6 +1662,132 @@ describe("Currently testing files management,", function () {
 			done();	
 		}
 	});
+
+	it('checking method : move existent file into same folder, same name', function (done) {
+		oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
+			expect(status).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe('Source and destination uri are identical.');
+			done();
+		});
+	});
+
+	it('checking method : move existent file into same folder, different name', function (done) {
+		oc.files.move(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
+			expect(status).toBe(true);
+			return oc.files.list(testFolder);
+		}).then(files => {
+			var fileNames = [];
+			for (var i=0;i<files.length;i++) {
+				fileNames.push(files[i].getName());
+			}
+			expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1);
+			expect(fileNames.indexOf('中文.txt')).toBe(-1);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : move existent file into different folder', function (done) {
+		oc.files.move(testFolder + '/中文123.txt', testFolder + '/中文.txt').then(status => {
+			expect(status).toBe(true);
+			return oc.files.list(testFolder + '/subdir');
+		}).then(files => {
+			var fileNames = [];
+			for (var i=0;i<files.length;i++) {
+				fileNames.push(files[i].getName());
+			}
+			expect(fileNames.indexOf('中文.txt')).toBe(-1);
+			return oc.files.list(testFolder);
+		}).then(files2 => {
+			var fileNames = [];
+			for (var i=0;i<files2.length;i++) {
+				fileNames.push(files2[i].getName());
+			}
+			expect(fileNames.indexOf('中文123.txt')).toBe(-1);
+			expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : move non existent file', function (done) {
+		oc.files.move(nonExistingFile, '/abcd.txt').then(status => {
+			expect(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + nonExistingFile +' could not be located');
+			done();
+		});
+	});
+
+	it('checking method : copy existent file into same folder, same name', function (done) {
+		oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
+			expect(status).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe('Source and destination uri are identical.');
+			done();
+		});
+	});
+
+	it('checking method : copy existent file into same folder, different name', function (done) {
+		oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
+			expect(status).toBe(true);
+			return oc.files.list(testFolder);
+		}).then(files => {
+			var fileNames = [];
+			for (var i=0;i<files.length;i++) {
+				fileNames.push(files[i].getName());
+			}
+			expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1);
+			expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : copy existent file into different folder', function (done) {
+		oc.files.copy(testFolder + '/中文123.txt', testFolder + '/subdir/中文.txt').then(status => {
+			expect(status).toBe(true);
+			return oc.files.list(testFolder + '/subdir');
+		}).then(files => {
+			var fileNames = [];
+			for (var i=0;i<files.length;i++) {
+				fileNames.push(files[i].getName());
+			}
+			expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1);
+			return oc.files.list(testFolder);
+		}).then(files2 => {
+			var fileNames = [];
+			for (var i=0;i<files2.length;i++) {
+				fileNames.push(files2[i].getName());
+			}
+			expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1);
+			expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	it('checking method : copy non existent file', function (done) {
+		oc.files.copy(nonExistingFile, '/abcd.txt').then(status => {
+			expect(status).toBe(null);
+			done();
+		}).catch(error => {
+			expect(error).toBe('File with name ' + nonExistingFile +' could not be located');
+			done();
+		});
+	});
 });
 
 describe("checking if all created elements have been deleted,", function () {

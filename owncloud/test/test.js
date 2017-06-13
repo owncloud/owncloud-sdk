@@ -1463,7 +1463,7 @@ describe("Currently testing files management,", function () {
 
 	it('checking method : putFileContents for a non existing parent path', function (done) {
 		oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
-			exepct(status).toBe(null);
+			expect(status).toBe(null);
 			done();
 		}).catch(error => {
 			expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located');
@@ -1493,7 +1493,7 @@ describe("Currently testing files management,", function () {
 
 	it('checking method : mkdir for a non existing parent path', function (done) {
 		oc.files.mkdir(nonExistingDir + '/' + 'newFolder/').then(status => {
-			exepct(status).toBe(null);
+			expect(status).toBe(null);
 			done();
 		}).catch(error => {
 			expect(error).toBe('Parent node does not exist');
@@ -1526,7 +1526,7 @@ describe("Currently testing files management,", function () {
 
 	it('checking method : delete for a non existing file', function (done) {
 		oc.files.delete(nonExistingDir).then(status => {
-			exepct(status).toBe(null);
+			expect(status).toBe(null);
 			done();
 		}).catch(error => {
 			expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located');
@@ -1578,11 +1578,8 @@ describe("Currently testing files management,", function () {
 			expect(status).toBe(true);
 
 			fs.readFile(downloadBasePath + timeRightNow +'.zip', function(err, data) {
-				var count = 0;
 			    JSZip.loadAsync(data).then(function (zip) {
-			        for (var file in zip.files) {
-			        	count++;
-			        }
+			        var count = zip.files.length;
 			        expect(count).toEqual(7);
 			        done();
 			    });
@@ -1622,13 +1619,17 @@ describe("Currently testing files management,", function () {
 				expect(status).toBe(null);
 				done();
 			}).catch(error => {
-				expect(error.toString()).toBe('Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\'');
+				expect(error.toString()).toBe(
+					'Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\''
+				);
 				done();
 			});
 		}
 
 		catch(error) {
-			expect(error.toString()).toBe('Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\'');
+			expect(error.toString()).toBe(
+				'Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\''
+			);
 			done();
 		}
 	});
@@ -1652,13 +1653,17 @@ describe("Currently testing files management,", function () {
 				expect(status).toBe(null);
 				done();
 			}).catch(error => {
-				expect(error.toString()).toBe("Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'");
+				expect(error.toString()).toBe(
+					"Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'"
+				);
 				done();
 			});
 		}
 
 		catch(error) {
-			expect(error.toString()).toBe("Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'");
+			expect(error.toString()).toBe(
+				"Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'"
+			);
 			done();	
 		}
 	});
@@ -1871,12 +1876,12 @@ describe("checking if all created elements have been deleted,", function () {
 			expect(status).toBe(true);
 			done();
 		});
-	})
+	});
 
 	it('checking uploaded file', function (done) {
 		oc.files.delete('file' + timeRightNow + '.txt').then(status => {
 			expect(status).toBe(true);
 			done();
 		});
-	})
+	});
 });

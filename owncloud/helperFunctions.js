@@ -391,7 +391,11 @@ helpers.prototype._writeData = function(url, fileName) {
 
 		// Start the request
 		/* jshint unused : false */
-		request(options, function (err, response, body) {
+		request(options, function (err2, response, body) {
+			if (err2) {
+				reject(err2);
+			}
+			
 			if (response.statusCode === 200 && isPossible === 1) {
 				resolve(true);
 			}

@@ -1,7 +1,7 @@
 module.exports = {
-    entry: "./owncloud/index.js",
+    entry: "./browser/toBundle.js",
     output: {
-        path: __dirname + "/owncloud/",
+        path: __dirname + "/browser/",
         filename: "bundle.js"
     }
 };

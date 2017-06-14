@@ -34,6 +34,8 @@ var helpers = new helperFile();
  */
 function ownCloud(instance) {
 	var slash = '';
+	instance = instance || '';
+	
 	if (instance.slice(-1) !== '/') {
 		slash = '/';
 	}
@@ -42,8 +44,13 @@ function ownCloud(instance) {
 	if (instance.slice(0, 4) !== "http") {
 		http = 'http://';
 	}
+	var set = http + instance + slash;
 
-	helpers.setInstance(http + instance + slash);
+	if (!instance) {
+		set = '';
+	}
+
+	helpers.setInstance(set);
 
 	this.apps = new apps(helpers);
 	this.shares = new shares(helpers);
@@ -73,6 +80,34 @@ ownCloud.prototype.login = function(username, password) {
 		});
 	});
 	/* jshint unused: true */
+};
+
+/**
+ * Logs in to the specified ownCloud instance (Updates capabilities)
+ * @param 		{string} 			  instance 		URL of the OC instance
+ * @returns 	{boolean} 							always true.
+ */
+ownCloud.prototype.setInstance = function(instance) {
+	var slash = '';
+	instance = instance || '';
+	
+	if (instance.slice(-1) !== '/') {
+		slash = '/';
+	}
+
+	var http = '';
+	if (instance.slice(0, 4) !== "http") {
+		http = 'http://';
+	}
+	var set = http + instance + slash;
+
+	if (!instance) {
+		set = '';
+	}
+
+	helpers.setInstance(set);
+
+	return true;
 };
 
 /**

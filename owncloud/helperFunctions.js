@@ -126,7 +126,7 @@ helpers.prototype._updateCapabilities = function() {
 helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 	var self = this;
 	var err = null;
-
+	
 	if (!this.instance) {
 		err = "Please specify a server URL first";
 	}

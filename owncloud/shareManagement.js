@@ -3,7 +3,7 @@
 /////////////////////////////
 
 var Promise = require('promise');
-var parser = require('xml2json');
+var parser = require('xml-js');
 var utf8 = require('utf8');
 var shareInfo = require('./shareInfo.js');
 var helpers;
@@ -75,7 +75,9 @@ shares.prototype.shareFileWithLink = function(path, optionalParams) {
     	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
     	.then(data => {
     		data.body = utf8.encode(data.body);
-    		var shareDetails = parser.toJson(data.body, {object : true}).ocs.data;
+    		var shareDetails = parser.xml2js(data.body, {compact: true});
+    		shareDetails = helpers._cleanseJson(shareDetails);
+    		shareDetails = shareDetails.ocs.data;
     		var share = new shareInfo(shareDetails);
 
     		resolve(share);
@@ -115,7 +117,8 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     return new Promise((resolve, reject) => {
     	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
     	.then(data => {
-    		var shareData = parser.toJson(data.body, {object: true}).ocs.data;
+    		var shareData = parser.xml2js(data.body, {compact: true});
+    		shareData = helpers._cleanseJson(shareData).ocs.data;
 
     		var share = new shareInfo(shareData);
     		resolve(share);
@@ -148,7 +151,8 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
     return new Promise((resolve, reject) => {
     	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
     	.then(data => {
-    		var shareData = parser.toJson(data.body, {object: true}).ocs.data;
+    		var shareData = parser.xml2js(data.body, {compact: true});
+    		shareData = helpers._cleanseJson(shareData).ocs.data;
     		var share = new shareInfo(shareData);
     		resolve(share);
     	}).catch(error => {
@@ -203,7 +207,9 @@ shares.prototype.getShares = function(path, optionalParams){
     return new Promise((resolve, reject) => {
     	helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
     	.then(data => {
-    		var elements = parser.toJson(data.body, {object: true}).ocs.data.element || [];
+    		var elements = parser.xml2js(data.body, {compact: true});
+    		elements = helpers._cleanseJson(elements).ocs.data.element || [];
+
     		var shares = [];
 
     		if (elements && elements.constructor !== Array) {
@@ -256,7 +262,8 @@ shares.prototype.getShare = function(shareId) {
 
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
 		.then(data => {
-			var shareData = parser.toJson(data.body, {object: true}).ocs.data.element;
+			var shareData = parser.xml2js(data.body, {compact: true});
+			shareData = helpers._cleanseJson(shareData).ocs.data.element;
 			var share = new shareInfo(shareData);
 
 			resolve(share);
@@ -275,7 +282,8 @@ shares.prototype.listOpenRemoteShare = function() {
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
 		.then(data => {
-			var shares = parser.toJson(data.body, {object: true}).ocs.data.element || [];
+			var shares = parser.xml2js(data.body, {compact: true});
+			shares = helpers._cleanseJson(shares).ocs.data.element || [];
 			resolve(shares);
 		}).catch(error => {
 			reject(error);

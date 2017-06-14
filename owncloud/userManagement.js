@@ -3,7 +3,7 @@
 /////////////////////////////////////
 
 var Promise = require('promise');
-var parser = require('xml2json');
+var parser = require('xml-js');
 var helpers;
 
 /**
@@ -214,7 +214,8 @@ users.prototype.getUser = function(username) {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
 			'users/' + encodeURIComponent(username)
 		).then(data => {
-			var tree = parser.toJson(data.body, {object : true});
+			var tree = parser.xml2js(data.body, {compact: true});
+			tree = helpers._cleanseJson(tree);
 			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statusCode === 999) {
 				reject("Provisioning API has been disabled at your instance");
@@ -325,7 +326,8 @@ users.prototype.getUsers = function() {
  * IS A RESPONSE HANDLER
  */
 users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-	var tree = parser.toJson(data.body, {object : true});
+	var tree = parser.xml2js(data.body, {compact: true});
+	tree = helpers._cleanseJson(tree);
 	var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
 	if (statusCode === 999) {
 		reject("Provisioning API has been disabled at your instance");

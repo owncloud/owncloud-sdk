@@ -3,7 +3,7 @@
 ///////////////////////////////////
 
 var Promise = require('promise');
-var parser = require('xml2json');
+var parser = require('xml-js');
 var helpers;
 
 /**
@@ -46,14 +46,19 @@ apps.prototype.getApps = function() {
 	return new Promise((resolve, reject) => {
 		Promise.all([allAppsP, allEnabledAppsP])
 		.then(apps => {
-			var statuscode = parseInt(helpers._checkOCSstatusCode(parser.toJson(apps[0].body, {object: true})));
+			var tree = parser.xml2js(apps[0].body, {compact: true});
+			tree = helpers._cleanseJson(tree);
+			var statuscode = parseInt(helpers._checkOCSstatusCode(tree));
 			if (statuscode === 999) {
 				reject("Provisioning API has been disabled at your instance");
 				return;
 			}
 
-			var allApps = parser.toJson(apps[0].body, {object: true}).ocs.data.apps.element;
-			var allEnabledApps = parser.toJson(apps[1].body, {object: true}).ocs.data.apps.element;
+			var allApps = parser.xml2js(apps[0].body, {compact: true});
+			allApps = helpers._cleanseJson(allApps).ocs.data.apps.element;
+			
+			var allEnabledApps = parser.xml2js(apps[1].body, {compact: true});
+			allEnabledApps = helpers._cleanseJson(allEnabledApps).ocs.data.apps.element;
 
 			for (var i=0;i<allApps.length;i++) {
 				send[allApps[i]] = false;
@@ -89,7 +94,8 @@ apps.prototype.getAttribute = function(app, key) {
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
 		.then(data => {
-			var elements = parser.toJson(data.body, {object: true}).ocs.data.element;
+			var elements = parser.xml2js(data.body, {compact: true});
+			elements = helpers._cleanseJson(elements).ocs.data.element;
 
 			if (key) {
 				if (!elements) {

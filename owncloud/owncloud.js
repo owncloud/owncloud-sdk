@@ -3,7 +3,7 @@
 /////////////////////////////
 
 var Promise = require('promise');
-var parser = require('xml2json');
+var parser = require('xml-js');
 var helperFile = require('./helperFunctions.js');
 var apps = require('./appManagement.js');
 var shares = require('./shareManagement.js');
@@ -34,6 +34,8 @@ var helpers = new helperFile();
  */
 function ownCloud(instance) {
 	var slash = '';
+	instance = instance || '';
+	
 	if (instance.slice(-1) !== '/') {
 		slash = '/';
 	}
@@ -42,8 +44,13 @@ function ownCloud(instance) {
 	if (instance.slice(0, 4) !== "http") {
 		http = 'http://';
 	}
+	var set = http + instance + slash;
 
-	helpers.setInstance(http + instance + slash);
+	if (!instance) {
+		set = '';
+	}
+
+	helpers.setInstance(set);
 
 	this.apps = new apps(helpers);
 	this.shares = new shares(helpers);
@@ -76,6 +83,34 @@ ownCloud.prototype.login = function(username, password) {
 };
 
 /**
+ * Logs in to the specified ownCloud instance (Updates capabilities)
+ * @param 		{string} 			  instance 		URL of the OC instance
+ * @returns 	{boolean} 							always true.
+ */
+ownCloud.prototype.setInstance = function(instance) {
+	var slash = '';
+	instance = instance || '';
+	
+	if (instance.slice(-1) !== '/') {
+		slash = '/';
+	}
+
+	var http = '';
+	if (instance.slice(0, 4) !== "http") {
+		http = 'http://';
+	}
+	var set = http + instance + slash;
+
+	if (!instance) {
+		set = '';
+	}
+
+	helpers.setInstance(set);
+
+	return true;
+};
+
+/**
  * Returns ownCloud config information
  * @returns 	{Promise.<configs>} 				object: {"version" : "1.7", "website" : "ownCloud" etc...}
  * @returns 	{Promise.<error>  } 				string: error message, if any.
@@ -84,7 +119,7 @@ ownCloud.prototype.getConfig = function() {
 	return new Promise((resolve, reject) => {
 		helpers._makeOCSrequest('GET', '', 'config')
 		.then(data => {
-			var tree = parser.toJson(data.body, {object: true});
+			var tree = parser.xml2js(data.body, {compact: true});
 			resolve(tree.ocs.data);
 		}).catch(error => {
 			reject(error);

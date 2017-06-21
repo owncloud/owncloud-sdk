@@ -57,6 +57,9 @@ browser:
 clean:
 	#Delete existing documentation
 	rm -rf jsdoc/
+	rm -rf node_modules/
+	rm -rf docs-swagger/node_modules/
+	rm owncloud/test/config.json
 
 	#Output success message
 	echo "Existing Documentation removed"

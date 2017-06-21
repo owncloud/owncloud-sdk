@@ -12,10 +12,6 @@ app.use(express.static('docs-swagger/api/swagger'));
 app.use(express.static('api/swagger'));
 app.use(cors());
 
-function init() {
-	oc = new owncloud('localhost/core');
-	oc.login('noveens', '123');
-}
 
 /////////////////////////////
 ///////    GENERAL    ///////
@@ -43,7 +39,7 @@ app.get('/login', function(request, response) {
 });
 
 app.get('/getConfig', function(request, response) {
-	init();
+	
 	oc.getConfig().then(result => {
 		response.send(result);
 	}).catch(error => {
@@ -52,7 +48,7 @@ app.get('/getConfig', function(request, response) {
 });
 
 app.get('/getVersion', function(request, response) {
-	init();
+	
 	oc.getVersion().then(result => {
 		response.send(result);
 	}).catch(error => {
@@ -61,7 +57,7 @@ app.get('/getVersion', function(request, response) {
 });
 
 app.get('/getCapabilities', function(request, response) {
-	init();
+	
 	oc.getCapabilities().then(result => {
 		response.send(result);
 	}).catch(error => {
@@ -74,7 +70,7 @@ app.get('/getCapabilities', function(request, response) {
 ///////////////////////////////////
 
 app.get('/getApps', function(request, response) {
-	init();
+	
 	oc.apps.getApps().then(apps => {
 		response.send(apps);
 	}).catch(error => {
@@ -86,7 +82,7 @@ app.get('/getAttribute', function(request, response) {
 	var app = request.query.app;
 	var key = request.query.key;
 
-	init();
+	
 	oc.apps.getAttribute(app, key).then(attr => {
 		response.send(attr);
 	}).catch(error => {
@@ -99,7 +95,7 @@ app.get('/setAttribute', function(request, response) {
 	var key = request.query.key;
 	var value = request.query.value || '';
 
-	init();
+	
 	oc.apps.setAttribute(app, key, value).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -111,7 +107,7 @@ app.get('/deleteAttribute', function(request, response) {
 	var app = request.query.app;
 	var key = request.query.key;
 
-	init();
+	
 	oc.apps.deleteAttribute(app, key).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -122,7 +118,7 @@ app.get('/deleteAttribute', function(request, response) {
 app.get('/enableApp', function(request, response) {
 	var appname = request.query.appname;
 	
-	init();
+	
 	oc.apps.enableApp(appname).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -133,7 +129,7 @@ app.get('/enableApp', function(request, response) {
 app.get('/disableApp', function(request, response) {
 	var appname = request.query.appname;
 	
-	init();
+	
 	oc.apps.disableApp(appname).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -159,7 +155,7 @@ app.get('/shareFileWithLink', function(request, response) {
 		optional.password = request.query.password;
 	}
 
-	init();
+	
 	oc.shares.shareFileWithLink(path, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -181,7 +177,7 @@ app.get('/updateShare', function(request, response) {
 		optional.password = request.query.password;
 	}
 
-	init();
+	
 	oc.shares.updateShare(shareId, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -201,7 +197,7 @@ app.get('/shareFileWithUser', function(request, response) {
 		optional.remoteUser = request.query.publicUpload;
 	}
 
-	init();
+	
 	oc.shares.shareFileWithUser(path, username, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -218,7 +214,7 @@ app.get('/shareFileWithGroup', function(request, response) {
 		optional.perms = request.query.groupName;
 	}
 
-	init();
+	
 	oc.shares.shareFileWithGroup(path, groupName, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -242,7 +238,7 @@ app.get('/getShares', function(request, response) {
 	}
 	/*jshint camelcase: true */
 
-	init();
+	
 	oc.shares.getShares(path, optional).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -253,7 +249,7 @@ app.get('/getShares', function(request, response) {
 app.get('/isShared', function(request, response) {
 	var path = request.query.path;
 	
-	init();
+	
 	oc.shares.isShared(path).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -264,7 +260,7 @@ app.get('/isShared', function(request, response) {
 app.get('/getShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
-	init();
+	
 	oc.shares.getShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -273,7 +269,7 @@ app.get('/getShare', function(request, response) {
 });
 
 app.get('/listOpenRemoteShare', function(request, response) {
-	init();
+	
 	oc.shares.listOpenRemoteShare().then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -284,7 +280,7 @@ app.get('/listOpenRemoteShare', function(request, response) {
 app.get('/acceptRemoteShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
-	init();
+	
 	oc.shares.acceptRemoteShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -295,7 +291,7 @@ app.get('/acceptRemoteShare', function(request, response) {
 app.get('/declineRemoteShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
-	init();
+	
 	oc.shares.declineRemoteShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -306,7 +302,7 @@ app.get('/declineRemoteShare', function(request, response) {
 app.get('/deleteShare', function(request, response) {
 	var shareId = request.query.shareId;
 	
-	init();
+	
 	oc.shares.deleteShare(shareId).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -322,7 +318,7 @@ app.get('/createUser', function(request, response) {
 	var uname = request.query.username;
 	var pass = request.query.password;
 	
-	init();
+	
 	oc.users.createUser(uname, pass).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -333,7 +329,7 @@ app.get('/createUser', function(request, response) {
 app.get('/deleteUser', function(request, response) {
 	var username = request.query.username;
 	
-	init();
+	
 	oc.users.deleteUser(username).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -344,7 +340,7 @@ app.get('/deleteUser', function(request, response) {
 app.get('/searchUsers', function(request, response) {
 	var username = request.query.username;
 	
-	init();
+	
 	oc.users.searchUsers(username).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -355,7 +351,7 @@ app.get('/searchUsers', function(request, response) {
 app.get('/userExists', function(request, response) {
 	var username = request.query.username;
 	
-	init();
+	
 	oc.users.userExists(username).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -364,7 +360,7 @@ app.get('/userExists', function(request, response) {
 });
 
 app.get('/getUsers', function(request, response) {
-	init();
+	
 	oc.users.getUsers().then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -377,7 +373,7 @@ app.get('/setUserAttribute', function(request, response) {
 	var key = request.query.key;
 	var value = request.query.value;
 
-	init();
+	
 	oc.users.setUserAttribute(username, key, value).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -389,7 +385,7 @@ app.get('/addUserToGroup', function(request, response) {
 	var username = request.query.username;
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.users.addUserToGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -400,7 +396,7 @@ app.get('/addUserToGroup', function(request, response) {
 app.get('/getUserGroups', function(request, response) {
 	var username = request.query.username;
 
-	init();
+	
 	oc.users.getUserGroups(username).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -412,7 +408,7 @@ app.get('/userIsInGroup', function(request, response) {
 	var username = request.query.username;
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.users.userIsInGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -423,7 +419,7 @@ app.get('/userIsInGroup', function(request, response) {
 app.get('/getUser', function(request, response) {
 	var username = request.query.username;
 
-	init();
+	
 	oc.users.getUser(username).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -435,7 +431,7 @@ app.get('/removeUserFromGroup', function(request, response) {
 	var username = request.query.username;
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.users.removeUserFromGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -447,7 +443,7 @@ app.get('/addUserToSubadminGroup', function(request, response) {
 	var username = request.query.username;
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.users.addUserToSubadminGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -458,7 +454,7 @@ app.get('/addUserToSubadminGroup', function(request, response) {
 app.get('/getUserSubadminGroups', function(request, response) {
 	var username = request.query.username;
 
-	init();
+	
 	oc.users.getUserSubadminGroups(username).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -470,7 +466,7 @@ app.get('/userIsInSubadminGroup', function(request, response) {
 	var username = request.query.username;
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.users.userIsInSubadminGroup(username, groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -485,7 +481,7 @@ app.get('/userIsInSubadminGroup', function(request, response) {
 app.get('/createGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.groups.createGroup(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -496,7 +492,7 @@ app.get('/createGroup', function(request, response) {
 app.get('/deleteGroup', function(request, response) {
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.groups.deleteGroup(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -505,7 +501,7 @@ app.get('/deleteGroup', function(request, response) {
 });
 
 app.get('/getGroups', function(request, response) {
-	init();
+	
 	oc.groups.getGroups().then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -516,7 +512,7 @@ app.get('/getGroups', function(request, response) {
 app.get('/getGroupMembers', function(request, response) {
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.groups.getGroupMembers(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -527,7 +523,7 @@ app.get('/getGroupMembers', function(request, response) {
 app.get('/groupExists', function(request, response) {
 	var groupName = request.query.groupName;
 
-	init();
+	
 	oc.groups.groupExists(groupName).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -543,7 +539,7 @@ app.get('/list', function(request, response) {
 	var path = request.query.remotePath || '/';
 	var depth = request.query.depth;
 
-	init();
+	
 	oc.files.list(path, depth).then(files => {
 		response.send(files);
 	}).catch(error => {
@@ -554,7 +550,7 @@ app.get('/list', function(request, response) {
 app.get('/getFileContents', function(request, response) {
 	var remotePath = request.query.remotePath;
 
-	init();
+	
 	oc.files.getFileContents(remotePath).then(content => {
 		response.send(content);
 	}).catch(error => {
@@ -566,7 +562,7 @@ app.get('/putFileContents', function(request, response) {
 	var remotePath = request.query.remotePath;
 	var content = request.query.content;
 
-	init();
+	
 	oc.files.putFileContents(remotePath, content).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -577,7 +573,7 @@ app.get('/putFileContents', function(request, response) {
 app.get('/mkdir', function(request, response) {
 	var remotePath = request.query.remotePath;
 
-	init();
+	
 	oc.files.mkdir(remotePath).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -588,7 +584,7 @@ app.get('/mkdir', function(request, response) {
 app.get('/delete', function(request, response) {
 	var remotePath = request.query.remotePath;
 
-	init();
+	
 	oc.files.delete(remotePath).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -599,7 +595,7 @@ app.get('/delete', function(request, response) {
 app.get('/fileInfo', function(request, response) {
 	var remotePath = request.query.remotePath;
 
-	init();
+	
 	oc.files.fileInfo(remotePath).then(info => {
 		response.send(info);
 	}).catch(error => {
@@ -611,7 +607,7 @@ app.get('/getFile', function(request, response) {
 	var remotePath = request.query.remotePath;
 	var localPath = request.query.localPath;
 
-	init();
+	
 	oc.files.getFile(remotePath, localPath).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -623,7 +619,7 @@ app.get('/getDirectoryAsZip', function(request, response) {
 	var remotePath = request.query.remotePath;
 	var localPath = request.query.localPath;
 
-	init();
+	
 	oc.files.getDirectoryAsZip(remotePath, localPath).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -636,7 +632,7 @@ app.get('/putFile', function(request, response) {
 	var localPath = request.query.localPath;
 	var keepMTime = request.query.keepMTime;
 
-	init();
+	
 	oc.files.putFile(remotePath, localPath, keepMTime).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -648,7 +644,7 @@ app.get('/putDirectory', function(request, response) {
 	var remotePath = request.query.remotePath;
 	var localPath = request.query.localPath;
 
-	init();
+	
 	oc.files.putDirectory(remotePath, localPath).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -660,7 +656,7 @@ app.get('/move', function(request, response) {
 	var source = request.query.source;
 	var target = request.query.target;
 
-	init();
+	
 	oc.files.move(source, target).then(status => {
 		response.send(status);
 	}).catch(error => {
@@ -672,7 +668,7 @@ app.get('/copy', function(request, response) {
 	var source = request.query.source;
 	var target = request.query.target;
 
-	init();
+	
 	oc.files.copy(source, target).then(status => {
 		response.send(status);
 	}).catch(error => {

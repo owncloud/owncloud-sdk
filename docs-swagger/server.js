@@ -2,11 +2,11 @@
 ///////    This is a test-server for swagger.    ///////
 ////////////////////////////////////////////////////////
 
-var express  = require("express");
+var express = require("express");
 var owncloud = require("../../js-owncloud-client");
-var configs  = require("../swagger.config.js");
-var cors 	 = require('cors');
-var app 	 = express();
+var configs = require("../swagger.config.js");
+var cors = require('cors');
+var app = express();
 
 var oc = new owncloud(configs.owncloudURL);
 oc.login(configs.username, configs.password);

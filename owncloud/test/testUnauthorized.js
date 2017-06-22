@@ -48,7 +48,9 @@ var someError = "Username or password was incorrect, Username or password was in
 				"No 'Authorization: Bearer' header found. Either the client didn't send one, " + 
 				"or the server is mis-configured";
 
-var errors = [someError, "Current user is not logged in", "Unauthorised"];
+var anotherError = "Username or password was incorrect, Username or password was incorrect";
+
+var errors = [someError, anotherError, "Current user is not logged in", "Unauthorised"];
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function () {
 	beforeEach(function () {
@@ -536,7 +538,6 @@ describe("Currently testing files management,", function () {
 				expect(content).toBe(null);
 				done();
 			}).catch(error => {
-				console.log(error);
 				expect(errors.indexOf(error)).toBeGreaterThan(-1);
 				count++;
 				if (count === testSubFiles.length) {

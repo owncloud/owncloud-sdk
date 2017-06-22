@@ -50,7 +50,8 @@ var someError = "Username or password was incorrect, Username or password was in
 
 var anotherError = "Username or password was incorrect, Username or password was incorrect";
 
-var errors = [someError, anotherError, "Current user is not logged in", "Unauthorised"];
+var errors = [someError, anotherError, "Current user is not logged in", "Unauthorised",
+			 "Username or password was incorrect"];
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function () {
 	beforeEach(function () {

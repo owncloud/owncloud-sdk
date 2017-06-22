@@ -1824,6 +1824,19 @@ paths:
                   "quota-available-bytes": "XX",
                   "getetag": "XX"
                 }
+              },
+              {
+                "name": "XX",
+                "type": "file/dir",
+                "fileInfo": {
+                  "getlastmodified": "Mon, 01 Jan 1970 00:00:00 GMT",
+                  "resourcetype": {
+                    "d:collection": {}
+                  },
+                  "quota-used-bytes": "XX",
+                  "quota-available-bytes": "XX",
+                  "getetag": "XX"
+                }
               }
             ]
         "faliure":

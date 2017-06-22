@@ -45,7 +45,8 @@ var sharedFilesWithUser = {1: '1', 2: '2'};
 
 // COMMON ERRORS
 var someError = "Username or password was incorrect, Username or password was incorrect, " +
-				"No 'Authorization: Bearer' header found. Either the client didn't send one, or the server is mis-configured";
+				"No 'Authorization: Bearer' header found. Either the client didn't send one, " + 
+				"or the server is mis-configured";
 
 var errors = [someError, "Current user is not logged in", "Unauthorised"];
 

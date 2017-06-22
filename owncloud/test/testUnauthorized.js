@@ -536,6 +536,7 @@ describe("Currently testing files management,", function () {
 				expect(content).toBe(null);
 				done();
 			}).catch(error => {
+				console.log(error);
 				expect(errors.indexOf(error)).toBeGreaterThan(-1);
 				count++;
 				if (count === testSubFiles.length) {

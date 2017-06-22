@@ -1,3 +1,9 @@
+////////////////////////////////
+///////    MAIN TESTS    ///////
+////////////////////////////////
+
+console.log("Running Main tests");
+
 var config = require('./config.json');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
@@ -1591,7 +1597,7 @@ describe("Currently testing files management,", function () {
 	});
 
 	it('checking method : getDirectoryAsZip for a non existent folder', function (done) {
-		oc.files.getDirectoryAsZip(testFolder + '123', downloadBasePath + timeRightNow +'.zip').then(status => {
+		oc.files.getDirectoryAsZip(testFolder + timeRightNow, downloadBasePath + timeRightNow +'.zip').then(status => {
 			expect(status).toBe(null);
 			done();
 		}).catch(error => {
@@ -1639,7 +1645,7 @@ describe("Currently testing files management,", function () {
 			expect(status).toBe(true);
 			return oc.files.list('testDownloadDir', 'infinity');
 		}).then(files => {
-			expect(files.length).toEqual(4);
+			expect(files.length).toEqual(5);
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);

@@ -20,7 +20,10 @@
     "url": "https://github.com/noveens/js-owncloud-client/issues"
   },
   "scripts": {
-    "test": "node_modules/.bin/jasmine ./owncloud/test/test.js"
+    "testUnauthenticated": "node_modules/.bin/jasmine ./owncloud/test/testUnauthenticated.js",
+    "testUnauthorized": "node_modules/.bin/jasmine ./owncloud/test/testUnauthorized.js",
+    "testMain": "node_modules/.bin/jasmine ./owncloud/test/test.js",
+    "test": "npm run -s testUnauthenticated && npm run -s testUnauthorized && npm run -s testMain" 
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "devDependencies": {

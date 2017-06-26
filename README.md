@@ -3,19 +3,20 @@
 # ![ownCloud](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/OwnCloud_logo_and_wordmark.svg/1200px-OwnCloud_logo_and_wordmark.svg.png)
 
 Use this JS library for seaemless communication with your ownCloud instance.<br>
-Currently supports NodeJS, browser support coming soon!
+Supports both Node.JS and browser JS.
 
 
 ## Install
 
 ```
 $ git clone https://github.com/noveens/js-owncloud-client.git
-$ sudo npm i
+$ make
 ```
 
 
 ## Usage
-### For Node.JS
+
+### Node.JS
 ```js
 var owncloud = require('js-owncloud-client/owncloud');
 var oc = new owncloud('*owncloud instance URL*');
@@ -35,13 +36,13 @@ oc.shareFileWithLink('linkToYourFile').then(shareInfo => {
 });
 ```
 
-### For Browser
+### Browser
 ```html
 <script type="text/javascript" src="./js-owncloud-client/browser/bundle.js"></script>
 
 <script type="text/javascript">
   // var oc is global
-  oc.setInstance('localhost/core');
+  oc.setInstance('*owncloud instance URL*');
 
   // Login
   oc.login('username', 'password').then(status => {
@@ -81,6 +82,7 @@ To build the jsdocs, type this command and follow the instructions on the termin
 $ make jsdocs
 ```
 
+
 ## Unit tests
 
 The following command will run all unit tests. Before running the command, make sure you have edited the `owncloud/test/config.json` file accordingly.
@@ -88,6 +90,7 @@ The following command will run all unit tests. Before running the command, make 
 ```
 $ make test
 ```
+
 
 ## Team
 

@@ -2,5 +2,5 @@ node_modules/
 owncloud/test/config.json
 owncloud/test/testDownloadDir
 docs-swagger/node_modules
-./swagger.config.js
+swagger.config.js
 jsdoc/

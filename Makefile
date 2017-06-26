@@ -16,14 +16,10 @@ all:
 	bash readOCInfo.sh
 
 deps:
-	sudo npm i
-	sudo npm --prefix ./docs-swagger/ i ./docs-swagger/
+	npm i
+	npm --prefix ./docs-swagger/ i ./docs-swagger/
 
-depsSilent:
-	sudo npm i --silent
-	sudo npm --prefix ./docs-swagger/ i ./docs-swagger/ --silent
-
-swagger: depsSilent
+swagger: deps
 	if [ ! -f swagger.config.js ] ; then \
 		touch swagger.config.js ; \
 		echo "module.exports = {\n\towncloudURL: \"\",\n\tusername: \"\",\n\tpassword: \"\"\n};" > swagger.config.js ; \
@@ -31,7 +27,7 @@ swagger: depsSilent
 	fi;
 	node docs-swagger/server.js
 
-test: depsSilent
+test: deps
 	if [ owncloud/test/testDownloadDir ] ; then rm -rf owncloud/test/testDownloadDir ; fi;
 	mkdir owncloud/test/testDownloadDir
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
@@ -54,7 +50,7 @@ jsdocs:
 	#Output the final documentation link
 	echo "To read the documentation, click here : file://"${DIR}"/jsdoc/ownCloud.html"
 
-browser: depsSilent
+browser: deps
 	sed -i "s/require('fs/require('fs-web/g" owncloud/*.js
 	sed -i "s/require('fs/require('fs-web/g" owncloud/test/*.js
 

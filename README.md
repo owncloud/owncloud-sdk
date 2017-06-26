@@ -15,25 +15,48 @@ $ sudo npm i
 
 
 ## Usage
-
+### For Node.JS
 ```js
 var owncloud = require('js-owncloud-client/owncloud');
-var oc = new owncloud('*owncloud instance URL*')
+var oc = new owncloud('*owncloud instance URL*');
 
 // Login
 oc.login('username', 'password').then(status => {
-  // STUFF
+    // STUFF
 }).catch(error => {
-  // HANDLE ERROR
+    // HANDLE ERROR
 });
 
 // Share File With Link
 oc.shareFileWithLink('linkToYourFile').then(shareInfo => {
-  console.log("Link is : " + shareInfo.getLink());
+    console.log("Link is : " + shareInfo.getLink());
 }).catch(error => {
-  // HANDLE ERROR
+    // HANDLE ERROR
 });
+```
 
+### For Browser
+```html
+<script type="text/javascript" src="./js-owncloud-client/browser/bundle.js"></script>
+
+<script type="text/javascript">
+  // var oc is global
+  oc.setInstance('localhost/core');
+
+  // Login
+  oc.login('username', 'password').then(status => {
+    window.alert(status);
+  }).catch(error => {
+    window.alert(error);
+  });
+  
+  // Share File With Link
+  oc.shareFileWithLink('linkToYourFile').then(shareInfo => {
+      window.alert("Link is : " + shareInfo.getLink());
+  }).catch(error => {
+      window.alert(error);
+  });
+</script>
 ```
 
 ## Building the Documentation
@@ -60,7 +83,7 @@ $ make jsdocs
 
 ## Unit tests
 
-The following command will run all unit tests. Before running the command, make sure you have edited the `owncloud/test/config.js` file according to the comments above each config.
+The following command will run all unit tests. Before running the command, make sure you have edited the `owncloud/test/config.json` file accordingly.
 
 ```
 $ make test

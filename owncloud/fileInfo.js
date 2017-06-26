@@ -13,7 +13,7 @@ function fileInfo(name, type, attr) {
 	this.fileInfo = {};
 
 	for (var key in attr) {
-		this.fileInfo[key.split(':')[1]] = attr[key];
+		this.fileInfo[key] = attr[key];
 	}
 }
 

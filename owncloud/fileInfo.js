@@ -57,7 +57,7 @@ fileInfo.prototype.getSize = function() {
  * @returns 	{string} 	ETag of file/folder
  */
 fileInfo.prototype.getETag = function() {
-	return this.fileInfo.['d:getetag'] || null;
+	return this.fileInfo['d:getetag'] || null;
 };
 
 /**
@@ -65,7 +65,7 @@ fileInfo.prototype.getETag = function() {
  * @returns 	{string} 	content-type of file/folder
  */
 fileInfo.prototype.getContentType = function() {
-	var type = this.fileInfo.['d:getcontenttype'];
+	var type = this.fileInfo['d:getcontenttype'];
 	if (this.isDir()) {
 		type = 'httpd/unix-directory';
 	}
@@ -77,7 +77,7 @@ fileInfo.prototype.getContentType = function() {
  * @returns 	{Number} 	Last modified time of file/folder
  */
 fileInfo.prototype.getLastModified = function() {
-	return new Date(this.fileInfo.['d:getlastmodified']);
+	return new Date(this.fileInfo['d:getlastmodified']);
 };
 
 /**

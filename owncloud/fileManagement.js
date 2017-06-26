@@ -301,7 +301,6 @@ files.prototype.putDirectory = function(targetPath, localPath) {
 		Promise.all(folderPromises).then(status => {
 			for (var i=0;i<filesToPut.length;i++) {
 				var folder = filesToPut[i].path;
-
 				for (var j=0;j<filesToPut[i].files.length;j++) {
 					self.putFile(
 						folder + filesToPut[i].files[j], 

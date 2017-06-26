@@ -259,7 +259,6 @@ shares.prototype.getShare = function(shareId) {
 			reject("Please pass a valid share ID (Integer)");
 			return;
 		}
-
 		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
 		.then(data => {
 			var shareData = parser.xml2js(data.body, {compact: true});

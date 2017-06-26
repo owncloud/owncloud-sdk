@@ -334,6 +334,16 @@ helpers.prototype._parseDAVelement = function(item) {
  * @returns 	{Promise.<error> }								string: error message, if any.
  */
 helpers.prototype._get = function(url) {
+	var err = null;
+	
+	if (!this.instance) {
+		err = "Please specify a server URL first";
+	}
+
+	if (!this._username || !this._password) {
+		err = "Please specify a username AND password first.";
+	}
+
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
 	    'Content-Type': 'application/x-www-form-urlencoded'
@@ -347,6 +357,11 @@ helpers.prototype._get = function(url) {
 	};
 
 	return new Promise((resolve, reject) => {
+		if(err) {
+			reject(err);
+			return;
+		}
+
 		// Start the request
 		request(options, function (error, response, body) {
 	    	if (error) {
@@ -368,6 +383,15 @@ helpers.prototype._get = function(url) {
  */
 helpers.prototype._writeData = function(url, fileName) {
 	var self = this;
+	var err = null;
+	
+	if (!this.instance) {
+		err = "Please specify a server URL first";
+	}
+
+	if (!this._username || !this._password) {
+		err = "Please specify a username AND password first.";
+	}
 
 	var headers = {
 	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
@@ -382,6 +406,11 @@ helpers.prototype._writeData = function(url, fileName) {
 	};
 
 	return new Promise((resolve, reject) => {
+		if (err) {
+			reject(err);
+			return;
+		}
+
 		var isPossible = 1;
 
 		try {
@@ -400,7 +429,7 @@ helpers.prototype._writeData = function(url, fileName) {
 				reject(err2);
 			}
 			
-			if (response.statusCode === 200 && isPossible === 1) {
+			if (response.statusCode === 200 && isPossible === 1 && body.split('\n')[0] !== "<!DOCTYPE html>") {
 				resolve(true);
 			}
 			else {
@@ -410,7 +439,12 @@ helpers.prototype._writeData = function(url, fileName) {
 				}
 
 				catch (error) {
-					reject('specified file/folder could not be located');
+					if (body.search("<li class=\"error\">") > -1) {
+						reject('specified file/folder could not be located');
+					}
+					else {
+						reject("Current user is not logged in");
+					}
 				}
 			}
 		})
@@ -641,6 +675,26 @@ helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
  */
 helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 	function getAllFileInfo(path, pathToStore, localPath) {
+		var fl = 0;
+		var baseAddr = pathToStore;
+
+		for (var j=0;j<filesToPut.length;j++) {
+			if (filesToPut[j].path === baseAddr) {
+				fl = 1;
+				break;
+			}
+		}
+
+		if (fl === 0) {
+			var count = filesToPut.length;
+			filesToPut[count] = {};
+			filesToPut[count].path = baseAddr;
+			filesToPut[count].localPath = localPath; ////////
+			filesToPut[count].files = [];
+			count++;
+		}
+
+
 		if (path.slice(-1) !== '/') {
 			path += '/';
 		}
@@ -655,10 +709,10 @@ helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 				getAllFileInfo(path + file + '/', pathToStore + file + '/', localPath + file + '/');
 			}
 			else {
-				var baseAddr = pathToStore;
-				var fl = 0;
+				baseAddr = pathToStore;
+				fl = 0;
 
-				for (var j=0;j<filesToPut.length;j++) {
+				for (j=0;j<filesToPut.length;j++) {
 					if (filesToPut[j].path === baseAddr) {
 						filesToPut[j].files.push(file);
 						fl = 1;
@@ -667,12 +721,12 @@ helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 				}
 
 				if (fl === 0) {
-					var count = filesToPut.length;
-					filesToPut[count] = {};
-					filesToPut[count].path = baseAddr;
-					filesToPut[count].localPath = localPath; ////////
-					filesToPut[count].files = [ file ];
-					count++;
+					var count2 = filesToPut.length;
+					filesToPut[count2] = {};
+					filesToPut[count2].path = baseAddr;
+					filesToPut[count2].localPath = localPath; ////////
+					filesToPut[count2].files = [ file ];
+					count2++;
 				}
 			}
 		}

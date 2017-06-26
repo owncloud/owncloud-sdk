@@ -4,9 +4,12 @@
 
 var express = require("express");
 var owncloud = require("../../js-owncloud-client");
+var configs = require("../swagger.config.js");
 var cors = require('cors');
 var app = express();
-var oc;
+
+var oc = new owncloud(configs.owncloudURL);
+oc.login(configs.username, configs.password);
 
 app.use(express.static('docs-swagger/api/swagger'));
 app.use(express.static('api/swagger'));

@@ -326,7 +326,7 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : non existent getAttribute', function (done) {
-		var key = ['attr2', 'attr+plus space123', '属性12'];
+		var key = ['attr2', 'attr+plus space ', '属性12'];
 		var count = 0;
 
 		for (var i=0;i<key.length;i++) {

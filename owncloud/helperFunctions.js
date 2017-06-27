@@ -100,19 +100,19 @@ helpers.prototype._updateCapabilities = function() {
     var self = this;
     return new Promise((resolve, reject) => {
         self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
-            .then(data => {
-                var body = parser.xml2js(data.body, {
-                    compact: true
-                });
-                body = self._cleanseJson(body).ocs.data;
-
-                self._capabilities = body.capabilities;
-                self._version = body.version.string + '-' + body.version.edition;
-
-                resolve(self._capabilities);
-            }).catch(error => {
-                reject(error);
+        .then(data => {
+            var body = parser.xml2js(data.body, {
+                compact: true
             });
+            body = self._cleanseJson(body).ocs.data;
+
+            self._capabilities = body.capabilities;
+            self._version = body.version.string + '-' + body.version.edition;
+
+            resolve(self._capabilities);
+        }).catch(error => {
+            reject(error);
+        });
     });
 };
 

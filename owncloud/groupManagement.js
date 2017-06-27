@@ -52,8 +52,8 @@ groups.prototype.createGroup = function(groupName) {
 
 /**
  * deletes an existing group
- * @param  	{string} groupName  name of group to be created
- * @returns {Promise.<status>}	boolean: true if successful
+ * @param   {string} groupName  name of group to be created
+ * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.deleteGroup = function(groupName) {
@@ -69,7 +69,7 @@ groups.prototype.deleteGroup = function(groupName) {
 
 /**
  * Gets all groups in the instance
- * @returns {Promise.<groups>}	array: all group-names
+ * @returns {Promise.<groups>}  array: all group-names
  * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.getGroups = function() {
@@ -87,9 +87,9 @@ groups.prototype.getGroups = function() {
 
 /**
  * Gets all the members of a group
- * @param  	{string} groupName 	name of group to list members
+ * @param   {string} groupName  name of group to list members
  * @returns {Promise.<users>}   array: all usernames who are part of the group
- * @returns {Promise.<error>}	string: error message, if any.
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.getGroupMembers = function(groupName) {
     var self = this;
@@ -106,9 +106,9 @@ groups.prototype.getGroupMembers = function(groupName) {
 
 /**
  * checks whether a group exists
- * @param  	{string} groupName 	name of group to check
+ * @param   {string} groupName  name of group to check
  * @returns {Promise.<status>}  boolean: true if group exists
- * @returns {Promise.<error>}	string: error message, if any.
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.groupExists = function(groupName) {
     var self = this;

@@ -40,10 +40,10 @@ function files(helperFile) {
 
 /**
  * Returns the listing/contents of the given remote directory
- * @param   {string}    remotePath	path of the file/folder at OC instance
- * @param   {string}    depth		0: only file/folder, 1: upto 1 depth, infinity: infinite depth
- * @returns {Promise.<fileInfo>}    Array[objects]: each object is an instance of class fileInfo
- * @returns {Promise.<error>} 		string: error message, if any.
+ * @param   {string}    remotePath    path of the file/folder at OC instance
+ * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
+ * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
+ * @returns {Promise.<error>}         string: error message, if any.
  */
 files.prototype.list = function(path, depth) {
     if (path[path.length - 1] !== '/') {
@@ -67,8 +67,8 @@ files.prototype.list = function(path, depth) {
 
 /**
  * Returns the contents of a remote file
- * @param 	{string} remotePath		path of the remote file at OC instance
- * @returns {Promise.<contents>} 	string: contents of file
+ * @param   {string}  remotePath    path of the remote file at OC instance
+ * @returns {Promise.<contents>}    string: contents of file
  * @returns {Promise.<error>}       string: error message, if any.
  */
 files.prototype.getFileContents = function(path) {
@@ -93,9 +93,9 @@ files.prototype.getFileContents = function(path) {
 
 /**
  * Write data into a remote file
- * @param 	{string} remotePath	path of the file at OC instance
- * @param 	{string} content	content to be put
- * @returns {Promise.<status>} 	boolean: whether the operation was successful
+ * @param   {string} remotePath path of the file at OC instance
+ * @param   {string} content    content to be put
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.putFileContents = function(path, content) {
@@ -110,7 +110,7 @@ files.prototype.putFileContents = function(path, content) {
 
 /**
  * Creates a remote directory
- * @param 	{string} remotePath path of the folder to be created at OC instance
+ * @param   {string} remotePath path of the folder to be created at OC instance
  * @returns {Promise.<status>}  boolean: wether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
@@ -130,9 +130,9 @@ files.prototype.mkdir = function(path) {
 
 /**
  * Creates a remote directory
- * @param   {string}    remotePath  path of the folder to be created at OC instance
- * @returns {Promise.<status>} 		boolean: wether the operation was successful
- * @returns {Promise.<error>} 		string: error message, if any.
+ * @param   {string}  remotePath  path of the folder to be created at OC instance
+ * @returns {Promise.<status>}    boolean: wether the operation was successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 files.prototype.createFolder = function(path) {
     if (path[path.length - 1] !== '/') {
@@ -150,9 +150,9 @@ files.prototype.createFolder = function(path) {
 
 /**
  * Deletes a remote file or directory
- * @param 	{string} remotePath	path of the file/folder at OC instance
- * @returns {Promise.<status>}  boolean: wether the operation was successful
- * @returns {Promise.<error>} 	string: error message, if any.
+ * @param   {string}  remotePath  path of the file/folder at OC instance
+ * @returns {Promise.<status>}    boolean: wether the operation was successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 files.prototype.delete = function(path) {
     return new Promise((resolve, reject) => {
@@ -166,9 +166,9 @@ files.prototype.delete = function(path) {
 
 /**
  * Returns the file info for the given remote file
- * @param 	{string}  remotePath	path of the file/folder at OC instance
+ * @param   {string}  remotePath    path of the file/folder at OC instance
  * @returns {Promise.<fileInfo>}    object: instance of class fileInfo
- * @returns {Promise.<error>} 		string: error message, if any.
+ * @returns {Promise.<error>}       string: error message, if any.
  */
 files.prototype.fileInfo = function(path) {
     return new Promise((resolve, reject) => {
@@ -182,9 +182,9 @@ files.prototype.fileInfo = function(path) {
 
 /**
  * Downloads a remote file
- * @param 	{string} remotePath	path of the file at OC instance
- * @param 	{string} localPath	path where to download
- * @returns {Promise.<status>} 	boolean: whether the operation was successful
+ * @param   {string} remotePath path of the file at OC instance
+ * @param   {string} localPath  path where to download
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.getFile = function(path, localPath) {
@@ -206,9 +206,9 @@ files.prototype.getFile = function(path, localPath) {
 
 /**
  * Downloads a remote directory as zip
- * @param 	{string} remotePath	path of the folder at OC instance
- * @param 	{string} localPath	path where to download
- * @returns {Promise.<status>} 	boolean: whether the operation was successful
+ * @param   {string} remotePath path of the folder at OC instance
+ * @param   {string} localPath  path where to download
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.getDirectoryAsZip = function(path, localPath) {
@@ -233,11 +233,11 @@ files.prototype.getDirectoryAsZip = function(path, localPath) {
 
 /**
  * Upload a file
- * @param 	{string}  remotePath path of the file to be created at OC instance
- * @param 	{string}  localPath	 path of the file to be uploaded
- * @param 	{boolean} keepMTime  also update the remote file to the same mtime as the local one, defaults to true
+ * @param   {string}  remotePath path of the file to be created at OC instance
+ * @param   {string}  localPath  path of the file to be uploaded
+ * @param   {boolean} keepMTime  also update the remote file to the same mtime as the local one, defaults to true
  * @returns {Promise.<status>}   boolean: whether the operation was successful
- * @returns {Promise.<error>} 	 string: error message, if any.
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 files.prototype.putFile = function(path, localPath, keepMTime) {
     keepMTime = keepMTime || true;
@@ -265,9 +265,9 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
 
 /**
  * Upload a directory with all its contents
- * @param 	{string} remotePath	path of the folder to be created at OC instance
- * @param 	{string} localPath	path of the folder to be uploaded
- * @returns {Promise.<status>} 	boolean: whether the operation was successful
+ * @param   {string} remotePath path of the folder to be created at OC instance
+ * @param   {string} localPath  path of the folder to be uploaded
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.putDirectory = function(targetPath, localPath) {
@@ -324,10 +324,10 @@ files.prototype.putDirectory = function(targetPath, localPath) {
 
 /**
  * Moves a remote file or directory
- * @param 	{string} source		initial path of file/folder
- * @param 	{string} target		path where to move file/folder finally
+ * @param   {string} source     initial path of file/folder
+ * @param   {string} target     path where to move file/folder finally
  * @returns {Promise.<status>}  boolean: whether the operation was successful
- * @returns {Promise.<error>} 	string: error message, if any.
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.move = function(source, target) {
     return new Promise((resolve, reject) => {
@@ -341,9 +341,9 @@ files.prototype.move = function(source, target) {
 
 /**
  * Copies a remote file or directory
- * @param 	{string} source		initial path of file/folder
- * @param 	{string} target		path where to copy file/folder finally
- * @returns {Promise.<status>} 	boolean: whether the operation was successful
+ * @param   {string} source     initial path of file/folder
+ * @param   {string} target     path where to copy file/folder finally
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.copy = function(source, target) {

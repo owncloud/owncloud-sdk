@@ -94,7 +94,7 @@ helpers.prototype.getCapabilities = function() {
 /**
  * Updates the capabilities of user logging in.
  * @returns {Promise.<capabilities>}    object: all capabilities
- * @returns {Promise.<error>}			string: error message, if any.
+ * @returns {Promise.<error>}           string: error message, if any.
  */
 helpers.prototype._updateCapabilities = function() {
     var self = this;
@@ -118,11 +118,11 @@ helpers.prototype._updateCapabilities = function() {
 
 /**
  * Makes an OCS API request.
- * @param 	{string} method 	method of request (GET, POST etc.)
- * @param 	{string} service	service (cloud, privatedata etc.)
- * @param 	{string} action		action (apps?filter=enabled, capabilities etc.)
- * @param 	{string} [data]		formData for POST and PUT requests
- * @returns {Promise.<data>}	object: {response: response, body: request body}
+ * @param   {string} method     method of request (GET, POST etc.)
+ * @param   {string} service    service (cloud, privatedata etc.)
+ * @param   {string} action     action (apps?filter=enabled, capabilities etc.)
+ * @param   {string} [data]     formData for POST and PUT requests
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
  * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._makeOCSrequest = function(method, service, action, data) {
@@ -216,11 +216,11 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
 
 /**
  * Makes a DAV request.
- * @param 	{string} method 		 method of request (PROPFIND, MKCOL etc.)
- * @param 	{string} path		     path of file/folder
- * @param 	{object} [headerData]    headerData to be set before the request
- * @param 	{object} [body]		     body of request
- * @returns {Promise.<body>}	     string: parsed response
+ * @param   {string} method          method of request (PROPFIND, MKCOL etc.)
+ * @param   {string} path            path of file/folder
+ * @param   {object} [headerData]    headerData to be set before the request
+ * @param   {object} [body]          body of request
+ * @returns {Promise.<body>}         string: parsed response
  * @returns {Promise.<error>}        string: error message, if any.
  */
 helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
@@ -332,8 +332,8 @@ helpers.prototype._parseDAVelement = function(item) {
 
 /**
  * performs a simple GET request
- * @param  	{string}    url 	url to perform GET on
- * @returns {Promise.<data>}	object: {response: response, body: request body}
+ * @param   {string}    url     url to perform GET on
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
  * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._get = function(url) {
@@ -381,9 +381,9 @@ helpers.prototype._get = function(url) {
 
 /**
  * performs a GET request and writes the output into a file
- * @param  	{string}  url 		url to perform GET on
- * @param   {string}  fileName 	name of the file to write the response into
- * @returns {Promise.<data>}	object: {response: response, body: request body}
+ * @param   {string}  url       url to perform GET on
+ * @param   {string}  fileName  name of the file to write the response into
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
  * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._writeData = function(url, fileName) {
@@ -459,10 +459,10 @@ helpers.prototype._writeData = function(url, fileName) {
 
 /**
  * performs a PUT request from a file
- * @param  	{string} path 		path where to put at OC instance
- * @param  	{string} localPath  path of the file to read the data from
- * @param  	{object} headers	extra headers to add for the PUT request
- * @returns {Promise.<data>}	object: {response: response, body: request body}
+ * @param   {string} path       path where to put at OC instance
+ * @param   {string} localPath  path of the file to read the data from
+ * @param   {object} headers    extra headers to add for the PUT request
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
  * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._readFile = function(path, localPath, headers) {
@@ -499,7 +499,7 @@ helpers.prototype._readFile = function(path, localPath, headers) {
 /**
  * checks whether a path's extension is ".ZIP"
  * @param   {string}    path    path to check
- * @return 	{boolean}           true if extension is ".ZIP"
+ * @return  {boolean}           true if extension is ".ZIP"
  */
 helpers.prototype._checkExtensionZip = function(path) {
     var extension = path.slice(-4);
@@ -526,8 +526,8 @@ helpers.prototype._parseDAVerror = function(body) {
 
 /**
  * Checks whether a response body is valid XML
- * @param  	{string}    body    the response to be checked
- * @return  {Boolean}  			true if valid XML, else false
+ * @param   {string}    body    the response to be checked
+ * @return  {Boolean}           true if valid XML, else false
  */
 helpers.prototype._isValidXML = function(body) {
     try {
@@ -540,8 +540,8 @@ helpers.prototype._isValidXML = function(body) {
 
 /**
  * Checks whether a response body is valid JSON
- * @param  	{string}    body    the response to be checked
- * @return  {Boolean}      		true if valid JSON, else false
+ * @param   {string}    body    the response to be checked
+ * @return  {Boolean}           true if valid JSON, else false
  */
 helpers.prototype._isValidJSON = function(body) {
     try {
@@ -554,8 +554,8 @@ helpers.prototype._isValidJSON = function(body) {
 
 /**
  * Makes sure path starts with a '/'
- * @param 	{string}    path    to the remote file share
- * @returns {string}			normalized path
+ * @param   {string}    path    to the remote file share
+ * @returns {string}            normalized path
  */
 helpers.prototype._normalizePath = function(path) {
     if (!path) {
@@ -575,9 +575,9 @@ helpers.prototype._normalizePath = function(path) {
 
 /**
  * Checks the status code of an OCS request
- * @param 	{object} json				         parsed response
- * @param 	{array}  [acceptedCodes = [100] ]    array containing accepted codes
- * @returns {string} 							 error message or NULL
+ * @param   {object} json                         parsed response
+ * @param   {array}  [acceptedCodes = [100] ]     array containing accepted codes
+ * @returns {string}                              error message or NULL
  */
 helpers.prototype._checkOCSstatus = function(json, acceptedCodes) {
     if (!acceptedCodes) {
@@ -604,8 +604,8 @@ helpers.prototype._checkOCSstatus = function(json, acceptedCodes) {
 
 /**
  * Returns the status code of the xml response
- * @param  	{object}    json    parsed response
- * @return  {integer}		    status-code
+ * @param   {object}    json    parsed response
+ * @return  {integer}           status-code
  */
 helpers.prototype._checkOCSstatusCode = function(json) {
     if (json.ocs) {
@@ -617,8 +617,8 @@ helpers.prototype._checkOCSstatusCode = function(json) {
 
 /**
  * Encodes the string according to UTF-8 standards
- * @param 	{string}    path    path to be encoded
- * @returns {string} 		    encoded path
+ * @param   {string}    path    path to be encoded
+ * @returns {string}            encoded path
  */
 helpers.prototype._encodeString = function(path) {
     return utf8.encode(path);
@@ -626,8 +626,8 @@ helpers.prototype._encodeString = function(path) {
 
 /**
  * converts all of object's "true" or "false" entries to booleans
- * @param  	{object}    object  object to be typcasted
- * @return  {object} 			typecasted object
+ * @param   {object}    object  object to be typcasted
+ * @return  {object}            typecasted object
  */
 helpers.prototype._convertObjectToBool = function(object) {
     if (typeof(object) !== "object") {
@@ -665,8 +665,8 @@ helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
 
 /**
  * Recursive listing of all files and sub-folders
- * @param 	{string}  path         local path to be recursively listed
- * @param  	{string}  pathToStore  path to be stored at the OC instance
+ * @param   {string}  path         local path to be recursively listed
+ * @param   {string}  pathToStore  path to be stored at the OC instance
  * @returns {array}                array of objects : {
  *                                       path: path of the folder to be stored
  *                                       at the OC instance,
@@ -771,8 +771,8 @@ helpers.prototype._getAllFileInfo = function(path, pathToStore) {
 
 /**
  * gets the MTime of a file/folder
- * @param  	{string}    path    path of the file/folder
- * @returns {Date}      		MTime
+ * @param   {string}    path    path of the file/folder
+ * @returns {Date}              MTime
  */
 helpers.prototype._getMTime = function(path) {
     var info = fs.statSync(path);
@@ -781,8 +781,8 @@ helpers.prototype._getMTime = function(path) {
 
 /**
  * gets the size of a file/folder
- * @param  	{string}    path    path of the file/folder
- * @returns {integer}      		size of folder
+ * @param   {string}    path    path of the file/folder
+ * @returns {integer}           size of folder
  */
 helpers.prototype._getFileSize = function(path) {
     var info = fs.statSync(path);
@@ -791,11 +791,11 @@ helpers.prototype._getFileSize = function(path) {
 
 /**
  * performs a PUT request from a file
- * @param  	{string}  source 	source path of the file to move/copy
- * @param  	{string}  target 	target path of the file to move/copy
- * @param  	{object}  headers	extra headers to add for the PUT request
- * @returns {Promise.<status>}  boolean: whether the operation was successful
- * @returns {Promise.<error>}	string: error message, if any.
+ * @param   {string}  source     source path of the file to move/copy
+ * @param   {string}  target     target path of the file to move/copy
+ * @param   {object}  headers    extra headers to add for the PUT request
+ * @returns {Promise.<status>}   boolean: whether the operation was successful
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 helpers.prototype._webdavMoveCopy = function(source, target, method) {
     var self = this;

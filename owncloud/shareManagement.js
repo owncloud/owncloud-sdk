@@ -14,8 +14,8 @@ var helpers;
  * <b><i> The shares class, has all the methods for share management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
- * 	<li><b>Share Management</b>
- *  	<ul>
+ *     <li><b>Share Management</b>
+ *      <ul>
  *          <li>shareFileWithLink</li>
  *          <li>updateShare</li>
  *          <li>shareFileWithUser</li>
@@ -41,10 +41,10 @@ function shares(helperFile) {
 
 /**
  * Shares a remote file with link
- * @param 	{string}    path 			path to the remote file share
- * @param  	{object}    optionalParams  {perms: integer, publicUpload: boolean, password: string}
- * @returns {Promise.<shareInfo>}       instance of class shareInfo
- * @returns {Promise.<error>} 		    string: error message, if any.
+ * @param   {string}    path             path to the remote file share
+ * @param   {object}    optionalParams   {perms: integer, publicUpload: boolean, password: string}
+ * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<error>}            string: error message, if any.
  */
 shares.prototype.shareFileWithLink = function(path, optionalParams) {
     path = helpers._normalizePath(path);
@@ -87,10 +87,10 @@ shares.prototype.shareFileWithLink = function(path, optionalParams) {
 
 /**
  * Shares a remote file with specified user
- * @param 	{string} 	path 			path to the remote file share
- * @param  	{object}    optionalParams  {perms: integer, remoteUser: boolean}
- * @returns {Promise.<shareInfo>}       instance of class shareInfo
- * @returns {Promise.<error>} 			string: error message, if any.
+ * @param   {string}    path             path to the remote file share
+ * @param   {object}    optionalParams   {perms: integer, remoteUser: boolean}
+ * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<error>}            string: error message, if any.
  */
 shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     path = helpers._normalizePath(path);
@@ -130,10 +130,10 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
 
 /**
  * Shares a remote file with specified group
- * @param 	{string} 	path 			path to the remote file share
- * @param  	{object}    optionalParams  {perms: integer}
- * @returns {Promise.<shareInfo>} 		instance of class shareInfo
- * @returns {Promise.<error>} 			string: error message, if any.
+ * @param   {string}    path             path to the remote file share
+ * @param   {object}    optionalParams   {perms: integer}
+ * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<error>}            string: error message, if any.
  */
 shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) {
     path = helpers._normalizePath(path);
@@ -165,11 +165,11 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
 
 /**
  * Returns array of shares
- * @param  	{string}   	path           	path to the file whose share needs to be checked
- * @param  	{object}    optionalParams  object of values {"reshares": boolean,
- *                                      "subfiles": boolean, "shared_with_me": boolean}
- * @returns {Promise.<shareInfo>} 		Array of instances of class shareInfo for all shares
- * @returns {Promise.<error>} 			string: error message, if any.
+ * @param   {string}  path            path to the file whose share needs to be checked
+ * @param   {object}  optionalParams  object of values {"reshares": boolean,
+ *                                    "subfiles": boolean, "shared_with_me": boolean}
+ * @returns {Promise.<shareInfo>}     Array of instances of class shareInfo for all shares
+ * @returns {Promise.<error>}         string: error message, if any.
  */
 shares.prototype.getShares = function(path, optionalParams) {
     var data = 'shares';
@@ -234,9 +234,9 @@ shares.prototype.getShares = function(path, optionalParams) {
 
 /**
  * Checks wether a path is already shared
- * @param  	{string}    path    path to the share to be checked
+ * @param   {string}    path    path to the share to be checked
  * @returns {Promise.<status>}  boolean: true if shared
- * @returns {Promise.<error>} 	string: error message, if any.
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 shares.prototype.isShared = function(path) {
     var self = this;
@@ -253,9 +253,9 @@ shares.prototype.isShared = function(path) {
 
 /**
  * Gets share information about known share
- * @param  	{integer}   shareId     ID of the share to be checked
+ * @param   {integer}   shareId     ID of the share to be checked
  * @returns {Promise.<shareInfo>}   instance of class shareInfo
- * @returns {Promise.<error>} 		string: error message, if any.
+ * @returns {Promise.<error>}       string: error message, if any.
  */
 shares.prototype.getShare = function(shareId) {
     return new Promise((resolve, reject) => {
@@ -281,7 +281,7 @@ shares.prototype.getShare = function(shareId) {
 /**
  * List all pending remote share
  * @returns {Promise.<shares>}  all open remote shares
- * @returns {Promise.<error>} 	string: error message, if any.
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.listOpenRemoteShare = function() {
     return new Promise((resolve, reject) => {
@@ -300,9 +300,9 @@ shares.prototype.listOpenRemoteShare = function() {
 
 /**
  * Accepts a remote share
- * @param  	{integer}   shareId   ID of the share to accept
- * @returns {Promise.<status>} 	  boolean: true if successful
- * @returns {Promise.<error>} 	  string: error message, if any.
+ * @param   {integer}   shareId   ID of the share to accept
+ * @returns {Promise.<status>}    boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.acceptRemoteShare = function(shareId) {
     return new Promise((resolve, reject) => {
@@ -324,9 +324,9 @@ shares.prototype.acceptRemoteShare = function(shareId) {
 
 /**
  * Declines a remote share
- * @param  	{integer}   shareId   ID of the share to decline
+ * @param   {integer}   shareId   ID of the share to decline
  * @returns {Promise.<status>}    boolean: true if successful
- * @returns {Promise.<error>} 	  string: error message, if any.
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.declineRemoteShare = function(shareId) {
     return new Promise((resolve, reject) => {
@@ -348,10 +348,10 @@ shares.prototype.declineRemoteShare = function(shareId) {
 
 /**
  * Updates a given share
- * @param 	{integer}	shareId		   	ID of the share to update
- * @param  	{object}    optionalParams  {perms: integer, publicUpload: boolean, password: string}
- * @returns {Promise.<status>} 			boolean: true if successful
- * @returns {Promise.<error>} 			string: error message, if any.
+ * @param   {integer}  shareId         ID of the share to update
+ * @param   {object}   optionalParams  {perms: integer, publicUpload: boolean, password: string}
+ * @returns {Promise.<status>}         boolean: true if successful
+ * @returns {Promise.<error>}          string: error message, if any.
  */
 shares.prototype.updateShare = function(shareId, optionalParams) {
     var postData = {};
@@ -383,8 +383,8 @@ shares.prototype.updateShare = function(shareId, optionalParams) {
 
 /**
  * Deletes a share
- * @param  	{integer}   shareId   ID of the share to delete
- * @returns {Promise.<status>} 	  boolean: true if successful
+ * @param   {integer}   shareId   ID of the share to delete
+ * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.deleteShare = function(shareId) {

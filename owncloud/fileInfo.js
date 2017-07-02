@@ -53,7 +53,7 @@ fileInfo.prototype.getPath = function() {
  * @returns {integer}   Size of file/folder
  */
 fileInfo.prototype.getSize = function() {
-    return parseInt(this.fileInfo.getcontentlength) || null;
+	return parseInt(this.fileInfo['d:getcontentlength']) || null;
 };
 
 /**
@@ -61,7 +61,7 @@ fileInfo.prototype.getSize = function() {
  * @returns {string}    ETag of file/folder
  */
 fileInfo.prototype.getETag = function() {
-    return this.fileInfo.getetag || null;
+	return this.fileInfo['d:getetag'] || null;
 };
 
 /**
@@ -69,11 +69,11 @@ fileInfo.prototype.getETag = function() {
  * @returns {string}    content-type of file/folder
  */
 fileInfo.prototype.getContentType = function() {
-    var type = this.fileInfo.getcontenttype;
-    if (this.isDir()) {
-        type = 'httpd/unix-directory';
-    }
-    return type;
+	var type = this.fileInfo['d:getcontenttype'];
+	if (this.isDir()) {
+		type = 'httpd/unix-directory';
+	}
+	return type;
 };
 
 /**
@@ -81,7 +81,7 @@ fileInfo.prototype.getContentType = function() {
  * @returns {integer}   Last modified time of file/folder
  */
 fileInfo.prototype.getLastModified = function() {
-    return new Date(this.fileInfo.getlastmodified);
+	return new Date(this.fileInfo['d:getlastmodified']);
 };
 
 /**

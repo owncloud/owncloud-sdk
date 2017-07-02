@@ -44,7 +44,7 @@ var testSubFiles	 = [
 					   testFolder + '/' + 'zz+z.txt',
 					   testFolder + '/' + '中文.txt',
 					   testFolder + '/' + 'abc.txt',
-					   testFolder + '/' + 'subdir/in dir.txt' 
+					   testFolder + '/' + 'subdir/in dir.txt'
 					   ];
 
 // CREATED SHARES
@@ -254,11 +254,11 @@ describe("Currently testing getConfig, getVersion and getCapabilities", function
 		oc.getCapabilities().then(capabilities => {
 			expect(capabilities).not.toBe(null);
 			expect(typeof(capabilities)).toBe('object');
-			
+
 			// Files App is never disabled
 			expect(capabilities.files).not.toBe(null);
 			expect(capabilities.files).not.toBe(undefined);
-			
+
 			// Big file chunking of files app is always on
 			expect(parseInt(capabilities.files.bigfilechunking)).toEqual(1);
 			done();
@@ -326,7 +326,7 @@ describe("Currently testing apps management,", function () {
 	});
 
 	it('checking method : non existent getAttribute', function (done) {
-		var key = ['attr2', 'attr+plus space123', '属性12'];
+		var key = ['attr2', 'attr+plus space ', '属性12'];
 		var count = 0;
 
 		for (var i=0;i<key.length;i++) {
@@ -475,7 +475,7 @@ describe("Currently testing file/folder sharing,", function () {
 		oc.login(username, password);
 	});
 
-	it('checking method : shareFileWithLink with existent file', function (done) {		
+	it('checking method : shareFileWithLink with existent file', function (done) {
 		for (var i=0;i<testFiles.length;i++) {
 			oc.shares.shareFileWithLink(testFiles[i]).then(share => {
 				expect(share).not.toBe(null);
@@ -726,7 +726,7 @@ describe("Currently testing file/folder sharing,", function () {
 			}
 			expect(error.toLowerCase()).toBe(check);
 			done();
-		});	
+		});
 	});
 
 	it('checking method : updateShare for existent share, confirming changed permissions', function (done) {
@@ -837,12 +837,12 @@ describe("Currently testing file/folder sharing,", function () {
 		for (var key in sharedFilesWithUser) {
 			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
 				expect(typeof(share)).toBe("object");
-				
+
 				var shareIDtoRemove = allShareIDs.indexOf(this.id);
 				if (shareIDtoRemove > -1)  {
 					allShareIDs.splice(shareIDtoRemove, 1);
 				}
-				
+
 				oc.shares.deleteShare(share.getId()).then(status => {
 					expect(status).toBe(true);
 					oc.shares.getShare(share.getId()).then(share => {
@@ -1161,7 +1161,7 @@ describe("Currently testing user management,", function () {
 	it('checking method : addUserToSubadminGroup with existent user, existent group', function (done) {
 		oc.users.addUserToSubadminGroup(testUser, testGroup).then(status => {
 			expect(status).toBe(true);
-			return oc.users.userIsInSubadminGroup(testUser, testGroup);			
+			return oc.users.userIsInSubadminGroup(testUser, testGroup);
 		}).then(status => {
 			expect(status).toBe(true);
 			done();
@@ -1541,7 +1541,7 @@ describe("Currently testing files management,", function () {
 	});
 
 	// method : fileInfo is simply calling the method "list", hence no tests needed
-	
+
 	it('checking method : getFile for an existent file', function (done) {
 		var file = 'tempFile' + timeRightNow;
 		oc.files.putFileContents(file, testContent).then(status => {
@@ -1549,11 +1549,11 @@ describe("Currently testing files management,", function () {
 			return oc.files.getFile(file, downloadBasePath + file);
 		}).then(status2 => {
 			expect(status2).toBe(true);
-			
+
 			fs.readFile(downloadBasePath + file, function (err, data) {
 				expect(err).toBe(null);
 				expect(data.toString()).toEqual(testContent);
-				
+
 				oc.files.delete(file).then(status3 => {
 					expect(status3).toBe(true);
 					done();
@@ -1670,7 +1670,7 @@ describe("Currently testing files management,", function () {
 			expect(error.toString()).toBe(
 				"Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'"
 			);
-			done();	
+			done();
 		}
 	});
 

@@ -18,22 +18,23 @@ var oc;
 
 // TESTING CONFIGS
 var testUserPassword = 'password';
-var testContent 	 = 'testContent';
-var username 		 =  config.username;
-var password 		 =  config.password;
-var downloadBasePath =  __dirname + '/testDownloadDir/';
-var localFile		 =  downloadBasePath + 'file' + timeRightNow + '.txt';
-var owncloudURL 	 =  config.owncloudURL;
-var testUser    	 = 'testUser' + timeRightNow;
-var testGroup   	 = 'testGroup' + timeRightNow;
-var testFolder  	 = '/testFolder' + timeRightNow;
-var testSubDir 		 =  testFolder + '/' + 'subdir';
-var nonExistingDir	 =  testFolder + '/' + 'nonExistingDir';
-var testApp     	 = 'someAppName' + timeRightNow;
-var nonExistingApp   = 'nonExistingApp' + timeRightNow;
-var nonExistingFile  = 'nonExistingFile' + timeRightNow;
-var nonExistingUser  = 'nonExistingUser' + timeRightNow;
+var testContent = 'testContent';
+var username = config.username;
+var password = config.password;
+var downloadBasePath = __dirname + '/testDownloadDir/';
+var localFile = downloadBasePath + 'file' + timeRightNow + '.txt';
+var owncloudURL = config.owncloudURL;
+var testUser = 'testUser' + timeRightNow;
+var testGroup = 'testGroup' + timeRightNow;
+var testFolder = '/testFolder' + timeRightNow;
+var testSubDir = testFolder + '/' + 'subdir';
+var nonExistingDir = testFolder + '/' + 'nonExistingDir';
+var testApp = 'someAppName' + timeRightNow;
+var nonExistingApp = 'nonExistingApp' + timeRightNow;
+var nonExistingFile = 'nonExistingFile' + timeRightNow;
+var nonExistingUser = 'nonExistingUser' + timeRightNow;
 var nonExistingGroup = 'nonExistingGroup' + timeRightNow;
+
 var testFiles   	 = [
 					   '/文件' + timeRightNow + '.txt',
 					   '/test' + timeRightNow + '.txt',
@@ -59,166 +60,166 @@ var OCS_PERMISSION_UPDATE = 2;
 var OCS_PERMISSION_CREATE = 4;
 var OCS_PERMISSION_SHARE = 16;
 
-describe("Currently creating all requirements for running tests,", function () {
-	beforeEach(function (done) {
-		oc = new ownCloud(owncloudURL);
-		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
-			done();
-		});
-	});
+describe("Currently creating all requirements for running tests,", function() {
+    beforeEach(function(done) {
+        oc = new ownCloud(owncloudURL);
+        oc.login(username, password).then(status => {
+            expect(status).toBe(true);
+            done();
+        });
+    });
 
-	it('creating test user', function (done) {
-		oc.users.createUser(testUser, testUserPassword).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('creating test user', function(done) {
+        oc.users.createUser(testUser, testUserPassword).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('creating test group', function (done) {
-		oc.groups.createGroup(testGroup).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('creating test group', function(done) {
+        oc.groups.createGroup(testGroup).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('creating test files', function (done) {
-		var count = 0;
-		for (var i=0;i<testFiles.length;i++) {
-			oc.files.putFileContents(testFiles[i], testContent).then(status => {
-				expect(status).toBe(true);
-				count++;
-				if (count === testFiles.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+    it('creating test files', function(done) {
+        var count = 0;
+        for (var i = 0; i < testFiles.length; i++) {
+            oc.files.putFileContents(testFiles[i], testContent).then(status => {
+                expect(status).toBe(true);
+                count++;
+                if (count === testFiles.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('creating test folder', function (done) {
-		oc.files.createFolder(testFolder).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('creating test folder', function(done) {
+        oc.files.createFolder(testFolder).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('creating subDirectory under testFolder', function (done) {
-		oc.files.mkdir(testSubDir).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('creating subDirectory under testFolder', function(done) {
+        oc.files.mkdir(testSubDir).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('creating files under testFolder', function (done) {
-		var count = 0;
+    it('creating files under testFolder', function(done) {
+        var count = 0;
 
-		for (var i=0;i<testSubFiles.length;i++) {
-			oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
-				expect(status).toBe(true);
-				count++;
-				if (count === testSubFiles.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+        for (var i = 0; i < testSubFiles.length; i++) {
+            oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
+                expect(status).toBe(true);
+                count++;
+                if (count === testSubFiles.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('creating a local file to upload later', function (done) {
-		fs.writeFile(localFile, testContent, function (err) {
-			expect(err).toBe(null);
-			done();
-		});
-	});
+    it('creating a local file to upload later', function(done) {
+        fs.writeFile(localFile, testContent, function(err) {
+            expect(err).toBe(null);
+            done();
+        });
+    });
 });
 
 describe("Currently testing Login and initLibrary,", function() {
-	beforeEach(function () {
-		oc = null;
-	});
+    beforeEach(function() {
+        oc = null;
+    });
 
-	it('checking method : initLibrary to be null', function () {
-		expect(oc).toBe(null);
-	});
+    it('checking method : initLibrary to be null', function() {
+        expect(oc).toBe(null);
+    });
 
-	it('checking method : initLibrary', function () {
-		oc = new ownCloud('someRandomName');
+    it('checking method : initLibrary', function() {
+        oc = new ownCloud('someRandomName');
 
-		expect(oc).not.toBe(null);
-	});
+        expect(oc).not.toBe(null);
+    });
 
-	it('checking method : login with a non existent instance URL', function(done) {
-		oc = new ownCloud('someRandomName');
+    it('checking method : login with a non existent instance URL', function(done) {
+        oc = new ownCloud('someRandomName');
 
-		oc.login(username, password).then(status => {
-			expect(status).toBe(null);
-			done();
-		}).catch(error => {
-			expect(error).toBe("Please provide a valid owncloud instance");
-			done();
-		});
-	});
+        oc.login(username, password).then(status => {
+            expect(status).toBe(null);
+            done();
+        }).catch(error => {
+            expect(error).toBe("Please provide a valid owncloud instance");
+            done();
+        });
+    });
 
-	it('checking method : login with wrong username and password', function(done) {
-		oc = new ownCloud(owncloudURL);
+    it('checking method : login with wrong username and password', function(done) {
+        oc = new ownCloud(owncloudURL);
 
-		oc.login(nonExistingUser, 'password' + timeRightNow).then(status => {
-			expect(status).tobe(null);
-			done();
-		}).catch(error => {
-			var check = 'Current user is not logged in';
-			if (error === 'Unauthorised') {
-				check = 'Unauthorised';
-			}
-			expect(error).toBe(check);
-			done();
-		});
-	});
+        oc.login(nonExistingUser, 'password' + timeRightNow).then(status => {
+            expect(status).tobe(null);
+            done();
+        }).catch(error => {
+            var check = 'Current user is not logged in';
+            if (error === 'Unauthorised') {
+                check = 'Unauthorised';
+            }
+            expect(error).toBe(check);
+            done();
+        });
+    });
 
-	it('checking method : login with correct username only', function(done) {
-		oc = new ownCloud(owncloudURL);
+    it('checking method : login with correct username only', function(done) {
+        oc = new ownCloud(owncloudURL);
 
-		oc.login(username, 'password' + timeRightNow).then(status => {
-			expect(status).tobe(null);
-			done();
-		}).catch(error => {
-			var check = 'Current user is not logged in';
-			if (error === 'Unauthorised') {
-				check = 'Unauthorised';
-			}
-			expect(error).toBe(check);
-			done();
-		});
-	});
+        oc.login(username, 'password' + timeRightNow).then(status => {
+            expect(status).tobe(null);
+            done();
+        }).catch(error => {
+            var check = 'Current user is not logged in';
+            if (error === 'Unauthorised') {
+                check = 'Unauthorised';
+            }
+            expect(error).toBe(check);
+            done();
+        });
+    });
 
-	it('checking method : login with correct username and password', function(done) {
-		oc = new ownCloud(owncloudURL);
+    it('checking method : login with correct username and password', function(done) {
+        oc = new ownCloud(owncloudURL);
 
-		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+        oc.login(username, password).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 });
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function () {
@@ -269,204 +270,204 @@ describe("Currently testing getConfig, getVersion and getCapabilities", function
 	});
 });
 
-describe("Currently testing apps management,", function () {
-	beforeEach(function () {
-		oc = new ownCloud(owncloudURL);
-		oc.login(username, password);
-	});
+describe("Currently testing apps management,", function() {
+    beforeEach(function() {
+        oc = new ownCloud(owncloudURL);
+        oc.login(username, password);
+    });
 
-	it('checking method : getApps', function (done) {
-		oc.apps.getApps().then(apps => {
-			expect(apps).not.toBe(null);
-			expect(typeof(apps)).toBe('object');
-			expect(apps.files).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : getApps', function(done) {
+        oc.apps.getApps().then(apps => {
+            expect(apps).not.toBe(null);
+            expect(typeof(apps)).toBe('object');
+            expect(apps.files).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : setAttribute', function (done) {
-		var key = ['attr1', 'attr+plus space', '属性1'];
-		var value = ['value1', 'value+plus space and/slash', '值对1'];
-		var count = 0;
+    it('checking method : setAttribute', function(done) {
+        var key = ['attr1', 'attr+plus space', '属性1'];
+        var value = ['value1', 'value+plus space and/slash', '值对1'];
+        var count = 0;
 
-		for (var i=0;i<key.length;i++) {
-			oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
-				expect(status).toBe(true);
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+        for (var i = 0; i < key.length; i++) {
+            oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
+                expect(status).toBe(true);
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('checking method : valid getAttribute', function (done) {
-		var key = ['attr1', 'attr+plus space', '属性1'];
-		var value = ['value1', 'value+plus space and/slash', '值对1'];
-		var count = 0;
+    it('checking method : valid getAttribute', function(done) {
+        var key = ['attr1', 'attr+plus space', '属性1'];
+        var value = ['value1', 'value+plus space and/slash', '值对1'];
+        var count = 0;
 
-		for (var i=0;i<key.length;i++) {
-			oc.apps.getAttribute(testApp, key[i]).then(data => {
-				expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1);
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+        for (var i = 0; i < key.length; i++) {
+            oc.apps.getAttribute(testApp, key[i]).then(data => {
+                expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1);
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('checking method : non existent getAttribute', function (done) {
-		var key = ['attr2', 'attr+plus space ', '属性12'];
-		var count = 0;
+    it('checking method : non existent getAttribute', function(done) {
+        var key = ['attr2', 'attr+plus space ', '属性12'];
+        var count = 0;
 
-		for (var i=0;i<key.length;i++) {
-			oc.apps.getAttribute(testApp, key[i]).then(data => {
-				expect(data).toEqual(null);
-				done();
-			}).catch(error => {
-				var fl = 0;
-				for (var j=0;j<key.length;j++) {
-					if (error === testApp + ' has no key named "' + key[j] + '"') {
-						fl = 1;
-					}
-				}
-				expect(fl).toBe(1);
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			});
-		}
-	});
+        for (var i = 0; i < key.length; i++) {
+            oc.apps.getAttribute(testApp, key[i]).then(data => {
+                expect(data).toEqual(null);
+                done();
+            }).catch(error => {
+                var fl = 0;
+                for (var j = 0; j < key.length; j++) {
+                    if (error === testApp + ' has no key named "' + key[j] + '"') {
+                        fl = 1;
+                    }
+                }
+                expect(fl).toBe(1);
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            });
+        }
+    });
 
-	it('checking method : getAttribute without key', function (done) {
-		var key = ['attr1', 'attr+plus space', '属性1'];
-		var value = ['value1', 'value+plus space and/slash', '值对1'];
-		var count = 0;
+    it('checking method : getAttribute without key', function(done) {
+        var key = ['attr1', 'attr+plus space', '属性1'];
+        var value = ['value1', 'value+plus space and/slash', '值对1'];
+        var count = 0;
 
-		oc.apps.getAttribute(testApp).then(allAttributes => {
-			for (var i=0;i<key.length;i++) {
-				expect(typeof(allAttributes)).toBe('object');
-				expect(utf8.encode(key[i]) in allAttributes).toBe(true);
-				var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])]);
-				expect(value.indexOf(ocValue)).toBeGreaterThan(-1);
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			}
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+        oc.apps.getAttribute(testApp).then(allAttributes => {
+            for (var i = 0; i < key.length; i++) {
+                expect(typeof(allAttributes)).toBe('object');
+                expect(utf8.encode(key[i]) in allAttributes).toBe(true);
+                var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])]);
+                expect(value.indexOf(ocValue)).toBeGreaterThan(-1);
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            }
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : setAttribute with empty value', function (done) {
-		var key = ['attr1', 'attr+plus space', '属性1'];
-		var count = 0;
-		for (var i=0;i<key.length;i++) {
-			oc.apps.setAttribute(testApp, key[i], '').then(status => {
-				expect(status).toBe(true);
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+    it('checking method : setAttribute with empty value', function(done) {
+        var key = ['attr1', 'attr+plus space', '属性1'];
+        var count = 0;
+        for (var i = 0; i < key.length; i++) {
+            oc.apps.setAttribute(testApp, key[i], '').then(status => {
+                expect(status).toBe(true);
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('checking method : setAttribute confirming empty value', function (done) {
-		var key = ['attr1', 'attr+plus space', '属性1'];
-		var count = 0;
-		for (var i=0;i<key.length;i++) {
-			oc.apps.getAttribute(testApp, key[i], '').then(attr => {
-				expect(attr).toBe('');
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+    it('checking method : setAttribute confirming empty value', function(done) {
+        var key = ['attr1', 'attr+plus space', '属性1'];
+        var count = 0;
+        for (var i = 0; i < key.length; i++) {
+            oc.apps.getAttribute(testApp, key[i], '').then(attr => {
+                expect(attr).toBe('');
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('checking method : deleteAttribute', function (done) {
-		var key = ['attr1', 'attr+plus space', '属性1'];
-		var count = 0;
+    it('checking method : deleteAttribute', function(done) {
+        var key = ['attr1', 'attr+plus space', '属性1'];
+        var count = 0;
 
-		for (var i=0;i<key.length;i++) {
-			oc.apps.deleteAttribute(testApp, key[i]).then(status => {
-				expect(status).toBe(true);
-				count++;
-				if (count === key.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
+        for (var i = 0; i < key.length; i++) {
+            oc.apps.deleteAttribute(testApp, key[i]).then(status => {
+                expect(status).toBe(true);
+                count++;
+                if (count === key.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
 
-	it('checking method : enableApp when app exists', function (done) {
-		oc.apps.enableApp('files').then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : enableApp when app exists', function(done) {
+        oc.apps.enableApp('files').then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : disableApp when app exists', function (done) {
-		oc.apps.disableApp('files').then(status => {
-			expect(status).toBe(true);
+    it('checking method : disableApp when app exists', function(done) {
+        oc.apps.disableApp('files').then(status => {
+            expect(status).toBe(true);
 
-			// Re-Enabling the Files App
-			return oc.apps.enableApp('files');
-		}).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+            // Re-Enabling the Files App
+            return oc.apps.enableApp('files');
+        }).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : enableApp when app doesn\'t exist', function (done) {
-		oc.apps.enableApp(nonExistingApp).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toEqual('No app found by the name "' + nonExistingApp + '"');
-			done();
-		});
-	});
+    it('checking method : enableApp when app doesn\'t exist', function(done) {
+        oc.apps.enableApp(nonExistingApp).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toEqual('No app found by the name "' + nonExistingApp + '"');
+            done();
+        });
+    });
 
-	it('checking method : disableApp when app doesn\'t exist', function (done) {
-		oc.apps.disableApp(nonExistingApp).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : disableApp when app doesn\'t exist', function(done) {
+        oc.apps.disableApp(nonExistingApp).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 });
 
 describe("Currently testing file/folder sharing,", function () {
@@ -1271,91 +1272,91 @@ describe("Currently testing user management,", function () {
 	});
 });
 
-describe("Currently testing group management,", function () {
-	beforeEach(function () {
-		oc = new ownCloud(owncloudURL);
-		oc.login(username, password);
-	});
+describe("Currently testing group management,", function() {
+    beforeEach(function() {
+        oc = new ownCloud(owncloudURL);
+        oc.login(username, password);
+    });
 
-	it('checking method : createGroup', function (done) {
-		oc.groups.createGroup('newGroup' + timeRightNow).then(status => {
-			expect(status).toBe(true);
-			return oc.groups.groupExists('newGroup' + timeRightNow);
-		}).then(status => {
-			expect(status).toBe(true);
-			return oc.groups.deleteGroup('newGroup' + timeRightNow);
-		}).then(status2 => {
-			expect(status2).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : createGroup', function(done) {
+        oc.groups.createGroup('newGroup' + timeRightNow).then(status => {
+            expect(status).toBe(true);
+            return oc.groups.groupExists('newGroup' + timeRightNow);
+        }).then(status => {
+            expect(status).toBe(true);
+            return oc.groups.deleteGroup('newGroup' + timeRightNow);
+        }).then(status2 => {
+            expect(status2).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : getGroups', function (done) {
-		oc.groups.getGroups().then(data => {
-			expect(typeof(data)).toBe('object');
-			expect(data.indexOf('admin')).toBeGreaterThan(-1);
-			expect(data.indexOf(testGroup)).toBeGreaterThan(-1);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : getGroups', function(done) {
+        oc.groups.getGroups().then(data => {
+            expect(typeof(data)).toBe('object');
+            expect(data.indexOf('admin')).toBeGreaterThan(-1);
+            expect(data.indexOf(testGroup)).toBeGreaterThan(-1);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : groupExists with an existing group', function (done) {
-		oc.groups.groupExists('admin').then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : groupExists with an existing group', function(done) {
+        oc.groups.groupExists('admin').then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : groupExists with a non existing group', function (done) {
-		oc.groups.groupExists(nonExistingGroup).then(status => {
-			expect(status).toBe(false);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : groupExists with a non existing group', function(done) {
+        oc.groups.groupExists(nonExistingGroup).then(status => {
+            expect(status).toBe(false);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : getGroupMembers', function (done) {
-		oc.groups.getGroupMembers('admin').then(data => {
-			expect(typeof(data)).toBe('object');
-			expect(data.indexOf(username)).toBeGreaterThan(-1);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : getGroupMembers', function(done) {
+        oc.groups.getGroupMembers('admin').then(data => {
+            expect(typeof(data)).toBe('object');
+            expect(data.indexOf(username)).toBeGreaterThan(-1);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : deleteGroup with an existing group', function (done) {
-		oc.groups.deleteGroup(testGroup).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
+    it('checking method : deleteGroup with an existing group', function(done) {
+        oc.groups.deleteGroup(testGroup).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 
-	it('checking method : deleteGroup with a non existing group', function (done) {
-		oc.groups.deleteGroup(nonExistingGroup).then(status => {
-			expect(status).toBe(null);
-			done();
-		}).catch(error => {
-			expect(typeof(error)).toBe('object');
-			expect(error.ocs.meta.statuscode).toEqual('101');
-			done();
-		});
-	});
+    it('checking method : deleteGroup with a non existing group', function(done) {
+        oc.groups.deleteGroup(nonExistingGroup).then(status => {
+            expect(status).toBe(null);
+            done();
+        }).catch(error => {
+            expect(typeof(error)).toBe('object');
+            expect(error.ocs.meta.statuscode).toEqual('101');
+            done();
+        });
+    });
 });
 
 describe("Currently testing files management,", function () {

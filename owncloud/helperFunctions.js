@@ -100,19 +100,19 @@ helpers.prototype._updateCapabilities = function() {
     var self = this;
     return new Promise((resolve, reject) => {
         self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
-        .then(data => {
-            var body = parser.xml2js(data.body, {
-                compact: true
+            .then(data => {
+                var body = parser.xml2js(data.body, {
+                    compact: true
+                });
+                body = self._cleanseJson(body).ocs.data;
+
+                self._capabilities = body.capabilities;
+                self._version = body.version.string + '-' + body.version.edition;
+
+                resolve(self._capabilities);
+            }).catch(error => {
+                reject(error);
             });
-            body = self._cleanseJson(body).ocs.data;
-
-            self._capabilities = body.capabilities;
-            self._version = body.version.string + '-' + body.version.edition;
-
-            resolve(self._capabilities);
-        }).catch(error => {
-            reject(error);
-        });
     });
 };
 
@@ -288,14 +288,23 @@ helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
     var tree = parser.xml2js(body, {
         compact: true
     });
-    tree = this._cleanseJson(tree)['d:multistatus']['d:response'];
+    var xmlns = tree['d:multistatus']._attributes;
+    var replacedXMLns = {};
+
+    for (var ns in xmlns) {
+        var changedKey = ns.split(':')[1];
+        replacedXMLns[changedKey] = xmlns[ns];
+    }
+
+    tree = this._keepNamespace(tree, replacedXMLns);
+    tree = this._cleanseJson(tree)['{DAV:}multistatus']['{DAV:}response'];
     var items = [];
 
     if (tree.constructor !== Array) {
         tree = [tree];
     }
 
-    for (var item = 0; item < tree.length; item++) {
+    for (var item in tree) {
         items.push(this._parseDAVelement(tree[item]));
     }
 
@@ -306,8 +315,8 @@ helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
  * Parses a DAV response element.
  */
 helpers.prototype._parseDAVelement = function(item) {
-    var name = item['d:href'];
-    var attrs = item['d:propstat']['d:prop'];
+    var name = item['{DAV:}href'];
+    var attrs = item['{DAV:}propstat']['{DAV:}prop'];
     var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
 
     var start = 0;
@@ -852,6 +861,90 @@ helpers.prototype._cleanseJson = function(json) {
 };
 
 /**
+ * [description]
+ * @param  {[type]} json [description]
+ * @param  {[type]} ns   [description]
+ * @return {[type]}      [description]
+ */
+helpers.prototype._keepNamespace = function(json, ns) {
+    var nsKeys = Object.keys(ns);
+
+    for (var key in json) {
+        var parseKey = parseKeyNS(key);
+        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
+            var index = nsKeys.indexOf(parseKey);
+            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
+
+            json[prop] = json[key];
+            json[prop] = recursiveNS(json[prop], ns);
+        } else {
+            json[key] = recursiveNS(json[key], ns);
+        }
+    }
+
+    json = this._deleteDuplicates(json, ns);
+    return json;
+};
+
+/**
+ * _keepNamespace just pushes all {DAV:} instead of d:
+ * this function removes all d: and return just {DAV:}
+ * @param  {object} json object from which to delete d:
+ * @param  {array}  ns   all namespaces (eg. d, oc, s etc.)
+ * @return {object}      only {DAV:} object
+ */
+helpers.prototype._deleteDuplicates = function(json, ns) {
+    var ret = {};
+    var nsKeys = Object.keys(ns);
+    if (json.constructor === Array) {
+        ret = [];
+    }
+
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    for (var key in json) {
+        if (json.constructor === Array) {
+            ret.push(recursiveDeleteDuplicates(json[key], ns));
+        }
+        if (key.indexOf(':') > -1) {
+            var parseKey = parseKeyNS(key);
+            if (nsKeys.indexOf(parseKey) === -1) {
+                ret[key] = recursiveDeleteDuplicates(json[key], ns);
+            }
+        } else if (json.constructor !== Array) {
+            ret[key] = json[key];
+        }
+    }
+    return ret;
+};
+
+/**
+ * HELPER FOR _keepNamespace()
+ */
+function recursiveNS(json, ns) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+    var nsKeys = Object.keys(ns);
+
+    for (var key in json) {
+        var parseKey = parseKeyNS(key);
+        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
+            var index = nsKeys.indexOf(parseKey);
+            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
+
+            json[prop] = json[key];
+            json[prop] = recursiveNS(json[prop], ns);
+        } else {
+            json[key] = recursiveNS(json[key], ns);
+        }
+    }
+    return json;
+}
+
+/**
  * HELPER FOR _cleanseJson()
  */
 function recursiveCleanse(json) {
@@ -866,6 +959,49 @@ function recursiveCleanse(json) {
         json[key] = recursiveCleanse(json[key]);
     }
     return json;
+}
+
+/**
+ * HELPER FOR _keepNamespace()
+ */
+function recursiveDeleteDuplicates(json, ns) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    var nsKeys = Object.keys(ns);
+    var ret = {};
+    if (json.constructor === Array) {
+        ret = [];
+    }
+    for (var key in json) {
+        if (json.constructor === Array) {
+            ret.push(recursiveDeleteDuplicates(json[key], ns));
+        }
+        if (key.indexOf(':') > -1) {
+            var parseKey = parseKeyNS(key);
+            if (nsKeys.indexOf(parseKey) === -1) {
+                ret[key] = recursiveDeleteDuplicates(json[key], ns);
+            }
+        } else if (json.constructor !== Array) {
+            ret[key] = json[key];
+        }
+    }
+    return ret;
+}
+
+/**
+ * parses a key from d: to d and {DAV:} to DAV
+ * @param  {string} key key to be parsed
+ * @return {string}     parsed key
+ */
+function parseKeyNS(key) {
+    var parseKey = key.split(':')[0];
+    if (parseKey.slice(0, 1) === '{') {
+        parseKey = parseKey.slice(1);
+    }
+
+    return parseKey;
 }
 
 module.exports = helpers;

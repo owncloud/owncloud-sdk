@@ -304,7 +304,7 @@ helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
         tree = [tree];
     }
 
-    for (var item in tree) {
+    for (var item = 0; item < tree.length; item++) {
         items.push(this._parseDAVelement(tree[item]));
     }
 

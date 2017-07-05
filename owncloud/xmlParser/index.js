@@ -65,13 +65,11 @@ myParser.deleteDuplicates = function(json, ns) {
         if (json.constructor === Array) {
             ret.push(recursiveDeleteDuplicates(json[key], ns));
         }
-        if (key.indexOf(':') > -1) {
+        else {
             var parseKey = parseKeyNS(key);
-            if (nsKeys.indexOf(parseKey) === -1) {
+            if (parseKey && nsKeys.indexOf(parseKey) === -1) {
                 ret[key] = recursiveDeleteDuplicates(json[key], ns);
             }
-        } else if (json.constructor !== Array) {
-            ret[key] = json[key];
         }
     }
     return ret;
@@ -132,13 +130,11 @@ function recursiveDeleteDuplicates(json, ns) {
         if (json.constructor === Array) {
             ret.push(recursiveDeleteDuplicates(json[key], ns));
         }
-        if (key.indexOf(':') > -1) {
+        else {
             var parseKey = parseKeyNS(key);
-            if (nsKeys.indexOf(parseKey) === -1) {
+            if (parseKey && nsKeys.indexOf(parseKey) === -1) {
                 ret[key] = recursiveDeleteDuplicates(json[key], ns);
             }
-        } else if (json.constructor !== Array) {
-            ret[key] = json[key];
         }
     }
     return ret;
@@ -167,9 +163,11 @@ function recursiveCleanse(json) {
  * @return {string}     parsed key
  */
 function parseKeyNS(key) {
-    var parseKey = key.split(':')[0];
-    if (parseKey.slice(0, 1) === '{') {
-        parseKey = parseKey.slice(1);
+    var parseKey = key;
+    if (parseKey.indexOf('{') > -1 && parseKey.indexOf('}') > -1) {
+        parseKey = parseKey.split('{')[1].split('}')[0];
+    } else if (parseKey.indexOf(':') > -1) {
+        parseKey = parseKey.split(':')[0];
     }
 
     return parseKey;

@@ -3,7 +3,7 @@
 /////////////////////////////
 
 var Promise = require('promise');
-var parser = require('xml-js');
+var parser = require('./xmlParser/');
 var helperFile = require('./helperFunctions.js');
 var apps = require('./appManagement.js');
 var shares = require('./shareManagement.js');
@@ -119,9 +119,7 @@ ownCloud.prototype.getConfig = function() {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', '', 'config')
             .then(data => {
-                var tree = parser.xml2js(data.body, {
-                    compact: true
-                });
+                var tree = parser.xml2js(data.body);
                 resolve(tree.ocs.data);
             }).catch(error => {
                 reject(error);

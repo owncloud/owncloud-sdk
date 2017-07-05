@@ -4,7 +4,8 @@
 
 var Promise = require('promise');
 var request = require('request');
-var parser = require('xml-js');
+var parser = require('./xmlParser/');
+var parser2 = require('xml-js');
 var fs = require('fs');
 var utf8 = require('utf8');
 var fileInfo = require('./fileInfo.js');
@@ -101,10 +102,7 @@ helpers.prototype._updateCapabilities = function() {
     return new Promise((resolve, reject) => {
         self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
             .then(data => {
-                var body = parser.xml2js(data.body, {
-                    compact: true
-                });
-                body = self._cleanseJson(body).ocs.data;
+                var body = parser.xml2js(data.body).ocs.data;
 
                 self._capabilities = body.capabilities;
                 self._version = body.version.string + '-' + body.version.edition;
@@ -195,10 +193,7 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
             }
 
             if (!error) {
-                var tree = parser.xml2js(body, {
-                    compact: true
-                });
-                tree = self._cleanseJson(tree);
+                var tree = parser.xml2js(body);
                 error = self._checkOCSstatus(tree);
             }
 
@@ -285,19 +280,9 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
  * Parses a DAV response.
  */
 helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
-    var tree = parser.xml2js(body, {
-        compact: true
-    });
-    var xmlns = tree['d:multistatus']._attributes;
-    var replacedXMLns = {};
+    var XMLns = this._getXMLns(body);
 
-    for (var ns in xmlns) {
-        var changedKey = ns.split(':')[1];
-        replacedXMLns[changedKey] = xmlns[ns];
-    }
-
-    tree = this._keepNamespace(tree, replacedXMLns);
-    tree = this._cleanseJson(tree)['{DAV:}multistatus']['{DAV:}response'];
+    var tree = parser.xml2js(body, XMLns)['{DAV:}multistatus']['{DAV:}response'];
     var items = [];
 
     if (tree.constructor !== Array) {
@@ -522,10 +507,7 @@ helpers.prototype._checkExtensionZip = function(path) {
  * Parses a DAV response error.
  */
 helpers.prototype._parseDAVerror = function(body) {
-    var tree = parser.xml2js(body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(body);
 
     if (tree['d:error']['s:message']) {
         return tree['d:error']['s:message'];
@@ -659,10 +641,7 @@ helpers.prototype._convertObjectToBool = function(object) {
  * Handles Provisionging API boolean response
  */
 helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
-    var tree = parser.xml2js(data.body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(data.body);
 
     var statuscode = parseInt(this._checkOCSstatusCode(tree));
     if (statuscode === 999) {
@@ -847,161 +826,23 @@ helpers.prototype._getFileName = function(path) {
 };
 
 /**
- * the XML parser used, gives JS objects with "_text" property at the end.
- * this function removes it.
- * @param  {object}  json  js Object to cleanse
- * @return {object}        cleansed object
+ * returns all xml namespaces in an object
+ * @param  {string} xml xml which has namespace
+ * @return {object}     object with namespace
  */
-helpers.prototype._cleanseJson = function(json) {
-    for (var key in json) {
-        var a = recursiveCleanse(json[key]);
-        json[key] = a;
+helpers.prototype._getXMLns = function (xml) {
+    var tree = parser2.xml2js(xml, {
+        compact: true
+    });
+    var xmlns = tree['d:multistatus']._attributes;
+    var replacedXMLns = {};
+
+    for (var ns in xmlns) {
+        var changedKey = ns.split(':')[1];
+        replacedXMLns[changedKey] = xmlns[ns];
     }
-    return json;
+
+    return replacedXMLns;
 };
-
-/**
- * [description]
- * @param  {[type]} json [description]
- * @param  {[type]} ns   [description]
- * @return {[type]}      [description]
- */
-helpers.prototype._keepNamespace = function(json, ns) {
-    var nsKeys = Object.keys(ns);
-
-    for (var key in json) {
-        var parseKey = parseKeyNS(key);
-        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
-            var index = nsKeys.indexOf(parseKey);
-            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
-
-            json[prop] = json[key];
-            json[prop] = recursiveNS(json[prop], ns);
-        } else {
-            json[key] = recursiveNS(json[key], ns);
-        }
-    }
-
-    json = this._deleteDuplicates(json, ns);
-    return json;
-};
-
-/**
- * _keepNamespace just pushes all {DAV:} instead of d:
- * this function removes all d: and return just {DAV:}
- * @param  {object} json object from which to delete d:
- * @param  {array}  ns   all namespaces (eg. d, oc, s etc.)
- * @return {object}      only {DAV:} object
- */
-helpers.prototype._deleteDuplicates = function(json, ns) {
-    var ret = {};
-    var nsKeys = Object.keys(ns);
-    if (json.constructor === Array) {
-        ret = [];
-    }
-
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    for (var key in json) {
-        if (json.constructor === Array) {
-            ret.push(recursiveDeleteDuplicates(json[key], ns));
-        }
-        if (key.indexOf(':') > -1) {
-            var parseKey = parseKeyNS(key);
-            if (nsKeys.indexOf(parseKey) === -1) {
-                ret[key] = recursiveDeleteDuplicates(json[key], ns);
-            }
-        } else if (json.constructor !== Array) {
-            ret[key] = json[key];
-        }
-    }
-    return ret;
-};
-
-/**
- * HELPER FOR _keepNamespace()
- */
-function recursiveNS(json, ns) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-    var nsKeys = Object.keys(ns);
-
-    for (var key in json) {
-        var parseKey = parseKeyNS(key);
-        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
-            var index = nsKeys.indexOf(parseKey);
-            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
-
-            json[prop] = json[key];
-            json[prop] = recursiveNS(json[prop], ns);
-        } else {
-            json[key] = recursiveNS(json[key], ns);
-        }
-    }
-    return json;
-}
-
-/**
- * HELPER FOR _cleanseJson()
- */
-function recursiveCleanse(json) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    for (var key in json) {
-        if (key === '_text') {
-            return json[key];
-        }
-        json[key] = recursiveCleanse(json[key]);
-    }
-    return json;
-}
-
-/**
- * HELPER FOR _keepNamespace()
- */
-function recursiveDeleteDuplicates(json, ns) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    var nsKeys = Object.keys(ns);
-    var ret = {};
-    if (json.constructor === Array) {
-        ret = [];
-    }
-    for (var key in json) {
-        if (json.constructor === Array) {
-            ret.push(recursiveDeleteDuplicates(json[key], ns));
-        }
-        if (key.indexOf(':') > -1) {
-            var parseKey = parseKeyNS(key);
-            if (nsKeys.indexOf(parseKey) === -1) {
-                ret[key] = recursiveDeleteDuplicates(json[key], ns);
-            }
-        } else if (json.constructor !== Array) {
-            ret[key] = json[key];
-        }
-    }
-    return ret;
-}
-
-/**
- * parses a key from d: to d and {DAV:} to DAV
- * @param  {string} key key to be parsed
- * @return {string}     parsed key
- */
-function parseKeyNS(key) {
-    var parseKey = key.split(':')[0];
-    if (parseKey.slice(0, 1) === '{') {
-        parseKey = parseKey.slice(1);
-    }
-
-    return parseKey;
-}
 
 module.exports = helpers;

@@ -3,7 +3,7 @@
 //////////////////////////////////////
 
 var Promise = require('promise');
-var parser = require('xml-js');
+var parser = require('./xmlParser/');
 var helpers;
 
 /**
@@ -126,10 +126,7 @@ groups.prototype.groupExists = function(groupName) {
  * IS A RESPONSE HANDLER
  */
 groups.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-    var tree = parser.xml2js(data.body, {
-        compact: true
-    });
-    tree = helpers._cleanseJson(tree);
+    var tree = parser.xml2js(data.body);
 
     var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
     if (statusCode === 999) {

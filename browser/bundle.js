@@ -6301,6 +6301,7 @@ var ownCloud = __webpack_require__(27);
 
 module.exports = ownCloud;
 
+
 /***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -6321,166 +6322,166 @@ var helpers = new helperFile();
 
 /**
  * @class ownCloud
- * @classdesc 
+ * @classdesc
  * <b><i> The ownCloud class, the main class which holds all other classes like shares, apps etc.</i></b><br><br>
  * Supported Methods are:
  * <ul>
- *     <li><b>General</b>
- *         <ul>
+ *  <li><b>General</b>
+ *      <ul>
  *          <li>login</li>
  *          <li>getConfig</li>
  *          <li>getVersion</li>
  *          <li>getCapabilities</li>
- *         </ul>
- *     </li>
+ *      </ul>
+ *  </li>
  * </ul>
- *     
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {string} 		URL 	URL of the ownCloud instance
+ * @param {string}  URL  URL of the ownCloud instance
  */
 function ownCloud(instance) {
-	var slash = '';
-	instance = instance || '';
-	
-	if (instance.slice(-1) !== '/') {
-		slash = '/';
-	}
+    var slash = '';
+    instance = instance || '';
 
-	var http = '';
-	if (instance.slice(0, 4) !== "http") {
-		http = 'http://';
-	}
-	var set = http + instance + slash;
+    if (instance.slice(-1) !== '/') {
+        slash = '/';
+    }
 
-	if (!instance) {
-		set = '';
-	}
+    var http = '';
+    if (instance.slice(0, 4) !== "http") {
+        http = 'http://';
+    }
+    var set = http + instance + slash;
 
-	helpers.setInstance(set);
+    if (!instance) {
+        set = '';
+    }
 
-	this.apps = new apps(helpers);
-	this.shares = new shares(helpers);
-	this.users = new users(helpers);
-	this.groups = new groups(helpers);
-	this.files = new files(helpers);
+    helpers.setInstance(set);
+
+    this.apps = new apps(helpers);
+    this.shares = new shares(helpers);
+    this.users = new users(helpers);
+    this.groups = new groups(helpers);
+    this.files = new files(helpers);
 }
 
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param 		{string} 			  username 		name of the user to login
- * @param 		{string} 			  password 		password of the user to login
- * @returns 	{Promise.<status>} 					boolean: whether login was successful or not
- * @returns 	{Promise.<error> } 					string: error message, if any.
+ * @param   {string} username     name of the user to login
+ * @param   {string} password     password of the user to login
+ * @returns {Promise.<status>}    boolean: whether login was successful or not
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 ownCloud.prototype.login = function(username, password) {
-	helpers.setUsername(username);
-	helpers.setPassword(password);
+    helpers.setUsername(username);
+    helpers.setPassword(password);
 
-	/* jshint unused: false */
-	return new Promise((resolve, reject) => {
-		helpers._updateCapabilities()
-		.then(body => {
-			resolve(true);
-		}).catch(error => {
-			reject(error);
-		});
-	});
-	/* jshint unused: true */
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        helpers._updateCapabilities()
+            .then(body => {
+                resolve(true);
+            }).catch(error => {
+                reject(error);
+            });
+    });
+    /* jshint unused: true */
 };
 
 /**
  * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param 		{string} 			  instance 		URL of the OC instance
- * @returns 	{boolean} 							always true.
+ * @param   {string}  instance    URL of the OC instance
+ * @returns {boolean}             always true.
  */
 ownCloud.prototype.setInstance = function(instance) {
-	var slash = '';
-	instance = instance || '';
-	
-	if (instance.slice(-1) !== '/') {
-		slash = '/';
-	}
+    var slash = '';
+    instance = instance || '';
 
-	var http = '';
-	if (instance.slice(0, 4) !== "http") {
-		http = 'http://';
-	}
-	var set = http + instance + slash;
+    if (instance.slice(-1) !== '/') {
+        slash = '/';
+    }
 
-	if (!instance) {
-		set = '';
-	}
+    var http = '';
+    if (instance.slice(0, 4) !== "http") {
+        http = 'http://';
+    }
+    var set = http + instance + slash;
 
-	helpers.setInstance(set);
+    if (!instance) {
+        set = '';
+    }
 
-	return true;
+    helpers.setInstance(set);
+
+    return true;
 };
 
 /**
  * Returns ownCloud config information
- * @returns 	{Promise.<configs>} 				object: {"version" : "1.7", "website" : "ownCloud" etc...}
- * @returns 	{Promise.<error>  } 				string: error message, if any.
+ * @returns {Promise.<configs>} object: {"version" : "1.7", "website" : "ownCloud" etc...}
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 ownCloud.prototype.getConfig = function() {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', '', 'config')
-		.then(data => {
-			var tree = parser.xml2js(data.body, {compact: true});
-			resolve(tree.ocs.data);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', '', 'config')
+            .then(data => {
+                var tree = parser.xml2js(data.body, {
+                    compact: true
+                });
+                resolve(tree.ocs.data);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Gets the ownCloud version of the connected server
- * @returns 	{Promise.<version>} 				string: ownCloud version
- * @returns 	{Promise.<error>  } 				string: error message, if any.
+ * @returns {Promise.<version>} string: ownCloud version
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 ownCloud.prototype.getVersion = function() {
-	var self = this;
-	var version = helpers.getVersion();
+    var self = this;
+    var version = helpers.getVersion();
 
-	/* jshint unused: false */
-	return new Promise((resolve, reject) => {
-		if (version === null) {
-			helpers._updateCapabilities()
-			.then(body => {
-				resolve(helpers.getVersion());
-			}).catch(error => {
-				reject(error);
-			});
-		}
-		else {
-			resolve(version);
-		}
-	});
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        if (version === null) {
+            helpers._updateCapabilities()
+                .then(body => {
+                    resolve(helpers.getVersion());
+                }).catch(error => {
+                    reject(error);
+                });
+        } else {
+            resolve(version);
+        }
+    });
 };
 
 /**
  * Gets the ownCloud app capabilities
- * @returns 	{Promise.<capabilities>} 				string: ownCloud version
- * @returns 	{Promise.<reject>      } 				object: capabilites
+ * @returns {Promise.<capabilities>}    string: ownCloud version
+ * @returns {Promise.<reject>}             object: capabilites
  */
 ownCloud.prototype.getCapabilities = function() {
-	var self = this;
-	var capabilities = helpers.getCapabilities();
-	/* jshint unused: false */
-	return new Promise((resolve, reject) => {
-		if (capabilities === null) {
-			helpers._updateCapabilities()
-			.then(body => {
-				resolve(body);
-			}).catch(error => {
-				reject(error);
-			});
-		}
-		else {
-			resolve(capabilities);
-		}
-	});
+    var self = this;
+    var capabilities = helpers.getCapabilities();
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        if (capabilities === null) {
+            helpers._updateCapabilities()
+                .then(body => {
+                    resolve(body);
+                }).catch(error => {
+                    reject(error);
+                });
+        } else {
+            resolve(capabilities);
+        }
+    });
 };
 
 module.exports = ownCloud;
@@ -7205,23 +7206,13 @@ Promise.disableSynchronous = function() {
     return Stream.prototype.on.call(me, ev, handler)
   }
 
-  // character classes and tokens
-  var whitespace = '\r\n\t '
-
   // this really needs to be replaced with character classes.
   // XML allows all manner of ridiculous numbers and digits.
-
-  // (Letter | "_" | ":")
-  var quote = '\'"'
-  var attribEnd = whitespace + '>'
   var CDATA = '[CDATA['
   var DOCTYPE = 'DOCTYPE'
   var XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace'
   var XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/'
   var rootNS = { xml: XML_NAMESPACE, xmlns: XMLNS_NAMESPACE }
-
-  // turn all the string character sets into character class objects.
-  whitespace = charClass(whitespace)
 
   // http://www.w3.org/TR/REC-xml/#NT-NameStartChar
   // This implementation works on strings, a single character at a time
@@ -7236,30 +7227,24 @@ Promise.disableSynchronous = function() {
   var entityStart = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
   var entityBody = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/
 
-  quote = charClass(quote)
-  attribEnd = charClass(attribEnd)
+  function isWhitespace (c) {
+    return c === ' ' || c === '\n' || c === '\r' || c === '\t'
+  }
 
-  function charClass (str) {
-    return str.split('').reduce(function (s, c) {
-      s[c] = true
-      return s
-    }, {})
+  function isQuote (c) {
+    return c === '"' || c === '\''
+  }
+
+  function isAttribEnd (c) {
+    return c === '>' || isWhitespace(c)
   }
 
   function isMatch (regex, c) {
     return regex.test(c)
   }
 
-  function is (charclass, c) {
-    return charclass[c]
-  }
-
   function notMatch (regex, c) {
     return !isMatch(regex, c)
-  }
-
-  function not (charclass, c) {
-    return !is(charclass, c)
   }
 
   var S = 0
@@ -7892,7 +7877,7 @@ Promise.disableSynchronous = function() {
       }
     }
     entity = entity.replace(/^0+/, '')
-    if (numStr.toLowerCase() !== entity) {
+    if (isNaN(num) || numStr.toLowerCase() !== entity) {
       strictFail(parser, 'Invalid character entity')
       return '&' + parser.entity + ';'
     }
@@ -7904,7 +7889,7 @@ Promise.disableSynchronous = function() {
     if (c === '<') {
       parser.state = S.OPEN_WAKA
       parser.startTagPosition = parser.position
-    } else if (not(whitespace, c)) {
+    } else if (!isWhitespace(c)) {
       // have to process this as a text node.
       // weird, but happens.
       strictFail(parser, 'Non-whitespace before first tag.')
@@ -7990,7 +7975,7 @@ Promise.disableSynchronous = function() {
             parser.state = S.OPEN_WAKA
             parser.startTagPosition = parser.position
           } else {
-            if (not(whitespace, c) && (!parser.sawRoot || parser.closedRoot)) {
+            if (!isWhitespace(c) && (!parser.sawRoot || parser.closedRoot)) {
               strictFail(parser, 'Text data outside of root node.')
             }
             if (c === '&') {
@@ -8024,7 +8009,7 @@ Promise.disableSynchronous = function() {
           if (c === '!') {
             parser.state = S.SGML_DECL
             parser.sgmlDecl = ''
-          } else if (is(whitespace, c)) {
+          } else if (isWhitespace(c)) {
             // wait for it...
           } else if (isMatch(nameStart, c)) {
             parser.state = S.OPEN_TAG
@@ -8069,7 +8054,7 @@ Promise.disableSynchronous = function() {
             emitNode(parser, 'onsgmldeclaration', parser.sgmlDecl)
             parser.sgmlDecl = ''
             parser.state = S.TEXT
-          } else if (is(quote, c)) {
+          } else if (isQuote(c)) {
             parser.state = S.SGML_DECL_QUOTED
             parser.sgmlDecl += c
           } else {
@@ -8094,7 +8079,7 @@ Promise.disableSynchronous = function() {
             parser.doctype += c
             if (c === '[') {
               parser.state = S.DOCTYPE_DTD
-            } else if (is(quote, c)) {
+            } else if (isQuote(c)) {
               parser.state = S.DOCTYPE_QUOTED
               parser.q = c
             }
@@ -8113,7 +8098,7 @@ Promise.disableSynchronous = function() {
           parser.doctype += c
           if (c === ']') {
             parser.state = S.DOCTYPE
-          } else if (is(quote, c)) {
+          } else if (isQuote(c)) {
             parser.state = S.DOCTYPE_DTD_QUOTED
             parser.q = c
           }
@@ -8197,7 +8182,7 @@ Promise.disableSynchronous = function() {
         case S.PROC_INST:
           if (c === '?') {
             parser.state = S.PROC_INST_ENDING
-          } else if (is(whitespace, c)) {
+          } else if (isWhitespace(c)) {
             parser.state = S.PROC_INST_BODY
           } else {
             parser.procInstName += c
@@ -8205,7 +8190,7 @@ Promise.disableSynchronous = function() {
           continue
 
         case S.PROC_INST_BODY:
-          if (!parser.procInstBody && is(whitespace, c)) {
+          if (!parser.procInstBody && isWhitespace(c)) {
             continue
           } else if (c === '?') {
             parser.state = S.PROC_INST_ENDING
@@ -8238,7 +8223,7 @@ Promise.disableSynchronous = function() {
             } else if (c === '/') {
               parser.state = S.OPEN_TAG_SLASH
             } else {
-              if (not(whitespace, c)) {
+              if (!isWhitespace(c)) {
                 strictFail(parser, 'Invalid character in tag name')
               }
               parser.state = S.ATTRIB
@@ -8258,7 +8243,7 @@ Promise.disableSynchronous = function() {
 
         case S.ATTRIB:
           // haven't read the attribute name yet.
-          if (is(whitespace, c)) {
+          if (isWhitespace(c)) {
             continue
           } else if (c === '>') {
             openTag(parser)
@@ -8281,7 +8266,7 @@ Promise.disableSynchronous = function() {
             parser.attribValue = parser.attribName
             attrib(parser)
             openTag(parser)
-          } else if (is(whitespace, c)) {
+          } else if (isWhitespace(c)) {
             parser.state = S.ATTRIB_NAME_SAW_WHITE
           } else if (isMatch(nameBody, c)) {
             parser.attribName += c
@@ -8293,7 +8278,7 @@ Promise.disableSynchronous = function() {
         case S.ATTRIB_NAME_SAW_WHITE:
           if (c === '=') {
             parser.state = S.ATTRIB_VALUE
-          } else if (is(whitespace, c)) {
+          } else if (isWhitespace(c)) {
             continue
           } else {
             strictFail(parser, 'Attribute without value')
@@ -8317,9 +8302,9 @@ Promise.disableSynchronous = function() {
           continue
 
         case S.ATTRIB_VALUE:
-          if (is(whitespace, c)) {
+          if (isWhitespace(c)) {
             continue
-          } else if (is(quote, c)) {
+          } else if (isQuote(c)) {
             parser.q = c
             parser.state = S.ATTRIB_VALUE_QUOTED
           } else {
@@ -8344,7 +8329,7 @@ Promise.disableSynchronous = function() {
           continue
 
         case S.ATTRIB_VALUE_CLOSED:
-          if (is(whitespace, c)) {
+          if (isWhitespace(c)) {
             parser.state = S.ATTRIB
           } else if (c === '>') {
             openTag(parser)
@@ -8361,7 +8346,7 @@ Promise.disableSynchronous = function() {
           continue
 
         case S.ATTRIB_VALUE_UNQUOTED:
-          if (not(attribEnd, c)) {
+          if (!isAttribEnd(c)) {
             if (c === '&') {
               parser.state = S.ATTRIB_VALUE_ENTITY_U
             } else {
@@ -8379,7 +8364,7 @@ Promise.disableSynchronous = function() {
 
         case S.CLOSE_TAG:
           if (!parser.tagName) {
-            if (is(whitespace, c)) {
+            if (isWhitespace(c)) {
               continue
             } else if (notMatch(nameStart, c)) {
               if (parser.script) {
@@ -8400,7 +8385,7 @@ Promise.disableSynchronous = function() {
             parser.tagName = ''
             parser.state = S.SCRIPT
           } else {
-            if (not(whitespace, c)) {
+            if (!isWhitespace(c)) {
               strictFail(parser, 'Invalid tagname in closing tag')
             }
             parser.state = S.CLOSE_TAG_SAW_WHITE
@@ -8408,7 +8393,7 @@ Promise.disableSynchronous = function() {
           continue
 
         case S.CLOSE_TAG_SAW_WHITE:
-          if (is(whitespace, c)) {
+          if (isWhitespace(c)) {
             continue
           }
           if (c === '>') {
@@ -8565,22 +8550,22 @@ function placeHoldersCount (b64) {
 
 function byteLength (b64) {
   // base64 is 4/3 + up to two characters of the original data
-  return b64.length * 3 / 4 - placeHoldersCount(b64)
+  return (b64.length * 3 / 4) - placeHoldersCount(b64)
 }
 
 function toByteArray (b64) {
-  var i, j, l, tmp, placeHolders, arr
+  var i, l, tmp, placeHolders, arr
   var len = b64.length
   placeHolders = placeHoldersCount(b64)
 
-  arr = new Arr(len * 3 / 4 - placeHolders)
+  arr = new Arr((len * 3 / 4) - placeHolders)
 
   // if there are placeholders, only get up to the last complete 4 chars
   l = placeHolders > 0 ? len - 4 : len
 
   var L = 0
 
-  for (i = 0, j = 0; i < l; i += 4, j += 3) {
+  for (i = 0; i < l; i += 4) {
     tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
     arr[L++] = (tmp >> 16) & 0xFF
     arr[L++] = (tmp >> 8) & 0xFF
@@ -9185,14 +9170,14 @@ var fileInfo = __webpack_require__(54);
 
 /**
  * @class helpers
- * @classdesc 
+ * @classdesc
  * <b><i>This is a class for helper functions, dont mess with this until sure!</i></b><br><br>
- * 
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
  */
 function helpers() {
-	this.OCS_BASEPATH = 'ocs/v1.php/';
+    this.OCS_BASEPATH = 'ocs/v1.php/';
     this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1';
     this.OCS_SERVICE_PRIVATEDATA = 'privatedata';
     this.OCS_SERVICE_CLOUD = 'cloud';
@@ -9204,7 +9189,7 @@ function helpers() {
     this.OCS_PERMISSION_DELETE = 8;
     this.OCS_PERMISSION_SHARE = 16;
     this.OCS_PERMISSION_ALL = 31;
-    
+
     // constants from lib/public/share.php
     this.OCS_SHARE_TYPE_USER = 0;
     this.OCS_SHARE_TYPE_GROUP = 1;
@@ -9212,495 +9197,538 @@ function helpers() {
     this.OCS_SHARE_TYPE_REMOTE = 6;
 
     this.instance = null;
-	this._username = null;
-	this._password = null;
-	this._version = null;
-	this._capabilities = null;
+    this._username = null;
+    this._password = null;
+    this._version = null;
+    this._capabilities = null;
 }
 
 /**
  * sets the OC instance
- * @param 		{string} 					instance 			instance to be used for communication
+ * @param   {string}    instance    instance to be used for communication
  */
 helpers.prototype.setInstance = function(instance) {
-	this.instance = instance;
+    this.instance = instance;
 };
 
 /**
  * sets the username
- * @param 		{string} 					username 			username to be used for logging in
+ * @param   {string}    username    username to be used for logging in
  */
 helpers.prototype.setUsername = function(username) {
-	this._username = username;
+    this._username = username;
 
-	var instancePath = '/' + this.instance.split('/').slice(3).join('/');
+    var instancePath = '/' + this.instance.split('/').slice(3).join('/');
 
-	this._davPath = instancePath + 'remote.php/dav/files/' 
-				  + encodeURIComponent(this._encodeString(this._username));
+    this._davPath = instancePath + 'remote.php/dav/files/' +
+        encodeURIComponent(this._encodeString(this._username));
 
-	this._webdavUrl = this.instance + 'remote.php/webdav';
+    this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
 /**
  * sets the password
- * @param 		{string} 					password 			password to be used for logging in
+ * @param   {string}    password    password to be used for logging in
  */
 helpers.prototype.setPassword = function(password) {
-	this._password = password;
+    this._password = password;
 };
 
 /**
  * gets the OC version
- * @returns 	{string} 					 					OC version
+ * @returns {string}    OC version
  */
 helpers.prototype.getVersion = function() {
-	return this._version;
+    return this._version;
 };
 
 /**
  * Gets all capabilities of the logged in user
- * @returns 	{object} 							 			all capabilities
+ * @returns {object}    all capabilities
  */
 helpers.prototype.getCapabilities = function() {
-	return this._capabilities;
+    return this._capabilities;
 };
 
 /**
  * Updates the capabilities of user logging in.
- * @returns 	{Promise.<capabilities>}						object: all capabilities
- * @returns 	{Promise.<error>       }						string: error message, if any.
+ * @returns {Promise.<capabilities>}    object: all capabilities
+ * @returns {Promise.<error>}           string: error message, if any.
  */
 helpers.prototype._updateCapabilities = function() {
-	var self = this;
-	return new Promise((resolve, reject) => {
-		self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
-		.then(data => {
-			var body = parser.xml2js(data.body, {compact: true});
-			body = self._cleanseJson(body).ocs.data;
+    var self = this;
+    return new Promise((resolve, reject) => {
+        self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
+            .then(data => {
+                var body = parser.xml2js(data.body, {
+                    compact: true
+                });
+                body = self._cleanseJson(body).ocs.data;
 
-			self._capabilities = body.capabilities;
-			self._version = body.version.string + '-' + body.version.edition;
+                self._capabilities = body.capabilities;
+                self._version = body.version.string + '-' + body.version.edition;
 
-			resolve(self._capabilities);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+                resolve(self._capabilities);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Makes an OCS API request.
- * @param 		{string} 					method 				method of request (GET, POST etc.)
- * @param 		{string} 					service				service (cloud, privatedata etc.)
- * @param 		{string} 					action				action (apps?filter=enabled, capabilities etc.)
- * @param 		{string} 				  [ data ]				formData for POST and PUT requests
- * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
- * @returns 	{Promise.<error> }								string: error message, if any.
+ * @param   {string} method     method of request (GET, POST etc.)
+ * @param   {string} service    service (cloud, privatedata etc.)
+ * @param   {string} action     action (apps?filter=enabled, capabilities etc.)
+ * @param   {string} [data]     formData for POST and PUT requests
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
+ * @returns {Promise.<error>}   string: error message, if any.
  */
-helpers.prototype._makeOCSrequest = function (method, service, action, data) {
-	var self = this;
-	var err = null;
-	
-	if (!this.instance) {
-		err = "Please specify a server URL first";
-	}
+helpers.prototype._makeOCSrequest = function(method, service, action, data) {
+    var self = this;
+    var err = null;
 
-	if (!this._username || !this._password) {
-		err = "Please specify a username AND password first.";
-	}
+    if (!this.instance) {
+        err = "Please specify a server URL first";
+    }
 
-	// Set the headers
-	var headers = {
-	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
-	    'OCS-APIREQUEST': true
-	};
+    if (!this._username || !this._password) {
+        err = "Please specify a username AND password first.";
+    }
 
-	var slash = '';
-    
+    // Set the headers
+    var headers = {
+        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        'OCS-APIREQUEST': true
+    };
+
+    var slash = '';
+
     if (service) {
         slash = '/';
     }
 
     var path = this.OCS_BASEPATH + service + slash + action;
 
-	//Configure the request
-	var options = {
-	    url: this.instance + path,
-	    method: method,
-	    headers: headers,
-	};
+    //Configure the request
+    var options = {
+        url: this.instance + path,
+        method: method,
+        headers: headers,
+    };
 
-	if (method === 'PUT' || method === 'DELETE') {
-		options.headers['content-type'] = 'application/x-www-form-urlencoded';
-		options.form = data;
-	}
+    if (method === 'PUT' || method === 'DELETE') {
+        options.headers['content-type'] = 'application/x-www-form-urlencoded';
+        options.form = data;
+    } else {
+        options.headers['content-type'] = 'multipart/form-data';
+        options.formData = data;
+    }
 
-	else {
-		options.headers['content-type'] = 'multipart/form-data';
-		options.formData = data;
-	}
+    return new Promise((resolve, reject) => {
+        // Start the request
+        request(options, function(error, response, body) {
+            if (err) {
+                reject(err);
+            }
 
-	return new Promise((resolve, reject) => {
-		// Start the request
-		request(options, function (error, response, body) {			
-			if (err) {
-				reject(err);
-			}
-			
-			var validXml = self._isValidXML(body);
-			var validJson = self._isValidJSON(body);
+            var validXml = self._isValidXML(body);
+            var validJson = self._isValidJSON(body);
 
-			if (error) {
-				error = "Please provide a valid owncloud instance";
-			}
+            if (error) {
+                error = "Please provide a valid owncloud instance";
+            }
 
-			if (validJson) {
-				body = JSON.parse(body);
-				if ("message" in body) {
-					error = body.message;
-				}
-				else {
-					error = "Please provide a valid owncloud instance";
-				}
-			}
+            if (validJson) {
+                body = JSON.parse(body);
+                if ("message" in body) {
+                    error = body.message;
+                } else {
+                    error = "Please provide a valid owncloud instance";
+                }
+            }
 
-			if (!error && !validXml) {
-				error = "Please provide a valid owncloud instance";
-				body = null;
-			}
+            if (!error && !validXml) {
+                error = "Please provide a valid owncloud instance";
+                body = null;
+            }
 
-			if (!error) {
-				var tree = parser.xml2js(body, {compact: true});
-				tree = self._cleanseJson(tree);
-				error = self._checkOCSstatus(tree);
-			}
+            if (!error) {
+                var tree = parser.xml2js(body, {
+                    compact: true
+                });
+                tree = self._cleanseJson(tree);
+                error = self._checkOCSstatus(tree);
+            }
 
-	    	if (error) {
-	    		reject(error);
-	    	}
-	    	else {
-	    		resolve({response : response, body: body});
-	    	}
-		});
-	});
+            if (error) {
+                reject(error);
+            } else {
+                resolve({
+                    response: response,
+                    body: body
+                });
+            }
+        });
+    });
 };
 
 /**
  * Makes a DAV request.
- * @param 		{string} 					method 				method of request (PROPFIND, MKCOL etc.)
- * @param 		{string} 					path				path of file/folder
- * @param 		{object} 				  [ headerData ]		headerData to be set before the request
- * @param 		{object} 				  [ body       ]		body of request 
- * @returns 	{Promise.<body>  }								string: parsed response
- * @returns 	{Promise.<error> }								string: error message, if any.
+ * @param   {string} method          method of request (PROPFIND, MKCOL etc.)
+ * @param   {string} path            path of file/folder
+ * @param   {object} [headerData]    headerData to be set before the request
+ * @param   {object} [body]          body of request
+ * @returns {Promise.<body>}         string: parsed response
+ * @returns {Promise.<error>}        string: error message, if any.
  */
-helpers.prototype._makeDAVrequest = function (method, path, headerData, body) {
-	var self = this;
-	var err = null;
-	
-	if (!this.instance) {
-		err = "Please specify a server URL first";
-	}
+helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
+    var self = this;
+    var err = null;
 
-	if (!this._username || !this._password) {
-		err = "Please specify a username AND password first.";
-	}
+    if (!this.instance) {
+        err = "Please specify a server URL first";
+    }
 
-	path = self._normalizePath(path);
-	path = encodeURIComponent(path);
-	path = path.split('%2F').join('/'); // '/' => %2F
-	var url = self._webdavUrl + self._encodeString(path);
+    if (!this._username || !this._password) {
+        err = "Please specify a username AND password first.";
+    }
 
-	// Set the headers
-	var headers = {
-	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64')	
-	};
+    path = self._normalizePath(path);
+    path = encodeURIComponent(path);
+    path = path.split('%2F').join('/'); // '/' => %2F
+    var url = self._webdavUrl + self._encodeString(path);
 
-	//Configure the request
-	var options = {
-	    url: url,
-	    method: method,
-	    headers: headers	
-	};
+    // Set the headers
+    var headers = {
+        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64')
+    };
 
-	for (var key in headerData) {
-		options.headers[key] = headerData[key];
-	}
+    //Configure the request
+    var options = {
+        url: url,
+        method: method,
+        headers: headers
+    };
 
-	options.body = body;
+    for (var key in headerData) {
+        options.headers[key] = headerData[key];
+    }
 
-	return new Promise((resolve, reject) => {
-		if (err) {
-			reject(err);
-		}
+    options.body = body;
 
-		// Start the request
-		request(options, function (error, response, body) {
-			if (error) {
-				reject(error);
-			}
+    return new Promise((resolve, reject) => {
+        if (err) {
+            reject(err);
+        }
 
-			if ([200, 207].indexOf(response.statusCode) > -1) {
-				self._parseDAVresponse(resolve, reject, body);
-			}
-			else if ([201, 204].indexOf(response.statusCode) > -1) {
-				resolve(true);
-			}
-			else {
-				var err = self._parseDAVerror(body);
-				reject(err);
-			}
-		});
-	});
+        // Start the request
+        request(options, function(error, response, body) {
+            if (error) {
+                reject(error);
+            }
+
+            if ([200, 207].indexOf(response.statusCode) > -1) {
+                self._parseDAVresponse(resolve, reject, body);
+            } else if ([201, 204].indexOf(response.statusCode) > -1) {
+                resolve(true);
+            } else {
+                var err = self._parseDAVerror(body);
+                reject(err);
+            }
+        });
+    });
 };
 
 /**
  * Parses a DAV response.
  */
 helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
-	var tree = parser.xml2js(body, {compact: true});
-	tree = this._cleanseJson(tree)['d:multistatus']['d:response'];
-	var items = [];
+    var tree = parser.xml2js(body, {
+        compact: true
+    });
+    var xmlns = tree['d:multistatus']._attributes;
+    var replacedXMLns = {};
 
-	if (tree.constructor !== Array) {
-		tree = [ tree ];
-	}
+    for (var ns in xmlns) {
+        var changedKey = ns.split(':')[1];
+        replacedXMLns[changedKey] = xmlns[ns];
+    }
 
-	for (var item=0;item<tree.length;item++) {
-		items.push(this._parseDAVelement(tree[item]));
-	}
+    tree = this._keepNamespace(tree, replacedXMLns);
+    tree = this._cleanseJson(tree)['{DAV:}multistatus']['{DAV:}response'];
+    var items = [];
 
-	resolve(items);
+    if (tree.constructor !== Array) {
+        tree = [tree];
+    }
+
+    for (var item = 0; item < tree.length; item++) {
+        items.push(this._parseDAVelement(tree[item]));
+    }
+
+    resolve(items);
 };
 
 /**
  * Parses a DAV response element.
  */
 helpers.prototype._parseDAVelement = function(item) {
-	var name = item['d:href'];
-	var attrs = item['d:propstat']['d:prop'];
-	var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
+    var name = item['{DAV:}href'];
+    var attrs = item['{DAV:}propstat']['{DAV:}prop'];
+    var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
 
-	var start = 0;
-	name = name.split('/');
-	for (var i=0;i<name.length;i++) {
-		if (name[i] === 'webdav') {
-			start = i;
-			break;
-		}
-	}
-	name.splice(0, start+1);
-	name = '/' + name.join('/');
+    var start = 0;
+    name = name.split('/');
+    for (var i = 0; i < name.length; i++) {
+        if (name[i] === 'webdav') {
+            start = i;
+            break;
+        }
+    }
+    name.splice(0, start + 1);
+    name = '/' + name.join('/');
 
-	name = decodeURIComponent(name);
+    name = decodeURIComponent(name);
 
-	name = utf8.encode(name);
-	name = utf8.decode(name);
+    name = utf8.encode(name);
+    name = utf8.decode(name);
 
-	var file = new fileInfo(name, fileType, attrs);
-	return file;
+    var file = new fileInfo(name, fileType, attrs);
+    return file;
 };
 
 /**
  * performs a simple GET request
- * @param  		{string} 					url 				url to perform GET on
- * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
- * @returns 	{Promise.<error> }								string: error message, if any.
+ * @param   {string}    url     url to perform GET on
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._get = function(url) {
-	var headers = {
-	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
-	    'Content-Type': 'application/x-www-form-urlencoded'
-	};
+    var err = null;
 
-	//Configure the request
-	var options = {
-	    url: url,
-	    method: 'GET',
-	    headers: headers	
-	};
+    if (!this.instance) {
+        err = "Please specify a server URL first";
+    }
 
-	return new Promise((resolve, reject) => {
-		// Start the request
-		request(options, function (error, response, body) {
-	    	if (error) {
-	    		reject(error);
-	    	}
-	    	else {
-	    		resolve({response : response, body: body});
-	    	}
-		});
-	});
+    if (!this._username || !this._password) {
+        err = "Please specify a username AND password first.";
+    }
+
+    var headers = {
+        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    //Configure the request
+    var options = {
+        url: url,
+        method: 'GET',
+        headers: headers
+    };
+
+    return new Promise((resolve, reject) => {
+        if (err) {
+            reject(err);
+            return;
+        }
+
+        // Start the request
+        request(options, function(error, response, body) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve({
+                    response: response,
+                    body: body
+                });
+            }
+        });
+    });
 };
 
 /**
  * performs a GET request and writes the output into a file
- * @param  		{string} 					url 				url to perform GET on
- * @param  		{string} 					fileName 			name of the file to write the response into
- * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
- * @returns 	{Promise.<error> }								string: error message, if any.
+ * @param   {string}  url       url to perform GET on
+ * @param   {string}  fileName  name of the file to write the response into
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._writeData = function(url, fileName) {
-	var self = this;
+    var self = this;
+    var err = null;
 
-	var headers = {
-	    authorization : "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
-	    'Content-Type': 'application/octet-stream'
-	};
+    if (!this.instance) {
+        err = "Please specify a server URL first";
+    }
 
-	//Configure the request
-	var options = {
-	    url: url,
-	    method: 'GET',
-	    headers: headers	
-	};
+    if (!this._username || !this._password) {
+        err = "Please specify a username AND password first.";
+    }
 
-	return new Promise((resolve, reject) => {
-		var isPossible = 1;
+    var headers = {
+        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        'Content-Type': 'application/octet-stream'
+    };
 
-		try {
-			fs.closeSync(fs.openSync(fileName, 'w'));
-		}
-		catch (error) {
-			isPossible = 0;
-			reject(error.message);
-			return;
-		}
+    //Configure the request
+    var options = {
+        url: url,
+        method: 'GET',
+        headers: headers
+    };
 
-		// Start the request
-		/* jshint unused : false */
-		request(options, function (err2, response, body) {
-			if (err2) {
-				reject(err2);
-			}
-			
-			if (response.statusCode === 200 && isPossible === 1) {
-				resolve(true);
-			}
-			else {
-				try {
-					var err = self._parseDAVerror(body);
-					reject(err);
-				}
+    return new Promise((resolve, reject) => {
+        if (err) {
+            reject(err);
+            return;
+        }
 
-				catch (error) {
-					reject('specified file/folder could not be located');
-				}
-			}
-		})
-		.on('error', function(error){
-			reject(error);
-			return;
-		})
-		.pipe(fs.createWriteStream(fileName));
-		/* jshint unused : true */
-	});
+        var isPossible = 1;
+
+        try {
+            fs.closeSync(fs.openSync(fileName, 'w'));
+        } catch (error) {
+            isPossible = 0;
+            reject(error.message);
+            return;
+        }
+
+        // Start the request
+        /* jshint unused : false */
+        request(options, function(err2, response, body) {
+                if (err2) {
+                    reject(err2);
+                }
+
+                if (response.statusCode === 200 && isPossible === 1 && body.split('\n')[0] !== "<!DOCTYPE html>") {
+                    resolve(true);
+                } else {
+                    try {
+                        var err = self._parseDAVerror(body);
+                        reject(err);
+                    } catch (error) {
+                        if (body.search("<li class=\"error\">") > -1) {
+                            reject('specified file/folder could not be located');
+                        } else {
+                            reject("Current user is not logged in");
+                        }
+                    }
+                }
+            })
+            .on('error', function(error) {
+                reject(error);
+                return;
+            })
+            .pipe(fs.createWriteStream(fileName));
+        /* jshint unused : true */
+    });
 };
 
 /**
  * performs a PUT request from a file
- * @param  		{string} 					path 				path where to put at OC instance
- * @param  		{string} 					localPath 			path of the file to read the data from
- * @param  		{object} 					headers				extra headers to add for the PUT request
- * @returns 	{Promise.<data>  }								object: {response: response, body: request body}
- * @returns 	{Promise.<error> }								string: error message, if any.
+ * @param   {string} path       path where to put at OC instance
+ * @param   {string} localPath  path of the file to read the data from
+ * @param   {object} headers    extra headers to add for the PUT request
+ * @returns {Promise.<data>}    object: {response: response, body: request body}
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 helpers.prototype._readFile = function(path, localPath, headers) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		try {
-			path = self._normalizePath(path);
-			path = encodeURIComponent(path);
-			path = path.split('%2F').join('/'); // '/' => %2F
-			var url = self._webdavUrl + self._encodeString(path);
+    return new Promise((resolve, reject) => {
+        try {
+            path = self._normalizePath(path);
+            path = encodeURIComponent(path);
+            path = path.split('%2F').join('/'); // '/' => %2F
+            var url = self._webdavUrl + self._encodeString(path);
 
-			/* jshint unused : false */
-			fs.createReadStream(localPath)
-			.pipe(request.put({url: url, headers: headers}, function(error, response, body) {
-				if (response.statusCode >= 400) {
-					var parsedError = self._parseDAVerror(body);
-					parsedError = parsedError || 'not allowed';
-					reject(parsedError);
-				}
-				else {
-					resolve(true);
-				}
-			}));
-			/* jshint unused : true */
-		}
-
-		catch(err) {
-			reject(err);
-		}
-	});
+            /* jshint unused : false */
+            fs.createReadStream(localPath)
+                .pipe(request.put({
+                    url: url,
+                    headers: headers
+                }, function(error, response, body) {
+                    if (response.statusCode >= 400) {
+                        var parsedError = self._parseDAVerror(body);
+                        parsedError = parsedError || 'not allowed';
+                        reject(parsedError);
+                    } else {
+                        resolve(true);
+                    }
+                }));
+            /* jshint unused : true */
+        } catch (err) {
+            reject(err);
+        }
+    });
 };
 
 /**
  * checks whether a path's extension is ".ZIP"
- * @param  		{string} 					path 				path to check
- * @return 		{boolean}      									true if extension is ".ZIP"
+ * @param   {string}    path    path to check
+ * @return  {boolean}           true if extension is ".ZIP"
  */
 helpers.prototype._checkExtensionZip = function(path) {
-	var extension = path.slice(-4);
-	if (extension !== '.zip') {
-		path += '.zip';
-	}
-	return path;
+    var extension = path.slice(-4);
+    if (extension !== '.zip') {
+        path += '.zip';
+    }
+    return path;
 };
 
 /**
  * Parses a DAV response error.
  */
 helpers.prototype._parseDAVerror = function(body) {
-	var tree = parser.xml2js(body, {compact: true});
-	tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(body, {
+        compact: true
+    });
+    tree = this._cleanseJson(tree);
 
-	if (tree['d:error']['s:message']) {
-		return tree['d:error']['s:message'];
-	}
-	return tree;
+    if (tree['{DAV:}error']['{http://sabredav.org/ns:}message']) {
+        return tree['{DAV:}error']['{http://sabredav.org/ns:}message'];
+    }
+    return tree;
 };
 
 /**
- * Checks whether a response body is valid XML 
- * @param  		{string}  					body 				the response to be checked
- * @return 		{Boolean}      									true if valid XML, else false
+ * Checks whether a response body is valid XML
+ * @param   {string}    body    the response to be checked
+ * @return  {Boolean}           true if valid XML, else false
  */
 helpers.prototype._isValidXML = function(body) {
-	try {
-		parser.xml2js(body);
-	}
-	catch (e) {
-		return false;
-	}
-	return true;
+    try {
+        parser.xml2js(body);
+    } catch (e) {
+        return false;
+    }
+    return true;
 };
 
 /**
- * Checks whether a response body is valid JSON 
- * @param  		{string}  					body 				the response to be checked
- * @return 		{Boolean}      									true if valid JSON, else false
+ * Checks whether a response body is valid JSON
+ * @param   {string}    body    the response to be checked
+ * @return  {Boolean}           true if valid JSON, else false
  */
 helpers.prototype._isValidJSON = function(body) {
-	try {
-		JSON.parse(body);
-	}
-	catch (e) {
-		return false;
-	}
-	return true;
+    try {
+        JSON.parse(body);
+    } catch (e) {
+        return false;
+    }
+    return true;
 };
 
 /**
  * Makes sure path starts with a '/'
- * @param 		{string} 					path 				to the remote file share
- * @returns 	{string} 										normalized path
+ * @param   {string}    path    to the remote file share
+ * @returns {string}            normalized path
  */
-helpers.prototype._normalizePath = function (path) {
-	if (!path) {
-		path = '';
-	}
+helpers.prototype._normalizePath = function(path) {
+    if (!path) {
+        path = '';
+    }
 
     if (path.length === 0) {
         return '/';
@@ -9709,268 +9737,434 @@ helpers.prototype._normalizePath = function (path) {
     if (path[0] !== '/') {
         path = '/' + path;
     }
-    
+
     return path;
 };
 
 /**
  * Checks the status code of an OCS request
- * @param 		{object} 					json				parsed response
- * @param 		{array} 			[ acceptedCodes = [ 100 ] ] array containing accepted codes
- * @returns 	{string} 										error message or NULL
+ * @param   {object} json                         parsed response
+ * @param   {array}  [acceptedCodes = [100] ]     array containing accepted codes
+ * @returns {string}                              error message or NULL
  */
-helpers.prototype._checkOCSstatus = function (json, acceptedCodes) {
-	if (!acceptedCodes) {
-		acceptedCodes = [100];
-	}
+helpers.prototype._checkOCSstatus = function(json, acceptedCodes) {
+    if (!acceptedCodes) {
+        acceptedCodes = [100];
+    }
 
-	var meta;
-	if (json.ocs) {
-		meta = json.ocs.meta;
-	}
-	var ret;
+    var meta;
+    if (json.ocs) {
+        meta = json.ocs.meta;
+    }
+    var ret;
 
-	if (meta && acceptedCodes.indexOf(parseInt(meta.statuscode)) === -1) {
-		ret = meta.message;
+    if (meta && acceptedCodes.indexOf(parseInt(meta.statuscode)) === -1) {
+        ret = meta.message;
 
-		if (Object.keys(meta.message).length === 0) {
-			// no error message returned, return the whole message
-			ret = json;
-		}
-	}
+        if (Object.keys(meta.message).length === 0) {
+            // no error message returned, return the whole message
+            ret = json;
+        }
+    }
 
-	return ret;
+    return ret;
 };
 
 /**
  * Returns the status code of the xml response
- * @param  		{object} 					json 				parsed response
- * @return 		{Number} 										status-code
+ * @param   {object}    json    parsed response
+ * @return  {integer}           status-code
  */
-helpers.prototype._checkOCSstatusCode = function (json) {
-	if (json.ocs) {
-		var meta = json.ocs.meta;
-		return parseInt(meta.statuscode);
-	}
-	return null;
+helpers.prototype._checkOCSstatusCode = function(json) {
+    if (json.ocs) {
+        var meta = json.ocs.meta;
+        return parseInt(meta.statuscode);
+    }
+    return null;
 };
 
 /**
  * Encodes the string according to UTF-8 standards
- * @param 		{string} 					path				path to be encoded
- * @returns 	{string} 										encoded path
+ * @param   {string}    path    path to be encoded
+ * @returns {string}            encoded path
  */
 helpers.prototype._encodeString = function(path) {
-	return utf8.encode(path);
+    return utf8.encode(path);
 };
 
 /**
  * converts all of object's "true" or "false" entries to booleans
- * @param  		{object} 					object 				object to be typcasted
- * @return 		{object} 						 				typecasted object
+ * @param   {object}    object  object to be typcasted
+ * @return  {object}            typecasted object
  */
 helpers.prototype._convertObjectToBool = function(object) {
-	if (typeof(object) !== "object") {
-		return object;
-	}
+    if (typeof(object) !== "object") {
+        return object;
+    }
 
-	for (var key in object) {
-		if (object[key] === "true") {
-			object[key] = true;
-		} 
-		if (object[key] === "false") {
-			object[key] = false;
-		}
-	}
+    for (var key in object) {
+        if (object[key] === "true") {
+            object[key] = true;
+        }
+        if (object[key] === "false") {
+            object[key] = false;
+        }
+    }
 
-	return object;
+    return object;
 };
 
 /**
  * Handles Provisionging API boolean response
  */
 helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
-	var tree = parser.xml2js(data.body, {compact: true});
-	tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(data.body, {
+        compact: true
+    });
+    tree = this._cleanseJson(tree);
 
-	var statuscode = parseInt(this._checkOCSstatusCode(tree));
-	if (statuscode === 999) {
-		reject("Provisioning API has been disabled at your instance");
-	}
+    var statuscode = parseInt(this._checkOCSstatusCode(tree));
+    if (statuscode === 999) {
+        reject("Provisioning API has been disabled at your instance");
+    }
 
-	resolve(true);
+    resolve(true);
 };
 
 /**
  * Recursive listing of all files and sub-folders
- * @param 		{string} 					path        		local path to be recursively listed
- * @param  		{string} 					pathToStore 		path to be stored at the OC instance
- * @returns 	{array }             							array of objects :
- *                                       						{ 
- *                                       							path: path of the folder to be stored 
- *                                       								  at the OC instance, 
- *                                       						 	localPath: localPath of the folder, 
- *                                       						  	files: contents of the folder 
- *                                       						}	
+ * @param   {string}  path         local path to be recursively listed
+ * @param   {string}  pathToStore  path to be stored at the OC instance
+ * @returns {array}                array of objects : {
+ *                                       path: path of the folder to be stored
+ *                                       at the OC instance,
+ *                                       localPath: localPath of the folder,
+ *                                       files: contents of the folder
+ *                                 }
  */
 helpers.prototype._getAllFileInfo = function(path, pathToStore) {
-	function getAllFileInfo(path, pathToStore, localPath) {
-		if (path.slice(-1) !== '/') {
-			path += '/';
-		}
+    function getAllFileInfo(path, pathToStore, localPath) {
+        var fl = 0;
+        var baseAddr = pathToStore;
 
-		var files = fs.readdirSync(path);
+        for (var j = 0; j < filesToPut.length; j++) {
+            if (filesToPut[j].path === baseAddr) {
+                fl = 1;
+                break;
+            }
+        }
 
-		for (var i=0;i<files.length;i++) {
-			var file = files[i];
-			var stat = fs.statSync(path + file);
+        if (fl === 0) {
+            var count = filesToPut.length;
+            filesToPut[count] = {};
+            filesToPut[count].path = baseAddr;
+            filesToPut[count].localPath = localPath; ////////
+            filesToPut[count].files = [];
+            count++;
+        }
 
-			if (stat.isDirectory()) {
-				getAllFileInfo(path + file + '/', pathToStore + file + '/', localPath + file + '/');
-			}
-			else {
-				var baseAddr = pathToStore;
-				var fl = 0;
 
-				for (var j=0;j<filesToPut.length;j++) {
-					if (filesToPut[j].path === baseAddr) {
-						filesToPut[j].files.push(file);
-						fl = 1;
-						break;
-					}
-				}
+        if (path.slice(-1) !== '/') {
+            path += '/';
+        }
 
-				if (fl === 0) {
-					var count = filesToPut.length;
-					filesToPut[count] = {};
-					filesToPut[count].path = baseAddr;
-					filesToPut[count].localPath = localPath; ////////
-					filesToPut[count].files = [ file ];
-					count++;
-				}
-			}
-		}
-	}
+        var files = fs.readdirSync(path);
 
-	var filesToPut = [];
-	var targetPath = pathToStore;
-	var localPath = path;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var stat = fs.statSync(path + file);
 
-	if (!targetPath || targetPath === '') {
-		targetPath = '/';
-	}
+            if (stat.isDirectory()) {
+                getAllFileInfo(path + file + '/', pathToStore + file + '/', localPath + file + '/');
+            } else {
+                baseAddr = pathToStore;
+                fl = 0;
 
-	targetPath = this._normalizePath(targetPath);
-	var slash = '';
-	if (targetPath.slice(-1) !== '/') {
-		targetPath += '/';
-	}
-	if (localPath.slice(-1) !== '/') {
-		localPath += '/';
-	}
-	if (targetPath.slice(0, 1) !== '/') {
-		slash = '/';
-	}
+                for (j = 0; j < filesToPut.length; j++) {
+                    if (filesToPut[j].path === baseAddr) {
+                        filesToPut[j].files.push(file);
+                        fl = 1;
+                        break;
+                    }
+                }
 
-	var pathToAdd = localPath.split('/');
-	pathToAdd = pathToAdd.filter(function(n){ return n !== ''; });
-	var slash2 = '/';
+                if (fl === 0) {
+                    var count2 = filesToPut.length;
+                    filesToPut[count2] = {};
+                    filesToPut[count2].path = baseAddr;
+                    filesToPut[count2].localPath = localPath; ////////
+                    filesToPut[count2].files = [file];
+                    count2++;
+                }
+            }
+        }
+    }
 
-	if (pathToAdd[pathToAdd.length - 1] === '.') {
-		pathToAdd[pathToAdd.length - 1] = '';
-		slash = '';
-		slash2 = '';
-	}
-	
-	pathToAdd = targetPath + slash + pathToAdd[pathToAdd.length - 1] + slash2;
-	getAllFileInfo(path, pathToAdd, localPath);
-	return filesToPut;
+    var filesToPut = [];
+    var targetPath = pathToStore;
+    var localPath = path;
+
+    if (!targetPath || targetPath === '') {
+        targetPath = '/';
+    }
+
+    targetPath = this._normalizePath(targetPath);
+    var slash = '';
+    if (targetPath.slice(-1) !== '/') {
+        targetPath += '/';
+    }
+    if (localPath.slice(-1) !== '/') {
+        localPath += '/';
+    }
+    if (targetPath.slice(0, 1) !== '/') {
+        slash = '/';
+    }
+
+    var pathToAdd = localPath.split('/');
+    pathToAdd = pathToAdd.filter(function(n) {
+        return n !== '';
+    });
+    var slash2 = '/';
+
+    if (pathToAdd[pathToAdd.length - 1] === '.') {
+        pathToAdd[pathToAdd.length - 1] = '';
+        slash = '';
+        slash2 = '';
+    }
+
+    pathToAdd = targetPath + slash + pathToAdd[pathToAdd.length - 1] + slash2;
+    getAllFileInfo(path, pathToAdd, localPath);
+    return filesToPut;
 };
 
 /**
  * gets the MTime of a file/folder
- * @param  		{string} 					path 				path of the file/folder
- * @returns 	{Date}      									MTime
+ * @param   {string}    path    path of the file/folder
+ * @returns {Date}              MTime
  */
 helpers.prototype._getMTime = function(path) {
-	var info = fs.statSync(path);
-	return info.mtime;
+    var info = fs.statSync(path);
+    return info.mtime;
 };
 
 /**
  * gets the size of a file/folder
- * @param  		{string} 					path 				path of the file/folder
- * @returns 	{integer}      									size of folder
+ * @param   {string}    path    path of the file/folder
+ * @returns {integer}           size of folder
  */
 helpers.prototype._getFileSize = function(path) {
-	var info = fs.statSync(path);
-	return parseInt(info.size);
+    var info = fs.statSync(path);
+    return parseInt(info.size);
 };
 
 /**
  * performs a PUT request from a file
- * @param  		{string} 					source 				source path of the file to move/copy
- * @param  		{string} 					target 				target path of the file to move/copy
- * @param  		{object} 					headers				extra headers to add for the PUT request
- * @returns 	{Promise.<status>}								boolean: whether the operation was successful
- * @returns 	{Promise.<error> }								string: error message, if any.
+ * @param   {string}  source     source path of the file to move/copy
+ * @param   {string}  target     target path of the file to move/copy
+ * @param   {object}  headers    extra headers to add for the PUT request
+ * @returns {Promise.<status>}   boolean: whether the operation was successful
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 helpers.prototype._webdavMoveCopy = function(source, target, method) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		if (method !== "MOVE" && method !== "COPY") {
-			reject('Please specify a valid method');
-			return;
-		}
+    return new Promise((resolve, reject) => {
+        if (method !== "MOVE" && method !== "COPY") {
+            reject('Please specify a valid method');
+            return;
+        }
 
-		source = self._normalizePath(source);
+        source = self._normalizePath(source);
 
-		target = self._normalizePath(target);
-		target = encodeURIComponent(target);
-		target = target.split('%2F').join('/');
+        target = self._normalizePath(target);
+        target = encodeURIComponent(target);
+        target = target.split('%2F').join('/');
 
-		var headers = {
-			'Destination' : self._webdavUrl + target
-		};
+        var headers = {
+            'Destination': self._webdavUrl + target
+        };
 
-		self._makeDAVrequest(method, source, headers).then(data => {
-			resolve(data);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+        self._makeDAVrequest(method, source, headers).then(data => {
+            resolve(data);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
+/**
+ * gets the fileName from a path
+ * @param  {string}  path  path to get fileName from
+ * @return {string}        fileName
+ */
 helpers.prototype._getFileName = function(path) {
-	var pathSplit = path.split('/');
-	pathSplit = pathSplit.filter(function(n){ return n !== ''; });
-	return pathSplit[pathSplit.length - 1];
+    var pathSplit = path.split('/');
+    pathSplit = pathSplit.filter(function(n) {
+        return n !== '';
+    });
+    return pathSplit[pathSplit.length - 1];
 };
 
+/**
+ * the XML parser used, gives JS objects with "_text" property at the end.
+ * this function removes it.
+ * @param  {object}  json  js Object to cleanse
+ * @return {object}        cleansed object
+ */
 helpers.prototype._cleanseJson = function(json) {
-	for (var key in json) {
-		var a = recursiveCleanse(json[key]);
-		json[key] = a;
-	}
-	return json;
+    for (var key in json) {
+        var a = recursiveCleanse(json[key]);
+        json[key] = a;
+    }
+    return json;
 };
 
-function recursiveCleanse(json) {
-	if (typeof(json) !== 'object') {
-		return json;
-	}
+/**
+ * [description]
+ * @param  {[type]} json [description]
+ * @param  {[type]} ns   [description]
+ * @return {[type]}      [description]
+ */
+helpers.prototype._keepNamespace = function(json, ns) {
+    var nsKeys = Object.keys(ns);
 
-	for (var key in json) {
-		if (key === '_text') {
-			return json[key];
-		}
-		json[key] = recursiveCleanse(json[key]);
-	}
-	return json;
+    for (var key in json) {
+        var parseKey = parseKeyNS(key);
+        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
+            var index = nsKeys.indexOf(parseKey);
+            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
+
+            json[prop] = json[key];
+            json[prop] = recursiveNS(json[prop], ns);
+        } else {
+            json[key] = recursiveNS(json[key], ns);
+        }
+    }
+
+    json = this._deleteDuplicates(json, ns);
+    return json;
+};
+
+/**
+ * _keepNamespace just pushes all {DAV:} instead of d:
+ * this function removes all d: and return just {DAV:}
+ * @param  {object} json object from which to delete d:
+ * @param  {array}  ns   all namespaces (eg. d, oc, s etc.)
+ * @return {object}      only {DAV:} object
+ */
+helpers.prototype._deleteDuplicates = function(json, ns) {
+    var ret = {};
+    var nsKeys = Object.keys(ns);
+    if (json.constructor === Array) {
+        ret = [];
+    }
+
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    for (var key in json) {
+        if (json.constructor === Array) {
+            ret.push(recursiveDeleteDuplicates(json[key], ns));
+        }
+        if (key.indexOf(':') > -1) {
+            var parseKey = parseKeyNS(key);
+            if (nsKeys.indexOf(parseKey) === -1) {
+                ret[key] = recursiveDeleteDuplicates(json[key], ns);
+            }
+        } else if (json.constructor !== Array) {
+            ret[key] = json[key];
+        }
+    }
+    return ret;
+};
+
+/**
+ * HELPER FOR _keepNamespace()
+ */
+function recursiveNS(json, ns) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+    var nsKeys = Object.keys(ns);
+
+    for (var key in json) {
+        var parseKey = parseKeyNS(key);
+        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
+            var index = nsKeys.indexOf(parseKey);
+            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
+
+            json[prop] = json[key];
+            json[prop] = recursiveNS(json[prop], ns);
+        } else {
+            json[key] = recursiveNS(json[key], ns);
+        }
+    }
+    return json;
+}
+
+/**
+ * HELPER FOR _cleanseJson()
+ */
+function recursiveCleanse(json) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    for (var key in json) {
+        if (key === '_text') {
+            return json[key];
+        }
+        json[key] = recursiveCleanse(json[key]);
+    }
+    return json;
+}
+
+/**
+ * HELPER FOR _keepNamespace()
+ */
+function recursiveDeleteDuplicates(json, ns) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    var nsKeys = Object.keys(ns);
+    var ret = {};
+    if (json.constructor === Array) {
+        ret = [];
+    }
+    for (var key in json) {
+        if (json.constructor === Array) {
+            ret.push(recursiveDeleteDuplicates(json[key], ns));
+        }
+        if (key.indexOf(':') > -1) {
+            var parseKey = parseKeyNS(key);
+            if (nsKeys.indexOf(parseKey) === -1) {
+                ret[key] = recursiveDeleteDuplicates(json[key], ns);
+            }
+        } else if (json.constructor !== Array) {
+            ret[key] = json[key];
+        }
+    }
+    return ret;
+}
+
+/**
+ * parses a key from d: to d and {DAV:} to DAV
+ * @param  {string} key key to be parsed
+ * @return {string}     parsed key
+ */
+function parseKeyNS(key) {
+    var parseKey = key.split(':')[0];
+    if (parseKey.slice(0, 1) === '{') {
+        parseKey = parseKey.slice(1);
+    }
+
+    return parseKey;
 }
 
 module.exports = helpers;
+
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
@@ -10734,69 +10928,73 @@ module.exports = function(module) {
 /**
  * @class fileInfo
  * @classdesc fileInfo class, stores information regarding a file/folder
- * @param 	{string}	name 	name of file/folder
- * @param 	{string}	type    "file" => file ; "dir" => folder
- * @param 	{string}	attr 	attributes of file like size, time added etc.
+ * @param   {string}    name     name of file/folder
+ * @param   {string}    type     "file" => file ; "dir" => folder
+ * @param   {string}    attr     attributes of file like size, time added etc.
  */
 function fileInfo(name, type, attr) {
-	this.name = name;
-	this.type = type;
-	this.fileInfo = {};
+    this.name = name;
+    this.type = type;
+    this.fileInfo = {};
 
-	for (var key in attr) {
-		this.fileInfo[key.split(':')[1]] = attr[key];
-	}
+    for (var key in attr) {
+        this.fileInfo[key] = attr[key];
+    }
 }
 
 /**
  * Gets the name of file/folder
- * @returns 	{string}	name of file/folder  
+ * @returns {string}    name of file/folder
  */
 fileInfo.prototype.getName = function() {
-	var name = this.name.split('/');
-	name = name.filter(function(n){ return n !== ''; });
-	var send = name[name.length - 1];
+    var name = this.name.split('/');
+    name = name.filter(function(n) {
+        return n !== '';
+    });
+    var send = name[name.length - 1];
 
-	return send;
+    return send;
 };
 
 /**
  * Gets path of file/folder
- * @returns 	{string} 	Path of file/folder
+ * @returns {string}    Path of file/folder
  */
 fileInfo.prototype.getPath = function() {
-	var name = this.name.split('/');
-	name = name.filter(function(n){ return n !== ''; });
-	var send = '/';
-	for (var i=0;i<name.length-1;i++) {
-		send += name[i] + '/';
-	}
+    var name = this.name.split('/');
+    name = name.filter(function(n) {
+        return n !== '';
+    });
+    var send = '/';
+    for (var i = 0; i < name.length - 1; i++) {
+        send += name[i] + '/';
+    }
 
-	return send;
+    return send;
 };
 
 /**
  * Gets size of the file/folder
- * @returns 	{Number} 	Size of file/folder
+ * @returns {integer}   Size of file/folder
  */
 fileInfo.prototype.getSize = function() {
-	return parseInt(this.fileInfo.getcontentlength) || null;
+	return parseInt(this.fileInfo['{DAV:}getcontentlength']) || null;
 };
 
 /**
  * Gets ETag of file/folder
- * @returns 	{string} 	ETag of file/folder
+ * @returns {string}    ETag of file/folder
  */
 fileInfo.prototype.getETag = function() {
-	return this.fileInfo.getetag || null;
+	return this.fileInfo['{DAV:}getetag'] || null;
 };
 
 /**
  * Gets content-type of file/folder
- * @returns 	{string} 	content-type of file/folder
+ * @returns {string}    content-type of file/folder
  */
 fileInfo.prototype.getContentType = function() {
-	var type = this.fileInfo.getcontenttype;
+	var type = this.fileInfo['{DAV:}getcontenttype'];
 	if (this.isDir()) {
 		type = 'httpd/unix-directory';
 	}
@@ -10805,21 +11003,22 @@ fileInfo.prototype.getContentType = function() {
 
 /**
  * Gets last modified time of file/folder
- * @returns 	{Number} 	Last modified time of file/folder
+ * @returns {integer}   Last modified time of file/folder
  */
 fileInfo.prototype.getLastModified = function() {
-	return new Date(this.fileInfo.getlastmodified);
+	return new Date(this.fileInfo['{DAV:}getlastmodified']);
 };
 
 /**
  * Checks wether the information is for a folder
- * @returns 	{boolean} 	true if folder
+ * @returns {boolean}   true if folder
  */
 fileInfo.prototype.isDir = function() {
-	return this.type === 'dir' ? true : false;
+    return this.type === 'dir' ? true : false;
 };
 
 module.exports = fileInfo;
+
 
 /***/ }),
 /* 55 */
@@ -10835,211 +11034,218 @@ var helpers;
 
 /**
  * @class apps
- * @classdesc 
+ * @classdesc
  * <b><i> The apps class, has all the OC-Apps related methods.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *     <li><b>Apps Management</b>
- *         <ul>
- *         	<li>getApps</li>
- *         	<li>getAttribute</li>
- *         	<li>setAttribute</li>
- *         	<li>deleteAttribute</li>
- *         	<li>enableApp</li>
- *         	<li>disableApp</li>
- *         </ul>
- *     </li>
+ *       <ul>
+ *           <li>getApps</li>
+ *           <li>getAttribute</li>
+ *           <li>setAttribute</li>
+ *           <li>deleteAttribute</li>
+ *           <li>enableApp</li>
+ *           <li>disableApp</li>
+ *       </ul>
+ *    </li>
  * </ul>
- * 
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {object} 		helperFile  	instance of the helpers class
+ * @param {object}    helperFile    instance of the helpers class
  */
 function apps(helperFile) {
-	helpers = helperFile;
+    helpers = helperFile;
 }
 
 /**
  * Gets all enabled and non-enabled apps downloaded on the instance.
- * @returns 	{Promise.<apps> } 					object: {for each app: Boolean("enabled or not")}
- * @returns 	{Promise.<error>} 					string: error message, if any.
+ * @returns    {Promise.<apps>}     object: {for each app: Boolean("enabled or not")}
+ * @returns    {Promise.<error>}    string: error message, if any.
  */
 apps.prototype.getApps = function() {
-	var send = {};
+    var send = {};
 
-	var allAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps");
-	var allEnabledAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps?filter=enabled");
+    var allAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps");
+    var allEnabledAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, "apps?filter=enabled");
 
-	return new Promise((resolve, reject) => {
-		Promise.all([allAppsP, allEnabledAppsP])
-		.then(apps => {
-			var tree = parser.xml2js(apps[0].body, {compact: true});
-			tree = helpers._cleanseJson(tree);
-			var statuscode = parseInt(helpers._checkOCSstatusCode(tree));
-			if (statuscode === 999) {
-				reject("Provisioning API has been disabled at your instance");
-				return;
-			}
+    return new Promise((resolve, reject) => {
+        Promise.all([allAppsP, allEnabledAppsP])
+            .then(apps => {
+                var tree = parser.xml2js(apps[0].body, {
+                    compact: true
+                });
+                tree = helpers._cleanseJson(tree);
+                var statuscode = parseInt(helpers._checkOCSstatusCode(tree));
+                if (statuscode === 999) {
+                    reject("Provisioning API has been disabled at your instance");
+                    return;
+                }
 
-			var allApps = parser.xml2js(apps[0].body, {compact: true});
-			allApps = helpers._cleanseJson(allApps).ocs.data.apps.element;
-			
-			var allEnabledApps = parser.xml2js(apps[1].body, {compact: true});
-			allEnabledApps = helpers._cleanseJson(allEnabledApps).ocs.data.apps.element;
+                var allApps = parser.xml2js(apps[0].body, {
+                    compact: true
+                });
+                allApps = helpers._cleanseJson(allApps).ocs.data.apps.element;
 
-			for (var i=0;i<allApps.length;i++) {
-				send[allApps[i]] = false;
-			}
-			for (i=0;i<allEnabledApps.length;i++) {
-				send[allEnabledApps[i]] = true;
-			}
+                var allEnabledApps = parser.xml2js(apps[1].body, {
+                    compact: true
+                });
+                allEnabledApps = helpers._cleanseJson(allEnabledApps).ocs.data.apps.element;
 
-			resolve(send);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+                for (var i = 0; i < allApps.length; i++) {
+                    send[allApps[i]] = false;
+                }
+                for (i = 0; i < allEnabledApps.length; i++) {
+                    send[allEnabledApps[i]] = true;
+                }
+
+                resolve(send);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Returns an application attribute
- * @param  		{string}   				app      	application ID (Generally app-name)
- * @param  		{string}   				key      	attribute key or None to retrieve all values 
- *                                    				for the given application
- * @returns 	{Promise.<attr> }					string: value of application's key
- * @returns 	{Promise.<error>}					string: error message, if any.
+ * @param    {string}    app     application ID (Generally app-name)
+ * @param    {string}    key     attribute key or None to retrieve all values for the given application
+ * @returns  {Promise.<attr>}    string: value of application's key
+ * @returns  {Promise.<error>}   string: error message, if any.
  */
 apps.prototype.getAttribute = function(app, key) {
-	var send = "getattribute";
-	if (app) {
-		send += '/' + encodeURIComponent(app);
+    var send = "getattribute";
+    if (app) {
+        send += '/' + encodeURIComponent(app);
 
-		if (key) {
-			send += '/' + encodeURIComponent(helpers._encodeString(key));
-		}
-	}
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
-		.then(data => {
-			var elements = parser.xml2js(data.body, {compact: true});
-			elements = helpers._cleanseJson(elements).ocs.data.element;
+        if (key) {
+            send += '/' + encodeURIComponent(helpers._encodeString(key));
+        }
+    }
 
-			if (key) {
-				if (!elements) {
-					reject(app + ' has no key named "' + key + '"');
-				}
-				else {
-					var value = elements.value;
-					elements.value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value;
-					resolve(elements.value);
-				}
-			}
-			else {
-				if (!elements) {
-					resolve({});
-					return;
-				}
-				if (elements.constructor !== Array) {
-					elements = [ elements ];
-				}
-				var allAttributes = {};
-				for (var i=0;i<elements.length;i++) {
-					allAttributes[elements[i].key] = elements[i].value;
-				}
-				resolve(allAttributes);
-			}
-		})
-		.catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
+            .then(data => {
+                var elements = parser.xml2js(data.body, {
+                    compact: true
+                });
+                elements = helpers._cleanseJson(elements).ocs.data.element;
+
+                if (key) {
+                    if (!elements) {
+                        reject(app + ' has no key named "' + key + '"');
+                    } else {
+                        var value = elements.value;
+                        elements.value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value;
+                        resolve(elements.value);
+                    }
+                } else {
+                    if (!elements) {
+                        resolve({});
+                        return;
+                    }
+                    if (elements.constructor !== Array) {
+                        elements = [elements];
+                    }
+                    var allAttributes = {};
+                    for (var i = 0; i < elements.length; i++) {
+                        allAttributes[elements[i].key] = elements[i].value;
+                    }
+                    resolve(allAttributes);
+                }
+            })
+            .catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Sets an application attribute
- * @param  		{string}   				app      	application ID (Generally app-name)
- * @param  		{string}   				key      	attribute key or None to retrieve all values 
- *                                    				for the given application
- * @param  		{string}   				value    	value to set of given attribute
- * @returns 	{Promise.<status>}					boolean: true if successful
- * @returns 	{Promise.<error> }					string: error message, if any.
+ * @param       {string}   app      application ID (Generally app-name)
+ * @param       {string}   key      attribute key or None to retrieve all values for the given application
+ * @param       {string}   value    value to set of given attribute
+ * @returns     {Promise.<status>}  boolean: true if successful
+ * @returns     {Promise.<error>}   string: error message, if any.
  */
 apps.prototype.setAttribute = function(app, key, value) {
-	var self = this;
-	var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key));
+    var self = this;
+    var path = "setattribute/" + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key));
 
-	/* jshint unused: false */
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path, 
-		{'value' : helpers._encodeString(value)})
-		.then(data => {
-			resolve(true);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path, {
+                'value': helpers._encodeString(value)
+            })
+            .then(data => {
+                resolve(true);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Deletes an application attribute
- * @param  		{string}   				app      	application ID (generally app-name)
- * @param  		{string}   				key      	attribute key to delete for the given application
- * @returns 	{Promise.<status>}					boolean: true if successful
- * @returns 	{Promise.<error> }					string: error message, if any.
+ * @param       {string}    app      application ID (generally app-name)
+ * @param       {string}    key      attribute key to delete for the given application
+ * @returns     {Promise.<status>}   boolean: true if successful
+ * @returns     {Promise.<error>}    string: error message, if any.
  */
 apps.prototype.deleteAttribute = function(app, key) {
-	var self = this;
-	var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key));
+    var self = this;
+    var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key));
 
-	/* jshint unused: false */
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path)
-		.then(data => {
-			resolve(true);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path)
+            .then(data => {
+                resolve(true);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Enables an app via the Provisioning API
- * @param  		{string}   				app  		name of the app to be enabled
- * @returns 	{Promise.<status>}					boolean: true if successful
- * @returns 	{Promise.<error> }					string: error message, if any.
+ * @param       {string}    app      name of the app to be enabled
+ * @returns     {Promise.<status>}   boolean: true if successful
+ * @returns     {Promise.<error>}    string: error message, if any.
  */
 apps.prototype.enableApp = function(appname) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
-		.then(data => {
-			if (!data.body) {
-				reject("No app found by the name \"" + appname + "\"");
-			}
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+            .then(data => {
+                if (!data.body) {
+                    reject("No app found by the name \"" + appname + "\"");
+                }
+                helpers._OCSuserResponseHandler(data, resolve, reject);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Disables an app via the Provisioning API
- * @param  		{string}   				app  		name of the app to be disabled
- * @returns 	{Promise.<status>}					boolean: true if successful
- * @returns 	{Promise.<error> }					string: error message, if any.
+ * @param       {string}    app      name of the app to be disabled
+ * @returns     {Promise.<status>}   boolean: true if successful
+ * @returns     {Promise.<error>}    string: error message, if any.
  */
 apps.prototype.disableApp = function(appname) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
-		.then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+            .then(data => {
+                helpers._OCSuserResponseHandler(data, resolve, reject);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 module.exports = apps;
+
 
 /***/ }),
 /* 56 */
@@ -11057,12 +11263,12 @@ var helpers;
 
 /**
  * @class shares
- * @classdesc 
+ * @classdesc
  * <b><i> The shares class, has all the methods for share management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *     <li><b>Share Management</b>
- *         <ul>
+ *      <ul>
  *          <li>shareFileWithLink</li>
  *          <li>updateShare</li>
  *          <li>shareFileWithUser</li>
@@ -11074,76 +11280,74 @@ var helpers;
  *          <li>acceptRemoteShare</li>
  *          <li>declineRemoteShare</li>
  *          <li>deleteShare</li>
- *         </ul>
- *     </li>
+ *      </ul>
+ *  </li>
  * </ul>
- * 
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {object} 		helperFile  	instance of the helpers class
+ * @param   {object}  helperFile  instance of the helpers class
  */
 function shares(helperFile) {
-	helpers = helperFile;
+    helpers = helperFile;
 }
 
 /**
  * Shares a remote file with link
- * @param 		{string} 				path 				path to the remote file share
- * @param  		{object}				optionalParams		{
- *                                       						perms: integer, 
- *                                       						publicUpload: boolean, 
- *                                       						password: string
- *                                       					}
- * @returns 	{Promise.<shareInfo>} 						instance of class shareInfo
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}    path             path to the remote file share
+ * @param   {object}    optionalParams   {perms: integer, publicUpload: boolean, password: string}
+ * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<error>}            string: error message, if any.
  */
 shares.prototype.shareFileWithLink = function(path, optionalParams) {
     path = helpers._normalizePath(path);
     //path = helpers._encodeString(path);
-    
+
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_LINK,
         'path': path
     };
 
     if (optionalParams) {
-	    if (optionalParams.perms) {
-	    	postData.permissions = optionalParams.perms;
-	    }
-	    if (optionalParams.password) {
-	    	postData.password = optionalParams.password;
-	    }
-	    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
-	    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
-	    }
+        if (optionalParams.perms) {
+            postData.permissions = optionalParams.perms;
+        }
+        if (optionalParams.password) {
+            postData.password = optionalParams.password;
+        }
+        if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
+            postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
+        }
     }
 
     return new Promise((resolve, reject) => {
-    	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
-    	.then(data => {
-    		data.body = utf8.encode(data.body);
-    		var shareDetails = parser.xml2js(data.body, {compact: true});
-    		shareDetails = helpers._cleanseJson(shareDetails);
-    		shareDetails = shareDetails.ocs.data;
-    		var share = new shareInfo(shareDetails);
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
+            .then(data => {
+                data.body = utf8.encode(data.body);
+                var shareDetails = parser.xml2js(data.body, {
+                    compact: true
+                });
+                shareDetails = helpers._cleanseJson(shareDetails);
+                shareDetails = shareDetails.ocs.data;
+                var share = new shareInfo(shareDetails);
 
-    		resolve(share);
-    	}).catch(error => {
-    		reject(error);
-    	});
+                resolve(share);
+            }).catch(error => {
+                reject(error);
+            });
     });
 };
 
 /**
  * Shares a remote file with specified user
- * @param 		{string} 				path 				path to the remote file share
- * @param  		{object}				optionalParams		{perms: integer, remoteUser: boolean}
- * @returns 	{Promise.<shareInfo>} 						instance of class shareInfo
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}    path             path to the remote file share
+ * @param   {object}    optionalParams   {perms: integer, remoteUser: boolean}
+ * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<error>}            string: error message, if any.
  */
 shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     path = helpers._normalizePath(path);
-	// path = helpers._encodeString(path);
+    // path = helpers._encodeString(path);
 
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_USER,
@@ -11152,39 +11356,41 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     };
 
     if (optionalParams) {
-	    if (optionalParams.perms) {
-		    postData.permissions = optionalParams.perms;
-	    }
+        if (optionalParams.perms) {
+            postData.permissions = optionalParams.perms;
+        }
 
-	    if (optionalParams.remoteUser) {
-		    postData.shareType = helpers.OCS_SHARE_TYPE_REMOTE;
-	    }
+        if (optionalParams.remoteUser) {
+            postData.shareType = helpers.OCS_SHARE_TYPE_REMOTE;
+        }
     }
 
     return new Promise((resolve, reject) => {
-    	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
-    	.then(data => {
-    		var shareData = parser.xml2js(data.body, {compact: true});
-    		shareData = helpers._cleanseJson(shareData).ocs.data;
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
+            .then(data => {
+                var shareData = parser.xml2js(data.body, {
+                    compact: true
+                });
+                shareData = helpers._cleanseJson(shareData).ocs.data;
 
-    		var share = new shareInfo(shareData);
-    		resolve(share);
-    	}).catch(error => {
-    		reject(error);
-    	});
+                var share = new shareInfo(shareData);
+                resolve(share);
+            }).catch(error => {
+                reject(error);
+            });
     });
 };
 
 /**
  * Shares a remote file with specified group
- * @param 		{string} 				path 				path to the remote file share
- * @param  		{object}				optionalParams		{perms: integer}
- * @returns 	{Promise.<shareInfo>} 						instance of class shareInfo
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}    path             path to the remote file share
+ * @param   {object}    optionalParams   {perms: integer}
+ * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<error>}            string: error message, if any.
  */
 shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) {
-	path = helpers._normalizePath(path);
-    
+    path = helpers._normalizePath(path);
+
     var postData = {
         'shareType': helpers.OCS_SHARE_TYPE_GROUP,
         'shareWith': groupName,
@@ -11192,264 +11398,268 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
     };
 
     if (optionalParams && optionalParams.perms) {
-	    postData.permissions = optionalParams.perms;
+        postData.permissions = optionalParams.perms;
     }
 
     return new Promise((resolve, reject) => {
-    	helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
-    	.then(data => {
-    		var shareData = parser.xml2js(data.body, {compact: true});
-    		shareData = helpers._cleanseJson(shareData).ocs.data;
-    		var share = new shareInfo(shareData);
-    		resolve(share);
-    	}).catch(error => {
-    		reject(error);
-    	});
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
+            .then(data => {
+                var shareData = parser.xml2js(data.body, {
+                    compact: true
+                });
+                shareData = helpers._cleanseJson(shareData).ocs.data;
+                var share = new shareInfo(shareData);
+                resolve(share);
+            }).catch(error => {
+                reject(error);
+            });
     });
 };
 
 /**
  * Returns array of shares
- * @param  		{string}   				path           		path to the file whose share needs to be checked
- * @param  		{object}   				optionalParams 		object of values {"reshares": boolean, 
- *                                           				"subfiles": boolean, "shared_with_me": boolean}
- * @returns 	{Promise.<shareInfo>} 						Array of instances of class shareInfo for all shares
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  path            path to the file whose share needs to be checked
+ * @param   {object}  optionalParams  object of values {"reshares": boolean,
+ *                                    "subfiles": boolean, "shared_with_me": boolean}
+ * @returns {Promise.<shareInfo>}     Array of instances of class shareInfo for all shares
+ * @returns {Promise.<error>}         string: error message, if any.
  */
-shares.prototype.getShares = function(path, optionalParams){
+shares.prototype.getShares = function(path, optionalParams) {
     var data = 'shares';
-	var send = {};
+    var send = {};
 
     if (path !== '') {
-    	data += '?';
+        data += '?';
 
-    	send.path = helpers._normalizePath(path);
-    	optionalParams = helpers._convertObjectToBool(optionalParams);
+        send.path = helpers._normalizePath(path);
+        optionalParams = helpers._convertObjectToBool(optionalParams);
 
-    	if (optionalParams) {
-    		if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
-    			send.reshares = optionalParams.reshares;
-    		}
+        if (optionalParams) {
+            if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
+                send.reshares = optionalParams.reshares;
+            }
 
-			if (optionalParams.subfiles && typeof(optionalParams.subfiles) === "boolean") {
-    			send.subfiles = optionalParams.subfiles;
-    		}
+            if (optionalParams.subfiles && typeof(optionalParams.subfiles) === "boolean") {
+                send.subfiles = optionalParams.subfiles;
+            }
 
-    		/*jshint camelcase: false */
-    		if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
-    			send.shared_with_me = optionalParams.shared_with_me;
-    		}
-    		/*jshint camelcase: true */
-    	}
+            /*jshint camelcase: false */
+            if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
+                send.shared_with_me = optionalParams.shared_with_me;
+            }
+            /*jshint camelcase: true */
+        }
 
-    	var urlString = '';
-    	for (var key in send) {
-    		urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key]);
-    	}
-    	urlString = urlString.slice(1); // removing the first '&'
+        var urlString = '';
+        for (var key in send) {
+            urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key]);
+        }
+        urlString = urlString.slice(1); // removing the first '&'
 
-    	data += urlString;
+        data += urlString;
     }
 
     return new Promise((resolve, reject) => {
-    	helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
-    	.then(data => {
-    		var elements = parser.xml2js(data.body, {compact: true});
-    		elements = helpers._cleanseJson(elements).ocs.data.element || [];
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
+            .then(data => {
+                var elements = parser.xml2js(data.body, {
+                    compact: true
+                });
+                elements = helpers._cleanseJson(elements).ocs.data.element || [];
 
-    		var shares = [];
+                var shares = [];
 
-    		if (elements && elements.constructor !== Array) {
-    			// just a single element
-    			elements = [ elements ];
-    		}
-	    	for (var i=0;i<elements.length;i++) {
-	    		var share = new shareInfo(elements[i]);
-	    		shares.push(share);
-	    	}
+                if (elements && elements.constructor !== Array) {
+                    // just a single element
+                    elements = [elements];
+                }
+                for (var i = 0; i < elements.length; i++) {
+                    var share = new shareInfo(elements[i]);
+                    shares.push(share);
+                }
 
-	    	resolve(shares);
-    	}).catch(error => {
-    		reject(error);
-    	});
+                resolve(shares);
+            }).catch(error => {
+                reject(error);
+            });
     });
 };
 
 /**
  * Checks wether a path is already shared
- * @param  		{string}   				path     			path to the share to be checked
- * @returns 	{Promise.<status>} 							boolean: true if shared
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}    path    path to the share to be checked
+ * @returns {Promise.<status>}  boolean: true if shared
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 shares.prototype.isShared = function(path) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		self.getShares(path)
-		.then(shares => {
-			resolve(shares.length > 0);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        self.getShares(path)
+            .then(shares => {
+                resolve(shares.length > 0);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Gets share information about known share
- * @param  		{integer}   			shareId  			ID of the share to be checked
- * @returns 	{Promise.<shareInfo>} 						instance of class shareInfo
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {integer}   shareId     ID of the share to be checked
+ * @returns {Promise.<shareInfo>}   instance of class shareInfo
+ * @returns {Promise.<error>}       string: error message, if any.
  */
 shares.prototype.getShare = function(shareId) {
-	return new Promise((resolve, reject) => {
-		if (isNaN((parseInt(shareId)))) {
-			reject("Please pass a valid share ID (Integer)");
-			return;
-		}
+    return new Promise((resolve, reject) => {
+        if (isNaN((parseInt(shareId)))) {
+            reject("Please pass a valid share ID (Integer)");
+            return;
+        }
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
+            .then(data => {
+                var shareData = parser.xml2js(data.body, {
+                    compact: true
+                });
+                shareData = helpers._cleanseJson(shareData).ocs.data.element;
+                var share = new shareInfo(shareData);
 
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
-		.then(data => {
-			var shareData = parser.xml2js(data.body, {compact: true});
-			shareData = helpers._cleanseJson(shareData).ocs.data.element;
-			var share = new shareInfo(shareData);
-
-			resolve(share);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+                resolve(share);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * List all pending remote share
- * @returns 	{Promise.<shares>} 							all open remote shares
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @returns {Promise.<shares>}  all open remote shares
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.listOpenRemoteShare = function() {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
-		.then(data => {
-			var shares = parser.xml2js(data.body, {compact: true});
-			shares = helpers._cleanseJson(shares).ocs.data.element || [];
-			resolve(shares);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
+            .then(data => {
+                var shares = parser.xml2js(data.body, {
+                    compact: true
+                });
+                shares = helpers._cleanseJson(shares).ocs.data.element || [];
+                resolve(shares);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Accepts a remote share
- * @param  		{integer}  				shareId  			ID of the share to accept
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {integer}   shareId   ID of the share to accept
+ * @returns {Promise.<status>}    boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.acceptRemoteShare = function(shareId) {
-	return new Promise((resolve, reject) => {
-		if (isNaN((parseInt(shareId)))) {
-			reject("Please pass a valid share ID (Integer)", null);
-			return;
-		}
+    return new Promise((resolve, reject) => {
+        if (isNaN((parseInt(shareId)))) {
+            reject("Please pass a valid share ID (Integer)", null);
+            return;
+        }
 
-		/* jshint unused: false */
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 
-			'remote_shares/pending' + encodeURIComponent(shareId.toString())
-		).then(data => {
-			resolve(true);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+        /* jshint unused: false */
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE,
+            'remote_shares/pending' + encodeURIComponent(shareId.toString())
+        ).then(data => {
+            resolve(true);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Declines a remote share
- * @param  		{integer}  				shareId  			ID of the share to decline
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {integer}   shareId   ID of the share to decline
+ * @returns {Promise.<status>}    boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.declineRemoteShare = function(shareId) {
-	return new Promise((resolve, reject) => {
-		if (isNaN((parseInt(shareId)))) {
-			reject("Please pass a valid share ID (Integer)", null);
-			return;
-		}
+    return new Promise((resolve, reject) => {
+        if (isNaN((parseInt(shareId)))) {
+            reject("Please pass a valid share ID (Integer)", null);
+            return;
+        }
 
-		/* jshint unused: false */
-		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE, 
-		'remote_shares/pending' + encodeURIComponent(shareId.toString())
-		).then(data => {
-			resolve(true);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+        /* jshint unused: false */
+        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE,
+            'remote_shares/pending' + encodeURIComponent(shareId.toString())
+        ).then(data => {
+            resolve(true);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Updates a given share
- * @param 		{integer}	  			shareId		   		ID of the share to update
- * @param  		{object}				optionalParams		{
- *                                       						perms: integer, 
- *                                       						publicUpload: boolean, 
- *                                       						password: string
- *                                       					}
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {integer}  shareId         ID of the share to update
+ * @param   {object}   optionalParams  {perms: integer, publicUpload: boolean, password: string}
+ * @returns {Promise.<status>}         boolean: true if successful
+ * @returns {Promise.<error>}          string: error message, if any.
  */
 shares.prototype.updateShare = function(shareId, optionalParams) {
     var postData = {};
     var self = this;
 
     if (optionalParams) {
-	    if (optionalParams.perms) {
-	    	postData.permissions = optionalParams.perms;
-	    }
-	    if (optionalParams.password) {
-	    	postData.password = optionalParams.password;
-	    }
-	    if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
-	    	postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
-	    }
-	}
+        if (optionalParams.perms) {
+            postData.permissions = optionalParams.perms;
+        }
+        if (optionalParams.password) {
+            postData.password = optionalParams.password;
+        }
+        if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
+            postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
+        }
+    }
 
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
-    	helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE, 
-    		'shares/' + shareId.toString(), postData, 1
-    	).then(data => {
-    		resolve(true);
-    	}).catch(error => {
-    		reject(error);
-    	});
+        helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE,
+            'shares/' + shareId.toString(), postData, 1
+        ).then(data => {
+            resolve(true);
+        }).catch(error => {
+            reject(error);
+        });
     });
 };
 
 /**
  * Deletes a share
- * @param  		{integer}  				shareId  			ID of the share to delete
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {integer}   shareId   ID of the share to delete
+ * @returns {Promise.<status>}    boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 shares.prototype.deleteShare = function(shareId) {
-	return new Promise((resolve, reject) => {
-		if (isNaN((parseInt(shareId)))) {
-			reject("Please pass a valid share ID (Integer)", null);
-			return;
-		}
+    return new Promise((resolve, reject) => {
+        if (isNaN((parseInt(shareId)))) {
+            reject("Please pass a valid share ID (Integer)", null);
+            return;
+        }
 
-		/* jshint unused: false */
-		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE, 
-			'shares/' + encodeURIComponent(shareId.toString())
-		).then(data => {
-			resolve(true);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+        /* jshint unused: false */
+        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE,
+            'shares/' + encodeURIComponent(shareId.toString())
+        ).then(data => {
+            resolve(true);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 module.exports = shares;
+
 
 /***/ }),
 /* 57 */
@@ -11463,9 +11673,9 @@ module.exports = shares;
  * @param {object} containing information like id, url etc. of the share
  */
 function shareInfo(shareInfo) {
-	this.shareInfo = {};
+    this.shareInfo = {};
 
-	// Below keys don't need to be stored
+    // Below keys don't need to be stored
     var notNeededKeys = ['item_type', 'item_source', 'file_source', 'parent', 'storage', 'mail_send'];
 
     for (var key in shareInfo) {
@@ -11480,7 +11690,7 @@ function shareInfo(shareInfo) {
  * @returns {integer} ID of share
  */
 shareInfo.prototype.getId = function() {
-	return this._getInt('id');
+    return this._getInt('id');
 };
 
 /**
@@ -11488,7 +11698,7 @@ shareInfo.prototype.getId = function() {
  * @returns {integer} Share type of share
  */
 shareInfo.prototype.getShareType = function() {
-	return this._getInt('share_type');
+    return this._getInt('share_type');
 };
 
 /**
@@ -11496,10 +11706,10 @@ shareInfo.prototype.getShareType = function() {
  * @returns {string} shareWith of share
  */
 shareInfo.prototype.getShareWith = function() {
-	if (this.shareInfo.hasOwnProperty('share_with')) {
-		return this.shareInfo.share_with;
-	}
-	return null;
+    if (this.shareInfo.hasOwnProperty('share_with')) {
+        return this.shareInfo.share_with;
+    }
+    return null;
 };
 
 /**
@@ -11507,10 +11717,10 @@ shareInfo.prototype.getShareWith = function() {
  * @returns {string} display name of share
  */
 shareInfo.prototype.getShareWithDisplayName = function() {
-	if (this.shareInfo.hasOwnProperty('share_with_displayname')) {
-		return this.shareInfo.share_with_displayname;
-	}
-	return null;
+    if (this.shareInfo.hasOwnProperty('share_with_displayname')) {
+        return this.shareInfo.share_with_displayname;
+    }
+    return null;
 };
 
 /**
@@ -11518,10 +11728,10 @@ shareInfo.prototype.getShareWithDisplayName = function() {
  * @returns {string} Path of share
  */
 shareInfo.prototype.getPath = function() {
-	if (this.shareInfo.hasOwnProperty('path')) {
-		return this.shareInfo.path;
-	}
-	return null;
+    if (this.shareInfo.hasOwnProperty('path')) {
+        return this.shareInfo.path;
+    }
+    return null;
 };
 
 /**
@@ -11529,7 +11739,7 @@ shareInfo.prototype.getPath = function() {
  * @returns {string} permissions of share
  */
 shareInfo.prototype.getPermissions = function() {
-	return this._getInt('permissions');
+    return this._getInt('permissions');
 };
 
 /**
@@ -11537,7 +11747,7 @@ shareInfo.prototype.getPermissions = function() {
  * @returns {integer} Share time of share
  */
 shareInfo.prototype.getShareTime = function() {
-	this._getInt('stime');
+    this._getInt('stime');
 };
 
 /**
@@ -11545,7 +11755,7 @@ shareInfo.prototype.getShareTime = function() {
  * @returns {integer} Expiration time of share
  */
 shareInfo.prototype.getExpiration = function() {
-	return this._getInt('expiration') || null;
+    return this._getInt('expiration') || null;
 };
 
 /**
@@ -11553,10 +11763,10 @@ shareInfo.prototype.getExpiration = function() {
  * @returns {string} token of share
  */
 shareInfo.prototype.getToken = function() {
-	if (this.shareInfo.hasOwnProperty('token')) {
+    if (this.shareInfo.hasOwnProperty('token')) {
         return this.shareInfo.token;
     }
-	return null;
+    return null;
 };
 
 /**
@@ -11564,17 +11774,17 @@ shareInfo.prototype.getToken = function() {
  * @returns {string} Link of share
  */
 shareInfo.prototype.getLink = function() {
-	if (this.shareInfo.hasOwnProperty('url')) {
-		return this.shareInfo.url;
-	}
-	return null;
+    if (this.shareInfo.hasOwnProperty('url')) {
+        return this.shareInfo.url;
+    }
+    return null;
 };
 
 /**
  * Gets UID owner of share
  * @returns {string} UID owner of share
  */
-shareInfo.prototype.getUidOwner = function () {
+shareInfo.prototype.getUidOwner = function() {
     if (this.shareInfo.hasOwnProperty('uid_file_owner')) {
         return this.shareInfo.uid_file_owner;
     }
@@ -11585,7 +11795,7 @@ shareInfo.prototype.getUidOwner = function () {
  * Gets name of owner of share
  * @returns {string} name of owner of share
  */
-shareInfo.prototype.getDisplaynameOwner = function () {
+shareInfo.prototype.getDisplaynameOwner = function() {
     if (this.shareInfo.hasOwnProperty('displayname_file_owner')) {
         return this.shareInfo.displayname_file_owner;
     }
@@ -11594,14 +11804,15 @@ shareInfo.prototype.getDisplaynameOwner = function () {
 
 /**
  * Typecasts to integer
- * @param {string} [key] Corresponding key element to be typecasted to an integer
- * @returns {integer} typcasted integer
+ * @param   {string}    [key]   Corresponding key element to be typecasted to an integer
+ * @returns {integer}           typcasted integer
  */
 shareInfo.prototype._getInt = function(key) {
-	return parseInt(this.shareInfo[key]);
+    return parseInt(this.shareInfo[key]);
 };
 
 module.exports = shareInfo;
+
 
 /***/ }),
 /* 58 */
@@ -11617,13 +11828,13 @@ var helpers;
 
 /**
  * @class users
- * @classdesc 
+ * @classdesc
  * <b><i> The users class, has all the methods for user management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *     <li><b>User Management</b>
- *         <ul>
- *         	<li>createUser</li>
+ *      <ul>
+ *             <li>createUser</li>
  *          <li>deleteUser</li>
  *          <li>searchUsers</li>
  *          <li>userExists</li>
@@ -11637,326 +11848,337 @@ var helpers;
  *          <li>addUserToSubadminGroup</li>
  *          <li>getUserSubadminGroups</li>
  *          <li>userIsInSubadminGroup</li>
- *         </ul>
- *     </li>
+ *      </ul>
+ *  </li>
  * </ul>
- * 
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {object} 		helperFile  	instance of the helpers class
+ * @param {object}    helperFile    instance of the helpers class
  */
 function users(helperFile) {
-	helpers = helperFile;
+    helpers = helperFile;
 }
 
 /**
  * Creates user via the provisioning API<br>
  * If user already exists, an error is given back : "User already exists"<br>
  * If provisoning API has been disabled, an error is given back saying the same.
- * 
- * @param  		{string}   				username 			username of the new user to be created
- * @param  		{string}   				password 			password of the new user to be created
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ *
+ * @param      {string}  username     username of the new user to be created
+ * @param      {string}  password     password of the new user to be created
+ * @returns {Promise.<status>}  boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 users.prototype.createUser = function(username, password) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'users', 
-			{'password' : password, 'userid' : username}
-		).then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'users', {
+            'password': password,
+            'userid': username
+        }).then(data => {
+            helpers._OCSuserResponseHandler(data, resolve, reject);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Deletes a user via provisioning API
- * @param  		{string}   				username 			name of user to be deleted
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param      {string}  username    name of user to be deleted
+ * @returns {Promise.<status>}  boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 users.prototype.deleteUser = function(username) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'users/' + username)
-		.then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'users/' + username)
+            .then(data => {
+                helpers._OCSuserResponseHandler(data, resolve, reject);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Searches for users via provisioning API
- * @param  		{string}   				usernname     		username of the user to be searched
- * @returns 	{Promise.<users>}  							array: all users matching the search query
- * @returns 	{Promise.<error>} 							string: error message, if any.
+ * @param      {string}  usernname  username of the user to be searched
+ * @returns {Promise.<users>}    array: all users matching the search query
+ * @returns {Promise.<error>}      string: error message, if any.
  */
 users.prototype.searchUsers = function(name) {
-	var self = this;
-	
-	var action = 'users';
-	if(name) { 
-		action += '?search=' + name;
-	}
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, action)
-		.then(data => {
-			self.handleObjectResponse(resolve, reject, data, 'users');
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    var action = 'users';
+    if (name) {
+        action += '?search=' + name;
+    }
+
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, action)
+            .then(data => {
+                self.handleObjectResponse(resolve, reject, data, 'users');
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Checks a user via provisioning API
- * @param  		{string}   				username     		name of user to be checked
- * @returns 	{Promise.<status>} 							boolean: true if exists
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param      {string}  username  name of user to be checked
+ * @returns {Promise.<status>}  boolean: true if exists
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 users.prototype.userExists = function(name) {
-	var self = this;
-	if (!name) {
-		name = '';
-	}
+    var self = this;
+    if (!name) {
+        name = '';
+    }
 
-	return new Promise((resolve, reject) => {
-		self.searchUsers(name).then(users => {
-			resolve(users.indexOf(name) > -1);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        self.searchUsers(name).then(users => {
+            resolve(users.indexOf(name) > -1);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Sets a user attribute via the Provisioning API
- * @param 		{string}   				username 			name of the user to modify
- * @param 		{string}   				key      			key of the attribute to be set 
- *                                     						(email, quota, display, password)
- * @param 		{string}   				value    			value to be set
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param     {string}  username     name of the user to modify
+ * @param     {string}  key       key of the attribute to be set (email, quota, display, password)
+ * @param     {string}  value        value to be set
+ * @returns {Promise.<status>}  boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 users.prototype.setUserAttribute = function(username, key, value) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), 
-			{'key' :   helpers._encodeString(key), 'value' : helpers._encodeString(value)}
-		).then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), {
+            'key': helpers._encodeString(key),
+            'value': helpers._encodeString(value)
+        }).then(data => {
+            helpers._OCSuserResponseHandler(data, resolve, reject);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Adds a user to group
- * @param 		{string}   				username  			name of user to be added
- * @param 		{string}   				groupName 			name of group user is to be added to
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  username   name of user to be added
+ * @param   {string}  groupName  name of group user is to be added to
+ * @returns {Promise.<status>}   boolean: true if successful
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 users.prototype.addUserToGroup = function(username, groupName) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 
-			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
-		).then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD,
+            'users/' + encodeURIComponent(username) + '/groups', {
+                'groupid': groupName
+            }
+        ).then(data => {
+            helpers._OCSuserResponseHandler(data, resolve, reject);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Get a list of groups associated to a user
- * @param  		{string}   				username 			name of user to list groups
- * @returns 	{Promise.<groups>} 							array: all groups which user is part of
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  username   name of user to list groups
+ * @returns {Promise.<groups>}   array: all groups which user is part of
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 users.prototype.getUserGroups = function(username) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
-			'users/' + encodeURIComponent(username) + '/groups'
-		).then(data => {
-			self.handleObjectResponse(resolve, reject, data, 'groups');
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD,
+            'users/' + encodeURIComponent(username) + '/groups'
+        ).then(data => {
+            self.handleObjectResponse(resolve, reject, data, 'groups');
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Checks whether user is in group
- * @param  		{string}   				username  			name of user
- * @param  		{string}   				groupName 			name of group
- * @returns 	{Promise.<status>} 							boolean: true if user is part of group
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  username   name of user
+ * @param   {string}  groupName  name of group
+ * @returns {Promise.<status>}   boolean: true if user is part of group
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 users.prototype.userIsInGroup = function(username, groupName) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		self.getUserGroups(username).then(groups => {
-			resolve(groups.indexOf(groupName) > -1);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        self.getUserGroups(username).then(groups => {
+            resolve(groups.indexOf(groupName) > -1);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Retrieves information about a user
- * @param  		{string}   				username 			name of the user
- * @returns 	{Promise.<userInfo>} 						object: all user related information
- * @returns 	{Promise.<error>   } 						string: error message, if any.
+ * @param   {string}    username    name of the user
+ * @returns {Promise.<userInfo>}    object: all user related information
+ * @returns {Promise.<error>}       string: error message, if any.
  */
 users.prototype.getUser = function(username) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
-			'users/' + encodeURIComponent(username)
-		).then(data => {
-			var tree = parser.xml2js(data.body, {compact: true});
-			tree = helpers._cleanseJson(tree);
-			var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-			if (statusCode === 999) {
-				reject("Provisioning API has been disabled at your instance");
-				return;
-			}
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD,
+            'users/' + encodeURIComponent(username)
+        ).then(data => {
+            var tree = parser.xml2js(data.body, {
+                compact: true
+            });
+            tree = helpers._cleanseJson(tree);
+            var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+            if (statusCode === 999) {
+                reject("Provisioning API has been disabled at your instance");
+                return;
+            }
 
-			var userInfo = tree.ocs.data || null;
-			resolve(userInfo);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+            var userInfo = tree.ocs.data || null;
+            resolve(userInfo);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Removes user from a group
- * @param  		{string}   				username  			name of user
- * @param  		{string}   				groupName 			name of group
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  username   name of user
+ * @param   {string}  groupName  name of group
+ * @returns {Promise.<status>}   boolean: true if successful
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 users.prototype.removeUserFromGroup = function(username, groupName) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 
-			'users/' + encodeURIComponent(username) + '/groups', {'groupid' : groupName}
-		).then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD,
+            'users/' + encodeURIComponent(username) + '/groups', {
+                'groupid': groupName
+            }
+        ).then(data => {
+            helpers._OCSuserResponseHandler(data, resolve, reject);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Adds user to a subadmin group
- * @param 		{string}   				username  			name of user
- * @param 		{string}   				groupName 			name of group
- * @returns 	{Promise.<status>} 							boolean: true if successful
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string} username    name of user
+ * @param   {string} groupName   name of group
+ * @returns {Promise.<status>}   boolean: true if successful
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 users.prototype.addUserToSubadminGroup = function(username, groupName) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 
-			'users/' + encodeURIComponent(username) + '/subadmins', {'groupid' : groupName}
-		).then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD,
+            'users/' + encodeURIComponent(username) + '/subadmins', {
+                'groupid': groupName
+            }
+        ).then(data => {
+            helpers._OCSuserResponseHandler(data, resolve, reject);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Get a list of subadmin groups associated to a user
- * @param  		{string}   				username 			name of user
- * @returns 	{Promise.<groups>} 							array: all groups user is admin of
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  username  name of user
+ * @returns {Promise.<groups>}  array: all groups user is admin of
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 users.prototype.getUserSubadminGroups = function(username) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 
-			'users/' + encodeURIComponent(username) + '/subadmins'
-		).then(data => {
-			self.handleObjectResponse(resolve, reject, data);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD,
+            'users/' + encodeURIComponent(username) + '/subadmins'
+        ).then(data => {
+            self.handleObjectResponse(resolve, reject, data);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Checks whether user is in subadmin group
- * @param  		{string}   				username  			name of user
- * @param  		{string}   				groupName 			name of group
- * @returns 	{Promise.<status>} 							boolean: true if user is admin of specified group
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @param   {string}  username   name of user
+ * @param   {string}  groupName  name of group
+ * @returns {Promise.<status>}   boolean: true if user is admin of specified group
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 users.prototype.userIsInSubadminGroup = function(username, groupName) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		self.getUserSubadminGroups(username).then(groups => {
-			resolve(groups.indexOf(groupName) > -1);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        self.getUserSubadminGroups(username).then(groups => {
+            resolve(groups.indexOf(groupName) > -1);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Get all users via Provisioning API
- * @returns 	{Promise.<users>} 							array: all users
- * @returns 	{Promise.<error> } 							string: error message, if any.
+ * @returns {Promise.<users>}   array: all users
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 users.prototype.getUsers = function() {
-	return new Promise((resolve, reject) => {
-		this.searchUsers('').then(users => {
-			resolve(users);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        this.searchUsers('').then(users => {
+            resolve(users);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * IS A RESPONSE HANDLER
  */
 users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-	var tree = parser.xml2js(data.body, {compact: true});
-	tree = helpers._cleanseJson(tree);
-	var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-	if (statusCode === 999) {
-		reject("Provisioning API has been disabled at your instance");
-		return;
-	}
+    var tree = parser.xml2js(data.body, {
+        compact: true
+    });
+    tree = helpers._cleanseJson(tree);
+    var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+    if (statusCode === 999) {
+        reject("Provisioning API has been disabled at your instance");
+        return;
+    }
 
-	var toReturn;
-	if (what) {
-		toReturn = tree.ocs.data[what].element || [];
-	}
-	else {
-		toReturn = tree.ocs.data.element || [];
-	}
-	if (toReturn && toReturn.constructor !== Array) {
-		toReturn = [ toReturn ];
-	}
-	resolve(toReturn);
+    var toReturn;
+    if (what) {
+        toReturn = tree.ocs.data[what].element || [];
+    } else {
+        toReturn = tree.ocs.data.element || [];
+    }
+    if (toReturn && toReturn.constructor !== Array) {
+        toReturn = [toReturn];
+    }
+    resolve(toReturn);
 };
 
 module.exports = users;
+
 
 /***/ }),
 /* 59 */
@@ -11972,140 +12194,145 @@ var helpers;
 
 /**
  * @class groups
- * @classdesc 
+ * @classdesc
  * <b><i> The groups class, has all the methods for group management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
- *     <li><b>Group Management</b>
- *         <ul>
- *         	<li>createGroup</li>
+ *  <li><b>Group Management</b>
+ *      <ul>
+ *          <li>createGroup</li>
  *          <li>deleteGroup</li>
  *          <li>getGroups</li>
  *          <li>getGroupMembers</li>
  *          <li>groupExists</li>
- *         </ul>
- *     </li>
+ *      </ul>
+ *  </li>
  * </ul>
- * 
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {object} 		helperFile  	instance of the helpers class
+ * @param {object}  helperFile  instance of the helpers class
  */
 function groups(helperFile) {
-	helpers = helperFile;
+    helpers = helperFile;
 }
 
 /**
  * creates a new group
- * @param  		{string}   				groupName 		name of group to be created
- * @returns 	{Promise.<status>}						boolean: true if successful
- * @returns 	{Promise.<error> }						string: error message, if any.
+ * @param   {string} groupName  name of group to be created
+ * @returns {Promise.<status>}  boolean: true if successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.createGroup = function(groupName) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {'groupid' : groupName})
-		.then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {
+                'groupid': groupName
+            })
+            .then(data => {
+                helpers._OCSuserResponseHandler(data, resolve, reject);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * deletes an existing group
- * @param  		{string}   				groupName 		name of group to be created
- * @returns 	{Promise.<status>}						boolean: true if successful
- * @returns 	{Promise.<error> }						string: error message, if any.
+ * @param   {string} groupName  name of group to be created
+ * @returns {Promise.<status>}  boolean: true if successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.deleteGroup = function(groupName) {
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
-		.then(data => {
-			helpers._OCSuserResponseHandler(data, resolve, reject);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
+            .then(data => {
+                helpers._OCSuserResponseHandler(data, resolve, reject);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Gets all groups in the instance
- * @returns 	{Promise.<groups>}						array: all group-names
- * @returns 	{Promise.<error> }						string: error message, if any.
+ * @returns {Promise.<groups>}  array: all group-names
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.getGroups = function() {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups')
-		.then(data => {
-			self.handleObjectResponse(resolve, reject, data, 'groups');
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups')
+            .then(data => {
+                self.handleObjectResponse(resolve, reject, data, 'groups');
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Gets all the members of a group
- * @param  		{string}   				groupName 		name of group to list members
- * @returns 	{Promise.<users>}						array: all usernames who are part of the group
- * @returns 	{Promise.<error> }						string: error message, if any.
+ * @param   {string} groupName  name of group to list members
+ * @returns {Promise.<users>}   array: all usernames who are part of the group
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.getGroupMembers = function(groupName) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
-		.then(data => {
-			self.handleObjectResponse(resolve, reject, data, 'users');
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
+            .then(data => {
+                self.handleObjectResponse(resolve, reject, data, 'users');
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * checks whether a group exists
- * @param  		{string}   				groupName 		name of group to check
- * @returns 	{Promise.<status>}						boolean: true if group exists
- * @returns 	{Promise.<error> }						string: error message, if any.
+ * @param   {string} groupName  name of group to check
+ * @returns {Promise.<status>}  boolean: true if group exists
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 groups.prototype.groupExists = function(groupName) {
-	var self = this;
+    var self = this;
 
-	return new Promise((resolve, reject) => {
-		self.getGroups().then(groups => {
-			resolve(groups.indexOf(groupName) > -1);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        self.getGroups().then(groups => {
+            resolve(groups.indexOf(groupName) > -1);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * IS A RESPONSE HANDLER
  */
 groups.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-	var tree = parser.xml2js(data.body, {compact: true});
-	tree = helpers._cleanseJson(tree);
-	
-	var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-	if (statusCode === 999) {
-		reject("Provisioning API has been disabled at your instance");
-		return;
-	}
+    var tree = parser.xml2js(data.body, {
+        compact: true
+    });
+    tree = helpers._cleanseJson(tree);
 
-	var toReturn = tree.ocs.data[what].element || [];
-	if (toReturn && toReturn.constructor !== Array) {
-		// single element
-		toReturn = [ toReturn ];
-	}
-	resolve(toReturn);
+    var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+    if (statusCode === 999) {
+        reject("Provisioning API has been disabled at your instance");
+        return;
+    }
+
+    var toReturn = tree.ocs.data[what].element || [];
+    if (toReturn && toReturn.constructor !== Array) {
+        // single element
+        toReturn = [toReturn];
+    }
+    resolve(toReturn);
 };
 
 module.exports = groups;
+
 
 /***/ }),
 /* 60 */
@@ -12120,13 +12347,13 @@ var helpers;
 
 /**
  * @class files
- * @classdesc 
+ * @classdesc
  * <b><i> The files class, has all the methods for your owncloud files management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
- *     <li><b>Files Management</b>
- *         <ul>
- *         	<li>list</li>
+ *  <li><b>Files Management</b>
+ *      <ul>
+ *          <li>list</li>
  *          <li>getFileContents</li>
  *          <li>putFileContents</li>
  *          <li>mkdir</li>
@@ -12139,343 +12366,338 @@ var helpers;
  *          <li>putDirectory</li>
  *          <li>move</li>
  *          <li>copy</li>
- *         </ul>
- *     </li>
+ *      </ul>
+ *  </li>
  * </ul>
- * 
+ *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {object} 		helperFile  	instance of the helpers class
+ * @param   {object}    helperFile  instance of the helpers class
  */
 function files(helperFile) {
-	helpers = helperFile;	
+    helpers = helperFile;
 }
 
 /**
  * Returns the listing/contents of the given remote directory
- * @param 		{string} 			    remotePath		path of the file/folder at OC instance
- * @param 		{string} 			    depth			0: only file/folder, 
- *                                  					1: upto 1 depth, 
- *                                  					infinity: infinite depth
- * @returns 	{Promise.<fileInfo>} 				 	Array[objects]: each object is an instance of class fileInfo
- * @returns 	{Promise.<error>} 					 	string: error message, if any.
+ * @param   {string}    remotePath    path of the file/folder at OC instance
+ * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
+ * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
+ * @returns {Promise.<error>}         string: error message, if any.
  */
-files.prototype.list = function (path, depth) {
-	if (path[path.length - 1] !== '/') {
-		path += '/';
-	}
+files.prototype.list = function(path, depth) {
+    if (path[path.length - 1] !== '/') {
+        path += '/';
+    }
 
-	var headersToSend = {};
-	if (!isNaN((parseInt(depth))) || depth === "infinity") {
-		depth = depth.toString();
-		headersToSend.depth = depth;
-	}
+    var headersToSend = {};
+    if (!isNaN((parseInt(depth))) || depth === "infinity") {
+        depth = depth.toString();
+        headersToSend.depth = depth;
+    }
 
-	return new Promise((resolve, reject) => {
-		helpers._makeDAVrequest('PROPFIND', path, headersToSend).then(files => {
-			resolve(files);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeDAVrequest('PROPFIND', path, headersToSend).then(files => {
+            resolve(files);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Returns the contents of a remote file
- * @param 		{string} 			    remotePath		path of the remote file at OC instance
- * @returns 	{Promise.<contents>} 					string: contents of file
- * @returns 	{Promise.<error> } 				   		string: error message, if any.
+ * @param   {string}  remotePath    path of the remote file at OC instance
+ * @returns {Promise.<contents>}    string: contents of file
+ * @returns {Promise.<error>}       string: error message, if any.
  */
 files.prototype.getFileContents = function(path) {
-	path = helpers._normalizePath(path);
+    path = helpers._normalizePath(path);
 
-	return new Promise((resolve, reject) => {
-		helpers._get(helpers._webdavUrl + helpers._encodeString(path)).then(data => {
-			var response = data.response;
-			var body = data.body;
+    return new Promise((resolve, reject) => {
+        helpers._get(helpers._webdavUrl + helpers._encodeString(path)).then(data => {
+            var response = data.response;
+            var body = data.body;
 
-			if (response.statusCode === 200) {
-				resolve(body);
-			}
-			else {
-				var err = helpers._parseDAVerror(body);
-				reject(err);
-			}
-		}).catch(error => {
-			reject(error);
-		});
-	});
+            if (response.statusCode === 200) {
+                resolve(body);
+            } else {
+                var err = helpers._parseDAVerror(body);
+                reject(err);
+            }
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Write data into a remote file
- * @param 		{string} 			    remotePath		path of the file at OC instance
- * @param 		{string} 			    content			content to be put
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} remotePath path of the file at OC instance
+ * @param   {string} content    content to be put
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.putFileContents = function(path, content) {
-	return new Promise((resolve, reject) => {
-		helpers._makeDAVrequest('PUT', path, null, content).then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeDAVrequest('PUT', path, null, content).then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Creates a remote directory
- * @param 		{string} 				remotePath		path of the folder to be created at OC instance
- * @returns 	{Promise.<status>} 						boolean: wether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} remotePath path of the folder to be created at OC instance
+ * @returns {Promise.<status>}  boolean: wether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.mkdir = function(path) {
-	if (path[path.length - 1] !== '/') {
-		path += '/';
-	}
+    if (path[path.length - 1] !== '/') {
+        path += '/';
+    }
 
-	return new Promise((resolve, reject) => {
-		helpers._makeDAVrequest('MKCOL', path).then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeDAVrequest('MKCOL', path).then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Creates a remote directory
- * @param 		{string} 				remotePath		path of the folder to be created at OC instance
- * @returns 	{Promise.<status>} 						boolean: wether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string}  remotePath  path of the folder to be created at OC instance
+ * @returns {Promise.<status>}    boolean: wether the operation was successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 files.prototype.createFolder = function(path) {
-	if (path[path.length - 1] !== '/') {
-		path += '/';
-	}
+    if (path[path.length - 1] !== '/') {
+        path += '/';
+    }
 
-	return new Promise((resolve, reject) => {
-		helpers._makeDAVrequest('MKCOL', path).then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeDAVrequest('MKCOL', path).then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Deletes a remote file or directory
- * @param 		{string} 				remotePath		path of the file/folder at OC instance
- * @returns 	{Promise.<status>} 						boolean: wether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string}  remotePath  path of the file/folder at OC instance
+ * @returns {Promise.<status>}    boolean: wether the operation was successful
+ * @returns {Promise.<error>}     string: error message, if any.
  */
 files.prototype.delete = function(path) {
-	return new Promise((resolve, reject) => {
-		helpers._makeDAVrequest('DELETE', path).then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._makeDAVrequest('DELETE', path).then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Returns the file info for the given remote file
- * @param 		{string} 				remotePath		path of the file/folder at OC instance
- * @returns 	{Promise.<fileInfo>} 					object: instance of class fileInfo
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string}  remotePath    path of the file/folder at OC instance
+ * @returns {Promise.<fileInfo>}    object: instance of class fileInfo
+ * @returns {Promise.<error>}       string: error message, if any.
  */
 files.prototype.fileInfo = function(path) {
-	return new Promise((resolve, reject) => {
-		this.list(path, 0).then(fileInfo => {
-			resolve(fileInfo[0]);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        this.list(path, 0).then(fileInfo => {
+            resolve(fileInfo[0]);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Downloads a remote file
- * @param 		{string} 				remotePath		path of the file at OC instance
- * @param 		{string} 				localPath		path where to download
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} remotePath path of the file at OC instance
+ * @param   {string} localPath  path where to download
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.getFile = function(path, localPath) {
-	path = helpers._normalizePath(path);
-	localPath = localPath || __dirname + path;
-	path = helpers._encodeString(path);
-	path = encodeURIComponent(path);
-	path = path.split('%2F').join('/');
+    path = helpers._normalizePath(path);
+    localPath = localPath || __dirname + path;
+    path = helpers._encodeString(path);
+    path = encodeURIComponent(path);
+    path = path.split('%2F').join('/');
 
-	return new Promise((resolve, reject) => {
-		helpers._writeData(helpers._webdavUrl + path, localPath)
-		.then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._writeData(helpers._webdavUrl + path, localPath)
+            .then(status => {
+                resolve(status);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Downloads a remote directory as zip
- * @param 		{string} 				remotePath		path of the folder at OC instance
- * @param 		{string} 				localPath		path where to download
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} remotePath path of the folder at OC instance
+ * @param   {string} localPath  path where to download
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.getDirectoryAsZip = function(path, localPath) {
-	path = helpers._normalizePath(path);
-	localPath = localPath || __dirname + path;
-	localPath = helpers._checkExtensionZip(localPath);
-	path = helpers._encodeString(path);
-	path = encodeURIComponent(path);
-	path = path.split('%2F').join('/');
+    path = helpers._normalizePath(path);
+    localPath = localPath || __dirname + path;
+    localPath = helpers._checkExtensionZip(localPath);
+    path = helpers._encodeString(path);
+    path = encodeURIComponent(path);
+    path = path.split('%2F').join('/');
 
-	var url = helpers.instance + 'index.php/apps/files/ajax/download.php?dir=' + (path);
-	
-	return new Promise((resolve, reject) => {
-		helpers._writeData(url, localPath)
-		.then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    var url = helpers.instance + 'index.php/apps/files/ajax/download.php?dir=' + (path);
+
+    return new Promise((resolve, reject) => {
+        helpers._writeData(url, localPath)
+            .then(status => {
+                resolve(status);
+            }).catch(error => {
+                reject(error);
+            });
+    });
 };
 
 /**
  * Upload a file
- * @param 		{string} 				remotePath		path of the file to be created at OC instance
- * @param 		{string} 				localPath		path of the file to be uploaded
- * @param 		{boolean} 				keepMTime 		also update the remote file to the same
- *           										    mtime as the local one, defaults to true
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string}  remotePath path of the file to be created at OC instance
+ * @param   {string}  localPath  path of the file to be uploaded
+ * @param   {boolean} keepMTime  also update the remote file to the same mtime as the local one, defaults to true
+ * @returns {Promise.<status>}   boolean: whether the operation was successful
+ * @returns {Promise.<error>}    string: error message, if any.
  */
 files.prototype.putFile = function(path, localPath, keepMTime) {
-	keepMTime = keepMTime || true;
-	var headers = {};
+    keepMTime = keepMTime || true;
+    var headers = {};
 
-	if (!path || path === '' || path === '/') {
-		path = helpers._getFileName(localPath);
-	}
-	
-	if (keepMTime) {
-		headers['X-OC-MTIME'] = helpers._getMTime(localPath);
-	}
+    if (!path || path === '' || path === '/') {
+        path = helpers._getFileName(localPath);
+    }
 
-	headers['Content-Length'] = helpers._getFileSize(localPath);
-	headers.authorization = "Basic " + new Buffer(helpers._username + ":" + helpers._password).toString('base64');
+    if (keepMTime) {
+        headers['X-OC-MTIME'] = helpers._getMTime(localPath);
+    }
 
-	return new Promise((resolve,reject) => {	
-		helpers._readFile(path, localPath, headers).then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    headers['Content-Length'] = helpers._getFileSize(localPath);
+    headers.authorization = "Basic " + new Buffer(helpers._username + ":" + helpers._password).toString('base64');
+
+    return new Promise((resolve, reject) => {
+        helpers._readFile(path, localPath, headers).then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Upload a directory with all its contents
- * @param 		{string} 				remotePath		path of the folder to be created at OC instance
- * @param 		{string} 				localPath		path of the folder to be uploaded
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} remotePath path of the folder to be created at OC instance
+ * @param   {string} localPath  path of the folder to be uploaded
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.putDirectory = function(targetPath, localPath) {
-	/* jshint unused : false */
-	var self = this;
-	
-	var filesToPut = helpers._getAllFileInfo(localPath, targetPath);
-	var folderPromises = [];
-	var allFiles = 0;
-	var count = 0;
+    /* jshint unused : false */
+    var self = this;
 
-	for (var i=0;i<filesToPut.length;i++) {
-		allFiles += filesToPut[i].files.length;
-		var folder = filesToPut[i].path;
+    var filesToPut = helpers._getAllFileInfo(localPath, targetPath);
+    var folderPromises = [];
+    var allFiles = 0;
+    var count = 0;
 
-		if (folderPromises.length > 0) {	
-			Promise.all(folderPromises).then(status => {
-				folderPromises.push(self.mkdir(folder));
-			});
-		}
-		else {
-			folderPromises.push(self.mkdir(folder));
-		}
-	}
+    for (var i = 0; i < filesToPut.length; i++) {
+        allFiles += filesToPut[i].files.length;
+        var folder = filesToPut[i].path;
 
-	return new Promise((resolve, reject) => {
-		Promise.all(folderPromises).then(status => {
-			for (var i=0;i<filesToPut.length;i++) {
-				var folder = filesToPut[i].path;
+        if (folderPromises.length > 0) {
+            Promise.all(folderPromises).then(status => {
+                folderPromises.push(self.mkdir(folder));
+            });
+        } else {
+            folderPromises.push(self.mkdir(folder));
+        }
+    }
 
-				for (var j=0;j<filesToPut[i].files.length;j++) {
-					self.putFile(
-						folder + filesToPut[i].files[j], 
-						filesToPut[i].localPath + filesToPut[i].files[j]
-					).then(status2 => {
-						if (status2 === true) {
-							count++;
-						}
+    return new Promise((resolve, reject) => {
+        Promise.all(folderPromises).then(status => {
+            for (var i = 0; i < filesToPut.length; i++) {
+                var folder = filesToPut[i].path;
+                for (var j = 0; j < filesToPut[i].files.length; j++) {
+                    self.putFile(
+                        folder + filesToPut[i].files[j],
+                        filesToPut[i].localPath + filesToPut[i].files[j]
+                    ).then(status2 => {
+                        if (status2 === true) {
+                            count++;
+                        }
 
-						if (count === allFiles) {
-							resolve(true);
-						}
-					}).catch(error => {
-						reject(error);
-						return;
-					});
-				}
-			}
-		}).catch(error => {
-			reject(error);
-			return;
-		});
-	});
-	/* jshint unused : true */
+                        if (count === allFiles) {
+                            resolve(true);
+                        }
+                    }).catch(error => {
+                        reject(error);
+                        return;
+                    });
+                }
+            }
+        }).catch(error => {
+            reject(error);
+            return;
+        });
+    });
+    /* jshint unused : true */
 };
 
 /**
  * Moves a remote file or directory
- * @param 		{string} 				source			initial path of file/folder
- * @param 		{string} 				target			path where to move file/folder finally
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} source     initial path of file/folder
+ * @param   {string} target     path where to move file/folder finally
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.move = function(source, target) {
-	return new Promise((resolve, reject) => {
-		helpers._webdavMoveCopy(source, target, 'MOVE').then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._webdavMoveCopy(source, target, 'MOVE').then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 /**
  * Copies a remote file or directory
- * @param 		{string} 				source			initial path of file/folder
- * @param 		{string} 				target			path where to copy file/folder finally
- * @returns 	{Promise.<status>} 						boolean: whether the operation was successful
- * @returns 	{Promise.<error> } 						string: error message, if any.
+ * @param   {string} source     initial path of file/folder
+ * @param   {string} target     path where to copy file/folder finally
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.copy = function(source, target) {
-	return new Promise((resolve, reject) => {
-		helpers._webdavMoveCopy(source, target, 'COPY').then(status => {
-			resolve(status);
-		}).catch(error => {
-			reject(error);
-		});
-	});
+    return new Promise((resolve, reject) => {
+        helpers._webdavMoveCopy(source, target, 'COPY').then(status => {
+            resolve(status);
+        }).catch(error => {
+            reject(error);
+        });
+    });
 };
 
 module.exports = files;
+
 /* WEBPACK VAR INJECTION */}.call(exports, "/", __webpack_require__(0).Buffer))
 
 /***/ })

@@ -4,7 +4,8 @@
 
 var Promise = require('promise');
 var request = require('request');
-var parser = require('xml-js');
+var parser = require('./xmlParser/');
+var parser2 = require('xml-js');
 var fs = require('fs');
 var utf8 = require('utf8');
 var fileInfo = require('./fileInfo.js');
@@ -100,19 +101,16 @@ helpers.prototype._updateCapabilities = function() {
     var self = this;
     return new Promise((resolve, reject) => {
         self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
-        .then(data => {
-            var body = parser.xml2js(data.body, {
-                compact: true
+            .then(data => {
+                var body = parser.xml2js(data.body).ocs.data;
+
+                self._capabilities = body.capabilities;
+                self._version = body.version.string + '-' + body.version.edition;
+
+                resolve(self._capabilities);
+            }).catch(error => {
+                reject(error);
             });
-            body = self._cleanseJson(body).ocs.data;
-
-            self._capabilities = body.capabilities;
-            self._version = body.version.string + '-' + body.version.edition;
-
-            resolve(self._capabilities);
-        }).catch(error => {
-            reject(error);
-        });
     });
 };
 
@@ -195,10 +193,7 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
             }
 
             if (!error) {
-                var tree = parser.xml2js(body, {
-                    compact: true
-                });
-                tree = self._cleanseJson(tree);
+                var tree = parser.xml2js(body);
                 error = self._checkOCSstatus(tree);
             }
 
@@ -285,10 +280,9 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
  * Parses a DAV response.
  */
 helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
-    var tree = parser.xml2js(body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree)['d:multistatus']['d:response'];
+    var XMLns = this._getXMLns(body);
+
+    var tree = parser.xml2js(body, XMLns)['{DAV:}multistatus']['{DAV:}response'];
     var items = [];
 
     if (tree.constructor !== Array) {
@@ -306,8 +300,8 @@ helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
  * Parses a DAV response element.
  */
 helpers.prototype._parseDAVelement = function(item) {
-    var name = item['d:href'];
-    var attrs = item['d:propstat']['d:prop'];
+    var name = item['{DAV:}href'];
+    var attrs = item['{DAV:}propstat']['{DAV:}prop'];
     var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
 
     var start = 0;
@@ -513,10 +507,7 @@ helpers.prototype._checkExtensionZip = function(path) {
  * Parses a DAV response error.
  */
 helpers.prototype._parseDAVerror = function(body) {
-    var tree = parser.xml2js(body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(body);
 
     if (tree['d:error']['s:message']) {
         return tree['d:error']['s:message'];
@@ -650,10 +641,7 @@ helpers.prototype._convertObjectToBool = function(object) {
  * Handles Provisionging API boolean response
  */
 helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
-    var tree = parser.xml2js(data.body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(data.body);
 
     var statuscode = parseInt(this._checkOCSstatusCode(tree));
     if (statuscode === 999) {
@@ -838,34 +826,23 @@ helpers.prototype._getFileName = function(path) {
 };
 
 /**
- * the XML parser used, gives JS objects with "_text" property at the end.
- * this function removes it.
- * @param  {object}  json  js Object to cleanse
- * @return {object}        cleansed object
+ * returns all xml namespaces in an object
+ * @param  {string} xml xml which has namespace
+ * @return {object}     object with namespace
  */
-helpers.prototype._cleanseJson = function(json) {
-    for (var key in json) {
-        var a = recursiveCleanse(json[key]);
-        json[key] = a;
+helpers.prototype._getXMLns = function (xml) {
+    var tree = parser2.xml2js(xml, {
+        compact: true
+    });
+    var xmlns = tree['d:multistatus']._attributes;
+    var replacedXMLns = {};
+
+    for (var ns in xmlns) {
+        var changedKey = ns.split(':')[1];
+        replacedXMLns[changedKey] = xmlns[ns];
     }
-    return json;
+
+    return replacedXMLns;
 };
-
-/**
- * HELPER FOR _cleanseJson()
- */
-function recursiveCleanse(json) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    for (var key in json) {
-        if (key === '_text') {
-            return json[key];
-        }
-        json[key] = recursiveCleanse(json[key]);
-    }
-    return json;
-}
 
 module.exports = helpers;

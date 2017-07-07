@@ -8,8 +8,7 @@ endif
 
 .PHONY: all browser
 
-all:
-	make deps
+all: deps
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
 	if [ ! -f swagger.config.js ] ; then touch swagger.config.js ; fi;
 	echo "module.exports = {\n\towncloudURL: \"\",\n\tusername: \"\",\n\tpassword: \"\"\n};" > swagger.config.js
@@ -40,7 +39,7 @@ test: deps
 jsdocs:
 	#Install jsdoc if it doesn't exist
 	if [ ! -f node_modules/.bin/jsdoc ] ; then make ; fi;
-	
+
 	#Delete existing documentation (if any)
 	rm -rf jsdoc/
 

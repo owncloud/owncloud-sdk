@@ -38,6 +38,7 @@ var sampleXml2 =
 '            <s:quota-used-bytes>3</s:quota-used-bytes>' +
 '            <oc:quota-available-bytes>-3</oc:quota-available-bytes>' +
 '            <d:getetag>&quot;5950cc87e601e&quot;</d:getetag>' +
+'            <x:customtag>customvalue</x:customtag>' +
 '        </d:prop>' +
 '        <d:status>HTTP/1.1 200 OK</d:status>' +
 '    </d:propstat>' +
@@ -45,13 +46,15 @@ var sampleXml2 =
 var sampleNS2 = {
     "d": "DAV:",
     "s": "http://sabredav.org/ns",
-    "oc": "http://owncloud.org/ns"
+    "oc": "http://owncloud.org/ns",
+    "x": "customns"
 };
 var parsedXml2 = {
     "{DAV:}response": {
         "{DAV:}href": "/core/remote.php/webdav/",
         "{DAV:}propstat": {
             "{DAV:}prop": {
+                "{customns}customtag": "customvalue",
                 "{http://sabredav.org/ns}getlastmodified": "Mon, 26 Jun 2017 08:57:43 GMT",
                 "{http://sabredav.org/ns}quota-used-bytes": "3",
                 "{http://owncloud.org/ns}resourcetype": {

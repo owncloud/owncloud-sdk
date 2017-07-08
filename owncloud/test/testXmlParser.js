@@ -4,7 +4,7 @@
 
 console.log("XML-Parsing related tests");
 
-var parser = require("../xmlParser/").xml2js;
+var parser = require("../xmlParser.js").xml2js;
 
 var sampleXml1 =
 '<cont:contact xmlns:cont = "www.tutorialspoint.com/profile">' +

@@ -14,10 +14,10 @@ myParser.xml2js = function (xml, xmlns) {
 
     if (xmlns) {
         // Keep Namespace
-        parsed = myParser.keepNamespace(parsed, xmlns);
+        parsed = keepNamespace(parsed, xmlns);
     }
 
-    parsed = myParser.cleanseJson(parsed);
+    parsed = cleanseJson(parsed);
     return parsed;
 };
 
@@ -27,7 +27,7 @@ myParser.xml2js = function (xml, xmlns) {
  * @param  {object} ns   Namespace object
  * @return {object}      Namespace replaced object
  */
-myParser.keepNamespace = function(json, ns) {
+function keepNamespace(json, ns) {
     var nsKeys = Object.keys(ns);
 
     for (var key in json) {
@@ -43,14 +43,14 @@ myParser.keepNamespace = function(json, ns) {
         }
     }
 
-    json = myParser.deleteDuplicates(json, ns);
+    json = deleteDuplicates(json, ns);
     return json;
-};
+}
 
 /**
  * Intermediate of keepNamespace()
  */
-myParser.deleteDuplicates = function(json, ns) {
+function deleteDuplicates(json, ns) {
     var ret = {};
     var nsKeys = Object.keys(ns);
     if (json.constructor === Array) {
@@ -73,7 +73,7 @@ myParser.deleteDuplicates = function(json, ns) {
         }
     }
     return ret;
-};
+}
 
 /**
  * This function removes the "_text" attribute introduced by the XML parser
@@ -81,13 +81,13 @@ myParser.deleteDuplicates = function(json, ns) {
  * @param  {object} json object to cleanse
  * @return {object}      cleaned object
  */
-myParser.cleanseJson = function(json) {
+function cleanseJson(json) {
     for (var key in json) {
         var a = recursiveCleanse(json[key]);
         json[key] = a;
     }
     return json;
-};
+}
 
 /**
  * HELPER FOR keepNamespace()

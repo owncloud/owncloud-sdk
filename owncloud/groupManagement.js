@@ -3,7 +3,7 @@
 //////////////////////////////////////
 
 var Promise = require('promise');
-var parser = require('./xmlParser/');
+var parser = require('./xmlParser.js');
 var helpers;
 
 /**

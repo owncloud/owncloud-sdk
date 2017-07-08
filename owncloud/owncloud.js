@@ -3,7 +3,7 @@
 /////////////////////////////
 
 var Promise = require('promise');
-var parser = require('./xmlParser/');
+var parser = require('./xmlParser.js');
 var helperFile = require('./helperFunctions.js');
 var apps = require('./appManagement.js');
 var shares = require('./shareManagement.js');

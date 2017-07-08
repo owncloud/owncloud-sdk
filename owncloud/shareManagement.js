@@ -3,7 +3,7 @@
 /////////////////////////////
 
 var Promise = require('promise');
-var parser = require('./xmlParser/');
+var parser = require('./xmlParser.js');
 var utf8 = require('utf8');
 var shareInfo = require('./shareInfo.js');
 var helpers;
@@ -272,7 +272,7 @@ shares.prototype.listOpenRemoteShare = function() {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
             .then(data => {
                 var shares = parser.xml2js(data.body).ocs.data.element || [];
-                
+
                 resolve(shares);
             }).catch(error => {
                 reject(error);

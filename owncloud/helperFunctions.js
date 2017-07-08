@@ -4,7 +4,7 @@
 
 var Promise = require('promise');
 var request = require('request');
-var parser = require('./xmlParser/');
+var parser = require('./xmlParser.js');
 var parser2 = require('xml-js');
 var fs = require('fs');
 var utf8 = require('utf8');

@@ -264,6 +264,35 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
 };
 
 /**
+ * Helper for putDirectory
+ * This function first makes all the directories required
+ * @param  {object}     array    file list (ls -R) of the directory to be put
+ * @return {Promise.<status>}    boolean: wether mkdir was successful
+ * @returns {Promise.<error>}    string: error message, if any.
+ */
+files.prototype.recursiveMkdir = function(array) {
+    /* jshint unused : false */
+    var self = this;
+    return new Promise(function(resolve, reject) {
+        self.mkdir(array[0].path).then(status => {
+            array.shift();
+            if (array.length === 0) {
+                resolve(true);
+                return;
+            }
+            self.recursiveMkdir(array).then(status2 => {
+                resolve(true);
+            }).catch(err => {
+                reject(err);
+            });
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    /* jshint unused : true */
+};
+
+/**
  * Upload a directory with all its contents
  * @param   {string} remotePath path of the folder to be created at OC instance
  * @param   {string} localPath  path of the folder to be uploaded
@@ -273,52 +302,41 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
 files.prototype.putDirectory = function(targetPath, localPath) {
     /* jshint unused : false */
     var self = this;
-
-    var filesToPut = helpers._getAllFileInfo(localPath, targetPath);
-    var folderPromises = [];
-    var allFiles = 0;
     var count = 0;
-
+    var totalFiles = 0;
+    var filesToPut = helpers._getAllFileInfo(localPath, targetPath);
+    var filesToPut2 = filesToPut;
     for (var i = 0; i < filesToPut.length; i++) {
-        allFiles += filesToPut[i].files.length;
+        totalFiles += filesToPut[i].files.length;
         var folder = filesToPut[i].path;
-
-        if (folderPromises.length > 0) {
-            Promise.all(folderPromises).then(status => {
-                folderPromises.push(self.mkdir(folder));
-            });
-        } else {
-            folderPromises.push(self.mkdir(folder));
+        for (var j = 0; j < filesToPut[i].files.length; j++) {
+            filesToPut2[folder + filesToPut[i].files[j]] = filesToPut[i].localPath +
+                                                           filesToPut[i].files[j];
         }
     }
 
-    return new Promise((resolve, reject) => {
-        Promise.all(folderPromises).then(status => {
-            for (var i = 0; i < filesToPut.length; i++) {
-                var folder = filesToPut[i].path;
-                for (var j = 0; j < filesToPut[i].files.length; j++) {
-                    self.putFile(
-                        folder + filesToPut[i].files[j],
-                        filesToPut[i].localPath + filesToPut[i].files[j]
-                    ).then(status2 => {
-                        if (status2 === true) {
-                            count++;
-                        }
-
-                        if (count === allFiles) {
-                            resolve(true);
-                        }
-                    }).catch(error => {
-                        reject(error);
-                        return;
-                    });
-                }
+    return new Promise(function(resolve, reject) {
+        self.recursiveMkdir(filesToPut).then(status => {
+            for (var key in filesToPut2) {
+                self.putFile(
+                    key,
+                    filesToPut2[key]
+                ).then(status => {
+                    count++;
+                    if (count === totalFiles) {
+                        resolve(true);
+                    }
+                }).catch(error => {
+                    reject(error);
+                    return;
+                });
             }
         }).catch(error => {
             reject(error);
             return;
         });
     });
+
     /* jshint unused : true */
 };
 

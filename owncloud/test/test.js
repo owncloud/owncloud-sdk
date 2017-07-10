@@ -4,6 +4,8 @@
 
 console.log("Running Main tests");
 
+jasmine.getEnv().defaultTimeoutInterval = 20000; // 20 Seconds
+
 var config = require('./config.json');
 var ownCloud = require("../index.js");
 var utf8 = require('utf8');
@@ -51,6 +53,7 @@ var testSubFiles	 = [
 // CREATED SHARES
 var sharedFilesWithUser = {};
 var sharedFilesByLink = {};
+var sharedFilesWithGroup = {};
 var testFolderShareID = null;
 var allShareIDs = [];
 
@@ -59,96 +62,6 @@ var OCS_PERMISSION_READ = 1;
 var OCS_PERMISSION_UPDATE = 2;
 var OCS_PERMISSION_CREATE = 4;
 var OCS_PERMISSION_SHARE = 16;
-
-describe("Currently creating all requirements for running tests,", function() {
-    beforeEach(function(done) {
-        oc = new ownCloud(owncloudURL);
-        oc.login(username, password).then(status => {
-            expect(status).toBe(true);
-            done();
-        });
-    });
-
-    it('creating test user', function(done) {
-        oc.users.createUser(testUser, testUserPassword).then(status => {
-            expect(status).toBe(true);
-            done();
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
-
-    it('creating test group', function(done) {
-        oc.groups.createGroup(testGroup).then(status => {
-            expect(status).toBe(true);
-            done();
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
-
-    it('creating test files', function(done) {
-        var count = 0;
-        for (var i = 0; i < testFiles.length; i++) {
-            oc.files.putFileContents(testFiles[i], testContent).then(status => {
-                expect(status).toBe(true);
-                count++;
-                if (count === testFiles.length) {
-                    done();
-                }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
-            });
-        }
-    });
-
-    it('creating test folder', function(done) {
-        oc.files.createFolder(testFolder).then(status => {
-            expect(status).toBe(true);
-            done();
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
-
-    it('creating subDirectory under testFolder', function(done) {
-        oc.files.mkdir(testSubDir).then(status => {
-            expect(status).toBe(true);
-            done();
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
-
-    it('creating files under testFolder', function(done) {
-        var count = 0;
-
-        for (var i = 0; i < testSubFiles.length; i++) {
-            oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
-                expect(status).toBe(true);
-                count++;
-                if (count === testSubFiles.length) {
-                    done();
-                }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
-            });
-        }
-    });
-
-    it('creating a local file to upload later', function(done) {
-        fs.writeFile(localFile, testContent, function(err) {
-            expect(err).toBe(null);
-            done();
-        });
-    });
-});
 
 describe("Currently testing Login and initLibrary,", function() {
     beforeEach(function() {
@@ -288,141 +201,186 @@ describe("Currently testing apps management,", function() {
         });
     });
 
-    it('checking method : setAttribute', function(done) {
-        var key = ['attr1', 'attr+plus space', '属性1'];
-        var value = ['value1', 'value+plus space and/slash', '值对1'];
-        var count = 0;
+	describe("App attributes testing,", function() {
+			beforeEach(function(done) {
+				var key = ['attr1', 'attr+plus space', '属性1'];
+		        var value = ['value1', 'value+plus space and/slash', '值对1'];
+		        var count = 0;
 
-        for (var i = 0; i < key.length; i++) {
-            oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
-                expect(status).toBe(true);
-                count++;
-                if (count === key.length) {
-                    done();
+		        for (var i = 0; i < key.length; i++) {
+		            oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
+		                expect(status).toBe(true);
+		                count++;
+		                if (count === key.length) {
+		                    done();
+		                }
+		            }).catch(error => {
+		                expect(error).toBe(null);
+		                done();
+		            });
+		        }
+			});
+
+			afterEach(function(done) {
+				var key = ['attr1', 'attr+plus space', '属性1'];
+		        var count = 0;
+
+		        for (var i = 0; i < key.length; i++) {
+		            oc.apps.deleteAttribute(testApp, key[i]).then(status => {
+		                expect(status).toBe(true);
+		                count++;
+		                if (count === key.length) {
+		                    done();
+		                }
+		            }).catch(error => {
+		                expect(error).toBe(null);
+		                done();
+		            });
+		        }
+			});
+
+            it('checking method : valid getAttribute', function(done) {
+                var key = ['attr1', 'attr+plus space', '属性1'];
+                var value = ['value1', 'value+plus space and/slash', '值对1'];
+                var count = 0;
+
+                for (var i = 0; i < key.length; i++) {
+                    oc.apps.getAttribute(testApp, key[i]).then(data => {
+                        expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1);
+                        count++;
+                        if (count === key.length) {
+                            done();
+                        }
+                    }).catch(error => {
+                        expect(error).toBe(null);
+                        done();
+                    });
                 }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
             });
-        }
-    });
 
-    it('checking method : valid getAttribute', function(done) {
-        var key = ['attr1', 'attr+plus space', '属性1'];
-        var value = ['value1', 'value+plus space and/slash', '值对1'];
-        var count = 0;
+            it('checking method : non existent getAttribute', function(done) {
+                var key = ['attr ', 'attr+plus space ', '属性1 '];
+                var count = 0;
 
-        for (var i = 0; i < key.length; i++) {
-            oc.apps.getAttribute(testApp, key[i]).then(data => {
-                expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1);
-                count++;
-                if (count === key.length) {
-                    done();
+                for (var i = 0; i < key.length; i++) {
+                    oc.apps.getAttribute(testApp, key[i]).then(data => {
+                        expect(data).toEqual(null);
+                        done();
+                    }).catch(error => {
+                        var fl = 0;
+                        for (var j = 0; j < key.length; j++) {
+                            if (error === testApp + ' has no key named "' + key[j] + '"') {
+                                fl = 1;
+                            }
+                        }
+                        expect(fl).toBe(1);
+                        count++;
+                        if (count === key.length) {
+                            done();
+                        }
+                    });
                 }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
             });
-        }
-    });
 
-    it('checking method : non existent getAttribute', function(done) {
-        var key = ['attr2', 'attr+plus space ', '属性12'];
-        var count = 0;
+            it('checking method : getAttribute without key', function(done) {
+                var key = ['attr1', 'attr+plus space', '属性1'];
+                var value = ['value1', 'value+plus space and/slash', '值对1'];
+                var count = 0;
 
-        for (var i = 0; i < key.length; i++) {
-            oc.apps.getAttribute(testApp, key[i]).then(data => {
-                expect(data).toEqual(null);
-                done();
-            }).catch(error => {
-                var fl = 0;
-                for (var j = 0; j < key.length; j++) {
-                    if (error === testApp + ' has no key named "' + key[j] + '"') {
-                        fl = 1;
+                oc.apps.getAttribute(testApp).then(allAttributes => {
+                    for (var i = 0; i < key.length; i++) {
+                        expect(typeof(allAttributes)).toBe('object');
+                        expect(utf8.encode(key[i]) in allAttributes).toBe(true);
+                        var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])]);
+                        expect(value.indexOf(ocValue)).toBeGreaterThan(-1);
+                        count++;
+                        if (count === key.length) {
+                            done();
+                        }
                     }
-                }
-                expect(fl).toBe(1);
-                count++;
-                if (count === key.length) {
+                }).catch(error => {
+                    expect(error).toBe(null);
                     done();
+                });
+            });
+	});
+
+    describe("App attributes testing with empty value,", function() {
+			beforeEach(function(done) {
+				var key = ['attr1', 'attr+plus space', '属性1'];
+		        var count = 0;
+
+		        for (var i = 0; i < key.length; i++) {
+		            oc.apps.setAttribute(testApp, key[i], '').then(status => {
+		                expect(status).toBe(true);
+		                count++;
+		                if (count === key.length) {
+		                    done();
+		                }
+		            }).catch(error => {
+		                expect(error).toBe(null);
+		                done();
+		            });
+		        }
+			});
+
+			afterEach(function(done) {
+				var key = ['attr1', 'attr+plus space', '属性1'];
+		        var count = 0;
+
+		        for (var i = 0; i < key.length; i++) {
+		            oc.apps.deleteAttribute(testApp, key[i]).then(status => {
+		                expect(status).toBe(true);
+		                count++;
+		                if (count === key.length) {
+		                    done();
+		                }
+		            }).catch(error => {
+		                expect(error).toBe(null);
+		                done();
+		            });
+		        }
+			});
+
+            it('checking method : valid getAttribute', function(done) {
+                var key = ['attr1', 'attr+plus space', '属性1'];
+                var count = 0;
+
+                for (var i = 0; i < key.length; i++) {
+                    oc.apps.getAttribute(testApp, key[i]).then(data => {
+                        expect(utf8.decode(data)).toBe('');
+                        count++;
+                        if (count === key.length) {
+                            done();
+                        }
+                    }).catch(error => {
+                        expect(error).toBe(null);
+                        done();
+                    });
                 }
             });
-        }
-    });
 
-    it('checking method : getAttribute without key', function(done) {
-        var key = ['attr1', 'attr+plus space', '属性1'];
-        var value = ['value1', 'value+plus space and/slash', '值对1'];
-        var count = 0;
+            it('checking method : getAttribute without key', function(done) {
+                var key = ['attr1', 'attr+plus space', '属性1'];
+                var count = 0;
 
-        oc.apps.getAttribute(testApp).then(allAttributes => {
-            for (var i = 0; i < key.length; i++) {
-                expect(typeof(allAttributes)).toBe('object');
-                expect(utf8.encode(key[i]) in allAttributes).toBe(true);
-                var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])]);
-                expect(value.indexOf(ocValue)).toBeGreaterThan(-1);
-                count++;
-                if (count === key.length) {
+                oc.apps.getAttribute(testApp).then(allAttributes => {
+                    for (var i = 0; i < key.length; i++) {
+                        expect(typeof(allAttributes)).toBe('object');
+                        expect(utf8.encode(key[i]) in allAttributes).toBe(true);
+                        var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])]);
+                        expect(ocValue).toBe('');
+                        count++;
+                        if (count === key.length) {
+                            done();
+                        }
+                    }
+                }).catch(error => {
+                    expect(error).toBe(null);
                     done();
-                }
-            }
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
-
-    it('checking method : setAttribute with empty value', function(done) {
-        var key = ['attr1', 'attr+plus space', '属性1'];
-        var count = 0;
-        for (var i = 0; i < key.length; i++) {
-            oc.apps.setAttribute(testApp, key[i], '').then(status => {
-                expect(status).toBe(true);
-                count++;
-                if (count === key.length) {
-                    done();
-                }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
+                });
             });
-        }
-    });
-
-    it('checking method : setAttribute confirming empty value', function(done) {
-        var key = ['attr1', 'attr+plus space', '属性1'];
-        var count = 0;
-        for (var i = 0; i < key.length; i++) {
-            oc.apps.getAttribute(testApp, key[i], '').then(attr => {
-                expect(attr).toBe('');
-                count++;
-                if (count === key.length) {
-                    done();
-                }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
-            });
-        }
-    });
-
-    it('checking method : deleteAttribute', function(done) {
-        var key = ['attr1', 'attr+plus space', '属性1'];
-        var count = 0;
-
-        for (var i = 0; i < key.length; i++) {
-            oc.apps.deleteAttribute(testApp, key[i]).then(status => {
-                expect(status).toBe(true);
-                count++;
-                if (count === key.length) {
-                    done();
-                }
-            }).catch(error => {
-                expect(error).toBe(null);
-                done();
-            });
-        }
-    });
+	});
 
     it('checking method : enableApp when app exists', function(done) {
         oc.apps.enableApp('files').then(status => {
@@ -470,32 +428,544 @@ describe("Currently testing apps management,", function() {
     });
 });
 
-describe("Currently testing file/folder sharing,", function () {
-	beforeEach(function () {
+describe("Currently testing folder sharing,", function () {
+    beforeEach(function (done) {
 		oc = new ownCloud(owncloudURL);
 		oc.login(username, password);
+
+        oc.files.createFolder(testFolder).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
 	});
 
-	it('checking method : shareFileWithLink with existent file', function (done) {
-		for (var i=0;i<testFiles.length;i++) {
-			oc.shares.shareFileWithLink(testFiles[i]).then(share => {
-				expect(share).not.toBe(null);
-				expect(typeof(share)).toBe('object');
-				expect(testFiles.indexOf(utf8.decode(share.getPath()))).toBeGreaterThan(-1);
-				expect(typeof(share.getId())).toBe('number');
-				expect(typeof(share.getLink())).toBe('string');
-				expect(typeof(share.getToken())).toBe('string');
-				sharedFilesByLink[share.getPath()] = share.getId();
-				allShareIDs.push(share.getId());
-				if (share.getPath() === testFiles[testFiles.length - 1]) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
+	afterEach(function (done) {
+		oc.files.delete(testFolder).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
 	});
+
+    describe("sharedFolder,", function() {
+        beforeEach(function(done) {
+            oc.shares.shareFileWithLink(testFolder).then(share => {
+    			expect(typeof(share)).toBe('object');
+    			testFolderShareID = share.getId();
+    			allShareIDs.push(testFolderShareID);
+                done();
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        });
+
+        afterEach(function(done) {
+            oc.shares.deleteShare(testFolderShareID).then(status => {
+                expect(status).toBe(true);
+                done();
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        });
+
+        describe("updating share permissions,", function() {
+            beforeEach(function(done) {
+                oc.shares.updateShare(testFolderShareID, {perms: 31}) // max-permissions
+        		.then(status => {
+        			expect(status).toBe(null);
+        			done();
+        		}).catch(error => {
+        			var check = 'can\'t change permissions for public share links';
+        			if (error === 'can\'t change permission for public link share') {
+        				check = 'can\'t change permission for public link share';
+        			}
+        			expect(error.toLowerCase()).toBe(check);
+        			done();
+        		});
+            });
+
+            it("confirms not changed permissions", function(done) {
+                oc.shares.getShare(testFolderShareID).then(share => {
+        			// permissions would still be read only as the share is public
+        			expect(share.getPermissions()).toEqual(1);
+        			done();
+        		}).catch(error => {
+        			expect(error).toBe(null);
+        			done();
+        		});
+            });
+        });
+
+        describe("making publicUpload true,", function() {
+            beforeEach(function(done) {
+                oc.shares.updateShare(testFolderShareID, {publicUpload: true}).then(data => {
+        			expect(data).toBe(true);
+        			done();
+        		}).catch(error => {
+        			expect(error).toBe(null);
+        			done();
+        		});
+            });
+
+            it("confirms publicUpload true", function(done) {
+                oc.shares.getShare(testFolderShareID).then(share => {
+        			expect(share.getPermissions() & OCS_PERMISSION_CREATE).toBeGreaterThan(0);
+        			expect(share.getPermissions() & OCS_PERMISSION_UPDATE).toBeGreaterThan(0);
+        			done();
+        		}).catch(error => {
+        			expect(error).toBe(null);
+        			done();
+        		});
+            });
+        });
+
+        describe("adding password,", function() {
+            beforeEach(function(done) {
+                oc.shares.updateShare(testFolderShareID, {password: 'testPassword'}).then(status => {
+        			expect(status).toEqual(true);
+        			done();
+        		}).catch(error => {
+        			expect(error).toBe(null);
+        			done();
+        		});
+            });
+
+            it("confirms added password", function(done) {
+                oc.shares.getShare(testFolderShareID).then(share => {
+        			expect(typeof(share.getShareWith())).toEqual('string');
+        			expect(typeof(share.getShareWithDisplayName())).toEqual('string');
+        			done();
+        		}).catch(error => {
+        			expect(error).toBe(null);
+        			done();
+        		});
+            });
+        });
+    });
+});
+
+describe("Currently testing file sharing,", function () {
+	beforeEach(function (done) {
+		oc = new ownCloud(owncloudURL);
+		oc.login(username, password);
+
+        // CREATING TEST USER
+        oc.users.createUser(testUser, testUserPassword).then(status => {
+            expect(status).toBe(true);
+            // CREATING TEST GROUP
+            return oc.groups.createGroup(testGroup);
+        }).then(status => {
+            expect(status).toBe(true);
+            var count = 0;
+            for (var i = 0; i < testFiles.length; i++) {
+                // CREATING TEST FILES
+                oc.files.putFileContents(testFiles[i], testContent).then(status => {
+                    expect(status).toBe(true);
+                    count++;
+                    if (count === testFiles.length) {
+                        done();
+                    }
+                }).catch(error => {
+                    expect(error).toBe(null);
+                    done();
+                });
+            }
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+	});
+
+	afterEach(function (done) {
+		oc.users.deleteUser(testUser).then(status => {
+			expect(status).toBe(true);
+			return oc.groups.deleteGroup(testGroup);
+		}).then(status2 => {
+			expect(status2).toBe(true);
+
+			var count = 0;
+            for (var i = 0; i < testFiles.length; i++) {
+                // DELETING TEST FILES
+                oc.files.delete(testFiles[i]).then(status => {
+                    expect(status).toBe(true);
+                    count++;
+                    if (count === testFiles.length) {
+                        done();
+                    }
+                }).catch(error => {
+                    expect(error).toBe(null);
+                    done();
+                });
+            }
+		}).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+	})
+
+    describe("sharedFilesByLink,", function() {
+        beforeEach(function(done) {
+            var count = 0;
+            for (var i=0;i<testFiles.length;i++) {
+    			oc.shares.shareFileWithLink(testFiles[i]).then(share => {
+    				expect(share).not.toBe(null);
+    				expect(typeof(share)).toBe('object');
+    				expect(testFiles.indexOf(utf8.decode(share.getPath()))).toBeGreaterThan(-1);
+    				expect(typeof(share.getId())).toBe('number');
+    				expect(typeof(share.getLink())).toBe('string');
+    				expect(typeof(share.getToken())).toBe('string');
+    				sharedFilesByLink[share.getPath()] = share.getId();
+    				allShareIDs.push(share.getId());
+                    count++;
+                    if (count === testFiles.length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        afterEach(function(done) {
+            var count = 0;
+            var numShares = Object.keys(sharedFilesByLink).length;
+
+            for (var file in sharedFilesByLink) {
+    			oc.shares.deleteShare(sharedFilesByLink[file]).then(status => {
+    				expect(status).toBe(true);
+                    count++;
+                    if (count === numShares) {
+                        sharedFilesByLink = {};
+                        done();
+                    }
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        describe("checking the shared files,", function() {
+            it('checking method : isShared with shared file', function (done) {
+        		var count = 0;
+
+        		for (var i=0;i<testFiles.length;i++) {
+        			oc.shares.isShared(testFiles[i]).then(status => {
+        				expect(status).toEqual(true);
+        				count++;
+        				if (count === testFiles.length) {
+        					done();
+        				}
+        			}).catch(error => {
+        				expect(error).toBe(null);
+        				done();
+        			});
+        		}
+            });
+
+            it('checking method : getShare with existent share', function (done) {
+        		var count = 0;
+
+        		for (var file in sharedFilesByLink) {
+        			oc.shares.getShare(sharedFilesByLink[file]).then(share => {
+        				expect(typeof(share)).toBe('object');
+        				expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
+        				count++;
+        				if (count === Object.keys(sharedFilesByLink).length) {
+        					done();
+        				}
+        			}).catch(error => {
+        				expect(error).toBe(null);
+        				done();
+        			});
+        		}
+        	});
+
+            it('checking method : getShares for shared file', function (done) {
+        		var count = 0;
+    			var allIDs = [];
+    			for (var file in sharedFilesByLink) {
+    				allIDs.push(sharedFilesByLink[file]);
+    			}
+
+        		for (var i=0;i<testFiles.length;i++) {
+        			oc.shares.getShares(testFiles[i]).then(shares => {
+        				expect(shares.constructor).toBe(Array);
+        				var flag = 0;
+        				for (var i=0;i<shares.length;i++) {
+        					var share = shares[i];
+        					if (allIDs.indexOf(share.getId()) > -1) {
+        						flag = 1;
+        					}
+        				}
+        				expect(flag).toEqual(1);
+        				count++;
+        				if (count === testFiles.length) {
+        					done();
+        				}
+        			}).catch(error => {
+        				expect(error).toBe(null);
+        				done();
+        			});
+        		}
+        	});
+        });
+    });
+
+    describe("sharedFilesWithUser,", function() {
+        beforeEach(function(done) {
+            var count = 0;
+
+    		for (var i=0;i<testFiles.length;i++) {
+    			oc.shares.shareFileWithUser(testFiles[i], testUser).then(share => {
+    				expect(share).not.toBe(null);
+    				expect(typeof(share)).toBe('object');
+    				expect(typeof(share.getId())).toBe('number');
+    				sharedFilesWithUser[share.getPath()] = share.getId();
+    				allShareIDs.push(share.getId());
+    				count++;
+    				if (count === testFiles.length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        afterEach(function(done) {
+            var count = 0;
+
+    		for (var file in sharedFilesWithUser) {
+    			oc.shares.deleteShare(sharedFilesWithUser[file]).then(status => {
+    				expect(status).toBe(true);
+    				count++;
+    				if (count === testFiles.length) {
+                        sharedFilesWithUser = {};
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        describe("updating permissions", function() {
+            beforeEach(function (done) {
+                var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
+        		var count = 0;
+
+        		for (var file in sharedFilesWithUser) {
+        			oc.shares.updateShare(sharedFilesWithUser[file], {perms: maxPerms}).then(status => {
+        				expect(status).toEqual(true);
+        				count++;
+        				if (count === Object.keys(sharedFilesWithUser).length) {
+        					done();
+        				}
+        			}).catch(error => {
+        				expect(error).toBe(null);
+        				done();
+        			});
+        		}
+            });
+
+            it ("confirms updated permissions", function (done) {
+                var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
+        		var count = 0;
+
+        		for (var file in sharedFilesWithUser) {
+        			oc.shares.getShare(sharedFilesWithUser[file]).then(share => {
+        				expect(share.getPermissions()).toEqual(maxPerms);
+        				count++;
+        				if (count === Object.keys(sharedFilesWithUser).length) {
+        					done();
+        				}
+        			}).catch(error => {
+        				expect(error).toBe(null);
+        				done();
+        			});
+        		}
+            });
+        });
+
+        it('checking method : isShared with shared file', function (done) {
+    		var count = 0;
+
+    		for (var file in sharedFilesWithUser) {
+    			oc.shares.isShared(file).then(status => {
+    				expect(status).toEqual(true);
+    				count++;
+    				if (count === Object.keys(sharedFilesWithUser).length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        it('checking method : getShare with existent share', function (done) {
+    		var count = 0;
+
+    		for (var file in sharedFilesWithUser) {
+    			oc.shares.getShare(sharedFilesWithUser[file]).then(share => {
+    				expect(typeof(share)).toBe('object');
+    				expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
+    				count++;
+    				if (count === Object.keys(sharedFilesWithUser).length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+    	});
+
+        it('checking method : getShares for shared file', function (done) {
+    		var count = 0;
+			var allIDs = [];
+			for (var file in sharedFilesWithUser) {
+				allIDs.push(sharedFilesWithUser[file]);
+			}
+
+    		for (file in sharedFilesWithUser) {
+    			oc.shares.getShares(file).then(shares => {
+    				expect(shares.constructor).toBe(Array);
+    				var flag = 0;
+    				for (var i=0;i<shares.length;i++) {
+    					var share = shares[i];
+    					if (allIDs.indexOf(share.getId()) > -1) {
+    						flag = 1;
+    					}
+    				}
+    				expect(flag).toEqual(1);
+    				count++;
+    				if (count === Object.keys(sharedFilesWithUser).length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+    	});
+    });
+
+    describe("sharedFilesWithGroup,", function() {
+        beforeEach(function(done) {
+            var count = 0;
+
+    		for (var i=0;i<testFiles.length;i++) {
+    			oc.shares.shareFileWithGroup(testFiles[i], testGroup, {perms: 19}).then(share => {
+    				expect(typeof(share)).toEqual('object');
+    				expect(share.getPermissions()).toEqual(19);
+                    sharedFilesWithGroup[share.getPath()] = share.getId();
+    				allShareIDs.push(share.getId());
+    				count++;
+    				if (count === testFiles.length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        afterEach(function(done) {
+            var count = 0;
+
+    		for (var file in sharedFilesWithGroup) {
+    			oc.shares.deleteShare(sharedFilesWithGroup[file]).then(status => {
+    				expect(status).toEqual(true);
+    				count++;
+    				if (count === testFiles.length) {
+                        sharedFilesWithGroup = {};
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        it('checking method : isShared with shared file', function (done) {
+    		var count = 0;
+
+    		for (var file in sharedFilesWithGroup) {
+    			oc.shares.isShared(file).then(status => {
+    				expect(status).toEqual(true);
+    				count++;
+    				if (count === Object.keys(sharedFilesWithGroup).length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+        });
+
+        it('checking method : getShare with existent share', function (done) {
+    		var count = 0;
+
+    		for (var file in sharedFilesWithGroup) {
+    			oc.shares.getShare(sharedFilesWithGroup[file]).then(share => {
+    				expect(typeof(share)).toBe('object');
+    				expect(sharedFilesWithGroup.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
+    				count++;
+    				if (count === Object.keys(sharedFilesWithGroup).length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+    	});
+
+        it('checking method : getShares for shared file', function (done) {
+    		var count = 0;
+			var allIDs = [];
+			for (var file in sharedFilesWithGroup) {
+				allIDs.push(sharedFilesWithGroup[file]);
+			}
+
+    		for (file in sharedFilesWithGroup) {
+    			oc.shares.getShares(file).then(shares => {
+    				expect(shares.constructor).toBe(Array);
+    				var flag = 0;
+    				for (var i=0;i<shares.length;i++) {
+    					var share = shares[i];
+    					if (allIDs.indexOf(share.getId()) > -1) {
+    						flag = 1;
+    					}
+    				}
+    				expect(flag).toEqual(1);
+    				count++;
+    				if (count === Object.keys(sharedFilesWithGroup).length) {
+    					done();
+    				}
+    			}).catch(error => {
+    				expect(error).toBe(null);
+    				done();
+    			});
+    		}
+    	});
+    });
 
 	it('checking method : shareFileWithLink with non-existent file', function (done) {
 		oc.shares.shareFileWithLink(nonExistingFile, {password : 'testPassword'}).then(status => {
@@ -505,72 +975,6 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist');
 			done();
 		});
-	});
-
-	it('checking method : shareFileWithUser with existent File', function (done) {
-		var count = 0;
-
-		for (var i=0;i<testFiles.length;i++) {
-			oc.shares.shareFileWithUser(testFiles[i], testUser).then(share => {
-				expect(share).not.toBe(null);
-				expect(typeof(share)).toBe('object');
-				expect(typeof(share.getId())).toBe('number');
-				sharedFilesWithUser[share.getPath()] = share.getId();
-				allShareIDs.push(share.getId());
-				count++;
-				if (count === testFiles.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
-
-	it('checking method : shareFileWithUser for the user file is shared with', function (done) {
-		var count = 0;
-
-		oc.login(testUser, testUserPassword).then(status => {
-			expect(status).toBe(true);
-			for (var key in sharedFilesWithUser) {
-				oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
-					expect(share).not.toBe(null);
-					expect(typeof(share)).toBe('object');
-					expect(typeof(share.getId())).toBe('number');
-					expect(share.getShareWith()).toEqual(testUser);
-					count++;
-					if (count === Object.keys(sharedFilesWithUser).length) {
-						done();
-					}
-				}).catch(error => {
-					expect(error).toBe(null);
-					done();
-				});
-			}
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : shareFileWithGroup with existent file', function (done) {
-		var count = 0;
-
-		for (var i=0;i<testFiles.length;i++) {
-			oc.shares.shareFileWithGroup(testFiles[i], testGroup, {perms: 19}).then(share => {
-				expect(typeof(share)).toEqual('object');
-				expect(share.getPermissions()).toEqual(19);
-				allShareIDs.push(share.getId());
-				count++;
-				if (count === testFiles.length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
 	});
 
 	it('checking method : shareFileWithGroup with non existent file', function (done) {
@@ -593,23 +997,6 @@ describe("Currently testing file/folder sharing,", function () {
 		});
 	});
 
-	it('checking method : isShared with shared file', function (done) {
-		var count = 0;
-
-		for (var key in sharedFilesWithUser) {
-			oc.shares.isShared(key).then(status => {
-				expect(status).toEqual(true);
-				count++;
-				if (count === Object.keys(sharedFilesWithUser).length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
-
 	it('checking method : isShared with existent but non shared file', function (done) {
 		oc.files.putFileContents('newFileCreated' + timeRightNow).then(status => {
 			expect(status).toBe(true);
@@ -627,24 +1014,6 @@ describe("Currently testing file/folder sharing,", function () {
 		});
 	});
 
-	it('checking method : getShare with existent share', function (done) {
-		var count = 0;
-
-		for (var key in sharedFilesWithUser) {
-			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
-				expect(typeof(share)).toBe('object');
-				expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1);
-				count++;
-				if (count === Object.keys(sharedFilesWithUser).length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
-
 	it('checking method : getShare with non existent share', function (done) {
 		oc.shares.getShare(-1).then(share => {
 			expect(share).toBe(null);
@@ -656,31 +1025,6 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
 			done();
 		});
-	});
-
-	it('checking method : getShares for shared file', function (done) {
-		var count = 0;
-
-		for (var key in sharedFilesWithUser) {
-			oc.shares.getShares(key).then(shares => {
-				expect(shares.constructor).toBe(Array);
-				var flag = 0;
-				for (var i=0;i<shares.length;i++) {
-					var share = shares[i];
-					if (sharedFilesWithUser.hasOwnProperty(share.getId()) > -1) {
-						flag = 1;
-					}
-				}
-				expect(flag).toEqual(1);
-				count++;
-				if (count === Object.keys(sharedFilesWithUser).length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
 	});
 
 	it('checking method : getShares for non existent file', function (done) {
@@ -711,114 +1055,6 @@ describe("Currently testing file/folder sharing,", function () {
 		});
 	});
 
-	it('checking method : updateShare for existent share, editing permissions', function (done) {
-		oc.shares.shareFileWithLink(testFolder).then(share => {
-			expect(typeof(share)).toBe('object');
-			testFolderShareID = share.getId();
-			allShareIDs.push(testFolderShareID);
-			return oc.shares.updateShare(testFolderShareID, {perms: 31}); // max-permissions
-		}).then(status => {
-			expect(status).toBe(null);
-			done();
-		}).catch(error => {
-			var check = 'can\'t change permissions for public share links';
-			if (error === 'can\'t change permission for public link share') {
-				check = 'can\'t change permission for public link share';
-			}
-			expect(error.toLowerCase()).toBe(check);
-			done();
-		});
-	});
-
-	it('checking method : updateShare for existent share, confirming changed permissions', function (done) {
-		oc.shares.getShare(testFolderShareID).then(share => {
-			// permissions would still be read only as the share is public
-			expect(share.getPermissions()).toEqual(1);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : updateShare for existent share, making publicUpload true', function (done) {
-		oc.shares.updateShare(testFolderShareID, {publicUpload: true}).then(data => {
-			expect(data).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : updateShare for existent share, confirming publicUpload', function (done) {
-		oc.shares.getShare(testFolderShareID).then(share => {
-			expect(share.getPermissions() & OCS_PERMISSION_CREATE).toBeGreaterThan(0);
-			expect(share.getPermissions() & OCS_PERMISSION_UPDATE).toBeGreaterThan(0);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : updateShare for existent share, adding password', function (done) {
-		oc.shares.updateShare(testFolderShareID, {password: 'testPassword'}).then(status => {
-			expect(status).toEqual(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : updateShare for existent share, confirming password', function (done) {
-		oc.shares.getShare(testFolderShareID).then(share => {
-			expect(typeof(share.getShareWith())).toEqual('string');
-			expect(typeof(share.getShareWithDisplayName())).toEqual('string');
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : updateShare for existent share with user, editing permissions', function (done) {
-		var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
-		var count = 0;
-
-		for (var key in sharedFilesWithUser) {
-			oc.shares.updateShare(sharedFilesWithUser[key], {perms: maxPerms}).then(status => {
-				expect(status).toEqual(true);
-				count++;
-				if (count === Object.keys(sharedFilesWithUser).length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
-
-	it('checking method : updateShare for existent share with user, confirming permissions', function (done) {
-		var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE;
-		var count = 0;
-
-		for (var key in sharedFilesWithUser) {
-			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
-				expect(share.getPermissions()).toEqual(maxPerms);
-				count++;
-				if (count === Object.keys(sharedFilesWithUser).length) {
-					done();
-				}
-			}).catch(error => {
-				expect(error).toBe(null);
-				done();
-			});
-		}
-	});
-
 	it('checking method : updateShare for non existent share', function (done) {
 		oc.shares.updateShare(-1).then(status => {
 			expect(status).toBe(null);
@@ -830,38 +1066,6 @@ describe("Currently testing file/folder sharing,", function () {
 			expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist');
 			done();
 		});
-	});
-
-	it('checking method : deleteShare with existent share', function (done) {
-		var count = 0;
-
-		for (var key in sharedFilesWithUser) {
-			oc.shares.getShare(sharedFilesWithUser[key]).then(share => {
-				expect(typeof(share)).toBe("object");
-
-				var shareIDtoRemove = allShareIDs.indexOf(this.id);
-				if (shareIDtoRemove > -1)  {
-					allShareIDs.splice(shareIDtoRemove, 1);
-				}
-
-				oc.shares.deleteShare(share.getId()).then(status => {
-					expect(status).toBe(true);
-					oc.shares.getShare(share.getId()).then(share => {
-						expect(share).toBe(null);
-						done();
-					}).catch(error => {
-						if (error.slice(-1) === '.') {
-							error = error.slice(0, -1);
-						}
-						expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist');
-						count++;
-						if (count === Object.keys(sharedFilesWithUser).length) {
-							done();
-						}
-					});
-				});
-			});
-		}
 	});
 
 	it('checking method : deleteShare with non existent share', function (done) {
@@ -879,9 +1083,109 @@ describe("Currently testing file/folder sharing,", function () {
 });
 
 describe("Currently testing user management,", function () {
-	beforeEach(function () {
+	beforeEach(function (done) {
 		oc = new ownCloud(owncloudURL);
-		oc.login(username, password);
+		oc.login(username, password).then(status => {
+			expect(status).toBe(true);
+			return oc.users.createUser(testUser, testUserPassword);
+		}).then(status2 => {
+			expect(status2).toBe(true);
+			return oc.groups.createGroup(testGroup);
+		}).then(status3 => {
+			expect(status3).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
+
+	afterEach(function (done) {
+		oc.users.deleteUser(testUser).then(status => {
+			expect(status).toBe(true);
+			return oc.groups.deleteGroup(testGroup);
+		}).then(status2 => {
+			expect(status2).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	})
+
+	describe("added testUser to testGroup,", function() {
+		beforeEach(function(done) {
+			oc.users.addUserToGroup(testUser, testGroup).then(status => {
+				expect(status).toBe(true);
+				return oc.users.userIsInGroup(testUser, testGroup);
+			}).then(status => {
+				expect(status).toBe(true);
+				done();
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		});
+
+		afterEach(function(done) {
+			oc.users.removeUserFromGroup(testUser, testGroup).then(status => {
+				expect(status).toBe(true);
+				return oc.users.userIsInGroup(testUser, testGroup);
+			}).then(status => {
+				expect(status).toBe(false);
+				done();
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		});
+
+		it('checking method : getUserGroups with an existent user', function (done) {
+			oc.users.getUserGroups(testUser).then(data => {
+				expect(typeof(data)).toEqual('object');
+				expect(data.indexOf(testGroup)).toBeGreaterThan(-1);
+				done();
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		});
+
+		it('checking method : userIsInGroup with an existent user, existent group', function (done) {
+			oc.users.userIsInGroup(testUser, testGroup).then(status => {
+				expect(status).toBe(true);
+				done();
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		});
+	});
+
+	describe("made testUser as testGroup subAdmin", function() {
+		beforeEach(function(done) {
+			oc.users.addUserToSubadminGroup(testUser, testGroup).then(status => {
+				expect(status).toBe(true);
+				return oc.users.userIsInSubadminGroup(testUser, testGroup);
+			}).then(status => {
+				expect(status).toBe(true);
+				done();
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		});
+
+		it('checking method : getUserSubadminGroups with an existent user', function (done) {
+			oc.users.getUserSubadminGroups(testUser).then(data => {
+				expect(typeof(data)).toEqual('object');
+				expect(data.indexOf(testGroup)).toBeGreaterThan(-1);
+				done();
+			}).catch(error => {
+				expect(error).toBe(null);
+				done();
+			});
+		});
 	});
 
 	it('checking method : getUser on an existent user', function (done) {
@@ -999,19 +1303,6 @@ describe("Currently testing user management,", function () {
 		});
 	});
 
-	it('checking method : addUserToGroup with existent user, existent group', function (done) {
-		oc.users.addUserToGroup(testUser, testGroup).then(status => {
-			expect(status).toBe(true);
-			return oc.users.userIsInGroup(testUser, testGroup);
-		}).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
 	it('checking method : addUserToGroup with existent user, non existent group', function (done) {
 		oc.users.addUserToGroup(testUser, nonExistingGroup)
 		.then(status => {
@@ -1036,17 +1327,6 @@ describe("Currently testing user management,", function () {
 		});
 	});
 
-	it('checking method : getUserGroups with an existent user', function (done) {
-		oc.users.getUserGroups(testUser).then(data => {
-			expect(typeof(data)).toEqual('object');
-			expect(data.indexOf(testGroup)).toBeGreaterThan(-1);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
 	it('checking method : getUserGroups with a non existent user', function (done) {
 		oc.users.getUserGroups(nonExistingUser).then(data => {
 			expect(typeof(data)).toBe('object');
@@ -1055,16 +1335,6 @@ describe("Currently testing user management,", function () {
 		}).catch(error => {
 			expect(typeof(error)).toBe('object');
 			expect(error.ocs.meta.statuscode).toEqual('998');
-			done();
-		});
-	});
-
-	it('checking method : userIsInGroup with an existent user, existent group', function (done) {
-		oc.users.userIsInGroup(testUser, testGroup).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
 			done();
 		});
 	});
@@ -1122,19 +1392,6 @@ describe("Currently testing user management,", function () {
 		});
 	});
 
-	it('checking method : removeUserFromGroup with existent user, existent group', function (done) {
-		oc.users.removeUserFromGroup(testUser, testGroup).then(status => {
-			expect(status).toBe(true);
-			return oc.users.userIsInGroup(testUser, testGroup);
-		}).then(status => {
-			expect(status).toBe(false);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
 	it('checking method : removeUserFromGroup with existent user, non existent group', function (done) {
 		oc.users.removeUserFromGroup(testUser, nonExistingGroup)
 		.then(status => {
@@ -1155,19 +1412,6 @@ describe("Currently testing user management,", function () {
 		}).catch(error => {
 			expect(typeof(error)).toBe('object');
 			expect(error.ocs.meta.statuscode).toEqual('103');
-			done();
-		});
-	});
-
-	it('checking method : addUserToSubadminGroup with existent user, existent group', function (done) {
-		oc.users.addUserToSubadminGroup(testUser, testGroup).then(status => {
-			expect(status).toBe(true);
-			return oc.users.userIsInSubadminGroup(testUser, testGroup);
-		}).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
 			done();
 		});
 	});
@@ -1193,17 +1437,6 @@ describe("Currently testing user management,", function () {
 		});
 	});
 
-	it('checking method : getUserSubadminGroups with an existent user', function (done) {
-		oc.users.getUserSubadminGroups(testUser).then(data => {
-			expect(typeof(data)).toEqual('object');
-			expect(data.indexOf(testGroup)).toBeGreaterThan(-1);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
 	it('checking method : getUserSubadminGroups with a non existent user', function (done) {
 		oc.users.getUserSubadminGroups(nonExistingUser).then(data => {
 			expect(typeof(data)).toBe('object');
@@ -1211,16 +1444,6 @@ describe("Currently testing user management,", function () {
 			done();
 		}).catch(error => {
 			expect(error).toBe('User does not exist');
-			done();
-		});
-	});
-
-	it('checking method : userIsInSubadminGroup with existent user, existent group', function (done) {
-		oc.users.userIsInSubadminGroup(testUser, testGroup).then(status => {
-			expect(status).toBe(true);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
 			done();
 		});
 	});
@@ -1257,42 +1480,32 @@ describe("Currently testing user management,", function () {
 			done();
 		});
 	});
-
-	it('checking method : deleteUser on an existent user', function (done) {
-		oc.users.deleteUser(testUser).then(status => {
-			expect(status).toBe(true);
-			return oc.users.getUser(testUser);
-		}).then(user => {
-			expect(user).toBe(null);
-			done();
-		}).catch(error => {
-			expect(error).toBe('The requested user could not be found');
-			done();
-		});
-	});
 });
 
 describe("Currently testing group management,", function() {
-    beforeEach(function() {
+    beforeEach(function(done) {
         oc = new ownCloud(owncloudURL);
-        oc.login(username, password);
+        oc.login(username, password).then(status => {
+			expect(status).toBe(true);
+			return oc.groups.createGroup(testGroup);
+		}).then(status2 => {
+			expect(status2).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
     });
 
-    it('checking method : createGroup', function(done) {
-        oc.groups.createGroup('newGroup' + timeRightNow).then(status => {
-            expect(status).toBe(true);
-            return oc.groups.groupExists('newGroup' + timeRightNow);
-        }).then(status => {
-            expect(status).toBe(true);
-            return oc.groups.deleteGroup('newGroup' + timeRightNow);
-        }).then(status2 => {
-            expect(status2).toBe(true);
-            done();
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
+	afterEach(function(done) {
+		oc.groups.deleteGroup(testGroup).then(status => {
+			expect(status).toBe(true);
+			done();
+		}).catch(error => {
+			expect(error).toBe(null);
+			done();
+		});
+	});
 
     it('checking method : getGroups', function(done) {
         oc.groups.getGroups().then(data => {
@@ -1337,16 +1550,6 @@ describe("Currently testing group management,", function() {
         });
     });
 
-    it('checking method : deleteGroup with an existing group', function(done) {
-        oc.groups.deleteGroup(testGroup).then(status => {
-            expect(status).toBe(true);
-            done();
-        }).catch(error => {
-            expect(error).toBe(null);
-            done();
-        });
-    });
-
     it('checking method : deleteGroup with a non existing group', function(done) {
         oc.groups.deleteGroup(nonExistingGroup).then(status => {
             expect(status).toBe(null);
@@ -1370,6 +1573,50 @@ describe("Currently testing files management,", function () {
 			done();
 		});
 	});
+
+    it('creates the testFolder at instance', function(done) {
+        oc.files.createFolder(testFolder).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
+
+    it('creates subfolder at instance', function(done) {
+        oc.files.mkdir(testSubDir).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
+
+    it('creates subfiles at instance', function(done) {
+        var count = 0;
+
+        for (var i = 0; i < testSubFiles.length; i++) {
+            oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
+                expect(status).toBe(true);
+                count++;
+                if (count === testSubFiles.length) {
+                    done();
+                }
+            }).catch(error => {
+                expect(error).toBe(null);
+                done();
+            });
+        }
+    });
+
+    it('testFile locally', function(done) {
+        fs.writeFile(localFile, testContent, function(err) {
+            expect(err).toBe(null);
+            done();
+        });
+    });
 
 	it('checking method : list with no depth specified', function (done) {
 		oc.files.list(testFolder).then(files => {
@@ -1613,8 +1860,11 @@ describe("Currently testing files management,", function () {
 			return oc.files.getFileContents('file' + timeRightNow + '.txt');
 		}).then(content => {
 			expect(content).toEqual(testContent);
-			done();
-		}).catch(error => {
+            return oc.files.delete('file' + timeRightNow + '.txt');
+		}).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
 			expect(error).toBe(null);
 			done();
 		});
@@ -1642,9 +1892,9 @@ describe("Currently testing files management,", function () {
 	});
 
 	it('checking method : putDirectory for an existent directory', function (done) {
-		oc.files.putDirectory('/', downloadBasePath).then(status => {
+		oc.files.putDirectory(testFolder, downloadBasePath + '/').then(status => {
 			expect(status).toBe(true);
-			return oc.files.list('testDownloadDir', 'infinity');
+			return oc.files.list(testFolder + '/testDownloadDir', 'infinity');
 		}).then(files => {
 			expect(files.length).toEqual(5);
 			done();
@@ -1800,95 +2050,14 @@ describe("Currently testing files management,", function () {
 			done();
 		});
 	});
-});
 
-describe("checking if all created elements have been deleted,", function () {
-	beforeEach(function () {
-		oc = new ownCloud(owncloudURL);
-		oc.login(username, password);
-	});
-
-	it('checking created user', function (done) {
-		oc.users.userExists(testUser).then(status => {
-			if (status === true)  {
-				oc.users.deleteUser(testUser).then(status2 => {
-					expect(status2).toBe(true);
-					done();
-				}).catch(error2 => {
-					expect(error2).toBe(null);
-					done();
-				});
-			}
-			else {
-				done();
-			}
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking created files', function (done) {
-		var count = 0;
-
-		for (var i=0;i<testFiles.length;i++) {
-			oc.files.delete(testFiles[i]).then(status => {
-				expect(status).toBe(true);
-				count++;
-				if (count === testFiles.length) {
-					done();
-				}
-			});
-		}
-	});
-
-	it('checking created folder', function (done) {
-		oc.files.delete(testFolder).then(status => {
-			expect(status).toBe(true);
-			done();
-		});
-	});
-
-	it('checking created group', function (done) {
-		oc.groups.groupExists(testGroup).then(status => {
-			if (status === true) {
-				oc.groups.deleteGroup(testGroup).then(status2 => {
-					expect(status2).toBe(true);
-					done();
-				}).catch(error2 => {
-					expect(error2).toBe(null);
-					done();
-				});
-			}
-			else {
-				done();
-			}
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking created shares', function (done) {
-		for (var i=0;i<allShareIDs.length;i++) {
-			oc.shares.deleteShare(allShareIDs[i]).then(status2 => {
-				expect(status2).toBe(true);
-				done();
-			});
-		}
-	});
-
-	it('checking uploaded folder', function (done) {
-		oc.files.delete('testDownloadDir').then(status => {
-			expect(status).toBe(true);
-			done();
-		});
-	});
-
-	it('checking uploaded file', function (done) {
-		oc.files.delete('file' + timeRightNow + '.txt').then(status => {
-			expect(status).toBe(true);
-			done();
-		});
-	});
+    it('deletes the test folder at instance', function (done) {
+        oc.files.delete(testFolder).then(status => {
+            expect(status).toBe(true);
+            done();
+        }).catch(error => {
+            expect(error).toBe(null);
+            done();
+        });
+    });
 });

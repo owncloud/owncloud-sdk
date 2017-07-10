@@ -257,13 +257,11 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
         if (err) {
             reject(err);
         }
-
         // Start the request
         request(options, function(error, response, body) {
             if (error) {
                 reject(error);
             }
-
             if ([200, 207].indexOf(response.statusCode) > -1) {
                 self._parseDAVresponse(resolve, reject, body);
             } else if ([201, 204].indexOf(response.statusCode) > -1) {
@@ -468,7 +466,6 @@ helpers.prototype._readFile = function(path, localPath, headers) {
             path = encodeURIComponent(path);
             path = path.split('%2F').join('/'); // '/' => %2F
             var url = self._webdavUrl + self._encodeString(path);
-
             /* jshint unused : false */
             fs.createReadStream(localPath)
                 .pipe(request.put({
@@ -787,7 +784,6 @@ helpers.prototype._getFileSize = function(path) {
  */
 helpers.prototype._webdavMoveCopy = function(source, target, method) {
     var self = this;
-
     return new Promise((resolve, reject) => {
         if (method !== "MOVE" && method !== "COPY") {
             reject('Please specify a valid method');

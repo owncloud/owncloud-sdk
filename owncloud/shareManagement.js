@@ -230,11 +230,11 @@ shares.prototype.isShared = function(path) {
 
     return new Promise((resolve, reject) => {
         self.getShares(path)
-            .then(shares => {
-                resolve(shares.length > 0);
-            }).catch(error => {
-                reject(error);
-            });
+        .then(shares => {
+            resolve(shares.length > 0);
+        }).catch(error => {
+            reject(error);
+        });
     });
 };
 

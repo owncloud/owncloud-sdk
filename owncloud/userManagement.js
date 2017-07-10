@@ -290,6 +290,10 @@ users.prototype.getUserSubadminGroups = function(username) {
         ).then(data => {
             self.handleObjectResponse(resolve, reject, data);
         }).catch(error => {
+            // OC-10 gives this message is user is sub-admin of no group
+            if (error === "Unknown error occurred") {
+                resolve([]);
+            }
             reject(error);
         });
     });

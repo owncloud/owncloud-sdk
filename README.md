@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/noveens/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client) [![Dependencies Status](https://david-dm.org/noveens/js-owncloud-client.svg)](https://david-dm.org/noveens/js-owncloud-client.svg) [![devDependencies Status](https://david-dm.org/noveens/js-owncloud-client/dev-status.svg)](https://david-dm.org/noveens/js-owncloud-client?type=dev)
 
-# ![ownCloud](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/OwnCloud_logo_and_wordmark.svg/1200px-OwnCloud_logo_and_wordmark.svg.png)
+<p align="center">
+  <img src="https://i.imgur.com/9mKra3O.png" />
+</p>
 
 Use this light-weight JS library with a promise based interface for seaemless communication with your ownCloud instance.<br>
 Supports both Node.JS and browser JS.

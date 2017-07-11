@@ -76,7 +76,10 @@ oc.files.list('/path/to/file/folder').then(files => {
 ## All Methods Available
 
 ### General
-
+```js
+var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+```
 Method          | Code
 ----------------|------------------------------
 setInstance     | `oc.setInstance(instance)`
@@ -86,6 +89,11 @@ getVersion      | `oc.getVersion()`
 getCapabilities | `oc.getCapabilities()`
 
 ### Files Management
+```js
+var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+```
+
 Method            | Code
 ------------------|----------------------------------------------------
 list              | `oc.files.list(/path/to/file/folder, depth)`
@@ -103,6 +111,10 @@ move              | `oc.files.move(source, target)`
 copy              | `oc.files.copy(source, target)`
 
 ### Apps Management
+```js
+var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+```
 Method          | Code
 ----------------|----------------------------------------
 getApps         | `oc.apps.getApps()`
@@ -113,6 +125,11 @@ enableApp       | `oc.apps.enableApp(appName)`
 disableApp      | `oc.apps.disableApp(appName)`
 
 ### Group Management
+```js
+var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+```
+
 Method          | Code
 ----------------|---------------------------------------
 createGroup     | `oc.groups.createGroup(groupName)`
@@ -122,6 +139,10 @@ getGroupMembers | `oc.groups.getGroupMembers(groupName)`
 groupExists     | `oc.groups.groupExists(groupName)`
 
 ### Share Management
+```js
+var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+```
 Method              | Code
 --------------------|----------------------------------------------------------------------------------------------------
 shareFileWithLink   | `oc.shares.shareFileWithLink(path, {perms: perms, publicUpload: publicUpload, password: password})`
@@ -137,6 +158,10 @@ declineRemoteShare  | `oc.shares.declineRemoteShare(shareId)`
 deleteShare         | `oc.shares.deleteShare(shareId)`
 
 ### User Management
+```js
+var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+```
 Method                 | Code
 -----------------------|------------------------------------------------------
 createUser             | `oc.users.createUser(username, password)`

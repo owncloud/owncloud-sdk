@@ -1,6 +1,6 @@
 {
   "name": "js-owncloud-client",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "ownCloud client library for JavaScript",
   "main": "./owncloud/index.js",
   "keywords": [

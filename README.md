@@ -2,7 +2,7 @@
 
 # ![ownCloud](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/OwnCloud_logo_and_wordmark.svg/1200px-OwnCloud_logo_and_wordmark.svg.png)
 
-Use this JS library for seaemless communication with your ownCloud instance.<br>
+Use this light-weight JS library with a promise based interface for seaemless communication with your ownCloud instance.<br>
 Supports both Node.JS and browser JS.
 
 
@@ -56,14 +56,14 @@ oc.files.list('/path/to/file/folder').then(files => {
   }).catch(error => {
     window.alert(error);
   });
-  
+
   // Share File With Link
   oc.shares.shareFileWithLink('linkToYourFile').then(shareInfo => {
       window.alert("Link is : " + shareInfo.getLink());
   }).catch(error => {
       window.alert(error);
   });
-  
+
   // List all files
   oc.files.list('/path/to/file/folder').then(files => {
       console.log(files);

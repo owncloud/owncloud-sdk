@@ -8,7 +8,11 @@
     "api",
     "ownCloud",
     "javascript",
-    "client"
+    "client",
+    "node",
+    "nodejs",
+    "js",
+    "promise"
   ],
   "repository": {
     "type": "git",

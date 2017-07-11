@@ -14,7 +14,7 @@ var helpers;
  * <ul>
  *     <li><b>User Management</b>
  *      <ul>
- *             <li>createUser</li>
+ *          <li>createUser</li>
  *          <li>deleteUser</li>
  *          <li>searchUsers</li>
  *          <li>userExists</li>

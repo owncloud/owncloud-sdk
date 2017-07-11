@@ -15,6 +15,8 @@ all: deps
 	bash readOCInfo.sh
 
 deps:
+	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
+	if [ ! -f swagger.config.js ] ; then touch swagger.config.js ; fi;
 	npm i
 	npm --prefix ./docs-swagger/ i ./docs-swagger/
 

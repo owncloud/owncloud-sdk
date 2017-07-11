@@ -20,6 +20,7 @@ var helpers = new helperFile();
  * <ul>
  *  <li><b>General</b>
  *      <ul>
+ *          <li>setInstance</li>
  *          <li>login</li>
  *          <li>getConfig</li>
  *          <li>getVersion</li>

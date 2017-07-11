@@ -9,8 +9,7 @@ Supports both Node.JS and browser JS.
 ## Install
 
 ```
-$ git clone https://github.com/noveens/js-owncloud-client.git
-$ make
+$ npm install js-owncloud-client
 ```
 
 
@@ -18,7 +17,7 @@ $ make
 
 ### Node.JS
 ```js
-var owncloud = require('js-owncloud-client/owncloud');
+var owncloud = require('js-owncloud-client');
 var oc = new owncloud('*owncloud instance URL*');
 
 // Login

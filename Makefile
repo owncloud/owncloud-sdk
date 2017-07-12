@@ -32,8 +32,6 @@ test: deps
 	mkdir owncloud/test/testDownloadDir
 	if [ ! -f owncloud/test/config.json ] ; then \
 		cp owncloud/test/config.sample.json owncloud/test/config.json ; \
-		if [ ! -f swagger.config.js ] ; then touch swagger.config.js ; fi; \
-		bash readOCInfo.sh ; \
 	fi;
 	echo "CONFIGS : "
 	cat owncloud/test/config.json

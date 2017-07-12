@@ -15,14 +15,13 @@ all: deps
 	bash readOCInfo.sh
 
 deps:
-	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
-	if [ ! -f swagger.config.js ] ; then touch swagger.config.js ; fi;
 	npm i
 	npm --prefix ./docs-swagger/ i ./docs-swagger/
 
 swagger: deps
 	if [ ! -f swagger.config.js ] ; then \
 		touch swagger.config.js ; \
+		if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi; \
 		echo "module.exports = {\n\towncloudURL: \"\",\n\tusername: \"\",\n\tpassword: \"\"\n};" > swagger.config.js ; \
 		bash readOCInfo.sh ; \
 	fi;
@@ -31,7 +30,11 @@ swagger: deps
 test: deps
 	if [ owncloud/test/testDownloadDir ] ; then rm -rf owncloud/test/testDownloadDir ; fi;
 	mkdir owncloud/test/testDownloadDir
-	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
+	if [ ! -f owncloud/test/config.json ] ; then \
+		cp owncloud/test/config.sample.json owncloud/test/config.json ; \
+		if [ ! -f swagger.config.js ] ; then touch swagger.config.js ; fi; \
+		bash readOCInfo.sh ; \
+	fi;
 	echo "CONFIGS : "
 	cat owncloud/test/config.json
 	echo ""

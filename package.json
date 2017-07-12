@@ -19,7 +19,7 @@
     "url": "git+https://github.com/noveens/js-owncloud-client.git"
   },
   "author": "Noveen Sachdeva <noveen.sachdeva@research.iiit.ac.in>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/noveens/js-owncloud-client/issues"
   },

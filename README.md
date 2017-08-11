@@ -46,7 +46,7 @@ oc.files.list('/path/to/file/folder').then(files => {
 
 ### Browser
 ```html
-<script type="text/javascript" src="./js-owncloud-client/browser/bundle.js"></script>
+<script type="text/javascript" src="./js-owncloud-client/browser/owncloud.js"></script>
 
 <script type="text/javascript">
   // var oc is global

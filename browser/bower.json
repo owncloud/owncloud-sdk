@@ -1,0 +1,28 @@
+{
+  "name": "js-owncloud-client",
+  "homepage": "https://github.com/noveens/js-owncloud-client",
+  "authors": [
+    "noveens <noveen.sachdeva@research.iiit.ac.in>"
+  ],
+  "description": "Use this light-weight JS library with a promise based interface for seaemless communication with your ownCloud instance.",
+  "main": "bundle.js",
+  "keywords": [
+    "owncloud",
+    "api",
+    "ownCloud",
+    "javascript",
+    "client",
+    "node",
+    "nodejs",
+    "js",
+    "promise"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

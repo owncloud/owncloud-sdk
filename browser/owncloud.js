@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 25);
+/******/ 	return __webpack_require__(__webpack_require__.s = 26);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -78,9 +78,9 @@
 
 
 
-var base64 = __webpack_require__(36)
-var ieee754 = __webpack_require__(37)
-var isArray = __webpack_require__(18)
+var base64 = __webpack_require__(37)
+var ieee754 = __webpack_require__(38)
+var isArray = __webpack_require__(19)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -1867,7 +1867,7 @@ function isnan (val) {
 "use strict";
 
 
-module.exports = __webpack_require__(28)
+module.exports = __webpack_require__(29)
 
 
 /***/ }),
@@ -1903,7 +1903,7 @@ var util = __webpack_require__(8);
 util.inherits = __webpack_require__(5);
 /*</replacement>*/
 
-var Readable = __webpack_require__(19);
+var Readable = __webpack_require__(20);
 var Writable = __webpack_require__(12);
 
 util.inherits(Duplex, Readable);
@@ -2175,19 +2175,183 @@ function doResolve(fn, promise) {
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*jslint node:true */
+var parser = __webpack_require__(17);
+var myParser = {};
 
-var xml2js = __webpack_require__(17);
-var xml2json = __webpack_require__(47);
-var js2xml = __webpack_require__(21);
-var json2xml = __webpack_require__(48);
+/**
+ * The main function
+ * @param  {string}  xml    xml which needs to be parsed
+ * @param  {object} [xmlns] contains all namespaces
+ * @return {object}         parsed js object
+ */
+myParser.xml2js = function (xml, xmlns) {
+    var parsed = parser.xml2js(xml, {
+        compact: true
+    });
 
-module.exports = {
-    xml2js: xml2js,
-    xml2json: xml2json,
-    js2xml: js2xml,
-    json2xml: json2xml
+    if (xmlns) {
+        // Keep Namespace
+        parsed = keepNamespace(parsed, xmlns);
+    }
+
+    parsed = cleanseJson(parsed);
+    return parsed;
 };
+
+/**
+ * Keeps the namespace
+ * @param  {object} json In which to replace namespace
+ * @param  {object} ns   Namespace object
+ * @return {object}      Namespace replaced object
+ */
+function keepNamespace(json, ns) {
+    var nsKeys = Object.keys(ns);
+
+    for (var key in json) {
+        var parseKey = parseKeyNS(key);
+        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
+            var index = nsKeys.indexOf(parseKey);
+            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
+
+            json[prop] = json[key];
+            json[prop] = recursiveNS(json[prop], ns);
+        } else {
+            json[key] = recursiveNS(json[key], ns);
+        }
+    }
+
+    json = deleteDuplicates(json, ns);
+    return json;
+}
+
+/**
+ * Intermediate of keepNamespace()
+ */
+function deleteDuplicates(json, ns) {
+    var ret = {};
+    var nsKeys = Object.keys(ns);
+    if (json.constructor === Array) {
+        ret = [];
+    }
+
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    for (var key in json) {
+        if (json.constructor === Array) {
+            ret.push(recursiveDeleteDuplicates(json[key], ns));
+        }
+        else {
+            var parseKey = parseKeyNS(key);
+            if (parseKey && nsKeys.indexOf(parseKey) === -1) {
+                ret[key] = recursiveDeleteDuplicates(json[key], ns);
+            }
+        }
+    }
+    return ret;
+}
+
+/**
+ * This function removes the "_text" attribute introduced by the XML parser
+ * For more info, check the NPM page of "xml-js", and see response format of the parser
+ * @param  {object} json object to cleanse
+ * @return {object}      cleaned object
+ */
+function cleanseJson(json) {
+    for (var key in json) {
+        var a = recursiveCleanse(json[key]);
+        json[key] = a;
+    }
+    return json;
+}
+
+/**
+ * HELPER FOR keepNamespace()
+ */
+function recursiveNS(json, ns) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+    var nsKeys = Object.keys(ns);
+
+    for (var key in json) {
+        var parseKey = parseKeyNS(key);
+        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
+            var index = nsKeys.indexOf(parseKey);
+            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
+
+            json[prop] = json[key];
+            json[prop] = recursiveNS(json[prop], ns);
+        } else {
+            json[key] = recursiveNS(json[key], ns);
+        }
+    }
+    return json;
+}
+
+/**
+ * HELPER FOR deleteDuplicates()
+ */
+function recursiveDeleteDuplicates(json, ns) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    var nsKeys = Object.keys(ns);
+    var ret = {};
+    if (json.constructor === Array) {
+        ret = [];
+    }
+    for (var key in json) {
+        if (json.constructor === Array) {
+            ret.push(recursiveDeleteDuplicates(json[key], ns));
+        }
+        else {
+            var parseKey = parseKeyNS(key);
+            if (parseKey && nsKeys.indexOf(parseKey) === -1) {
+                ret[key] = recursiveDeleteDuplicates(json[key], ns);
+            }
+        }
+    }
+    return ret;
+}
+
+/**
+ * HELPER FOR cleanseJson()
+ */
+function recursiveCleanse(json) {
+    if (typeof(json) !== 'object') {
+        return json;
+    }
+
+    for (var key in json) {
+        if (key === '_text') {
+            return json[key];
+        }
+        json[key] = recursiveCleanse(json[key]);
+    }
+    return json;
+}
+
+/**
+ * parses a key from d: to d and {DAV:} to DAV
+ * @param  {string} key key to be parsed
+ * @return {string}     parsed key
+ */
+function parseKeyNS(key) {
+    var parseKey = key;
+    if (parseKey.indexOf('{') > -1 && parseKey.indexOf('}') > -1) {
+        parseKey = parseKey.split('{')[1].split('}')[0];
+    } else if (parseKey.indexOf(':') > -1) {
+        parseKey = parseKey.split(':')[0];
+    }
+
+    return parseKey;
+}
+
+module.exports = myParser;
+
 
 /***/ }),
 /* 5 */
@@ -2580,11 +2744,11 @@ var EE = __webpack_require__(10).EventEmitter;
 var inherits = __webpack_require__(5);
 
 inherits(Stream, EE);
-Stream.Readable = __webpack_require__(38);
-Stream.Writable = __webpack_require__(43);
-Stream.Duplex = __webpack_require__(44);
-Stream.Transform = __webpack_require__(45);
-Stream.PassThrough = __webpack_require__(46);
+Stream.Readable = __webpack_require__(39);
+Stream.Writable = __webpack_require__(44);
+Stream.Duplex = __webpack_require__(45);
+Stream.Transform = __webpack_require__(46);
+Stream.PassThrough = __webpack_require__(47);
 
 // Backwards-compat with node 0.4.x
 Stream.Stream = Stream;
@@ -3075,7 +3239,7 @@ util.inherits = __webpack_require__(5);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(42)
+  deprecate: __webpack_require__(43)
 };
 /*</replacement>*/
 
@@ -3562,7 +3726,7 @@ function CorkedRequest(state) {
     }
   };
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(40).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(41).setImmediate))
 
 /***/ }),
 /* 13 */
@@ -4291,7 +4455,25 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var sax = __webpack_require__(35);
+/*jslint node:true */
+
+var xml2js = __webpack_require__(18);
+var xml2json = __webpack_require__(48);
+var js2xml = __webpack_require__(22);
+var json2xml = __webpack_require__(49);
+
+module.exports = {
+    xml2js: xml2js,
+    xml2json: xml2json,
+    js2xml: js2xml,
+    json2xml: json2xml
+};
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var sax = __webpack_require__(36);
 var expat /*= require('node-expat');*/ = { on: function () { }, parse: function () { } };
 var common = __webpack_require__(15);
 
@@ -4597,7 +4779,7 @@ module.exports = function (xml, userOptions) {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -4608,7 +4790,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4621,7 +4803,7 @@ var processNextTick = __webpack_require__(11);
 /*</replacement>*/
 
 /*<replacement>*/
-var isArray = __webpack_require__(18);
+var isArray = __webpack_require__(19);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -4657,7 +4839,7 @@ util.inherits = __webpack_require__(5);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(39);
+var debugUtil = __webpack_require__(40);
 var debug = undefined;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -5495,7 +5677,7 @@ function indexOf(xs, x) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5527,7 +5709,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var common = __webpack_require__(15);
@@ -5782,7 +5964,7 @@ module.exports = function (js, options) {
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -6013,7 +6195,7 @@ var substr = 'ab'.substr(-1) === 'b'
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6023,7 +6205,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { 'default': obj };
 }
-var _path = __webpack_require__(22);
+var _path = __webpack_require__(23);
 var _path2 = _interopRequireDefault(_path);
 function DirectoryEntry(fullPath, type) {
     this.path = fullPath;
@@ -6035,7 +6217,7 @@ exports['default'] = DirectoryEntry;
 module.exports = exports['default'];
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/utf8js v2.1.2 by @mathias */
@@ -6282,28 +6464,28 @@ module.exports = exports['default'];
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(53)(module), __webpack_require__(7)))
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var owncloud = __webpack_require__(26);
-var oc = new owncloud();
-
-window.oc = oc;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)(module), __webpack_require__(7)))
 
 /***/ }),
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ownCloud = __webpack_require__(27);
+var owncloud = __webpack_require__(27);
+var oc = new owncloud();
+
+window.oc = oc;
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var ownCloud = __webpack_require__(28);
 
 module.exports = ownCloud;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /////////////////////////////
@@ -6312,12 +6494,12 @@ module.exports = ownCloud;
 
 var Promise = __webpack_require__(1);
 var parser = __webpack_require__(4);
-var helperFile = __webpack_require__(49);
-var apps = __webpack_require__(55);
-var shares = __webpack_require__(56);
-var users = __webpack_require__(58);
-var groups = __webpack_require__(59);
-var files = __webpack_require__(60);
+var helperFile = __webpack_require__(50);
+var apps = __webpack_require__(56);
+var shares = __webpack_require__(57);
+var users = __webpack_require__(59);
+var groups = __webpack_require__(60);
+var files = __webpack_require__(61);
 var helpers = new helperFile();
 
 /**
@@ -6328,6 +6510,7 @@ var helpers = new helperFile();
  * <ul>
  *  <li><b>General</b>
  *      <ul>
+ *          <li>setInstance</li>
  *          <li>login</li>
  *          <li>getConfig</li>
  *          <li>getVersion</li>
@@ -6427,9 +6610,7 @@ ownCloud.prototype.getConfig = function() {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', '', 'config')
             .then(data => {
-                var tree = parser.xml2js(data.body, {
-                    compact: true
-                });
+                var tree = parser.xml2js(data.body);
                 resolve(tree.ocs.data);
             }).catch(error => {
                 reject(error);
@@ -6488,22 +6669,22 @@ module.exports = ownCloud;
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 module.exports = __webpack_require__(3);
-__webpack_require__(29);
 __webpack_require__(30);
 __webpack_require__(31);
 __webpack_require__(32);
-__webpack_require__(34);
+__webpack_require__(33);
+__webpack_require__(35);
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6523,7 +6704,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6546,7 +6727,7 @@ Promise.prototype['finally'] = function (f) {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6660,7 +6841,7 @@ Promise.prototype['catch'] = function (onRejected) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6670,7 +6851,7 @@ Promise.prototype['catch'] = function (onRejected) {
 // for node.js interop
 
 var Promise = __webpack_require__(3);
-var asap = __webpack_require__(33);
+var asap = __webpack_require__(34);
 
 module.exports = Promise;
 
@@ -6797,7 +6978,7 @@ Promise.prototype.nodeify = function (callback, ctx) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6870,7 +7051,7 @@ RawTask.prototype.call = function () {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6939,7 +7120,7 @@ Promise.disableSynchronous = function() {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {;(function (sax) { // wrapper for non-node envs
@@ -8511,7 +8692,7 @@ Promise.disableSynchronous = function() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8632,7 +8813,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -8722,7 +8903,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Stream = (function (){
@@ -8730,23 +8911,23 @@ var Stream = (function (){
     return __webpack_require__(9); // hack to fix a circular dependency issue when used with browserify
   } catch(_){}
 }());
-exports = module.exports = __webpack_require__(19);
+exports = module.exports = __webpack_require__(20);
 exports.Stream = Stream || exports;
 exports.Readable = exports;
 exports.Writable = __webpack_require__(12);
 exports.Duplex = __webpack_require__(2);
 exports.Transform = __webpack_require__(14);
-exports.PassThrough = __webpack_require__(20);
+exports.PassThrough = __webpack_require__(21);
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -8799,13 +8980,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(41);
+__webpack_require__(42);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -8998,7 +9179,7 @@ exports.clearImmediate = clearImmediate;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(6)))
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -9072,39 +9253,39 @@ function config (name) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(12)
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(2)
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(14)
 
 
 /***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(20)
-
-
-/***/ }),
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
+module.exports = __webpack_require__(21)
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var common = __webpack_require__(15);
-var xml2js = __webpack_require__(17);
+var xml2js = __webpack_require__(18);
 
 function validateOptions (userOptions) {
     var options = common.copyOptions(userOptions);
@@ -9129,10 +9310,10 @@ module.exports = function(xml, userOptions) {
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var js2xml = __webpack_require__(21);
+/* WEBPACK VAR INJECTION */(function(Buffer) {var js2xml = __webpack_require__(22);
 
 module.exports = function (json, options) {
     'use strict';
@@ -9154,7 +9335,7 @@ module.exports = function (json, options) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/////////////////////////////
@@ -9162,11 +9343,12 @@ module.exports = function (json, options) {
 /////////////////////////////
 
 var Promise = __webpack_require__(1);
-var request = __webpack_require__(50);
+var request = __webpack_require__(51);
 var parser = __webpack_require__(4);
-var fs = __webpack_require__(51);
-var utf8 = __webpack_require__(24);
-var fileInfo = __webpack_require__(54);
+var parser2 = __webpack_require__(17);
+var fs = __webpack_require__(52);
+var utf8 = __webpack_require__(25);
+var fileInfo = __webpack_require__(55);
 
 /**
  * @class helpers
@@ -9260,10 +9442,7 @@ helpers.prototype._updateCapabilities = function() {
     return new Promise((resolve, reject) => {
         self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
             .then(data => {
-                var body = parser.xml2js(data.body, {
-                    compact: true
-                });
-                body = self._cleanseJson(body).ocs.data;
+                var body = parser.xml2js(data.body).ocs.data;
 
                 self._capabilities = body.capabilities;
                 self._version = body.version.string + '-' + body.version.edition;
@@ -9354,10 +9533,7 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
             }
 
             if (!error) {
-                var tree = parser.xml2js(body, {
-                    compact: true
-                });
-                tree = self._cleanseJson(tree);
+                var tree = parser.xml2js(body);
                 error = self._checkOCSstatus(tree);
             }
 
@@ -9421,13 +9597,11 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
         if (err) {
             reject(err);
         }
-
         // Start the request
         request(options, function(error, response, body) {
             if (error) {
                 reject(error);
             }
-
             if ([200, 207].indexOf(response.statusCode) > -1) {
                 self._parseDAVresponse(resolve, reject, body);
             } else if ([201, 204].indexOf(response.statusCode) > -1) {
@@ -9444,19 +9618,9 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
  * Parses a DAV response.
  */
 helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
-    var tree = parser.xml2js(body, {
-        compact: true
-    });
-    var xmlns = tree['d:multistatus']._attributes;
-    var replacedXMLns = {};
+    var XMLns = this._getXMLns(body);
 
-    for (var ns in xmlns) {
-        var changedKey = ns.split(':')[1];
-        replacedXMLns[changedKey] = xmlns[ns];
-    }
-
-    tree = this._keepNamespace(tree, replacedXMLns);
-    tree = this._cleanseJson(tree)['{DAV:}multistatus']['{DAV:}response'];
+    var tree = parser.xml2js(body, XMLns)['{DAV:}multistatus']['{DAV:}response'];
     var items = [];
 
     if (tree.constructor !== Array) {
@@ -9642,7 +9806,6 @@ helpers.prototype._readFile = function(path, localPath, headers) {
             path = encodeURIComponent(path);
             path = path.split('%2F').join('/'); // '/' => %2F
             var url = self._webdavUrl + self._encodeString(path);
-
             /* jshint unused : false */
             fs.createReadStream(localPath)
                 .pipe(request.put({
@@ -9681,13 +9844,10 @@ helpers.prototype._checkExtensionZip = function(path) {
  * Parses a DAV response error.
  */
 helpers.prototype._parseDAVerror = function(body) {
-    var tree = parser.xml2js(body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(body);
 
-    if (tree['{DAV:}error']['{http://sabredav.org/ns:}message']) {
-        return tree['{DAV:}error']['{http://sabredav.org/ns:}message'];
+    if (tree['d:error']['s:message']) {
+        return tree['d:error']['s:message'];
     }
     return tree;
 };
@@ -9818,10 +9978,7 @@ helpers.prototype._convertObjectToBool = function(object) {
  * Handles Provisionging API boolean response
  */
 helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
-    var tree = parser.xml2js(data.body, {
-        compact: true
-    });
-    tree = this._cleanseJson(tree);
+    var tree = parser.xml2js(data.body);
 
     var statuscode = parseInt(this._checkOCSstatusCode(tree));
     if (statuscode === 999) {
@@ -9967,7 +10124,6 @@ helpers.prototype._getFileSize = function(path) {
  */
 helpers.prototype._webdavMoveCopy = function(source, target, method) {
     var self = this;
-
     return new Promise((resolve, reject) => {
         if (method !== "MOVE" && method !== "COPY") {
             reject('Please specify a valid method');
@@ -10006,169 +10162,31 @@ helpers.prototype._getFileName = function(path) {
 };
 
 /**
- * the XML parser used, gives JS objects with "_text" property at the end.
- * this function removes it.
- * @param  {object}  json  js Object to cleanse
- * @return {object}        cleansed object
+ * returns all xml namespaces in an object
+ * @param  {string} xml xml which has namespace
+ * @return {object}     object with namespace
  */
-helpers.prototype._cleanseJson = function(json) {
-    for (var key in json) {
-        var a = recursiveCleanse(json[key]);
-        json[key] = a;
+helpers.prototype._getXMLns = function (xml) {
+    var tree = parser2.xml2js(xml, {
+        compact: true
+    });
+    var xmlns = tree['d:multistatus']._attributes;
+    var replacedXMLns = {};
+
+    for (var ns in xmlns) {
+        var changedKey = ns.split(':')[1];
+        replacedXMLns[changedKey] = xmlns[ns];
     }
-    return json;
+
+    return replacedXMLns;
 };
-
-/**
- * [description]
- * @param  {[type]} json [description]
- * @param  {[type]} ns   [description]
- * @return {[type]}      [description]
- */
-helpers.prototype._keepNamespace = function(json, ns) {
-    var nsKeys = Object.keys(ns);
-
-    for (var key in json) {
-        var parseKey = parseKeyNS(key);
-        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
-            var index = nsKeys.indexOf(parseKey);
-            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
-
-            json[prop] = json[key];
-            json[prop] = recursiveNS(json[prop], ns);
-        } else {
-            json[key] = recursiveNS(json[key], ns);
-        }
-    }
-
-    json = this._deleteDuplicates(json, ns);
-    return json;
-};
-
-/**
- * _keepNamespace just pushes all {DAV:} instead of d:
- * this function removes all d: and return just {DAV:}
- * @param  {object} json object from which to delete d:
- * @param  {array}  ns   all namespaces (eg. d, oc, s etc.)
- * @return {object}      only {DAV:} object
- */
-helpers.prototype._deleteDuplicates = function(json, ns) {
-    var ret = {};
-    var nsKeys = Object.keys(ns);
-    if (json.constructor === Array) {
-        ret = [];
-    }
-
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    for (var key in json) {
-        if (json.constructor === Array) {
-            ret.push(recursiveDeleteDuplicates(json[key], ns));
-        }
-        if (key.indexOf(':') > -1) {
-            var parseKey = parseKeyNS(key);
-            if (nsKeys.indexOf(parseKey) === -1) {
-                ret[key] = recursiveDeleteDuplicates(json[key], ns);
-            }
-        } else if (json.constructor !== Array) {
-            ret[key] = json[key];
-        }
-    }
-    return ret;
-};
-
-/**
- * HELPER FOR _keepNamespace()
- */
-function recursiveNS(json, ns) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-    var nsKeys = Object.keys(ns);
-
-    for (var key in json) {
-        var parseKey = parseKeyNS(key);
-        if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
-            var index = nsKeys.indexOf(parseKey);
-            var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1];
-
-            json[prop] = json[key];
-            json[prop] = recursiveNS(json[prop], ns);
-        } else {
-            json[key] = recursiveNS(json[key], ns);
-        }
-    }
-    return json;
-}
-
-/**
- * HELPER FOR _cleanseJson()
- */
-function recursiveCleanse(json) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    for (var key in json) {
-        if (key === '_text') {
-            return json[key];
-        }
-        json[key] = recursiveCleanse(json[key]);
-    }
-    return json;
-}
-
-/**
- * HELPER FOR _keepNamespace()
- */
-function recursiveDeleteDuplicates(json, ns) {
-    if (typeof(json) !== 'object') {
-        return json;
-    }
-
-    var nsKeys = Object.keys(ns);
-    var ret = {};
-    if (json.constructor === Array) {
-        ret = [];
-    }
-    for (var key in json) {
-        if (json.constructor === Array) {
-            ret.push(recursiveDeleteDuplicates(json[key], ns));
-        }
-        if (key.indexOf(':') > -1) {
-            var parseKey = parseKeyNS(key);
-            if (nsKeys.indexOf(parseKey) === -1) {
-                ret[key] = recursiveDeleteDuplicates(json[key], ns);
-            }
-        } else if (json.constructor !== Array) {
-            ret[key] = json[key];
-        }
-    }
-    return ret;
-}
-
-/**
- * parses a key from d: to d and {DAV:} to DAV
- * @param  {string} key key to be parsed
- * @return {string}     parsed key
- */
-function parseKeyNS(key) {
-    var parseKey = key.split(':')[0];
-    if (parseKey.slice(0, 1) === '{') {
-        parseKey = parseKey.slice(1);
-    }
-
-    return parseKey;
-}
 
 module.exports = helpers;
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// Browser Request
@@ -10671,7 +10689,7 @@ function b64_enc (data) {
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10707,8 +10725,8 @@ function _defaults(obj, defaults) {
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { 'default': obj };
 }
-var _core = __webpack_require__(52);
-var _directory_entry = __webpack_require__(23);
+var _core = __webpack_require__(53);
+var _directory_entry = __webpack_require__(24);
 var _directory_entry2 = _interopRequireDefault(_directory_entry);
 _directory_entry2['default'].prototype.readFile = function (callback) {
     if (this.type !== 'file') {
@@ -10720,7 +10738,7 @@ _defaults(exports, _interopRequireWildcard(_core));
 exports.DirectoryEntry = _directory_entry2['default'];
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10737,9 +10755,9 @@ exports.rmdir = rmdir;
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : { 'default': obj };
 }
-var _path = __webpack_require__(22);
+var _path = __webpack_require__(23);
 var _path2 = _interopRequireDefault(_path);
-var _directory_entry = __webpack_require__(23);
+var _directory_entry = __webpack_require__(24);
 var _directory_entry2 = _interopRequireDefault(_directory_entry);
 function ab2str(buf) {
     return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -10892,7 +10910,7 @@ function rmdir(fullPath) {
 ;
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -10920,7 +10938,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 /*jshint camelcase: false */
@@ -11021,7 +11039,7 @@ module.exports = fileInfo;
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 ///////////////////////////////////
@@ -11072,25 +11090,15 @@ apps.prototype.getApps = function() {
     return new Promise((resolve, reject) => {
         Promise.all([allAppsP, allEnabledAppsP])
             .then(apps => {
-                var tree = parser.xml2js(apps[0].body, {
-                    compact: true
-                });
-                tree = helpers._cleanseJson(tree);
+                var tree = parser.xml2js(apps[0].body);
                 var statuscode = parseInt(helpers._checkOCSstatusCode(tree));
                 if (statuscode === 999) {
                     reject("Provisioning API has been disabled at your instance");
                     return;
                 }
 
-                var allApps = parser.xml2js(apps[0].body, {
-                    compact: true
-                });
-                allApps = helpers._cleanseJson(allApps).ocs.data.apps.element;
-
-                var allEnabledApps = parser.xml2js(apps[1].body, {
-                    compact: true
-                });
-                allEnabledApps = helpers._cleanseJson(allEnabledApps).ocs.data.apps.element;
+                var allApps = parser.xml2js(apps[0].body).ocs.data.apps.element;
+                var allEnabledApps = parser.xml2js(apps[1].body).ocs.data.apps.element;
 
                 for (var i = 0; i < allApps.length; i++) {
                     send[allApps[i]] = false;
@@ -11126,10 +11134,7 @@ apps.prototype.getAttribute = function(app, key) {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
             .then(data => {
-                var elements = parser.xml2js(data.body, {
-                    compact: true
-                });
-                elements = helpers._cleanseJson(elements).ocs.data.element;
+                var elements = parser.xml2js(data.body).ocs.data.element;
 
                 if (key) {
                     if (!elements) {
@@ -11248,7 +11253,7 @@ module.exports = apps;
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /////////////////////////////
@@ -11257,8 +11262,8 @@ module.exports = apps;
 
 var Promise = __webpack_require__(1);
 var parser = __webpack_require__(4);
-var utf8 = __webpack_require__(24);
-var shareInfo = __webpack_require__(57);
+var utf8 = __webpack_require__(25);
+var shareInfo = __webpack_require__(58);
 var helpers;
 
 /**
@@ -11324,11 +11329,7 @@ shares.prototype.shareFileWithLink = function(path, optionalParams) {
         helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
             .then(data => {
                 data.body = utf8.encode(data.body);
-                var shareDetails = parser.xml2js(data.body, {
-                    compact: true
-                });
-                shareDetails = helpers._cleanseJson(shareDetails);
-                shareDetails = shareDetails.ocs.data;
+                var shareDetails = parser.xml2js(data.body).ocs.data;
                 var share = new shareInfo(shareDetails);
 
                 resolve(share);
@@ -11368,12 +11369,9 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
             .then(data => {
-                var shareData = parser.xml2js(data.body, {
-                    compact: true
-                });
-                shareData = helpers._cleanseJson(shareData).ocs.data;
-
+                var shareData = parser.xml2js(data.body).ocs.data
                 var share = new shareInfo(shareData);
+
                 resolve(share);
             }).catch(error => {
                 reject(error);
@@ -11404,11 +11402,9 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
             .then(data => {
-                var shareData = parser.xml2js(data.body, {
-                    compact: true
-                });
-                shareData = helpers._cleanseJson(shareData).ocs.data;
+                var shareData = parser.xml2js(data.body).ocs.data;
                 var share = new shareInfo(shareData);
+
                 resolve(share);
             }).catch(error => {
                 reject(error);
@@ -11462,11 +11458,7 @@ shares.prototype.getShares = function(path, optionalParams) {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
             .then(data => {
-                var elements = parser.xml2js(data.body, {
-                    compact: true
-                });
-                elements = helpers._cleanseJson(elements).ocs.data.element || [];
-
+                var elements = parser.xml2js(data.body).ocs.data.element || [];
                 var shares = [];
 
                 if (elements && elements.constructor !== Array) {
@@ -11496,11 +11488,11 @@ shares.prototype.isShared = function(path) {
 
     return new Promise((resolve, reject) => {
         self.getShares(path)
-            .then(shares => {
-                resolve(shares.length > 0);
-            }).catch(error => {
-                reject(error);
-            });
+        .then(shares => {
+            resolve(shares.length > 0);
+        }).catch(error => {
+            reject(error);
+        });
     });
 };
 
@@ -11518,10 +11510,7 @@ shares.prototype.getShare = function(shareId) {
         }
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
             .then(data => {
-                var shareData = parser.xml2js(data.body, {
-                    compact: true
-                });
-                shareData = helpers._cleanseJson(shareData).ocs.data.element;
+                var shareData = parser.xml2js(data.body).ocs.data.element;
                 var share = new shareInfo(shareData);
 
                 resolve(share);
@@ -11540,10 +11529,8 @@ shares.prototype.listOpenRemoteShare = function() {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
             .then(data => {
-                var shares = parser.xml2js(data.body, {
-                    compact: true
-                });
-                shares = helpers._cleanseJson(shares).ocs.data.element || [];
+                var shares = parser.xml2js(data.body).ocs.data.element || [];
+
                 resolve(shares);
             }).catch(error => {
                 reject(error);
@@ -11662,7 +11649,7 @@ module.exports = shares;
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports) {
 
 /*jshint camelcase: false */
@@ -11815,7 +11802,7 @@ module.exports = shareInfo;
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /////////////////////////////////////
@@ -11834,7 +11821,7 @@ var helpers;
  * <ul>
  *     <li><b>User Management</b>
  *      <ul>
- *             <li>createUser</li>
+ *          <li>createUser</li>
  *          <li>deleteUser</li>
  *          <li>searchUsers</li>
  *          <li>userExists</li>
@@ -12037,11 +12024,9 @@ users.prototype.getUser = function(username) {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD,
             'users/' + encodeURIComponent(username)
         ).then(data => {
-            var tree = parser.xml2js(data.body, {
-                compact: true
-            });
-            tree = helpers._cleanseJson(tree);
+            var tree = parser.xml2js(data.body);
             var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+
             if (statusCode === 999) {
                 reject("Provisioning API has been disabled at your instance");
                 return;
@@ -12112,6 +12097,10 @@ users.prototype.getUserSubadminGroups = function(username) {
         ).then(data => {
             self.handleObjectResponse(resolve, reject, data);
         }).catch(error => {
+            // OC-10 gives this message is user is sub-admin of no group
+            if (error === "Unknown error occurred") {
+                resolve([]);
+            }
             reject(error);
         });
     });
@@ -12155,11 +12144,9 @@ users.prototype.getUsers = function() {
  * IS A RESPONSE HANDLER
  */
 users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-    var tree = parser.xml2js(data.body, {
-        compact: true
-    });
-    tree = helpers._cleanseJson(tree);
+    var tree = parser.xml2js(data.body);
     var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+
     if (statusCode === 999) {
         reject("Provisioning API has been disabled at your instance");
         return;
@@ -12181,7 +12168,7 @@ module.exports = users;
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 //////////////////////////////////////
@@ -12312,10 +12299,7 @@ groups.prototype.groupExists = function(groupName) {
  * IS A RESPONSE HANDLER
  */
 groups.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-    var tree = parser.xml2js(data.body, {
-        compact: true
-    });
-    tree = helpers._cleanseJson(tree);
+    var tree = parser.xml2js(data.body);
 
     var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
     if (statusCode === 999) {
@@ -12335,7 +12319,7 @@ module.exports = groups;
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__dirname, Buffer) {//////////////////////////////////////
@@ -12604,6 +12588,35 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
 };
 
 /**
+ * Helper for putDirectory
+ * This function first makes all the directories required
+ * @param  {object}     array    file list (ls -R) of the directory to be put
+ * @return {Promise.<status>}    boolean: wether mkdir was successful
+ * @returns {Promise.<error>}    string: error message, if any.
+ */
+files.prototype.recursiveMkdir = function(array) {
+    /* jshint unused : false */
+    var self = this;
+    return new Promise(function(resolve, reject) {
+        self.mkdir(array[0].path).then(status => {
+            array.shift();
+            if (array.length === 0) {
+                resolve(true);
+                return;
+            }
+            self.recursiveMkdir(array).then(status2 => {
+                resolve(true);
+            }).catch(err => {
+                reject(err);
+            });
+        }).catch(error => {
+            reject(error);
+        });
+    });
+    /* jshint unused : true */
+};
+
+/**
  * Upload a directory with all its contents
  * @param   {string} remotePath path of the folder to be created at OC instance
  * @param   {string} localPath  path of the folder to be uploaded
@@ -12613,52 +12626,41 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
 files.prototype.putDirectory = function(targetPath, localPath) {
     /* jshint unused : false */
     var self = this;
-
-    var filesToPut = helpers._getAllFileInfo(localPath, targetPath);
-    var folderPromises = [];
-    var allFiles = 0;
     var count = 0;
-
+    var totalFiles = 0;
+    var filesToPut = helpers._getAllFileInfo(localPath, targetPath);
+    var filesToPut2 = filesToPut;
     for (var i = 0; i < filesToPut.length; i++) {
-        allFiles += filesToPut[i].files.length;
+        totalFiles += filesToPut[i].files.length;
         var folder = filesToPut[i].path;
-
-        if (folderPromises.length > 0) {
-            Promise.all(folderPromises).then(status => {
-                folderPromises.push(self.mkdir(folder));
-            });
-        } else {
-            folderPromises.push(self.mkdir(folder));
+        for (var j = 0; j < filesToPut[i].files.length; j++) {
+            filesToPut2[folder + filesToPut[i].files[j]] = filesToPut[i].localPath +
+                                                           filesToPut[i].files[j];
         }
     }
 
-    return new Promise((resolve, reject) => {
-        Promise.all(folderPromises).then(status => {
-            for (var i = 0; i < filesToPut.length; i++) {
-                var folder = filesToPut[i].path;
-                for (var j = 0; j < filesToPut[i].files.length; j++) {
-                    self.putFile(
-                        folder + filesToPut[i].files[j],
-                        filesToPut[i].localPath + filesToPut[i].files[j]
-                    ).then(status2 => {
-                        if (status2 === true) {
-                            count++;
-                        }
-
-                        if (count === allFiles) {
-                            resolve(true);
-                        }
-                    }).catch(error => {
-                        reject(error);
-                        return;
-                    });
-                }
+    return new Promise(function(resolve, reject) {
+        self.recursiveMkdir(filesToPut).then(status => {
+            for (var key in filesToPut2) {
+                self.putFile(
+                    key,
+                    filesToPut2[key]
+                ).then(status => {
+                    count++;
+                    if (count === totalFiles) {
+                        resolve(true);
+                    }
+                }).catch(error => {
+                    reject(error);
+                    return;
+                });
             }
         }).catch(error => {
             reject(error);
             return;
         });
     });
+
     /* jshint unused : true */
 };
 

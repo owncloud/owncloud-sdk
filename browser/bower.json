@@ -5,7 +5,7 @@
     "noveens <noveen.sachdeva@research.iiit.ac.in>"
   ],
   "description": "Use this light-weight JS library with a promise based interface for seaemless communication with your ownCloud instance.",
-  "main": "bundle.js",
+  "main": "owncloud.js",
   "keywords": [
     "owncloud",
     "api",

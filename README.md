@@ -192,7 +192,9 @@ $ cd node_modules/js-owncloud-client/
 $ make swagger
 ```
 If you open the link showed by running the above command, you will see something like this :
-# ![SwaggerDemo](http://imgh.us/swagger_github_upload.jpg)
+
+<img src="https://imgur.com/u0SzHs8.gif" title="Swagger GIF"/>
+
 Here, you can click on any method and type in values, to experiment with the methods in the browser itself!<br>
 Now isn't that cool? :wink:
 

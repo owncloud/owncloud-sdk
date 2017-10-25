@@ -53,6 +53,10 @@ apps.prototype.getApps = function() {
                     return;
                 }
 
+                if ((!(data in parser.xml2js(apps[0].body).ocs)) || (!(data in parser.xml2js(apps[1].body).ocs))) {
+                    reject(parser.xml2js(apps[0].body).ocs);
+                }
+
                 var allApps = parser.xml2js(apps[0].body).ocs.data.apps.element;
                 var allEnabledApps = parser.xml2js(apps[1].body).ocs.data.apps.element;
 

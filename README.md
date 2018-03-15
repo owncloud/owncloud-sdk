@@ -75,6 +75,13 @@ oc.files.list('/path/to/file/folder').then(files => {
 </script>
 ```
 
+## Example Projects
+
+### Node.JS Based
+
+### Browser Based
+A sample text-file saving and retreiving static web app which uses this library: <a href="https://github.com/noveens/staticOwncloudWebapp">link</a>
+
 ## All Methods Available
 
 ### General

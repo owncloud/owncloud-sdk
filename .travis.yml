@@ -4,8 +4,7 @@ node_js:
   - 6.9.1
 
 env:
-  - OC_VERSION=9.0
-  - OC_VERSION=9.1
+  - OC_VERSION=10.0
 
 sudo: required
 

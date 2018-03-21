@@ -47,15 +47,14 @@ apps.prototype.getApps = function() {
         Promise.all([allAppsP, allEnabledAppsP])
             .then(apps => {
                 var tree = parser.xml2js(apps[0].body);
-                var statuscode = parseInt(helpers._checkOCSstatusCode(tree));
-                if (statuscode === 999) {
+                if (parseInt(helpers._checkOCSstatusCode(tree)) === 999) {
                     reject("Provisioning API has been disabled at your instance");
                     return;
                 }
 
-                // if ((!(data in parser.xml2js(apps[0].body).ocs)) || (!(data in parser.xml2js(apps[1].body).ocs))) {
-                //     reject(parser.xml2js(apps[0].body).ocs);
-                // }
+                if ((!(parser.xml2js(apps[0].body).ocs.data)) || (!(parser.xml2js(apps[1].body).ocs.data))) {
+                    reject(parser.xml2js(apps[0].body).ocs);
+                }
 
                 var allApps = parser.xml2js(apps[0].body).ocs.data.apps.element;
                 var allEnabledApps = parser.xml2js(apps[1].body).ocs.data.apps.element;

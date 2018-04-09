@@ -53,6 +53,7 @@ function ownCloud(instance) {
 
     helpers.setInstance(set);
 
+    this.helpers = helpers;
     this.apps = new apps(helpers);
     this.shares = new shares(helpers);
     this.users = new users(helpers);

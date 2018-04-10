@@ -4,3 +4,4 @@ owncloud/test/testDownloadDir
 docs-swagger/node_modules
 swagger.config.js
 jsdoc/
+.idea

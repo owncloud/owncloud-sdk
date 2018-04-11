@@ -121,8 +121,7 @@ ownCloud.prototype.getConfig = function() {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', '', 'config')
             .then(data => {
-                var tree = parser.xml2js(data.body);
-                resolve(tree.ocs.data);
+                resolve(data.data.ocs.data);
             }).catch(error => {
                 reject(error);
             });

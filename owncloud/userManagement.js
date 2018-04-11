@@ -217,15 +217,13 @@ users.prototype.getUser = function(username) {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD,
             'users/' + encodeURIComponent(username)
         ).then(data => {
-            var tree = parser.xml2js(data.body);
-            var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-
+            var statusCode = parseInt(helpers._checkOCSstatusCode(data.data));
             if (statusCode === 999) {
                 reject("Provisioning API has been disabled at your instance");
                 return;
             }
 
-            var userInfo = tree.ocs.data || null;
+            var userInfo = data.data.ocs.data || null;
             resolve(userInfo);
         }).catch(error => {
             reject(error);
@@ -337,8 +335,7 @@ users.prototype.getUsers = function() {
  * IS A RESPONSE HANDLER
  */
 users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-    var tree = parser.xml2js(data.body);
-    var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
+    var statusCode = parseInt(helpers._checkOCSstatusCode(data.data));
 
     if (statusCode === 999) {
         reject("Provisioning API has been disabled at your instance");
@@ -347,9 +344,9 @@ users.prototype.handleObjectResponse = function(resolve, reject, data, what) {
 
     var toReturn;
     if (what) {
-        toReturn = tree.ocs.data[what].element || [];
+        toReturn = data.data.ocs.data[what].element || [];
     } else {
-        toReturn = tree.ocs.data.element || [];
+        toReturn = data.data.ocs.data.element || [];
     }
     if (toReturn && toReturn.constructor !== Array) {
         toReturn = [toReturn];

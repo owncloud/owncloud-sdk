@@ -111,7 +111,7 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
             .then(data => {
-                var shareData = parser.xml2js(data.body).ocs.data
+                var shareData = data.data.ocs.data
                 var share = new shareInfo(shareData);
 
                 resolve(share);
@@ -144,7 +144,7 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
             .then(data => {
-                var shareData = parser.xml2js(data.body).ocs.data;
+                var shareData = data.data.ocs.data;
                 var share = new shareInfo(shareData);
 
                 resolve(share);
@@ -200,7 +200,7 @@ shares.prototype.getShares = function(path, optionalParams) {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
             .then(data => {
-                var elements = parser.xml2js(data.body).ocs.data.element || [];
+                var elements = data.data.ocs.data.element || [];
                 var shares = [];
 
                 if (elements && elements.constructor !== Array) {
@@ -252,7 +252,7 @@ shares.prototype.getShare = function(shareId) {
         }
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
             .then(data => {
-                var shareData = parser.xml2js(data.body).ocs.data.element;
+                var shareData = data.data.ocs.data.element;
                 var share = new shareInfo(shareData);
 
                 resolve(share);
@@ -271,7 +271,7 @@ shares.prototype.listOpenRemoteShare = function() {
     return new Promise((resolve, reject) => {
         helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
             .then(data => {
-                var shares = parser.xml2js(data.body).ocs.data.element || [];
+                var shares = data.data.ocs.data.element || [];
 
                 resolve(shares);
             }).catch(error => {

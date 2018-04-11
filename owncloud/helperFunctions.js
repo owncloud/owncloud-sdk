@@ -102,7 +102,7 @@ helpers.prototype._updateCapabilities = function() {
     return new Promise((resolve, reject) => {
         self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "capabilities")
             .then(data => {
-                var body = parser.xml2js(data.body).ocs.data;
+                var body = data.data.ocs.data;
 
                 self._capabilities = body.capabilities;
                 self._version = body.version.string + '-' + body.version.edition;
@@ -164,48 +164,50 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
         options.formData = data;
     }
 
-    return new Promise((resolve, reject) => {
-        // Start the request
-        request(options, function(error, response, body) {
-            if (err) {
-                reject(err);
-            }
+	return new Promise((resolve, reject) => {
+		// Start the request
+		request(options, function(error, response, body) {
+			if (err) {
+				reject(err);
+				return;
+			}
+			if (error) {
+			    //console.log(error);
+				reject('Please provide a valid owncloud instance');
+				return;
+			}
 
-            var validXml = self._isValidXML(body);
-            var validJson = self._isValidJSON(body);
+			try {
+    			var tree = parser.xml2js(body);
+				error = self._checkOCSstatus(tree);
+				if (error) {
+					reject(error);
+					return;
+				}
+			} catch (e) {
+				try {
+					var tree = JSON.parse(body);
+					if ("message" in tree) {
+						reject(tree.message);
+						return;
+					}
+					error = self._checkOCSstatus(tree);
+					if (error) {
+						reject(error);
+						return;
+					}
+				} catch (e) {
+					reject('Invalid response body: ' + body);
+					return;
+				}
+			}
 
-            if (error) {
-                error = "Please provide a valid owncloud instance";
-            }
-
-            if (validJson) {
-                body = JSON.parse(body);
-                if ("message" in body) {
-                    error = body.message;
-                } else {
-                    error = "Please provide a valid owncloud instance";
-                }
-            }
-
-            if (!error && !validXml) {
-                error = "Please provide a valid owncloud instance";
-                body = null;
-            }
-
-            if (!error) {
-                var tree = parser.xml2js(body);
-                error = self._checkOCSstatus(tree);
-            }
-
-            if (error) {
-                reject(error);
-            } else {
-                resolve({
-                    response: response,
-                    body: body
-                });
-            }
-        });
+			resolve({
+				response: response,
+				body: body,
+                data: tree
+			});
+		});
     });
 };
 
@@ -513,34 +515,6 @@ helpers.prototype._parseDAVerror = function(body) {
 };
 
 /**
- * Checks whether a response body is valid XML
- * @param   {string}    body    the response to be checked
- * @return  {Boolean}           true if valid XML, else false
- */
-helpers.prototype._isValidXML = function(body) {
-    try {
-        parser.xml2js(body);
-    } catch (e) {
-        return false;
-    }
-    return true;
-};
-
-/**
- * Checks whether a response body is valid JSON
- * @param   {string}    body    the response to be checked
- * @return  {Boolean}           true if valid JSON, else false
- */
-helpers.prototype._isValidJSON = function(body) {
-    try {
-        JSON.parse(body);
-    } catch (e) {
-        return false;
-    }
-    return true;
-};
-
-/**
  * Makes sure path starts with a '/'
  * @param   {string}    path    to the remote file share
  * @returns {string}            normalized path
@@ -638,9 +612,7 @@ helpers.prototype._convertObjectToBool = function(object) {
  * Handles Provisionging API boolean response
  */
 helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
-    var tree = parser.xml2js(data.body);
-
-    var statuscode = parseInt(this._checkOCSstatusCode(tree));
+    var statuscode = parseInt(this._checkOCSstatusCode(data.data));
     if (statuscode === 999) {
         reject("Provisioning API has been disabled at your instance");
     }

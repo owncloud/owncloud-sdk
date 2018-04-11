@@ -129,6 +129,7 @@ describe("Currently testing Login and initLibrary,", function() {
             expect(status).toBe(true);
             done();
         }).catch(error => {
+        	console.log(error);
             expect(error).toBe(null);
             done();
         });
@@ -1082,7 +1083,7 @@ describe("Currently testing file sharing,", function () {
 	});
 });
 
-describe("Currently testing user management,", function () {
+("Currently testing user management,", function () {
 	beforeEach(function (done) {
 		oc = new ownCloud(owncloudURL);
 		oc.login(username, password).then(status => {

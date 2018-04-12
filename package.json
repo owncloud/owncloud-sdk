@@ -42,7 +42,7 @@
   "dependencies": {
     "promise": "^8.0.0",
     "request": "^2.81.0",
-    "utf8": "^2.1.2",
+    "utf8": "^3.0.0",
     "xml-js": "^1.3.2"
   }
 }

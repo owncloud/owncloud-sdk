@@ -87,7 +87,16 @@ paths:
         "success":
           description: Login attemot was successful
           schema:
-            type: boolean
+      type: object
+      example: {
+        "enabled": "true",
+        "quota": {
+          "free": "227823202304",
+          "used": "5731916",
+          "total": "227828934220",
+          "relative": "0",
+          "definition": "default"
+        },
         "faliure":
           description: Login attemot was un-successful
           schema:

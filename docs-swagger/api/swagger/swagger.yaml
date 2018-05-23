@@ -1,23 +1,23 @@
 swagger: "2.0"
-info: 
+info:
   version: "10.0.0"
   title: ownCloud documentation
-tags: 
+tags:
   - name: "General"
     description: "Methods like initLibrary, login etc."
-      
+
   - name: "Sharing"
     description: "File/Folder sharing methods"
-    
+
   - name: "Apps Management"
     description: "Methods for Enabling/Disabling/Retrieving apps"
-      
+
   - name: "User Management"
     description: "User Creation/Deletion/Updation methods"
-    
+
   - name: "Group Management"
     description: "Group Creation/Deletion/Updation methods"
-    
+
   - name: "Files Management"
     description: "File and Folder Creation/Deletion/Updation methods"
 
@@ -35,10 +35,10 @@ paths:
       tags:
         - General
       description: |
-        
+
         ```js
         var owncloud = require('js-owncloud-client');
-        
+
         var oc = new owncloud(instance);
         ```
       summary: Initialize owncloud session
@@ -53,22 +53,22 @@ paths:
           description: The library was initialised successfuly.
           schema:
             type: boolean
-  
+
   /login:
     get:
       tags:
         - General
       description: |
-        
+
         ```js
-        oc.login(username, password).then(status => { 
-          
+        oc.login(username, password).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       operationId: login
@@ -93,23 +93,23 @@ paths:
           schema:
             type: string
             example: "Current user is not logged in"
-              
-                
+
+
   /getApps:
     get:
       tags:
         - Apps Management
       description: |
-        
+
         ```js
-        oc.apps.getApps().then(apps => { 
-          
+        oc.apps.getApps().then(apps => {
+
           // All Apps
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Get all the enabled and disbaled apps via the Provisioning API
@@ -138,31 +138,31 @@ paths:
               "federatedfilesharing": true,
               "files_external": true
             }
-                
+
   /shareFileWithLink:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
         oc.shares.shareFileWithLink(path, {
-          
-          perms: perms, 
-          publicUpload: publicUpload, 
+
+          perms: perms,
+          publicUpload: publicUpload,
           password: password
-          
-        }).then(share => { 
-          
-          /* 
+
+        }).then(share => {
+
+          /*
             Object of class shareInfo
-            Use methods like getId(), getPath(), getLink() etc. 
+            Use methods like getId(), getPath(), getLink() etc.
           */
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Shares a remote file with link
@@ -172,19 +172,19 @@ paths:
           in: query
           description: path of the file to be shared
           type: string
-        
+
         - name: perms
           in: query
           required: false
           description: permission of the shared object defaults to read only (OPTIONAL)
           type: integer
-        
+
         - name: publicUpload
           in: query
           required: false
           description:  allows users to upload files or folders (OPTIONAL)
           type: boolean
-        
+
         - name: password
           in: query
           required: false
@@ -211,32 +211,32 @@ paths:
           schema:
             type: string
             example: Wrong path, file/folder doesn't exist
-                  
-                
+
+
   /updateShare:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
         oc.shares.updateShare(shareId, {
-          
-          perms: perms, 
-          publicUpload: publicUpload, 
+
+          perms: perms,
+          publicUpload: publicUpload,
           password: password
-          
-        }).then(share => { 
-          
-          /* 
+
+        }).then(share => {
+
+          /*
             Object of class shareInfo
-            Use methods like getId(), getPath(), getLink() etc. 
+            Use methods like getId(), getPath(), getLink() etc.
           */
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Updates a given share
@@ -244,21 +244,21 @@ paths:
       parameters:
         - name: shareId
           in: query
-          description: ID of share to update 
+          description: ID of share to update
           type: integer
-        
+
         - name: perms
           in: query
           required: false
           description: permission of the shared object defaults to read only (OPTIONAL)
           type: integer
-        
+
         - name: publicUpload
           in: query
           required: false
           description:  allows users to upload files or folders (OPTIONAL)
           type: boolean
-        
+
         - name: password
           in: query
           required: false
@@ -272,30 +272,30 @@ paths:
           description: The specified share was updated successfuly
           schema:
             type: boolean
-                
+
   /shareFileWithUser:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
         oc.shares.shareFileWithUser(path, username, {
-          
-          perms: perms, 
+
+          perms: perms,
           remoteUser: remoteUser
-          
-        }).then(share => { 
-          
-          /* 
+
+        }).then(share => {
+
+          /*
             Object of class shareInfo
-            Use methods like getId(), getPath(), getLink() etc. 
+            Use methods like getId(), getPath(), getLink() etc.
           */
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Shares a remote file with User
@@ -305,18 +305,18 @@ paths:
           in: query
           description: path of the file to be shared
           type: string
-          
+
         - name: username
           in: query
           description: name of user to be shared with
           type: string
-        
+
         - name: perms
           in: query
           required: false
           description: permission of the shared object defaults to read only (OPTIONAL)
           type: integer
-        
+
         - name: remoteUser
           in: query
           required: false
@@ -347,29 +347,29 @@ paths:
           schema:
             type: string
             example: Please specify a valid user
-                
+
   /shareFileWithGroup:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
         oc.shares.shareFileWithGroup(path, groupname, {
-          
+
           perms: perms
-          
-        }).then(share => { 
-          
-          /* 
+
+        }).then(share => {
+
+          /*
             Object of class shareInfo
-            Use methods like getId(), getPath(), getLink() etc. 
+            Use methods like getId(), getPath(), getLink() etc.
           */
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Shares a remote file with Group
@@ -379,12 +379,12 @@ paths:
           in: query
           description: path of the file to be shared
           type: string
-          
+
         - name: groupName
           in: query
           description: name of group to be shared with
           type: string
-        
+
         - name: perms
           in: query
           required: false
@@ -415,22 +415,22 @@ paths:
           schema:
             type: string
             example: Please specify a valid group
-  
+
   /getShares:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.getShares().then(shares => { 
-          
+        oc.shares.getShares().then(shares => {
+
           // Array containing all shares
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Returns array of shares
@@ -440,19 +440,19 @@ paths:
           in: query
           description: path to the share to be checked
           type: string
-          
+
         - name: reshares
           in: query
           required: false
           description: resharing allowed or not
           type: boolean
-        
+
         - name: subfiles
           in: query
           required: false
           description:  returns not only the shares from the current user but all shares from the given file
           type: boolean
-        
+
         - name: shared_with_me
           in: query
           required: false
@@ -487,22 +487,22 @@ paths:
                 "share_type": "Integer"
               }
             }]
-                
+
   /isShared:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.isShared(path).then(status => { 
-          
+        oc.shares.isShared(path).then(status => {
+
           // True if shared
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Checks wether a path is already shared
@@ -522,25 +522,25 @@ paths:
           schema:
             type: string
             example: "Wrong path, file/folder doesn't exist"
-                
+
   /getShare:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.getShare(shareId).then(share => { 
-          
-          /* 
+        oc.shares.getShare(shareId).then(share => {
+
+          /*
             Object of class shareInfo
-            Use methods like getId(), getPath(), getLink() etc. 
+            Use methods like getId(), getPath(), getLink() etc.
           */
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Gets share information about known share
@@ -568,22 +568,22 @@ paths:
           schema:
             type: string
             example: Wrong share ID, share doesn't exist
-                
+
   /createUser:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.createUser(username, password).then(status => { 
-          
+        oc.users.createUser(username, password).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Creates user via the provisioning API
@@ -608,22 +608,22 @@ paths:
           schema:
             type: string
             example: "User already exists"
-                
+
   /deleteUser:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.deleteUser(username).then(status => { 
-          
+        oc.users.deleteUser(username).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Deletes user via the provisioning API
@@ -652,22 +652,22 @@ paths:
                 "data": {}
               }
             }
-                
+
   /searchUsers:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.searchUsers(username).then(users => { 
-          
+        oc.users.searchUsers(username).then(users => {
+
           // Array of all matching usernames
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Searches for users via the provisioning API
@@ -687,22 +687,22 @@ paths:
               "user2",
               "user3"
             ]
-                
+
   /userExists:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.userExists(username).then(status => { 
-          
+        oc.users.userExists(username).then(status => {
+
           // True if exists
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Checks a user via the provisioning API
@@ -717,22 +717,22 @@ paths:
           description: Status fetched successfuly
           schema:
             type: boolean
-                
+
   /getUsers:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.getUsers().then(users => { 
-          
+        oc.users.getUsers().then(users => {
+
           // Array of all usernames
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Get all users via the Provisioning API
@@ -747,22 +747,22 @@ paths:
               "user2",
               "user3"
             ]
-                
+
   /setUserAttribute:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.setUserAttribute(username, key, value).then(status => { 
-          
+        oc.users.setUserAttribute(username, key, value).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Sets a user attribute via the Provisioning API
@@ -811,22 +811,22 @@ paths:
               "data": {}
             }
           }
-                
+
   /addUserToGroup:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.addUserToGroup(username, groupName).then(status => { 
-          
+        oc.users.addUserToGroup(username, groupName).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Adds user to group via the Provisioning API
@@ -871,22 +871,22 @@ paths:
               "data": {}
             }
           }
-                
+
   /getUserGroups:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.getUserGroups(username).then(status => { 
-          
+        oc.users.getUserGroups(username).then(status => {
+
           // Array of all groups user is member of
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Get a list of groups associated to a user via the Provisioning API
@@ -918,22 +918,22 @@ paths:
               "data": {}
             }
           }
-                
+
   /userIsInGroup:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.userIsInGroup(username, groupName).then(status => { 
-          
+        oc.users.userIsInGroup(username, groupName).then(status => {
+
           // True if user is part of group
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Checks if a user is in a group via the Provisioning API
@@ -965,22 +965,22 @@ paths:
               "data": {}
             }
           }
-                
+
   /getUser:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.getUser(username).then(user => { 
-          
+        oc.users.getUser(username).then(user => {
+
           // Object of all user details
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Retrieves information about a user via the Provisioning API
@@ -1012,22 +1012,22 @@ paths:
           description: Entered user doesn't exist
           type: string
           example: "The requested user could not be found"
-                
+
   /removeUserFromGroup:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.removeUserFromGroup(username, groupName).then(status => { 
-          
+        oc.users.removeUserFromGroup(username, groupName).then(status => {
+
           // true if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Removes user from a group via the Provisioning API
@@ -1072,22 +1072,22 @@ paths:
               "data": {}
             }
           }
-                
+
   /addUserToSubadminGroup:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.addUserToSubadminGroup(username, groupName).then(status => { 
-          
+        oc.users.addUserToSubadminGroup(username, groupName).then(status => {
+
           // true if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Adds user to a subadmin group via the Provisioning API
@@ -1114,22 +1114,22 @@ paths:
           description: "Entered group doesn't exist"
           type: string
           example: "Group:someGroupName does not exist"
-                
+
   /getUserSubadminGroups:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.getUserSubadminGroups(username).then(groups => { 
-          
+        oc.users.getUserSubadminGroups(username).then(groups => {
+
           // Array of all groups the user is subadmin of
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Get a list of subadmin groups associated to a user via the Provisioning API
@@ -1152,22 +1152,22 @@ paths:
           description: Entered user doesn't exist
           type: string
           example: User does not exist
-                
+
   /userIsInSubadminGroup:
     get:
       tags:
         - User Management
       description: |
-        
+
         ```js
-        oc.users.userIsInSubadminGroup(username, groupName).then(status => { 
-          
+        oc.users.userIsInSubadminGroup(username, groupName).then(status => {
+
           // true if user is a subadmin of the group
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Checks if a user is in a subadmin group via the Provisioning API
@@ -1190,22 +1190,22 @@ paths:
           description: Entered user doesn't exist
           type: string
           example: User does not exist
-                
+
   /createGroup:
     get:
       tags:
         - Group Management
       description: |
-        
+
         ```js
-        oc.groups.createGroup(groupName).then(status => { 
-          
+        oc.groups.createGroup(groupName).then(status => {
+
           // true if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Creates a group via the provisioning API
@@ -1234,22 +1234,22 @@ paths:
                 "data": {}
               }
             }
-                
+
   /deleteGroup:
     get:
       tags:
         - Group Management
       description: |
-        
+
         ```js
-        oc.groups.deleteGroup(groupName).then(status => { 
-          
+        oc.groups.deleteGroup(groupName).then(status => {
+
           // true if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Deletes a group via the provisioning API
@@ -1278,22 +1278,22 @@ paths:
                 "data": {}
               }
             }
-                
+
   /getGroups:
     get:
       tags:
         - Group Management
       description: |
-        
+
         ```js
-        oc.groups.getGroups().then(groups => { 
-          
+        oc.groups.getGroups().then(groups => {
+
           // Array of all group names
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Gets all groups via the provisioning API
@@ -1308,22 +1308,22 @@ paths:
               "group1",
               "group2"
             ]
-                
+
   /getGroupMembers:
     get:
       tags:
         - Group Management
       description: |
-        
+
         ```js
-        oc.groups.getGroupMembers(groupName).then(members => { 
-          
+        oc.groups.getGroupMembers(groupName).then(members => {
+
           // Array of all group members
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Gets all members of a group via the provisioning API
@@ -1347,22 +1347,22 @@ paths:
           schema:
             type: string
             example: The requested group could not be found
-                
+
   /groupExists:
     get:
       tags:
         - Group Management
       description: |
-        
+
         ```js
-        oc.groups.groupExists(groupName).then(status => { 
-          
+        oc.groups.groupExists(groupName).then(status => {
+
           // true if exists
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Checks a group via provisioning API
@@ -1377,22 +1377,22 @@ paths:
           description: Group status fetched successfuly
           schema:
             type: boolean
-                
+
   /getConfig:
     get:
       tags:
         - General
       description: |
-        
+
         ```js
-        oc.getConfig().then(config => { 
-          
+        oc.getConfig().then(config => {
+
           // object with all config settings of the OC instance
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Returns ownCloud config information
@@ -1409,22 +1409,22 @@ paths:
               "contact": {},
               "ssl": "false"
             }
-                
+
   /getAttribute:
     get:
       tags:
         - Apps Management
       description: |
-        
+
         ```js
-        oc.apps.getAttribute(app, key).then(value => { 
-          
+        oc.apps.getAttribute(app, key).then(value => {
+
           // value of the key
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Returns an application attribute
@@ -1460,16 +1460,16 @@ paths:
         - Apps Management
       summary: Sets an application attribute
       description: |
-        
+
         ```js
-        oc.apps.setAttribute(app, key, value).then(status => { 
-          
+        oc.apps.setAttribute(app, key, value).then(status => {
+
           // true if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       operationId: setAttribute
@@ -1490,22 +1490,22 @@ paths:
         "success":
           description: The attribute was set successfuly
           type: boolean
-                
+
   /deleteAttribute:
     get:
       tags:
         - Apps Management
       description: |
-        
+
         ```js
-        oc.apps.deleteAttribute(app, key).then(status => { 
-          
+        oc.apps.deleteAttribute(app, key).then(status => {
+
           // true if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Deletes an application attribute
@@ -1523,22 +1523,22 @@ paths:
         "success":
           description: The attribute was deleted successfuly
           type: boolean
-                
+
   /getVersion:
     get:
       tags:
         - General
       description: |
-        
+
         ```js
-        oc.getVersion().then(version => { 
-          
+        oc.getVersion().then(version => {
+
           // version string of the OC instance
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Gets the ownCloud version of the connected server
@@ -1549,22 +1549,22 @@ paths:
           schema:
             type: string
             example: "10.0.0-Community"
-                
+
   /getCapabilities:
     get:
       tags:
         - General
       description: |
-        
+
         ```js
-        oc.getCapabilities().then(capabilities => { 
-          
+        oc.getCapabilities().then(capabilities => {
+
           // object with all the capabilities of the logged in user
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Gets the ownCloud app capabilities
@@ -1589,22 +1589,22 @@ paths:
                 }
               }
             }
-                
+
   /enableApp:
     get:
       tags:
         - Apps Management
       description: |
-        
+
         ```js
-        oc.apps.enableApp(appname).then(status => { 
-          
+        oc.apps.enableApp(appname).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: enables an app via the Provisioning API
@@ -1618,22 +1618,22 @@ paths:
         "success":
           description: The app was enabled successfuly
           type: boolean
-                
+
   /disableApp:
     get:
       tags:
         - Apps Management
       description: |
-        
+
         ```js
-        oc.apps.disbleApp(appname).then(status => { 
-          
+        oc.apps.disbleApp(appname).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: disables an app via the Provisioning API
@@ -1647,22 +1647,22 @@ paths:
         "success":
           description: The app was disabled successfuly
           type: boolean
-                
+
   /listOpenRemoteShare:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.listOpenRemoteShare().then(shares => { 
-          
+        oc.shares.listOpenRemoteShare().then(shares => {
+
           // Array containing all shares
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: List all pending remote share
@@ -1677,22 +1677,22 @@ paths:
               "share2",
               "share3"
             ]
-                
+
   /acceptRemoteShare:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.acceptRemoteShare(shareId).then(status => { 
-          
+        oc.shares.acceptRemoteShare(shareId).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Accepts a remote share
@@ -1707,22 +1707,22 @@ paths:
           description: The share was accepeted
           schema:
             type: boolean
-          
+
   /declineRemoteShare:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.declineRemoteShare(shareId).then(status => { 
-          
+        oc.shares.declineRemoteShare(shareId).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Declines a remote share
@@ -1742,22 +1742,22 @@ paths:
           schema:
             type: string
             example: Share does not exist
-          
+
   /deleteShare:
     get:
       tags:
         - Sharing
       description: |+
-        
+
         ```js
-        oc.shares.deleteShare(shareId).then(status => { 
-          
+        oc.shares.deleteShare(shareId).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Unshares a file or directory
@@ -1777,22 +1777,22 @@ paths:
           schema:
             type: string
             example: "Wrong share ID, share doesn't exist"
-                
+
   /list:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.list(remotePath, depth).then(files => { 
-          
+        oc.files.list(remotePath, depth).then(files => {
+
           // All files in an object
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Returns the listing/contents of the given remote directory
@@ -1844,22 +1844,22 @@ paths:
           schema:
             type: string
             example: File with name *FileName* could not be located
-                
+
   /getFileContents:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.getFileContents(remotePath).then(content => { 
-          
+        oc.files.getFileContents(remotePath).then(content => {
+
           // File Content
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Returns the contents of a remote file
@@ -1880,22 +1880,22 @@ paths:
           schema:
             type: string
             example: File with name *FileName* could not be located
-                
+
   /putFileContents:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.putFileContents(remotePath, content).then(status => { 
-          
+        oc.files.putFileContents(remotePath, content).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Write data into a remote file
@@ -1919,22 +1919,22 @@ paths:
           schema:
             type: string
             example: File with name *FolderName* could not be located
-                
+
   /mkdir:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.mkdir(remotePath).then(status => { 
-          
+        oc.files.mkdir(remotePath).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Creates a new folder
@@ -1954,22 +1954,22 @@ paths:
           schema:
             type: string
             example: Parent node does not exist
-                
+
   /delete:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.delete(remotePath).then(status => { 
-          
+        oc.files.delete(remotePath).then(status => {
+
           // True if successful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Deletes a new file/folder
@@ -1989,22 +1989,22 @@ paths:
           schema:
             type: string
             example: File with name *FileName* could not be located
-                
+
   /fileInfo:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.fileInfo(remotePath).then(info => { 
-          
+        oc.files.fileInfo(remotePath).then(info => {
+
           // File Information
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Returns the file info for the given remote file
@@ -2037,22 +2037,22 @@ paths:
           schema:
             type: string
             example: File with name *FileName* could not be located
-                
+
   /getFile:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.getFile(remotePath, localPath).then(status => { 
-          
+        oc.files.getFile(remotePath, localPath).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Downloads remote file at the localPath specified
@@ -2081,22 +2081,22 @@ paths:
           schema:
             type: string
             example: "ENOENT: no such file or directory, open *localPath*"
-                
+
   /getDirectoryAsZip:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.getDirectoryAsZip(remotePath, localPath).then(status => { 
-          
+        oc.files.getDirectoryAsZip(remotePath, localPath).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Downloads remote folder at the localPath specified
@@ -2125,22 +2125,22 @@ paths:
           schema:
             type: string
             example: "ENOENT: no such file or directory, open *localPath*"
-                
+
   /putFile:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.putFile(remotePath, localPath, keepMTime).then(status => { 
-          
+        oc.files.putFile(remotePath, localPath, keepMTime).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: uploads a file
@@ -2174,22 +2174,22 @@ paths:
           schema:
             type: string
             example: "ENOENT: no such file or directory, open *localPath*"
-                
+
   /putDirectory:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.putDirectory(remotePath, localPath).then(status => { 
-          
+        oc.files.putDirectory(remotePath, localPath).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Uploads a folder
@@ -2218,22 +2218,22 @@ paths:
           schema:
             type: string
             example: "ENOENT: no such file or directory, open *localPath*"
-                
+
   /move:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.move(source, target).then(status => { 
-          
+        oc.files.move(source, target).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Moves a file/folder at the OC instance
@@ -2262,22 +2262,22 @@ paths:
           schema:
             type: string
             example: The destination node is not found
-                
+
   /copy:
     get:
       tags:
         - Files Management
       description: |
-        
+
         ```js
-        oc.files.move(source, target).then(status => { 
-          
+        oc.files.move(source, target).then(status => {
+
           // True if succesful
 
         }).catch(error => {
-          
+
           // error message
-          
+
         });
         ```
       summary: Copies a file/folder at the OC instance

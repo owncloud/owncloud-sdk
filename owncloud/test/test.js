@@ -1557,7 +1557,7 @@ describe("Currently testing group management,", function() {
             done();
         }).catch(error => {
             expect(typeof(error)).toBe('object');
-            expect(error.ocs.meta.statuscode).toEqual('101');
+            expect(error.ocs.meta.statuscode).toEqual(101);
             done();
         });
     });

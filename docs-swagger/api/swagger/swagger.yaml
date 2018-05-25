@@ -61,7 +61,7 @@ paths:
       description: |
 
         ```js
-        oc.login(username, password).then(status => {
+        oc.login(username, password).then(user => {
 
           // True if successful
 

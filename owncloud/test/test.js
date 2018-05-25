@@ -81,8 +81,8 @@ describe("Currently testing Login and initLibrary,", function() {
     it('checking method : login with a non existent instance URL', function(done) {
         oc = new ownCloud('someRandomName');
 
-        oc.login(username, password).then(status => {
-            expect(status).toBe(null);
+        oc.login(username, password).then(user => {
+            expect(user.enabled).toBe(null);
             done();
         }).catch(error => {
             expect(error).toBe("Please provide a valid owncloud instance");
@@ -125,8 +125,8 @@ describe("Currently testing Login and initLibrary,", function() {
     it('checking method : login with correct username and password', function(done) {
         oc = new ownCloud(owncloudURL);
 
-        oc.login(username, password).then(status => {
-            expect(status).toBe(true);
+        oc.login(username, password).then(user => {
+            expect(user.enabled).toBe(true);
             done();
         }).catch(error => {
         	console.log(error);
@@ -1086,8 +1086,8 @@ describe("Currently testing file sharing,", function () {
 ("Currently testing user management,", function () {
 	beforeEach(function (done) {
 		oc = new ownCloud(owncloudURL);
-		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+		oc.login(username, password).then(user => {
+			expect(user.enabled).toBe(true);
 			return oc.users.createUser(testUser, testUserPassword);
 		}).then(status2 => {
 			expect(status2).toBe(true);
@@ -1486,8 +1486,8 @@ describe("Currently testing file sharing,", function () {
 describe("Currently testing group management,", function() {
     beforeEach(function(done) {
         oc = new ownCloud(owncloudURL);
-        oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+        oc.login(username, password).then(user => {
+			expect(user.enabled).toBe(true);
 			return oc.groups.createGroup(testGroup);
 		}).then(status2 => {
 			expect(status2).toBe(true);
@@ -1566,8 +1566,8 @@ describe("Currently testing group management,", function() {
 describe("Currently testing files management,", function () {
 	beforeEach(function(done) {
 		oc = new ownCloud(owncloudURL);
-		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+		oc.login(username, password).then(user => {
+			expect(user.enabled).toBe(true);
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);

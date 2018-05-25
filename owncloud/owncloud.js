@@ -65,7 +65,7 @@ function ownCloud(instance) {
  * Logs in to the specified ownCloud instance (Updates capabilities)
  * @param   {string} username     name of the user to login
  * @param   {string} password     password of the user to login
- * @returns {Promise.<status>}    boolean: whether login was successful or not
+ * @returns {Promise.<userInfo>}  object: all user related information
  * @returns {Promise.<error>}     string: error message, if any.
  */
 ownCloud.prototype.login = function(username, password) {
@@ -75,8 +75,8 @@ ownCloud.prototype.login = function(username, password) {
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
         helpers._updateCapabilities()
-            .then(body => {
-                resolve(true);
+            .then( () => {
+                resolve(this.users.getUser(username));
             }).catch(error => {
                 reject(error);
             });

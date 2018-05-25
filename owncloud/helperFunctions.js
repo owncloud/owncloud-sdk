@@ -800,7 +800,8 @@ helpers.prototype._getFileName = function(path) {
  */
 helpers.prototype._getXMLns = function (xml) {
     var tree = parser2.xml2js(xml, {
-        compact: true
+        compact: true,
+		nativeType: true
     });
     var xmlns = tree['d:multistatus']._attributes;
     var replacedXMLns = {};

@@ -9,7 +9,8 @@ var myParser = {};
  */
 myParser.xml2js = function (xml, xmlns) {
     var parsed = parser.xml2js(xml, {
-        compact: true
+        compact: true,
+		nativeType: true
     });
 
     if (xmlns) {

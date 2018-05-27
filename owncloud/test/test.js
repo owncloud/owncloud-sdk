@@ -1676,7 +1676,7 @@ describe("Currently testing files management,", function () {
 
 		for (var i=0;i<testSubFiles.length;i++) {
 			oc.files.getFileContents(testSubFiles[i]).then(content => {
-				expect(content).toEqual(testContent);
+				expect(content.toString('utf8')).toEqual(testContent);
 				count++;
 				if (count === testSubFiles.length) {
 					done();
@@ -1705,7 +1705,7 @@ describe("Currently testing files management,", function () {
 			expect(status).toBe(true);
 			return oc.files.getFileContents(newFile);
 		}).then(content => {
-			expect(content).toEqual(testContent);
+			expect(content.toString('utf8')).toEqual(testContent);
 			return oc.files.delete(newFile);
 		}).then(status2 => {
 			expect(status2).toEqual(true);
@@ -1860,7 +1860,7 @@ describe("Currently testing files management,", function () {
 			expect(status).toBe(true);
 			return oc.files.getFileContents('file' + timeRightNow + '.txt');
 		}).then(content => {
-			expect(content).toEqual(testContent);
+			expect(content.toString('utf8')).toEqual(testContent);
             return oc.files.delete('file' + timeRightNow + '.txt');
 		}).then(status => {
             expect(status).toBe(true);

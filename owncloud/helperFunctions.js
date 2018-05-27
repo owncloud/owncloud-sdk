@@ -350,7 +350,8 @@ helpers.prototype._get = function(url) {
     var options = {
         url: url,
         method: 'GET',
-        headers: headers
+        headers: headers,
+        encoding: null
     };
 
     return new Promise((resolve, reject) => {

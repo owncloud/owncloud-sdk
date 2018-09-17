@@ -50,6 +50,7 @@ function helpers() {
 helpers.prototype.setInstance = function(instance) {
     this.instance = instance;
     this._webdavUrl = this.instance + 'remote.php/webdav';
+    this._davPath = this.instance + 'remote.php/dav/';
 };
 
 helpers.prototype.getInstance = function() {
@@ -147,6 +148,12 @@ helpers.prototype._updateCurrentUser = function() {
  */
 helpers.prototype._makeOCSrequest = function(method, service, action, data) {
     var self = this;
+
+	if (err) {
+    	return new Promise((resolve, reject) => {
+			reject(err);
+		});
+	}
 
     // Set the headers
     var headers = {
@@ -388,6 +395,10 @@ helpers.prototype._encodeString = function(path) {
 
 helpers.prototype._buildFullWebDAVPath = function(path) {
     return this._webdavUrl + this._encodeUri(path);
+};
+
+helpers.prototype._buildFullWebDAVPathV2 = function(path) {
+    return this._davPath + this._encodeUri(path);
 };
 
 /**

@@ -39,8 +39,7 @@ function helpers() {
     this.OCS_SHARE_TYPE_REMOTE = 6;
 
     this.instance = null;
-    this._username = null;
-    this._password = null;
+    this._authHeader = null;
     this._version = null;
     this._capabilities = null;
 }
@@ -55,10 +54,10 @@ helpers.prototype.setInstance = function(instance) {
 
 /**
  * sets the username
- * @param   {string}    username    username to be used for logging in
+ * @param   {string}    authHeader    authorization header; either basic or bearer or what ever
  */
-helpers.prototype.setUsername = function(username) {
-    this._username = username;
+helpers.prototype.setAuthorization = function(authHeader) {
+    this._authHeader = authHeader;
 
     var instancePath = '/' + this.instance.split('/').slice(3).join('/');
 
@@ -66,14 +65,6 @@ helpers.prototype.setUsername = function(username) {
         encodeURIComponent(this._encodeString(this._username));
 
     this._webdavUrl = this.instance + 'remote.php/webdav';
-};
-
-/**
- * sets the password
- * @param   {string}    password    password to be used for logging in
- */
-helpers.prototype.setPassword = function(password) {
-    this._password = password;
 };
 
 /**
@@ -131,13 +122,13 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     // Set the headers
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        authorization: this._authHeader,
         'OCS-APIREQUEST': true
     };
 
@@ -228,8 +219,8 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     path = self._normalizePath(path);
@@ -239,7 +230,7 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
 
     // Set the headers
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64')
+        authorization: this._authHeader
     };
 
     //Configure the request
@@ -337,12 +328,12 @@ helpers.prototype._get = function(url) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        authorization: this._authHeader,
         'Content-Type': 'application/x-www-form-urlencoded'
     };
 
@@ -388,12 +379,12 @@ helpers.prototype._writeData = function(url, fileName) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        authorization: this._authHeader,
         'Content-Type': 'application/octet-stream'
     };
 

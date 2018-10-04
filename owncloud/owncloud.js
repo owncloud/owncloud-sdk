@@ -69,8 +69,8 @@ function ownCloud(instance) {
  * @returns {Promise.<error>}     string: error message, if any.
  */
 ownCloud.prototype.login = function(username, password) {
-    helpers.setUsername(username);
-    helpers.setPassword(password);
+    var basicAuth = "Basic " + new Buffer(username + ":" + password).toString('base64');
+    helpers.setAuthorization(basicAuth);
 
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
@@ -78,8 +78,29 @@ ownCloud.prototype.login = function(username, password) {
             .then(body => {
                 resolve(true);
             }).catch(error => {
-                reject(error);
-            });
+            reject(error);
+        });
+    });
+    /* jshint unused: true */
+};
+
+/**
+ * Logs in to the specified ownCloud instance (Updates capabilities)
+ * @param   {string} token        name of the user to login
+ * @returns {Promise.<status>}    boolean: whether login was successful or not
+ * @returns {Promise.<error>}     string: error message, if any.
+ */
+ownCloud.prototype.loginWithBearer = function(token) {
+    helpers.setAuthorization("Bearer " + token);
+
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        helpers._updateCapabilities()
+            .then(body => {
+                resolve(true);
+            }).catch(error => {
+            reject(error);
+        });
     });
     /* jshint unused: true */
 };

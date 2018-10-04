@@ -42,6 +42,7 @@ function helpers() {
     this._authHeader = null;
     this._version = null;
     this._capabilities = null;
+    this._currentUser = null;
 }
 
 /**
@@ -78,6 +79,14 @@ helpers.prototype.getCapabilities = function() {
 };
 
 /**
+ * Gets the logged in user
+ * @returns {object}    user info
+ */
+helpers.prototype.getCurrentUser= function() {
+    return this._currentUser;
+};
+
+/**
  * Updates the capabilities of user logging in.
  * @returns {Promise.<capabilities>}    object: all capabilities
  * @returns {Promise.<error>}           string: error message, if any.
@@ -94,8 +103,29 @@ helpers.prototype._updateCapabilities = function() {
 
                 resolve(self._capabilities);
             }).catch(error => {
-                reject(error);
-            });
+            reject(error);
+        });
+    });
+};
+
+/**
+ * Updates the user logging in.
+ * @returns {Promise.<_currentUser>}    object: _currentUser
+ * @returns {Promise.<error>}           string: error message, if any.
+ */
+helpers.prototype._updateCurrentUser = function() {
+    var self = this;
+    return new Promise((resolve, reject) => {
+        self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "user")
+            .then(data => {
+                var body = data.data.ocs.data;
+
+                self._currentUser = body;
+
+                resolve(self._currentUser);
+            }).catch(error => {
+            reject(error);
+        });
     });
 };
 

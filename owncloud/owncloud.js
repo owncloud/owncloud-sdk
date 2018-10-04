@@ -188,10 +188,33 @@ ownCloud.prototype.getCapabilities = function() {
                 .then(body => {
                     resolve(body);
                 }).catch(error => {
-                    reject(error);
-                });
+                reject(error);
+            });
         } else {
             resolve(capabilities);
+        }
+    });
+};
+
+/**
+ * Gets the currently logged in user
+ * @returns {Promise.<capabilities>}
+ * @returns {Promise.<reject>}
+ */
+ownCloud.prototype.getCurrentUser = function() {
+    var self = this;
+    var user = helpers.getCurrentUser();
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        if (user === null) {
+            helpers._updateCurrentUser()
+                .then(body => {
+                    resolve(body);
+                }).catch(error => {
+                reject(error);
+            });
+        } else {
+            resolve(user);
         }
     });
 };

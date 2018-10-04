@@ -72,11 +72,12 @@ ownCloud.prototype.login = function(username, password) {
     var basicAuth = "Basic " + new Buffer(username + ":" + password).toString('base64');
     helpers.setAuthorization(basicAuth);
 
+    var self = this;
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
         helpers._updateCapabilities()
-            .then(body => {
-                resolve(true);
+            .then(() => {
+                resolve(self.getCurrentUser());
             }).catch(error => {
             reject(error);
         });
@@ -93,11 +94,12 @@ ownCloud.prototype.login = function(username, password) {
 ownCloud.prototype.loginWithBearer = function(token) {
     helpers.setAuthorization("Bearer " + token);
 
+    var self = this;
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
         helpers._updateCapabilities()
-            .then(body => {
-                resolve(true);
+            .then(() => {
+                resolve(self.getCurrentUser());
             }).catch(error => {
             reject(error);
         });

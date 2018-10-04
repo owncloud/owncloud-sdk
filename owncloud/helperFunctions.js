@@ -50,6 +50,7 @@ function helpers() {
  */
 helpers.prototype.setInstance = function(instance) {
     this.instance = instance;
+    this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
 /**
@@ -58,13 +59,6 @@ helpers.prototype.setInstance = function(instance) {
  */
 helpers.prototype.setAuthorization = function(authHeader) {
     this._authHeader = authHeader;
-
-    var instancePath = '/' + this.instance.split('/').slice(3).join('/');
-
-    this._davPath = instancePath + 'remote.php/dav/files/' +
-        encodeURIComponent(this._encodeString(this._username));
-
-    this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
 /**

@@ -602,16 +602,6 @@ describe("Currently testing files management,", function() {
         });
     });
 
-    it('checking method : getDirectoryAsZip', function(done) {
-        oc.files.getDirectoryAsZip(testFolder, downloadBasePath + timeRightNow + '.zip').then(status => {
-            expect(status).toBe(null);
-            done();
-        }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
-            done();
-        });
-    });
-
     it('checking method : putFile', function(done) {
         try {
             oc.files.putFile('/', localFile).then(status => {

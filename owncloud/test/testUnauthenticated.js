@@ -46,7 +46,7 @@ var sharedFilesWithUser = {
 };
 
 // COMMON ERRORS
-var errors = ["Current user is not logged in", "Please specify a username AND password first."];
+var errors = ["Current user is not logged in", "Please specify an authorization first."];
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function() {
     beforeEach(function() {

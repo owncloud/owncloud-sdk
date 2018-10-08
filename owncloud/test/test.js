@@ -126,7 +126,7 @@ describe("Currently testing Login and initLibrary,", function() {
         oc = new ownCloud(owncloudURL);
 
         oc.login(username, password).then(status => {
-            expect(status).toBe(true);
+            expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
             done();
         }).catch(error => {
         	console.log(error);
@@ -1087,7 +1087,7 @@ describe("Currently testing file sharing,", function () {
 	beforeEach(function (done) {
 		oc = new ownCloud(owncloudURL);
 		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+            expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
 			return oc.users.createUser(testUser, testUserPassword);
 		}).then(status2 => {
 			expect(status2).toBe(true);
@@ -1487,7 +1487,7 @@ describe("Currently testing group management,", function() {
     beforeEach(function(done) {
         oc = new ownCloud(owncloudURL);
         oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+            expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
 			return oc.groups.createGroup(testGroup);
 		}).then(status2 => {
 			expect(status2).toBe(true);
@@ -1567,7 +1567,7 @@ describe("Currently testing files management,", function () {
 	beforeEach(function(done) {
 		oc = new ownCloud(owncloudURL);
 		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+			expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);

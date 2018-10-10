@@ -39,10 +39,10 @@ function helpers() {
     this.OCS_SHARE_TYPE_REMOTE = 6;
 
     this.instance = null;
-    this._username = null;
-    this._password = null;
+    this._authHeader = null;
     this._version = null;
     this._capabilities = null;
+    this._currentUser = null;
 }
 
 /**
@@ -51,29 +51,15 @@ function helpers() {
  */
 helpers.prototype.setInstance = function(instance) {
     this.instance = instance;
-};
-
-/**
- * sets the username
- * @param   {string}    username    username to be used for logging in
- */
-helpers.prototype.setUsername = function(username) {
-    this._username = username;
-
-    var instancePath = '/' + this.instance.split('/').slice(3).join('/');
-
-    this._davPath = instancePath + 'remote.php/dav/files/' +
-        encodeURIComponent(this._encodeString(this._username));
-
     this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
 /**
- * sets the password
- * @param   {string}    password    password to be used for logging in
+ * sets the username
+ * @param   {string}    authHeader    authorization header; either basic or bearer or what ever
  */
-helpers.prototype.setPassword = function(password) {
-    this._password = password;
+helpers.prototype.setAuthorization = function(authHeader) {
+    this._authHeader = authHeader;
 };
 
 /**
@@ -93,6 +79,14 @@ helpers.prototype.getCapabilities = function() {
 };
 
 /**
+ * Gets the logged in user
+ * @returns {object}    user info
+ */
+helpers.prototype.getCurrentUser= function() {
+    return this._currentUser;
+};
+
+/**
  * Updates the capabilities of user logging in.
  * @returns {Promise.<capabilities>}    object: all capabilities
  * @returns {Promise.<error>}           string: error message, if any.
@@ -109,8 +103,29 @@ helpers.prototype._updateCapabilities = function() {
 
                 resolve(self._capabilities);
             }).catch(error => {
-                reject(error);
-            });
+            reject(error);
+        });
+    });
+};
+
+/**
+ * Updates the user logging in.
+ * @returns {Promise.<_currentUser>}    object: _currentUser
+ * @returns {Promise.<error>}           string: error message, if any.
+ */
+helpers.prototype._updateCurrentUser = function() {
+    var self = this;
+    return new Promise((resolve, reject) => {
+        self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, "user")
+            .then(data => {
+                var body = data.data.ocs.data;
+
+                self._currentUser = body;
+
+                resolve(self._currentUser);
+            }).catch(error => {
+            reject(error);
+        });
     });
 };
 
@@ -131,13 +146,13 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     // Set the headers
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        authorization: this._authHeader,
         'OCS-APIREQUEST': true
     };
 
@@ -228,8 +243,8 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     path = self._normalizePath(path);
@@ -239,7 +254,7 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
 
     // Set the headers
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64')
+        authorization: this._authHeader
     };
 
     //Configure the request
@@ -337,12 +352,12 @@ helpers.prototype._get = function(url) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        authorization: this._authHeader,
         'Content-Type': 'application/x-www-form-urlencoded'
     };
 
@@ -388,12 +403,12 @@ helpers.prototype._writeData = function(url, fileName) {
         err = "Please specify a server URL first";
     }
 
-    if (!this._username || !this._password) {
-        err = "Please specify a username AND password first.";
+    if (!this._authHeader) {
+        err = "Please specify an authorization first.";
     }
 
     var headers = {
-        authorization: "Basic " + new Buffer(this._username + ":" + this._password).toString('base64'),
+        authorization: this._authHeader,
         'Content-Type': 'application/octet-stream'
     };
 

@@ -46,7 +46,7 @@ var sharedFilesWithUser = {
 };
 
 // COMMON ERRORS
-var errors = ["Current user is not logged in", "Please specify a username AND password first."];
+var errors = ["Current user is not logged in", "Please specify an authorization first."];
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function() {
     beforeEach(function() {
@@ -579,16 +579,6 @@ describe("Currently testing files management,", function() {
         var file = 'tempFile' + timeRightNow;
 
         oc.files.putFileContents(file, testContent).then(status => {
-            expect(status).toBe(null);
-            done();
-        }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
-            done();
-        });
-    });
-
-    it('checking method : getDirectoryAsZip', function(done) {
-        oc.files.getDirectoryAsZip(testFolder, downloadBasePath + timeRightNow + '.zip').then(status => {
             expect(status).toBe(null);
             done();
         }).catch(error => {

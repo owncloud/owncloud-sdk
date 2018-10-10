@@ -205,33 +205,6 @@ files.prototype.getFile = function(path, localPath) {
 };
 
 /**
- * Downloads a remote directory as zip
- * @param   {string} remotePath path of the folder at OC instance
- * @param   {string} localPath  path where to download
- * @returns {Promise.<status>}  boolean: whether the operation was successful
- * @returns {Promise.<error>}   string: error message, if any.
- */
-files.prototype.getDirectoryAsZip = function(path, localPath) {
-    path = helpers._normalizePath(path);
-    localPath = localPath || __dirname + path;
-    localPath = helpers._checkExtensionZip(localPath);
-    path = helpers._encodeString(path);
-    path = encodeURIComponent(path);
-    path = path.split('%2F').join('/');
-
-    var url = helpers.instance + 'index.php/apps/files/ajax/download.php?dir=' + (path);
-
-    return new Promise((resolve, reject) => {
-        helpers._writeData(url, localPath)
-            .then(status => {
-                resolve(status);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
-
-/**
  * Upload a file
  * @param   {string}  remotePath path of the file to be created at OC instance
  * @param   {string}  localPath  path of the file to be uploaded
@@ -252,7 +225,7 @@ files.prototype.putFile = function(path, localPath, keepMTime) {
     }
 
     headers['Content-Length'] = helpers._getFileSize(localPath);
-    headers.authorization = "Basic " + new Buffer(helpers._username + ":" + helpers._password).toString('base64');
+    headers.authorization = helpers._authHeader;
 
     return new Promise((resolve, reject) => {
         helpers._readFile(path, localPath, headers).then(status => {

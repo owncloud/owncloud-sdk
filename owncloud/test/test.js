@@ -126,7 +126,7 @@ describe("Currently testing Login and initLibrary,", function() {
         oc = new ownCloud(owncloudURL);
 
         oc.login(username, password).then(status => {
-            expect(status).toBe(true);
+            expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
             done();
         }).catch(error => {
         	console.log(error);
@@ -1087,7 +1087,7 @@ describe("Currently testing file sharing,", function () {
 	beforeEach(function (done) {
 		oc = new ownCloud(owncloudURL);
 		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+            expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
 			return oc.users.createUser(testUser, testUserPassword);
 		}).then(status2 => {
 			expect(status2).toBe(true);
@@ -1487,7 +1487,7 @@ describe("Currently testing group management,", function() {
     beforeEach(function(done) {
         oc = new ownCloud(owncloudURL);
         oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+            expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
 			return oc.groups.createGroup(testGroup);
 		}).then(status2 => {
 			expect(status2).toBe(true);
@@ -1567,7 +1567,7 @@ describe("Currently testing files management,", function () {
 	beforeEach(function(done) {
 		oc = new ownCloud(owncloudURL);
 		oc.login(username, password).then(status => {
-			expect(status).toBe(true);
+			expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);
@@ -1828,33 +1828,6 @@ describe("Currently testing files management,", function () {
 		});
 	});
 
-	it('checking method : getDirectoryAsZip for an existent folder', function (done) {
-		oc.files.getDirectoryAsZip(testFolder, downloadBasePath + timeRightNow +'.zip').then(status => {
-			expect(status).toBe(true);
-
-			fs.readFile(downloadBasePath + timeRightNow +'.zip', function(err, data) {
-			    JSZip.loadAsync(data).then(function (zip) {
-			        var count = Object.keys(zip.files).length;
-			        expect(count).toEqual(7);
-			        done();
-			    });
-			});
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : getDirectoryAsZip for a non existent folder', function (done) {
-		oc.files.getDirectoryAsZip(testFolder + timeRightNow, downloadBasePath + timeRightNow +'.zip').then(status => {
-			expect(status).toBe(null);
-			done();
-		}).catch(error => {
-			expect(error).toBe('specified file/folder could not be located');
-			done();
-		});
-	});
-
 	it('checking method : putFile for an existent file', function (done) {
 		oc.files.putFile('/', localFile).then(status => {
 			expect(status).toBe(true);
@@ -1897,7 +1870,7 @@ describe("Currently testing files management,", function () {
 			expect(status).toBe(true);
 			return oc.files.list(testFolder + '/testDownloadDir', 'infinity');
 		}).then(files => {
-			expect(files.length).toEqual(5);
+			expect(files.length).toEqual(3);
 			done();
 		}).catch(error => {
 			expect(error).toBe(null);

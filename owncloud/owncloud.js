@@ -69,17 +69,40 @@ function ownCloud(instance) {
  * @returns {Promise.<error>}     string: error message, if any.
  */
 ownCloud.prototype.login = function(username, password) {
-    helpers.setUsername(username);
-    helpers.setPassword(password);
+    var basicAuth = "Basic " + new Buffer(username + ":" + password).toString('base64');
+    helpers.setAuthorization(basicAuth);
 
+    var self = this;
     /* jshint unused: false */
     return new Promise((resolve, reject) => {
         helpers._updateCapabilities()
-            .then(body => {
-                resolve(true);
+            .then(() => {
+                resolve(self.getCurrentUser());
             }).catch(error => {
-                reject(error);
-            });
+            reject(error);
+        });
+    });
+    /* jshint unused: true */
+};
+
+/**
+ * Logs in to the specified ownCloud instance (Updates capabilities)
+ * @param   {string} token        name of the user to login
+ * @returns {Promise.<status>}    boolean: whether login was successful or not
+ * @returns {Promise.<error>}     string: error message, if any.
+ */
+ownCloud.prototype.loginWithBearer = function(token) {
+    helpers.setAuthorization("Bearer " + token);
+
+    var self = this;
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        helpers._updateCapabilities()
+            .then(() => {
+                resolve(self.getCurrentUser());
+            }).catch(error => {
+            reject(error);
+        });
     });
     /* jshint unused: true */
 };
@@ -167,10 +190,33 @@ ownCloud.prototype.getCapabilities = function() {
                 .then(body => {
                     resolve(body);
                 }).catch(error => {
-                    reject(error);
-                });
+                reject(error);
+            });
         } else {
             resolve(capabilities);
+        }
+    });
+};
+
+/**
+ * Gets the currently logged in user
+ * @returns {Promise.<capabilities>}
+ * @returns {Promise.<reject>}
+ */
+ownCloud.prototype.getCurrentUser = function() {
+    var self = this;
+    var user = helpers.getCurrentUser();
+    /* jshint unused: false */
+    return new Promise((resolve, reject) => {
+        if (user === null) {
+            helpers._updateCurrentUser()
+                .then(body => {
+                    resolve(body);
+                }).catch(error => {
+                reject(error);
+            });
+        } else {
+            resolve(user);
         }
     });
 };

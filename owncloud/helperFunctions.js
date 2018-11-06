@@ -278,6 +278,7 @@ helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
         request(options, function(error, response, body) {
             if (error) {
                 reject(error);
+		return;
             }
             if ([200, 207].indexOf(response.statusCode) > -1) {
                 self._parseDAVresponse(resolve, reject, body);

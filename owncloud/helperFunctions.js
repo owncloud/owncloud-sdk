@@ -7,7 +7,6 @@ var request = require('browser-request');
 var parser = require('./xmlParser.js');
 var parser2 = require('xml-js');
 var utf8 = require('utf8');
-var fileInfo = require('./fileInfo.js');
 
 /**
  * @class helpers
@@ -53,12 +52,21 @@ helpers.prototype.setInstance = function(instance) {
     this._webdavUrl = this.instance + 'remote.php/webdav';
 };
 
+helpers.prototype.getInstance = function() {
+    return this.instance;
+};
+
+
 /**
  * sets the username
  * @param   {string}    authHeader    authorization header; either basic or bearer or what ever
  */
 helpers.prototype.setAuthorization = function(authHeader) {
     this._authHeader = authHeader;
+};
+
+helpers.prototype.getAuthorization = function() {
+    return this._authHeader;
 };
 
 /**
@@ -227,120 +235,6 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
 };
 
 /**
- * Makes a DAV request.
- * @param   {string} method          method of request (PROPFIND, MKCOL etc.)
- * @param   {string} path            path of file/folder
- * @param   {object} [headerData]    headerData to be set before the request
- * @param   {object} [body]          body of request
- * @returns {Promise.<body>}         string: parsed response
- * @returns {Promise.<error>}        string: error message, if any.
- */
-helpers.prototype._makeDAVrequest = function(method, path, headerData, body) {
-    var self = this;
-    var err = null;
-
-    if (!this.instance) {
-        err = "Please specify a server URL first";
-    }
-
-    if (!this._authHeader) {
-        err = "Please specify an authorization first.";
-    }
-
-    path = self._normalizePath(path);
-    path = encodeURIComponent(path);
-    path = path.split('%2F').join('/'); // '/' => %2F
-    var url = self._webdavUrl + self._encodeString(path);
-
-    // Set the headers
-    var headers = {
-        authorization: this._authHeader
-    };
-
-    //Configure the request
-    var options = {
-        url: url,
-        method: method,
-        headers: headers
-    };
-
-    for (var key in headerData) {
-        options.headers[key] = headerData[key];
-    }
-
-    options.body = body;
-
-    return new Promise((resolve, reject) => {
-        if (err) {
-            reject(err);
-        }
-        // Start the request
-        request(options, function(error, response, body) {
-            if (error) {
-                reject(error);
-		return;
-            }
-            if ([200, 207].indexOf(response.statusCode) > -1) {
-                self._parseDAVresponse(resolve, reject, body);
-            } else if ([201, 204].indexOf(response.statusCode) > -1) {
-                resolve(true);
-            } else {
-                var err = self._parseDAVerror(body);
-                reject(err);
-            }
-        });
-    });
-};
-
-/**
- * Parses a DAV response.
- */
-helpers.prototype._parseDAVresponse = function(resolve, reject, body) {
-    var XMLns = this._getXMLns(body);
-
-    var tree = parser.xml2js(body, XMLns)['{DAV:}multistatus']['{DAV:}response'];
-    var items = [];
-
-    if (tree.constructor !== Array) {
-        tree = [tree];
-    }
-
-    for (var item = 0; item < tree.length; item++) {
-        items.push(this._parseDAVelement(tree[item]));
-    }
-
-    resolve(items);
-};
-
-/**
- * Parses a DAV response element.
- */
-helpers.prototype._parseDAVelement = function(item) {
-    var name = item['{DAV:}href'];
-    var attrs = item['{DAV:}propstat']['{DAV:}prop'];
-    var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
-
-    var start = 0;
-    name = name.split('/');
-    for (var i = 0; i < name.length; i++) {
-        if (name[i] === 'webdav') {
-            start = i;
-            break;
-        }
-    }
-    name.splice(0, start + 1);
-    name = '/' + name.join('/');
-
-    name = decodeURIComponent(name);
-
-    name = utf8.encode(name);
-    name = utf8.decode(name);
-
-    var file = new fileInfo(name, fileType, attrs);
-    return file;
-};
-
-/**
  * performs a simple GET request
  * @param   {string}    url     url to perform GET on
  * @returns {Promise.<data>}    object: {response: response, body: request body}
@@ -490,6 +384,10 @@ helpers.prototype._checkOCSstatusCode = function(json) {
  */
 helpers.prototype._encodeString = function(path) {
     return utf8.encode(path);
+};
+
+helpers.prototype._buildFullWebDAVPath = function(path) {
+    return this._webdavUrl + this._encodeUri(path);
 };
 
 /**

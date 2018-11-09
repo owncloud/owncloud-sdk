@@ -46,7 +46,7 @@ var sharedFilesWithUser = {
 };
 
 // COMMON ERRORS
-var errors = ["Current user is not logged in", "Please specify an authorization first."];
+const ERROR_NO_AUTHORIZATION = "Please specify an authorization first.";
 
 describe("Currently testing getConfig, getVersion and getCapabilities", function() {
     beforeEach(function() {
@@ -58,7 +58,7 @@ describe("Currently testing getConfig, getVersion and getCapabilities", function
             expect(version).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -68,7 +68,7 @@ describe("Currently testing getConfig, getVersion and getCapabilities", function
             expect(capabilities).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -84,7 +84,7 @@ describe("Currently testing apps management,", function() {
             expect(apps).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -99,7 +99,7 @@ describe("Currently testing apps management,", function() {
                 expect(status).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === key.length) {
                     done();
@@ -117,7 +117,7 @@ describe("Currently testing apps management,", function() {
                 expect(data).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === key.length) {
                     done();
@@ -134,7 +134,7 @@ describe("Currently testing apps management,", function() {
                 expect(status).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === key.length) {
                     done();
@@ -152,7 +152,7 @@ describe("Currently testing apps management,", function() {
                 expect(status).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === key.length) {
                     done();
@@ -166,7 +166,7 @@ describe("Currently testing apps management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -176,7 +176,7 @@ describe("Currently testing apps management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -195,7 +195,7 @@ describe("Currently testing file/folder sharing,", function() {
                 expect(share).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === testFiles.length) {
                     done();
@@ -212,7 +212,7 @@ describe("Currently testing file/folder sharing,", function() {
                 expect(share).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === testFiles.length) {
                     done();
@@ -231,7 +231,7 @@ describe("Currently testing file/folder sharing,", function() {
                 expect(share).toEqual(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === testFiles.length) {
                     done();
@@ -245,7 +245,7 @@ describe("Currently testing file/folder sharing,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -258,7 +258,7 @@ describe("Currently testing file/folder sharing,", function() {
                 expect(share).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === Object.keys(sharedFilesWithUser).length) {
                     done();
@@ -275,7 +275,7 @@ describe("Currently testing file/folder sharing,", function() {
                 expect(shares).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === Object.keys(sharedFilesWithUser).length) {
                     done();
@@ -289,7 +289,7 @@ describe("Currently testing file/folder sharing,", function() {
             expect(share).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -299,7 +299,7 @@ describe("Currently testing file/folder sharing,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -315,7 +315,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -325,7 +325,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -335,7 +335,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -345,7 +345,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -355,7 +355,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -365,7 +365,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -375,7 +375,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -385,7 +385,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -395,7 +395,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -405,7 +405,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -415,7 +415,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -425,7 +425,7 @@ describe("Currently testing user management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -435,7 +435,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -445,7 +445,7 @@ describe("Currently testing user management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -461,7 +461,7 @@ describe("Currently testing group management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -471,7 +471,7 @@ describe("Currently testing group management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -481,7 +481,7 @@ describe("Currently testing group management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -491,7 +491,7 @@ describe("Currently testing group management,", function() {
             expect(data).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -501,7 +501,7 @@ describe("Currently testing group management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -517,7 +517,7 @@ describe("Currently testing files management,", function() {
             expect(files).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -530,7 +530,7 @@ describe("Currently testing files management,", function() {
                 expect(content).toBe(null);
                 done();
             }).catch(error => {
-                expect(errors.indexOf(error)).toBeGreaterThan(-1);
+                expect(error).toBe(ERROR_NO_AUTHORIZATION);
                 count++;
                 if (count === testSubFiles.length) {
                     done();
@@ -546,7 +546,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -558,7 +558,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -570,7 +570,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -582,7 +582,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -611,7 +611,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -621,7 +621,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });
@@ -631,7 +631,7 @@ describe("Currently testing files management,", function() {
             expect(status).toBe(null);
             done();
         }).catch(error => {
-            expect(errors.indexOf(error)).toBeGreaterThan(-1);
+            expect(error).toBe(ERROR_NO_AUTHORIZATION);
             done();
         });
     });

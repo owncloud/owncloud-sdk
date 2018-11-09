@@ -3,7 +3,13 @@
 //////////////////////////////////////
 
 var Promise = require('promise');
+var dav = require('davclient.js');
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+if (typeof global.DOMParser === 'undefined') {
+    global.DOMParser = require('xmldom').DOMParser;
+}
 var helpers;
+var davClient;
 
 /**
  * @class files
@@ -32,10 +38,17 @@ var helpers;
  *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param   {object}    helperFile  instance of the helpers class
+ * @param   {helpers}    helperFile  instance of the helpers class
  */
 function files(helperFile) {
     helpers = helperFile;
+    davClient = new dav.Client({
+        baseUrl : helpers._webdavUrl
+    });
+    davClient.xhrProvider = function () {
+        return new XMLHttpRequest();
+    };
+
 }
 
 /**
@@ -50,15 +63,16 @@ files.prototype.list = function(path, depth) {
         path += '/';
     }
 
-    var headersToSend = {};
-    if (!isNaN((parseInt(depth))) || depth === "infinity") {
-        depth = depth.toString();
-        headersToSend.depth = depth;
-    }
-
     return new Promise((resolve, reject) => {
-        helpers._makeDAVrequest('PROPFIND', path, headersToSend).then(files => {
-            resolve(files);
+        davClient.propFind(helpers._buildFullWebDAVPath(path), [], depth, {
+            'Authorization': helpers.getAuthorization()
+        }).then(result => {
+            if (result.status !== 207) {
+                resolve(null);
+            } else {
+                // TODO: convert body into file objects as expected
+                resolve(result.body);
+            }
         }).catch(error => {
             reject(error);
         });
@@ -67,7 +81,7 @@ files.prototype.list = function(path, depth) {
 
 /**
  * Returns the contents of a remote file
- * @param   {string}  remotePath    path of the remote file at OC instance
+ * @param   {string}  path          path of the remote file at OC instance
  * @returns {Promise.<contents>}    string: contents of file
  * @returns {Promise.<error>}       string: error message, if any.
  */
@@ -75,7 +89,8 @@ files.prototype.getFileContents = function(path) {
     path = helpers._normalizePath(path);
 
     return new Promise((resolve, reject) => {
-        helpers._get(helpers._webdavUrl + helpers._encodeString(path)).then(data => {
+        // TODO: use davclient ?
+        helpers._get(helpers._buildFullWebDAVPath(path)).then(data => {
             var response = data.response;
             var body = data.body;
 
@@ -93,15 +108,26 @@ files.prototype.getFileContents = function(path) {
 
 /**
  * Write data into a remote file
- * @param   {string} remotePath path of the file at OC instance
+ * @param   {string} path       path of the file at OC instance
  * @param   {string} content    content to be put
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.putFileContents = function(path, content) {
     return new Promise((resolve, reject) => {
-        helpers._makeDAVrequest('PUT', path, null, content).then(status => {
-            resolve(status);
+        if (!helpers.getAuthorization()) {
+            reject("Please specify an authorization first.");
+            return;
+        }
+
+        davClient.request('PUT', helpers._buildFullWebDAVPath(path), {
+            'Authorization': helpers.getAuthorization()
+        }, content).then(result => {
+            if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+                resolve(true);
+            } else {
+                reject(result.status);
+            }
         }).catch(error => {
             reject(error);
         });
@@ -110,8 +136,8 @@ files.prototype.putFileContents = function(path, content) {
 
 /**
  * Creates a remote directory
- * @param   {string} remotePath path of the folder to be created at OC instance
- * @returns {Promise.<status>}  boolean: wether the operation was successful
+ * @param   {string} path       path of the folder to be created at OC instance
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
 files.prototype.mkdir = function(path) {
@@ -120,8 +146,19 @@ files.prototype.mkdir = function(path) {
     }
 
     return new Promise((resolve, reject) => {
-        helpers._makeDAVrequest('MKCOL', path).then(status => {
-            resolve(status);
+        if (!helpers.getAuthorization()) {
+            reject("Please specify an authorization first.");
+            return;
+        }
+
+        davClient.request('MKCOL', helpers._buildFullWebDAVPath(path), {
+            'Authorization': helpers.getAuthorization()
+        }).then(result => {
+            if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+                resolve(true);
+            } else {
+                reject(result.status);
+            }
         }).catch(error => {
             reject(error);
         });
@@ -130,22 +167,12 @@ files.prototype.mkdir = function(path) {
 
 /**
  * Creates a remote directory
- * @param   {string}  remotePath  path of the folder to be created at OC instance
+ * @param   {string}  path        path of the folder to be created at OC instance
  * @returns {Promise.<status>}    boolean: wether the operation was successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
 files.prototype.createFolder = function(path) {
-    if (path[path.length - 1] !== '/') {
-        path += '/';
-    }
-
-    return new Promise((resolve, reject) => {
-        helpers._makeDAVrequest('MKCOL', path).then(status => {
-            resolve(status);
-        }).catch(error => {
-            reject(error);
-        });
-    });
+    return this.mkdir(path);
 };
 
 /**
@@ -156,8 +183,19 @@ files.prototype.createFolder = function(path) {
  */
 files.prototype.delete = function(path) {
     return new Promise((resolve, reject) => {
-        helpers._makeDAVrequest('DELETE', path).then(status => {
-            resolve(status);
+        if (!helpers.getAuthorization()) {
+            reject("Please specify an authorization first.");
+            return;
+        }
+
+        davClient.request('DELETE', helpers._buildFullWebDAVPath(path), {
+            'Authorization': helpers.getAuthorization()
+        }).then(result => {
+            if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+                resolve(true);
+            } else {
+                reject(result.status);
+            }
         }).catch(error => {
             reject(error);
         });
@@ -166,7 +204,7 @@ files.prototype.delete = function(path) {
 
 /**
  * Returns the file info for the given remote file
- * @param   {string}  remotePath    path of the file/folder at OC instance
+ * @param   {string}  path          path of the file/folder at OC instance
  * @returns {Promise.<fileInfo>}    object: instance of class fileInfo
  * @returns {Promise.<error>}       string: error message, if any.
  */
@@ -322,8 +360,20 @@ files.prototype.putDirectory = function(targetPath, localPath) {
  */
 files.prototype.move = function(source, target) {
     return new Promise((resolve, reject) => {
-        helpers._webdavMoveCopy(source, target, 'MOVE').then(status => {
-            resolve(status);
+        if (!helpers.getAuthorization()) {
+            reject("Please specify an authorization first.");
+            return;
+        }
+
+        davClient.request('MOVE', helpers._buildFullWebDAVPath(source), {
+            'Authorization': helpers.getAuthorization(),
+            'Destination': helpers._buildFullWebDAVPath(target)
+        }).then(result => {
+            if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+                resolve(true);
+            } else {
+                reject(result.status);
+            }
         }).catch(error => {
             reject(error);
         });
@@ -339,8 +389,21 @@ files.prototype.move = function(source, target) {
  */
 files.prototype.copy = function(source, target) {
     return new Promise((resolve, reject) => {
-        helpers._webdavMoveCopy(source, target, 'COPY').then(status => {
-            resolve(status);
+        if (!helpers.getAuthorization()) {
+            reject("Please specify an authorization first.");
+            return;
+        }
+
+        davClient.request('MOVE', helpers._buildFullWebDAVPath(source), {
+            'Authorization': helpers.getAuthorization(),
+            'Destination': helpers._buildFullWebDAVPath(target)
+        }).then(result => {
+            if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+                resolve(true);
+            } else {
+                console.log('copy result: ' + result);
+                reject(result.status);
+            }
         }).catch(error => {
             reject(error);
         });

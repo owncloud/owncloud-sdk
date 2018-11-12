@@ -60,6 +60,10 @@ files.prototype.list = function(path, depth) {
         path += '/';
     }
 
+    if(typeof depth === "undefined") {
+        depth = 1;
+    }
+
     return new Promise((resolve, reject) => {
         davClient.propFind(helpers._buildFullWebDAVPath(path), [], depth, {
             'Authorization': helpers.getAuthorization()
@@ -207,7 +211,7 @@ files.prototype.delete = function(path) {
  */
 files.prototype.fileInfo = function(path) {
     return new Promise((resolve, reject) => {
-        this.list(path, 0).then(fileInfo => {
+        this.list(path, "0").then(fileInfo => {
             resolve(fileInfo[0]);
         }).catch(error => {
             reject(error);

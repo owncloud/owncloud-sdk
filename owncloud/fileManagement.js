@@ -4,10 +4,6 @@
 
 var Promise = require('promise');
 var dav = require('davclient.js');
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-if (typeof global.DOMParser === 'undefined') {
-    global.DOMParser = require('xmldom').DOMParser;
-}
 var helpers;
 var davClient;
 

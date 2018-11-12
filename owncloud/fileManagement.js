@@ -424,7 +424,7 @@ files.prototype._extractPath = function(path) {
     var pathSections = path.split('/');
     pathSections = pathSections.filter(function(section) { return section !== ''});
 
-    let _rootSections = ['remote.php', 'dav'];
+    let _rootSections = ['remote.php', 'webdav'];
 
     var i = 0;
     for (i = 0; i < _rootSections.length; i++) {

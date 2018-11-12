@@ -431,6 +431,7 @@ files.prototype._parseFileInfo = function(response) {
     if (path === null) {
         return null;
     }
+    let name = path;
 
     if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
         return null;

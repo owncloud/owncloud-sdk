@@ -456,7 +456,14 @@ files.prototype._parseFileInfo = function(response) {
     }
 
     var props = response.propStat[0].properties;
-    var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
+    let fileType = 'file';
+    var resType = props['{DAV:}resourcetype'];
+    if (resType) {
+        var xmlvalue = resType[0];
+        if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
+            fileType = 'folder';
+        }
+    }
 
     return new fileInfo(name, fileType, props);
 };

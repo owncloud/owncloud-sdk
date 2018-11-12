@@ -4,6 +4,7 @@
 
 var Promise = require('promise');
 var dav = require('davclient.js');
+var fileInfo = require('./fileInfo.js');
 var helpers;
 var davClient;
 
@@ -67,7 +68,7 @@ files.prototype.list = function(path, depth) {
                 resolve(null);
             } else {
                 // TODO: convert body into file objects as expected
-                resolve(result.body);
+                resolve(this._parseBody(result.body));
             }
         }).catch(error => {
             reject(error);
@@ -404,6 +405,37 @@ files.prototype.copy = function(source, target) {
             reject(error);
         });
     });
+};
+
+files.prototype._parseBody = function(responses) {
+    var self = this;
+    var fileInfos = [];
+    for (var i = 0; i < responses.length; i++) {
+        var fileInfo = self._parseFileInfo(responses[i]);
+        if (fileInfo !== null) {
+            fileInfos.push(fileInfo);
+        }
+    }
+    return fileInfos;
+
+};
+
+files.prototype._parseFileInfo = function(response) {
+//    var path = this._extractPath(response.href);
+    let path = response.href;
+    // invalid subpath
+    if (path === null) {
+        return null;
+    }
+
+    if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
+        return null;
+    }
+
+    var props = response.propStat[0].properties;
+    var fileType = name.substr(-1) === '/' ? 'dir' : 'file';
+
+    return new fileInfo(name, fileType, props);
 };
 
 module.exports = files;

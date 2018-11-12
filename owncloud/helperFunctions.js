@@ -498,7 +498,7 @@ helpers.prototype._encodeString = function(path) {
 
 helpers.prototype._buildFullWebDAVPath = function(path) {
     return this._webdavUrl + this._encodeString(path);
-}
+};
 
 /**
  * converts all of object's "true" or "false" entries to booleans

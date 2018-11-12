@@ -1,8 +1,9 @@
 import ownCloud from '../../owncloud/owncloud'
+import config from '../../owncloud/test/config'
 
 describe('My First Test', function () {
 
-    var owncloudURL = "http://127.0.0.1:8888/"
+    var owncloudURL = config.owncloudURL
     let username = "admin"
     let password = "admin"
 
@@ -10,8 +11,8 @@ describe('My First Test', function () {
     var oc;
 
     beforeEach(function (done) {
-        oc = new ownCloud(owncloudURL);
-        oc.login(username, password).then(status => {
+        oc = new ownCloud(config.owncloudURL);
+        oc.login(config.username, config.password).then(status => {
             expect(status).toEqual({id: 'admin', 'display-name': 'admin', email: {}});
             done();
         }).catch(error => {

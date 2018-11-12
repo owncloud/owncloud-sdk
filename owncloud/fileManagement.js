@@ -42,15 +42,11 @@ function files(helperFile) {
     davClient = new dav.Client({
         baseUrl : helpers._webdavUrl
     });
-    davClient.xhrProvider = function () {
-        return new XMLHttpRequest();
-    };
-
 }
 
 /**
  * Returns the listing/contents of the given remote directory
- * @param   {string}    remotePath    path of the file/folder at OC instance
+ * @param   {string}    path          path of the file/folder at OC instance
  * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
  * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
  * @returns {Promise.<error>}         string: error message, if any.
@@ -424,9 +420,31 @@ files.prototype._parseBody = function(responses) {
 
 };
 
+files.prototype._extractPath = function(path) {
+    var pathSections = path.split('/');
+    pathSections = pathSections.filter(function(section) { return section !== ''});
+
+    let _rootSections = ['remote.php', 'dav'];
+
+    var i = 0;
+    for (i = 0; i < _rootSections.length; i++) {
+        if (_rootSections[i] !== decodeURIComponent(pathSections[i])) {
+            // mismatch
+            return null;
+        }
+    }
+
+    // build the sub-path from the remaining sections
+    var subPath = '';
+    while (i < pathSections.length) {
+        subPath += '/' + decodeURIComponent(pathSections[i]);
+        i++;
+    }
+    return subPath;
+};
+
 files.prototype._parseFileInfo = function(response) {
-//    var path = this._extractPath(response.href);
-    let path = response.href;
+    var path = this._extractPath(response.href);
     // invalid subpath
     if (path === null) {
         return null;

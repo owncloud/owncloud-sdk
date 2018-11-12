@@ -5,3 +5,6 @@ docs-swagger/node_modules
 swagger.config.js
 jsdoc/
 .idea
+
+cypress/videos/*
+cypress/screenshots/*

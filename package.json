@@ -28,11 +28,13 @@
     "testUnauthenticated": "node_modules/.bin/jasmine ./owncloud/test/testUnauthenticated.js",
     "testUnauthorized": "node_modules/.bin/jasmine ./owncloud/test/testUnauthorized.js",
     "testMain": "node_modules/.bin/jasmine ./owncloud/test/test.js",
-    "test": "npm run -s testXmlParser && npm run -s testUnauthenticated && npm run -s testUnauthorized && npm run -s testMain"
+    "testX": "npm run -s testXmlParser && npm run -s testUnauthenticated && npm run -s testUnauthorized && npm run -s testMain",
+    "test": "cypress run"
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "devDependencies": {
     "browser-request": "^0.3.3",
+    "cypress": "^3.1.1",
     "fs-web": "^1.0.1",
     "jasmine": "^2.6.0",
     "jsdoc": "^3.4.3",

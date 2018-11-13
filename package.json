@@ -28,16 +28,21 @@
     "testUnauthenticated": "node_modules/.bin/jasmine ./owncloud/test/testUnauthenticated.js",
     "testUnauthorized": "node_modules/.bin/jasmine ./owncloud/test/testUnauthorized.js",
     "testMain": "node_modules/.bin/jasmine ./owncloud/test/test.js",
-    "test": "npm run -s testXmlParser && npm run -s testUnauthenticated && npm run -s testUnauthorized && npm run -s testMain"
+    "testX": "npm run -s testXmlParser && npm run -s testUnauthenticated && npm run -s testUnauthorized && npm run -s testMain",
+    "test": "karma start --single-run --browsers ChromeHeadless"
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "devDependencies": {
-    "jasmine": "^2.6.0",
+    "browser-request": "^0.3.3",
+    "fs-web": "^1.0.1",
+    "jasmine": "2.99",
+    "jasmine-core": "2.99",
     "jsdoc": "^3.4.3",
     "jszip": "^3.1.3",
-    "webpack": "^3.0.0",
-    "browser-request": "^0.3.3",
-    "fs-web": "^1.0.1"
+    "karma": "^3.1.1",
+    "karma-jasmine": "^1.1.2",
+    "karma-chrome-launcher": "^2.2.0",
+    "webpack": "^3.0.0"
   },
   "dependencies": {
     "promise": "^8.0.0",

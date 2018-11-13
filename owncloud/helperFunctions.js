@@ -140,15 +140,6 @@ helpers.prototype._updateCurrentUser = function() {
  */
 helpers.prototype._makeOCSrequest = function(method, service, action, data) {
     var self = this;
-    var err = null;
-
-    if (!this.instance) {
-        err = "Please specify a server URL first";
-    }
-
-    if (!this._authHeader) {
-        err = "Please specify an authorization first.";
-    }
 
     // Set the headers
     var headers = {
@@ -171,29 +162,39 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
         headers: headers,
     };
 
-    if (method === 'PUT' || method === 'DELETE') {
-        options.headers['content-type'] = 'application/x-www-form-urlencoded';
-        options.form = data;
-    } else {
-        options.headers['content-type'] = 'multipart/form-data';
-        options.formData = data;
-    }
+    var serialize = function(obj) {
+        var str = [];
+        for(var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+            }
+        }
+        return str.join("&");
+    };
+    options.headers['content-type'] = 'application/x-www-form-urlencoded';
+    options.body = serialize(data).replace(/%20/g, "+");
 
 	return new Promise((resolve, reject) => {
 		// Start the request
 		request(options, function(error, response, body) {
-			if (err) {
-				reject(err);
-				return;
-			}
+            if (!self.instance) {
+                reject("Please specify a server URL first");
+                return;
+            }
+
+            if (!self._authHeader) {
+                reject("Please specify an authorization first.");
+                return;
+            }
+
 			if (error) {
-			    //console.log(error);
-				reject('Please provide a valid owncloud instance');
+				reject(error);
 				return;
 			}
 
+			let tree = null;
 			try {
-    			var tree = parser.xml2js(body);
+    			tree = parser.xml2js(body);
 				error = self._checkOCSstatus(tree);
 				if (error) {
 					reject(error);
@@ -201,7 +202,7 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
 				}
 			} catch (e) {
 				try {
-					var tree = JSON.parse(body);
+					tree = JSON.parse(body);
 					if ("message" in tree) {
 						reject(tree.message);
 						return;

@@ -12,9 +12,8 @@ describe('My First Test', function () {
     beforeEach(function (done) {
         oc = new ownCloud(config.owncloudURL);
         ocLogin = oc.login(config.username, config.password).then(res => {
-          cy.wrap({id: res.id}).its('id').should('eq', config.username);
-          cy.wrap({'display-name': res['display-name']}).its('display-name').should('eq', config.username);
-          cy.wrap({email: res.email}).its('email').should('eq', config.email);
+          cy.wrap(res).its('id').should('eq', config.username);
+          cy.wrap(res).its('display-name').should('eq', config.username);
           done();
         })
         .catch(error => {

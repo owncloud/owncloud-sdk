@@ -3,14 +3,10 @@ import config from '../../owncloud/test/config.json'
 
 describe('My First Test', function () {
 
-    var timeRightNow = new Date().getTime();
-    var owncloudURL = config.owncloudURL
-    let username = config.username
-    let password = config.password
     var testFolder = '/testFolder'
-// LIBRARY INSTANCE
-    var oc;
     let ocLogin;
+    // LIBRARY INSTANCE
+    var oc;
 
 
     beforeEach(function (done) {

@@ -1,0 +1,22 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": [
+        "standard"
+        ],
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+    },
+    "globals": {
+        "describe": false,
+        "beforeEach": false,
+        "afterEach": false,
+        "it": false,
+        "xit": false,
+        "expect": false
+    }
+}

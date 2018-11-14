@@ -10,5 +10,7 @@ sleep 5
 docker exec -u www-data $DOCKER_ID ./occ maintenance:install --admin-user="admin" --admin-pass="admin" --database="sqlite"
 docker exec -u www-data $DOCKER_ID ./occ config:system:set cors.allowed-domains 0 --value http://127.0.0.1:9876
 docker exec -u www-data $DOCKER_ID ./occ config:system:set cors.allowed-domains 1 --value http://localhost:9876
+docker exec -u www-data $DOCKER_ID ./occ config:system:set debug --value true --type bool
+docker exec -u www-data $DOCKER_ID ./occ config:system:set loglevel --value 0 --type int
 
 export DOCKER_ID

@@ -33,21 +33,20 @@
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "devDependencies": {
-    "browser-request": "^0.3.3",
-    "fs-web": "^1.0.1",
     "jasmine": "2.99",
     "jasmine-core": "2.99",
     "jsdoc": "^3.4.3",
     "jszip": "^3.1.3",
     "karma": "^3.1.1",
-    "karma-jasmine": "^1.1.2",
     "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.2",
+    "karma-webpack": "^3.0.5",
+    "utf8": "^3.0.0",
     "webpack": "^3.0.0"
   },
   "dependencies": {
     "promise": "^8.0.0",
-    "request": "^2.81.0",
-    "utf8": "^3.0.0",
+    "browser-request": "^0.3.3",
     "xml-js": "^1.3.2"
   }
 }

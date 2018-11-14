@@ -1,5 +1,4 @@
-// Karma configuration
-// Generated on Tue Nov 13 2018 11:13:04 GMT+0100 (CET)
+var webpackConfig = require('./webpack.config.js');
 
 module.exports = function (config) {
     var ownCloudConfig = require('./owncloud/test/config.json');
@@ -23,19 +22,25 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'node_modules/utf8/utf8.js',
-            'browser/owncloud.js',
+            'browser/toBundle.js',
             'tests/*.js'
         ],
 
-
         // list of files / patterns to exclude
-        exclude: [],
+        exclude: webpackConfig,
 
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {},
+        preprocessors: {
+            './browser/toBundle.js': ['webpack']
+        },
 
+        webpack: {},
+
+        webpackMiddleware: {
+            noInfo: true
+        },
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
@@ -53,7 +58,7 @@ module.exports = function (config) {
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG,
 
 
         // enable / disable watching file and executing tests whenever any file changes

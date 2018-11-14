@@ -4,19 +4,16 @@
 
 /* globals ownCloud, __karma__ */
 
-xdescribe("Currently testing files management,", function () {
+describe("Currently testing files management,", function () {
 // CURRENT TIME
     var timeRightNow = new Date().getTime();
 
 // LIBRARY INSTANCE
     var oc;
-    let fs = window.fsWeb;
 
 
 // TESTING CONFIGS
     var testContent = 'testContent';
-    var downloadBasePath = 'tests/testDownloadDir/';
-    var localFile = downloadBasePath + 'file' + timeRightNow + '.txt';
     var testFolder = '/testFolder' + timeRightNow;
     var testSubDir = testFolder + '/' + 'subdir';
     var nonExistingDir = testFolder + '/' + 'nonExistingDir';
@@ -80,13 +77,6 @@ xdescribe("Currently testing files management,", function () {
                 done();
             });
         }
-    });
-
-    xit('testFile locally', function(done) {
-        fs.writeFile(localFile, testContent, function(err) {
-            expect(err).toBe(null);
-            done();
-        });
     });
 
 	it('checking method : list with no depth specified', function (done) {
@@ -158,7 +148,8 @@ xdescribe("Currently testing files management,", function () {
 		}
 	});
 
-	it('checking method : getFileContents for non existent file', function (done) {
+	// because called from the browser this is not returning xml but html - needs to be adjusted
+	xit('checking method : getFileContents for non existent file', function (done) {
 		oc.files.getFileContents(nonExistingFile).then(content => {
 			expect(content).toBe(null);
 			done();
@@ -257,116 +248,6 @@ xdescribe("Currently testing files management,", function () {
 			expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located');
 			done();
 		});
-	});
-
-	// method : fileInfo is simply calling the method "list", hence no tests needed
-
-	xit('checking method : getFile for an existent file', function (done) {
-		var file = 'tempFile' + timeRightNow;
-		oc.files.putFileContents(file, testContent).then(status => {
-			expect(status).toBe(true);
-			return oc.files.getFile(file, downloadBasePath + file);
-		}).then(status2 => {
-			expect(status2).toBe(true);
-
-			fs.readFile(downloadBasePath + file, function (err, data) {
-				expect(err).toBe(null);
-				expect(data.toString()).toEqual(testContent);
-
-				oc.files.delete(file).then(status3 => {
-					expect(status3).toBe(true);
-					done();
-				}).catch(error2 => {
-					expect(error2).toBe(null);
-					done();
-				});
-			});
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : getFile for a non existent file', function (done) {
-		var file = 'tempFile' + timeRightNow;
-		oc.files.getFile(file, downloadBasePath + file).then(status => {
-			expect(status).toBe(null);
-			done();
-		}).catch(error => {
-			expect(error).toBe('File with name ' + file + ' could not be located');
-			done();
-		});
-	});
-
-	it('checking method : putFile for an existent file', function (done) {
-		oc.files.putFile('/', localFile).then(status => {
-			expect(status).toBe(true);
-			return oc.files.getFileContents('file' + timeRightNow + '.txt');
-		}).then(content => {
-			expect(content).toEqual(testContent);
-            return oc.files.delete('file' + timeRightNow + '.txt');
-		}).then(status => {
-            expect(status).toBe(true);
-            done();
-        }).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : putFile for a non existent file', function (done) {
-		try {
-			oc.files.putFile('/', localFile + '123').then(status => {
-				expect(status).toBe(null);
-				done();
-			}).catch(error => {
-				expect(error.toString()).toBe(
-					'Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\''
-				);
-				done();
-			});
-		}
-
-		catch(error) {
-			expect(error.toString()).toBe(
-				'Error: ENOENT: no such file or directory, stat \'' + localFile + '123' + '\''
-			);
-			done();
-		}
-	});
-
-	it('checking method : putDirectory for an existent directory', function (done) {
-		oc.files.putDirectory(testFolder, downloadBasePath + '/').then(status => {
-			expect(status).toBe(true);
-			return oc.files.list(testFolder + '/testDownloadDir', 'infinity');
-		}).then(files => {
-			expect(files.length).toEqual(3);
-			done();
-		}).catch(error => {
-			expect(error).toBe(null);
-			done();
-		});
-	});
-
-	it('checking method : putDirectory for a non existent directory', function (done) {
-		try {
-			oc.files.putDirectory('/', downloadBasePath + '123').then(status => {
-				expect(status).toBe(null);
-				done();
-			}).catch(error => {
-				expect(error.toString()).toBe(
-					"Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'"
-				);
-				done();
-			});
-		}
-
-		catch(error) {
-			expect(error.toString()).toBe(
-				"Error: ENOENT: no such file or directory, scandir '" + downloadBasePath + '123/' + "'"
-			);
-			done();
-		}
 	});
 
 	it('checking method : move existent file into same folder, same name', function (done) {

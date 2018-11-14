@@ -53,19 +53,7 @@ jsdocs:
 	echo "To read the documentation, click here : file://"${DIR}"/jsdoc/ownCloud.html"
 
 browser: deps
-	sed -i "s/require('fs/require('fs-web/g" owncloud/*.js
-	sed -i "s/require('fs/require('fs-web/g" owncloud/test/*.js
-
-	sed -i "s/require('request/require('browser-request/g" owncloud/*.js
-	sed -i "s/require('request/require('browser-request/g" owncloud/test/*.js
-
 	node_modules/.bin/webpack
-
-	sed -i "s/require('fs-web/require('fs/g" owncloud/*.js
-	sed -i "s/require('fs-web/require('fs/g" owncloud/test/*.js
-
-	sed -i "s/require('browser-request/require('request/g" owncloud/*.js
-	sed -i "s/require('browser-request/require('request/g" owncloud/test/*.js
 
 clean:
 	#Delete existing documentation

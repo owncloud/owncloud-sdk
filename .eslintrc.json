@@ -1,0 +1,20 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jasmine": true
+  },
+  "extends": [
+    "standard"
+  ],
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+  },
+  "globals": {
+  },
+  "plugins": [
+    "jasmine"
+  ]
+}

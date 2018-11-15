@@ -3,10 +3,9 @@
 /////////////////////////////
 
 var Promise = require('promise');
-var request = require('request');
+var request = require('browser-request');
 var parser = require('./xmlParser.js');
 var parser2 = require('xml-js');
-var fs = require('fs');
 var utf8 = require('utf8');
 var fileInfo = require('./fileInfo.js');
 
@@ -140,15 +139,6 @@ helpers.prototype._updateCurrentUser = function() {
  */
 helpers.prototype._makeOCSrequest = function(method, service, action, data) {
     var self = this;
-    var err = null;
-
-    if (!this.instance) {
-        err = "Please specify a server URL first";
-    }
-
-    if (!this._authHeader) {
-        err = "Please specify an authorization first.";
-    }
 
     // Set the headers
     var headers = {
@@ -171,29 +161,39 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
         headers: headers,
     };
 
-    if (method === 'PUT' || method === 'DELETE') {
-        options.headers['content-type'] = 'application/x-www-form-urlencoded';
-        options.form = data;
-    } else {
-        options.headers['content-type'] = 'multipart/form-data';
-        options.formData = data;
-    }
+    var serialize = function(obj) {
+        var str = [];
+        for(var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+            }
+        }
+        return str.join("&");
+    };
+    options.headers['content-type'] = 'application/x-www-form-urlencoded';
+    options.body = serialize(data).replace(/%20/g, "+");
 
 	return new Promise((resolve, reject) => {
 		// Start the request
 		request(options, function(error, response, body) {
-			if (err) {
-				reject(err);
-				return;
-			}
+            if (!self.instance) {
+                reject("Please specify a server URL first");
+                return;
+            }
+
+            if (!self._authHeader) {
+                reject("Please specify an authorization first.");
+                return;
+            }
+
 			if (error) {
-			    //console.log(error);
-				reject('Please provide a valid owncloud instance');
+				reject(error);
 				return;
 			}
 
+			let tree = null;
 			try {
-    			var tree = parser.xml2js(body);
+    			tree = parser.xml2js(body);
 				error = self._checkOCSstatus(tree);
 				if (error) {
 					reject(error);
@@ -201,7 +201,7 @@ helpers.prototype._makeOCSrequest = function(method, service, action, data) {
 				}
 			} catch (e) {
 				try {
-					var tree = JSON.parse(body);
+					tree = JSON.parse(body);
 					if ("message" in tree) {
 						reject(tree.message);
 						return;
@@ -390,122 +390,6 @@ helpers.prototype._get = function(url) {
 };
 
 /**
- * performs a GET request and writes the output into a file
- * @param   {string}  url       url to perform GET on
- * @param   {string}  fileName  name of the file to write the response into
- * @returns {Promise.<data>}    object: {response: response, body: request body}
- * @returns {Promise.<error>}   string: error message, if any.
- */
-helpers.prototype._writeData = function(url, fileName) {
-    var self = this;
-    var err = null;
-
-    if (!this.instance) {
-        err = "Please specify a server URL first";
-    }
-
-    if (!this._authHeader) {
-        err = "Please specify an authorization first.";
-    }
-
-    var headers = {
-        authorization: this._authHeader,
-        'Content-Type': 'application/octet-stream'
-    };
-
-    //Configure the request
-    var options = {
-        url: url,
-        method: 'GET',
-        headers: headers
-    };
-
-    return new Promise((resolve, reject) => {
-        if (err) {
-            reject(err);
-            return;
-        }
-
-        var isPossible = 1;
-
-        try {
-            fs.closeSync(fs.openSync(fileName, 'w'));
-        } catch (error) {
-            isPossible = 0;
-            reject(error.message);
-            return;
-        }
-
-        // Start the request
-        /* jshint unused : false */
-        request(options, function(err2, response, body) {
-                if (err2) {
-                    reject(err2);
-                }
-
-                if (response.statusCode === 200 && isPossible === 1 && body.split('\n')[0] !== "<!DOCTYPE html>") {
-                    resolve(true);
-                } else {
-                    try {
-                        var err = self._parseDAVerror(body);
-                        reject(err);
-                    } catch (error) {
-                        if (body.search("<li class=\"error\">") > -1) {
-                            reject('specified file/folder could not be located');
-                        } else {
-                            reject("Current user is not logged in");
-                        }
-                    }
-                }
-            })
-            .on('error', function(error) {
-                reject(error);
-                return;
-            })
-            .pipe(fs.createWriteStream(fileName));
-        /* jshint unused : true */
-    });
-};
-
-/**
- * performs a PUT request from a file
- * @param   {string} path       path where to put at OC instance
- * @param   {string} localPath  path of the file to read the data from
- * @param   {object} headers    extra headers to add for the PUT request
- * @returns {Promise.<data>}    object: {response: response, body: request body}
- * @returns {Promise.<error>}   string: error message, if any.
- */
-helpers.prototype._readFile = function(path, localPath, headers) {
-    var self = this;
-
-    return new Promise((resolve, reject) => {
-        try {
-            path = self._normalizePath(path);
-            path = encodeURIComponent(path);
-            path = path.split('%2F').join('/'); // '/' => %2F
-            var url = self._webdavUrl + self._encodeString(path);
-            /* jshint unused : false */
-            fs.createReadStream(localPath)
-                .pipe(request.put({
-                    url: url,
-                    headers: headers
-                }, function(error, response, body) {
-                    if (response.statusCode >= 400) {
-                        var parsedError = self._parseDAVerror(body);
-                        parsedError = parsedError || 'not allowed';
-                        reject(parsedError);
-                    } else {
-                        resolve(true);
-                    }
-                }));
-            /* jshint unused : true */
-        } catch (err) {
-            reject(err);
-        }
-    });
-};
-
-/**
  * checks whether a path's extension is ".ZIP"
  * @param   {string}    path    path to check
  * @return  {boolean}           true if extension is ".ZIP"
@@ -549,6 +433,12 @@ helpers.prototype._normalizePath = function(path) {
     }
 
     return path;
+};
+
+helpers.prototype._encodeUri = function(path) {
+    path = this._normalizePath(path);
+    path = encodeURIComponent(path);
+    return path.split('%2F').join('/');
 };
 
 /**
@@ -634,132 +524,6 @@ helpers.prototype._OCSuserResponseHandler = function(data, resolve, reject) {
     }
 
     resolve(true);
-};
-
-/**
- * Recursive listing of all files and sub-folders
- * @param   {string}  path         local path to be recursively listed
- * @param   {string}  pathToStore  path to be stored at the OC instance
- * @returns {array}                array of objects : {
- *                                       path: path of the folder to be stored
- *                                       at the OC instance,
- *                                       localPath: localPath of the folder,
- *                                       files: contents of the folder
- *                                 }
- */
-helpers.prototype._getAllFileInfo = function(path, pathToStore) {
-    function getAllFileInfo(path, pathToStore, localPath) {
-        var fl = 0;
-        var baseAddr = pathToStore;
-
-        for (var j = 0; j < filesToPut.length; j++) {
-            if (filesToPut[j].path === baseAddr) {
-                fl = 1;
-                break;
-            }
-        }
-
-        if (fl === 0) {
-            var count = filesToPut.length;
-            filesToPut[count] = {};
-            filesToPut[count].path = baseAddr;
-            filesToPut[count].localPath = localPath; ////////
-            filesToPut[count].files = [];
-            count++;
-        }
-
-
-        if (path.slice(-1) !== '/') {
-            path += '/';
-        }
-
-        var files = fs.readdirSync(path);
-
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            var stat = fs.statSync(path + file);
-
-            if (stat.isDirectory()) {
-                getAllFileInfo(path + file + '/', pathToStore + file + '/', localPath + file + '/');
-            } else {
-                baseAddr = pathToStore;
-                fl = 0;
-
-                for (j = 0; j < filesToPut.length; j++) {
-                    if (filesToPut[j].path === baseAddr) {
-                        filesToPut[j].files.push(file);
-                        fl = 1;
-                        break;
-                    }
-                }
-
-                if (fl === 0) {
-                    var count2 = filesToPut.length;
-                    filesToPut[count2] = {};
-                    filesToPut[count2].path = baseAddr;
-                    filesToPut[count2].localPath = localPath; ////////
-                    filesToPut[count2].files = [file];
-                    count2++;
-                }
-            }
-        }
-    }
-
-    var filesToPut = [];
-    var targetPath = pathToStore;
-    var localPath = path;
-
-    if (!targetPath || targetPath === '') {
-        targetPath = '/';
-    }
-
-    targetPath = this._normalizePath(targetPath);
-    var slash = '';
-    if (targetPath.slice(-1) !== '/') {
-        targetPath += '/';
-    }
-    if (localPath.slice(-1) !== '/') {
-        localPath += '/';
-    }
-    if (targetPath.slice(0, 1) !== '/') {
-        slash = '/';
-    }
-
-    var pathToAdd = localPath.split('/');
-    pathToAdd = pathToAdd.filter(function(n) {
-        return n !== '';
-    });
-    var slash2 = '/';
-
-    if (pathToAdd[pathToAdd.length - 1] === '.') {
-        pathToAdd[pathToAdd.length - 1] = '';
-        slash = '';
-        slash2 = '';
-    }
-
-    pathToAdd = targetPath + slash + pathToAdd[pathToAdd.length - 1] + slash2;
-    getAllFileInfo(path, pathToAdd, localPath);
-    return filesToPut;
-};
-
-/**
- * gets the MTime of a file/folder
- * @param   {string}    path    path of the file/folder
- * @returns {Date}              MTime
- */
-helpers.prototype._getMTime = function(path) {
-    var info = fs.statSync(path);
-    return info.mtime;
-};
-
-/**
- * gets the size of a file/folder
- * @param   {string}    path    path of the file/folder
- * @returns {integer}           size of folder
- */
-helpers.prototype._getFileSize = function(path) {
-    var info = fs.statSync(path);
-    return parseInt(info.size);
 };
 
 /**

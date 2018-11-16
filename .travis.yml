@@ -26,8 +26,8 @@ before_install:
 script:
   - npm run lint
   - sleep 10
-  - make browser
   - make test
 
 after_script:
+  - codecov
   - docker logs $DOCKER_ID

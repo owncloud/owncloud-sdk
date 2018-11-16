@@ -6,7 +6,7 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-.PHONY: all browser
+.PHONY: all
 
 all: deps
 	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
@@ -51,9 +51,6 @@ jsdocs:
 
 	#Output the final documentation link
 	echo "To read the documentation, click here : file://"${DIR}"/jsdoc/ownCloud.html"
-
-browser: deps
-	node_modules/.bin/webpack
 
 clean:
 	#Delete existing documentation

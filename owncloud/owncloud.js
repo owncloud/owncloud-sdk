@@ -10,6 +10,7 @@ var shares = require('./shareManagement.js');
 var users = require('./userManagement.js');
 var groups = require('./groupManagement.js');
 var files = require('./fileManagement.js');
+var fileVersion = require('./fileVersionManagement.js');
 var helpers = new helperFile();
 
 /**
@@ -59,6 +60,7 @@ function ownCloud(instance) {
     this.users = new users(helpers);
     this.groups = new groups(helpers);
     this.files = new files(helpers);
+    this.fileVersions = new fileVersion(helpers);
 }
 
 /**

@@ -57,6 +57,14 @@ fileInfo.prototype.getSize = function() {
 };
 
 /**
+ * Gets the file id
+ * @returns {string}    file id
+ */
+fileInfo.prototype.getFileId = function() {
+	return this.fileInfo['{http://owncloud.org/ns}fileid'] || null;
+};
+
+/**
  * Gets ETag of file/folder
  * @returns {string}    ETag of file/folder
  */

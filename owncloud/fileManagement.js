@@ -4,7 +4,6 @@
 
 var Promise = require('promise');
 var dav = require('davclient.js');
-var fileInfo = require('./fileInfo.js');
 var helpers;
 var davClient;
 
@@ -40,7 +39,12 @@ var davClient;
 function files(helperFile) {
     helpers = helperFile;
     davClient = new dav.Client({
-        baseUrl : helpers._webdavUrl
+        baseUrl : helpers._webdavUrl,
+        xmlNamespaces: {
+            'DAV:': 'd',
+            'http://owncloud.org/ns': 'oc'
+        }
+
     });
 }
 
@@ -48,10 +52,11 @@ function files(helperFile) {
  * Returns the listing/contents of the given remote directory
  * @param   {string}    path          path of the file/folder at OC instance
  * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
+ * @param   {array}     properties    Array[string] with dav properties to be requested
  * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
  * @returns {Promise.<error>}         string: error message, if any.
  */
-files.prototype.list = function(path, depth) {
+files.prototype.list = function(path, depth, properties) {
     if (path[path.length - 1] !== '/') {
         path += '/';
     }
@@ -60,15 +65,19 @@ files.prototype.list = function(path, depth) {
         depth = 1;
     }
 
+    if (typeof properties === "undefined") {
+        properties = []
+    }
+
     return new Promise((resolve, reject) => {
-        davClient.propFind(helpers._buildFullWebDAVPath(path), [], depth, {
+        davClient.propFind(helpers._buildFullWebDAVPath(path), properties, depth, {
             'Authorization': helpers.getAuthorization()
         }).then(result => {
             if (result.status !== 207) {
                 resolve(null);
             } else {
                 // TODO: convert body into file objects as expected
-                resolve(this._parseBody(result.body));
+                resolve(helpers._parseBody(result.body));
             }
         }).catch(error => {
             reject(error);
@@ -203,9 +212,9 @@ files.prototype.delete = function(path) {
  * @returns {Promise.<fileInfo>}    object: instance of class fileInfo
  * @returns {Promise.<error>}       string: error message, if any.
  */
-files.prototype.fileInfo = function(path) {
+files.prototype.fileInfo = function(path, properties) {
     return new Promise((resolve, reject) => {
-        this.list(path, "0").then(fileInfo => {
+        this.list(path, "0", properties).then(fileInfo => {
             resolve(fileInfo[0]);
         }).catch(error => {
             reject(error);
@@ -298,70 +307,6 @@ files.prototype.copy = function(source, target) {
             reject(error);
         });
     });
-};
-
-files.prototype._parseBody = function(responses) {
-    if (!Array.isArray(responses)) {
-        responses = [responses];
-    }
-    var self = this;
-    var fileInfos = [];
-    for (var i = 0; i < responses.length; i++) {
-        var fileInfo = self._parseFileInfo(responses[i]);
-        if (fileInfo !== null) {
-            fileInfos.push(fileInfo);
-        }
-    }
-    return fileInfos;
-
-};
-
-files.prototype._extractPath = function(path) {
-    var pathSections = path.split('/');
-    pathSections = pathSections.filter(function(section) { return section !== ''});
-
-    let _rootSections = ['remote.php', 'webdav'];
-
-    var i = 0;
-    for (i = 0; i < _rootSections.length; i++) {
-        if (_rootSections[i] !== decodeURIComponent(pathSections[i])) {
-            // mismatch
-            return null;
-        }
-    }
-
-    // build the sub-path from the remaining sections
-    var subPath = '';
-    while (i < pathSections.length) {
-        subPath += '/' + decodeURIComponent(pathSections[i]);
-        i++;
-    }
-    return subPath;
-};
-
-files.prototype._parseFileInfo = function(response) {
-    var path = this._extractPath(response.href);
-    // invalid subpath
-    if (path === null) {
-        return null;
-    }
-    let name = path;
-
-    if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
-        return null;
-    }
-
-    var props = response.propStat[0].properties;
-    let fileType = 'file';
-    var resType = props['{DAV:}resourcetype'];
-    if (resType) {
-        var xmlvalue = resType[0];
-        if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
-            fileType = 'dir';
-        }
-    }
-
-    return new fileInfo(name, fileType, props);
 };
 
 module.exports = files;

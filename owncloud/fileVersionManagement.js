@@ -35,7 +35,11 @@ var davClient
 function files (helperFile) {
   helpers = helperFile
   davClient = new dav.Client({
-    baseUrl: helpers._webdavUrl
+    baseUrl: helpers._webdavUrl,
+    xmlNamespaces: {
+      'DAV:': 'd',
+      'http://owncloud.org/ns': 'oc'
+    }
   })
 }
 
@@ -46,17 +50,16 @@ function files (helperFile) {
  * @returns {Promise.<error>}         string: error message, if any.
  */
 files.prototype.listVersions = function (fileId) {
-  const path = '/dav/meta/' + fileId + '/v'
+  const path = '/meta/' + fileId + '/v'
 
   return new Promise((resolve, reject) => {
-    davClient.propFind(helpers._buildFullWebDAVPathV2(path), [], 0, {
+    davClient.propFind(helpers._buildFullWebDAVPathV2(path), [], 1, {
       'Authorization': helpers.getAuthorization()
     }).then(result => {
       if (result.status !== 207) {
         resolve(null)
       } else {
-        // TODO: convert body into file objects as expected
-        resolve(this._parseBody(result.body))
+        resolve(helpers._parseBody(result.body).splice(1))
       }
     }).catch(error => {
       reject(error)

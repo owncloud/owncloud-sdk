@@ -18,19 +18,27 @@ describe('Currently testing file versions management,', function () {
   var versionedFile = testFolder + '/versioned.txt'
   var versionedFileInfo
 
+  function sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   beforeEach(function (done) {
     oc = new OwnCloud(owncloudURL)
     oc.login(username, password).then(status => {
-      expect(status).toBe(true)
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
 
       // create three versions
       oc.files.createFolder(testFolder).then(status => {
-        oc.files.putFileContents(versionedFile, 'version1').then(status => {
-          oc.files.putFileContents(versionedFile, 'version2').then(status => {
-            oc.files.putFileContents(versionedFile, 'version3').then(status => {
-              oc.files.fileInfo(versionedFile).then(fileInfo => {
-                versionedFileInfo = fileInfo
-                done()
+        oc.files.putFileContents(versionedFile, '*').then(status => {
+          sleep(1000).then(() => {
+            oc.files.putFileContents(versionedFile, '**').then(status => {
+              sleep(1000).then(() => {
+                oc.files.putFileContents(versionedFile, '***').then(status => {
+                  oc.files.fileInfo(versionedFile, ['{http://owncloud.org/ns}fileid']).then(fileInfo => {
+                    versionedFileInfo = fileInfo
+                    done()
+                  })
+                })
               })
             })
           })
@@ -48,8 +56,9 @@ describe('Currently testing file versions management,', function () {
   it('retrieves file versions', function (done) {
     oc.fileVersions.listVersions(versionedFileInfo.getFileId()).then(versions => {
       expect(versions.length).toEqual(2)
-      console.log(versions)
-      // TODO: more checks
+      expect(versions[0].getSize()).toEqual(2)
+      expect(versions[1].getSize()).toEqual(1)
+      done()
     })
   })
 })

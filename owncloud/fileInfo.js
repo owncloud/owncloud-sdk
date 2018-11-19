@@ -61,7 +61,7 @@ fileInfo.prototype.getSize = function() {
  * @returns {string}    file id
  */
 fileInfo.prototype.getFileId = function() {
-	return this.fileInfo['{https://owncloud.org/ns}fileid'] || null;
+	return this.fileInfo['{http://owncloud.org/ns}fileid'] || null;
 };
 
 /**

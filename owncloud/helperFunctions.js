@@ -7,6 +7,7 @@ var request = require('browser-request');
 var parser = require('./xmlParser.js');
 var parser2 = require('xml-js');
 var utf8 = require('utf8');
+var fileInfo = require('./fileInfo.js');
 
 /**
  * @class helpers
@@ -50,7 +51,7 @@ function helpers() {
 helpers.prototype.setInstance = function(instance) {
     this.instance = instance;
     this._webdavUrl = this.instance + 'remote.php/webdav';
-    this._davPath = this.instance + 'remote.php/dav/';
+    this._davPath = this.instance + 'remote.php/dav';
 };
 
 helpers.prototype.getInstance = function() {
@@ -148,12 +149,6 @@ helpers.prototype._updateCurrentUser = function() {
  */
 helpers.prototype._makeOCSrequest = function(method, service, action, data) {
     var self = this;
-
-	if (err) {
-    	return new Promise((resolve, reject) => {
-			reject(err);
-		});
-	}
 
     // Set the headers
     var headers = {
@@ -501,5 +496,68 @@ helpers.prototype._getXMLns = function (xml) {
 
     return replacedXMLns;
 };
+
+helpers.prototype._parseBody = function(responses) {
+    if (!Array.isArray(responses)) {
+        responses = [responses];
+    }
+    var self = this;
+    var fileInfos = [];
+    for (var i = 0; i < responses.length; i++) {
+        var fileInfo = self._parseFileInfo(responses[i]);
+        if (fileInfo !== null) {
+            fileInfos.push(fileInfo);
+        }
+    }
+    return fileInfos;
+
+};
+
+helpers.prototype._extractPath = function(path) {
+    var pathSections = path.split('/');
+    pathSections = pathSections.filter(function(section) { return section !== ''});
+
+    if (decodeURIComponent(pathSections[0]) !== 'remote.php') {
+        return null;
+    }
+    if (['webdav', 'dav'].indexOf(decodeURIComponent(pathSections[1])) === -1) {
+        return null;
+    }
+
+    // build the sub-path from the remaining sections
+    var subPath = '';
+    var i = 2;
+    while (i < pathSections.length) {
+        subPath += '/' + decodeURIComponent(pathSections[i]);
+        i++;
+    }
+    return subPath;
+};
+
+helpers.prototype._parseFileInfo = function(response) {
+    var path = this._extractPath(response.href);
+    // invalid subpath
+    if (path === null) {
+        return null;
+    }
+    let name = path;
+
+    if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
+        return null;
+    }
+
+    var props = response.propStat[0].properties;
+    let fileType = 'file';
+    var resType = props['{DAV:}resourcetype'];
+    if (resType) {
+        var xmlvalue = resType[0];
+        if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
+            fileType = 'dir';
+        }
+    }
+
+    return new fileInfo(name, fileType, props);
+};
+
 
 module.exports = helpers;

@@ -31,7 +31,7 @@ describe('Currently testing files management,', function () {
       expect(files).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -44,7 +44,7 @@ describe('Currently testing files management,', function () {
         expect(content).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toBe('Please specify an authorization first.')
+        expect(error).toMatch('CORS request rejected')
         count++
         if (count === testSubFiles.length) {
           done()
@@ -60,7 +60,7 @@ describe('Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('Unknown error')
       done()
     })
   })
@@ -72,7 +72,7 @@ describe('Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('Unknown error')
       done()
     })
   })
@@ -84,7 +84,7 @@ describe('Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('Unknown error')
       done()
     })
   })
@@ -96,7 +96,7 @@ describe('Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('Unknown error')
       done()
     })
   })
@@ -106,7 +106,7 @@ describe('Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('Unknown error')
       done()
     })
   })
@@ -116,7 +116,7 @@ describe('Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('Unknown error')
       done()
     })
   })

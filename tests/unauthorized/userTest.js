@@ -27,7 +27,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -37,7 +37,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -47,7 +47,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -57,7 +57,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -67,7 +67,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -77,7 +77,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -87,7 +87,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -97,7 +97,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -107,7 +107,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -117,7 +117,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -127,7 +127,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -137,7 +137,7 @@ describe('Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -147,7 +147,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -157,7 +157,7 @@ describe('Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })

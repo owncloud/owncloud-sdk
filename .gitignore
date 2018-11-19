@@ -6,3 +6,4 @@ swagger.config.js
 jsdoc/
 .idea
 browser/owncloud.js
+coverage

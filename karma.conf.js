@@ -23,7 +23,8 @@ module.exports = function (config) {
       'tests/karma.js',
       'node_modules/utf8/utf8.js',
       'tests/unauthenticated/*Test.js',
-      'tests/*.js'
+      'tests/unauthorized/*Test.js',
+      'tests/*Test.js'
     ],
 
     // list of files / patterns to exclude

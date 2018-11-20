@@ -1,7 +1,7 @@
 /* globals OwnCloud, __karma__ */
 
 describe('Currently testing apps management,', function () {
-// CURRENT TIME
+  // CURRENT TIME
   var timeRightNow = new Date().getTime()
 
   // LIBRARY INSTANCE
@@ -23,7 +23,7 @@ describe('Currently testing apps management,', function () {
       expect(apps).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -38,7 +38,7 @@ describe('Currently testing apps management,', function () {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toBe('Please specify an authorization first.')
+        expect(error).toMatch('CORS request rejected')
         count++
         if (count === key.length) {
           done()
@@ -56,7 +56,7 @@ describe('Currently testing apps management,', function () {
         expect(data).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toBe('Please specify an authorization first.')
+        expect(error).toMatch('CORS request rejected')
         count++
         if (count === key.length) {
           done()
@@ -74,7 +74,7 @@ describe('Currently testing apps management,', function () {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toBe('Please specify an authorization first.')
+        expect(error).toMatch('CORS request rejected')
         count++
         if (count === key.length) {
           done()
@@ -88,7 +88,7 @@ describe('Currently testing apps management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -98,7 +98,7 @@ describe('Currently testing apps management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })

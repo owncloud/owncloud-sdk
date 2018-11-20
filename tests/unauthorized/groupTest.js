@@ -1,8 +1,6 @@
 /* globals OwnCloud, __karma__ */
 
 describe('Currently testing group management,', function () {
-  console.log('Running Main tests')
-
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
 
@@ -24,7 +22,7 @@ describe('Currently testing group management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -34,7 +32,7 @@ describe('Currently testing group management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -44,7 +42,7 @@ describe('Currently testing group management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -54,7 +52,7 @@ describe('Currently testing group management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -64,7 +62,7 @@ describe('Currently testing group management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })

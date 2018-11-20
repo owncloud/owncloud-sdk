@@ -17,7 +17,7 @@ describe('Currently testing getConfig, getVersion and getCapabilities', function
       expect(config).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -27,7 +27,7 @@ describe('Currently testing getConfig, getVersion and getCapabilities', function
       expect(version).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })
@@ -37,7 +37,7 @@ describe('Currently testing getConfig, getVersion and getCapabilities', function
       expect(capabilities).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Please specify an authorization first.')
+      expect(error).toMatch('CORS request rejected')
       done()
     })
   })

@@ -1,8 +1,6 @@
 /* globals OwnCloud, __karma__ */
 
 describe('Currently testing Login and initLibrary,', function () {
-  console.log('Running Main tests')
-
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
 

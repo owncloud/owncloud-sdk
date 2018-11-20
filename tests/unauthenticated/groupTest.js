@@ -1,6 +1,7 @@
-/* globals OwnCloud, __karma__ */
+describe('Unauthenticated: Currently testing group management,', function () {
+  var OwnCloud = require('../../owncloud')
+  var config = require('../../owncloud/test/config.json')
 
-describe('Currently testing group management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
 
@@ -10,11 +11,8 @@ describe('Currently testing group management,', function () {
   // TESTING CONFIGS
   var testGroup = 'testGroup' + timeRightNow
 
-  var config = __karma__.config.ownCloudConfig
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function () {
-    oc = new OwnCloud(owncloudURL)
+    oc = new OwnCloud(config.owncloudURL)
   })
 
   it('checking method : createGroup', function (done) {

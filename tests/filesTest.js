@@ -1,8 +1,8 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing files management,', function () {
-// CURRENT TIME
+describe('Main: Currently testing files management,', function () {
+  // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../owncloud/owncloud')
+  var config = require('../owncloud/test/config.json')
 
   // LIBRARY INSTANCE
   var oc
@@ -21,20 +21,20 @@ describe('Currently testing files management,', function () {
     testFolder + '/' + 'subdir/in dir.txt'
   ]
 
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var password = config.password
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function (done) {
-    oc = new OwnCloud(owncloudURL)
-    oc.login(username, password).then(status => {
+    oc = new OwnCloud(config.owncloudURL)
+    oc.login(config.username, config.password).then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       done()
     }).catch(error => {
       expect(error).toBe(null)
       done()
     })
+  })
+
+  afterEach(function () {
+    oc.logout()
+    oc = null
   })
 
   it('creates the testFolder at instance', function (done) {

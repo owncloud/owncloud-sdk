@@ -1,8 +1,8 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing file/folder sharing,', function () {
+describe('Unauthorized: Currently testing file/folder sharing,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../../owncloud')
+  var config = require('../../owncloud/test/config.json')
 
   // LIBRARY INSTANCE
   var oc
@@ -16,8 +16,8 @@ describe('Currently testing file/folder sharing,', function () {
   var testFile = '/文件' + timeRightNow + '.txt'
 
   beforeEach(function () {
-    oc = new OwnCloud(__karma__.config.ownCloudConfig.owncloudURL)
-    oc.login(__karma__.config.ownCloudConfig.username, __karma__.config.ownCloudConfig.password + timeRightNow)
+    oc = new OwnCloud(config.owncloudURL)
+    oc.login(config.username, config.password + timeRightNow)
   })
 
   it('checking method : shareFileWithLink', function (done) {

@@ -1,8 +1,8 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing apps management,', function () {
+describe('Unauthenticated: Currently testing apps management,', function () {
 // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../../owncloud')
+  var config = require('../../owncloud/test/config.json')
 
   // LIBRARY INSTANCE
   var oc
@@ -10,11 +10,8 @@ describe('Currently testing apps management,', function () {
   // TESTING CONFIGS
   var testApp = 'someAppName' + timeRightNow
 
-  var config = __karma__.config.ownCloudConfig
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function () {
-    oc = new OwnCloud(owncloudURL)
+    oc = new OwnCloud(config.owncloudURL)
   })
 
   it('checking method : getApps', function (done) {

@@ -1,8 +1,8 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing files management,', function () {
+describe('Unauthorized: Currently testing files management,', function () {
 // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../../owncloud')
+  var config = require('../../owncloud/test/config.json')
 
   // LIBRARY INSTANCE
   var oc
@@ -18,11 +18,8 @@ describe('Currently testing files management,', function () {
     testFolder + '/' + 'subdir/in dir.txt'
   ]
 
-  var config = __karma__.config.ownCloudConfig
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function () {
-    oc = new OwnCloud(owncloudURL)
+    oc = new OwnCloud(config.owncloudURL)
     oc.login(config.username, config.password + timeRightNow)
   })
 

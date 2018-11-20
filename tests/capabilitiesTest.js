@@ -1,17 +1,18 @@
-/* globals OwnCloud, __karma__ */
+describe('Main: Currently testing getConfig, getVersion and getCapabilities', function () {
+  var OwnCloud = require('../owncloud/owncloud')
+  var config = require('../owncloud/test/config.json')
 
-describe('Currently testing getConfig, getVersion and getCapabilities', function () {
   // LIBRARY INSTANCE
   var oc
 
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var password = config.password
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function () {
-    oc = new OwnCloud(owncloudURL)
-    oc.login(username, password)
+    oc = new OwnCloud(config.owncloudURL)
+    oc.login(config.username, config.password)
+  })
+
+  afterEach(function () {
+    oc.logout()
+    oc = null
   })
 
   it('checking method : getConfig', function (done) {

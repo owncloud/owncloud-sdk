@@ -20,11 +20,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'tests/karma.js',
-      'node_modules/utf8/utf8.js',
-      'tests/unauthenticated/*Test.js',
-      'tests/unauthorized/*Test.js',
-      'tests/*Test.js'
+      'tests/karma.js'
     ],
 
     // list of files / patterns to exclude
@@ -48,7 +44,7 @@ module.exports = function (config) {
         rules: [
           {
             test: /\.js$/,
-            exclude: [ path.resolve(__dirname, 'test'), /node_modules/ ],
+            exclude: [ /node_modules/ ],
             enforce: 'post',
             use: {
               loader: 'istanbul-instrumenter-loader',

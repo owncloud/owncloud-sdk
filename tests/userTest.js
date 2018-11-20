@@ -1,8 +1,8 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing user management,', function () {
+describe('Main: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../owncloud/owncloud')
+  var config = require('../owncloud/test/config.json')
 
   // LIBRARY INSTANCE
   var oc
@@ -14,14 +14,9 @@ describe('Currently testing user management,', function () {
   var nonExistingUser = 'nonExistingUser' + timeRightNow
   var nonExistingGroup = 'nonExistingGroup' + timeRightNow
 
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var password = config.password
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function (done) {
-    oc = new OwnCloud(owncloudURL)
-    oc.login(username, password).then(status => {
+    oc = new OwnCloud(config.owncloudURL)
+    oc.login(config.username, config.password).then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       return oc.users.createUser(testUser, testUserPassword)
     }).then(status2 => {
@@ -125,9 +120,9 @@ describe('Currently testing user management,', function () {
   })
 
   it('checking method : getUser on an existent user', function (done) {
-    oc.users.getUser(username).then(data => {
+    oc.users.getUser(config.username).then(data => {
       expect(typeof (data)).toEqual('object')
-      expect(data.displayname).toEqual(username)
+      expect(data.displayname).toEqual(config.username)
       done()
     }).catch(error => {
       expect(error).toBe(null)
@@ -161,7 +156,7 @@ describe('Currently testing user management,', function () {
   it('checking method : searchUsers', function (done) {
     oc.users.searchUsers('').then(data => {
       expect(typeof (data)).toEqual('object')
-      expect(data.indexOf(username)).toBeGreaterThan(-1)
+      expect(data.indexOf(config.username)).toBeGreaterThan(-1)
       expect(data.indexOf(testUser)).toBeGreaterThan(-1)
       done()
     }).catch(error => {
@@ -182,7 +177,7 @@ describe('Currently testing user management,', function () {
   })
 
   it('checking method : userExists with existent user', function (done) {
-    oc.users.userExists(username).then(status => {
+    oc.users.userExists(config.username).then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {

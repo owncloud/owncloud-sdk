@@ -1,8 +1,8 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing user management,', function () {
+describe('Unauthenticated: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../../owncloud')
+  var config = require('../../owncloud/test/config.json')
 
   // LIBRARY INSTANCE
   var oc
@@ -13,16 +13,12 @@ describe('Currently testing user management,', function () {
   var testGroup = 'testGroup' + timeRightNow
   var nonExistingUser = 'nonExistingUser' + timeRightNow
 
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function () {
-    oc = new OwnCloud(owncloudURL)
+    oc = new OwnCloud(config.owncloudURL)
   })
 
   it('checking method : getUser', function (done) {
-    oc.users.getUser(username).then(data => {
+    oc.users.getUser(config.username).then(data => {
       expect(data).toBe(null)
       done()
     }).catch(error => {
@@ -52,7 +48,7 @@ describe('Currently testing user management,', function () {
   })
 
   it('checking method : userExists', function (done) {
-    oc.users.userExists(username).then(status => {
+    oc.users.userExists(config.username).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

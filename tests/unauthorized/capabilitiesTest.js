@@ -1,14 +1,11 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing getConfig, getVersion and getCapabilities', function () {
+describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
+  var OwnCloud = require('../../owncloud')
+  var config = require('../../owncloud/test/config.json')
   // LIBRARY INSTANCE
   var oc
 
-  var config = __karma__.config.ownCloudConfig
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function () {
-    oc = new OwnCloud(owncloudURL)
+    oc = new OwnCloud(config.owncloudURL)
     oc.login(config.username, config.password + new Date().getTime())
   })
 

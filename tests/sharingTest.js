@@ -1,13 +1,12 @@
-/* globals OwnCloud, __karma__ */
-
-describe('Currently testing file/folder sharing,', function () {
-// CURRENT TIME
+describe('Main: Currently testing file/folder sharing,', function () {
+  // CURRENT TIME
   var timeRightNow = new Date().getTime()
+  var OwnCloud = require('../owncloud/owncloud')
+  var config = require('../owncloud/test/config.json')
+  var utf8 = require('utf8')
 
   // LIBRARY INSTANCE
   var oc
-
-  var utf8 = window.utf8
 
   // TESTING CONFIGS
   var testUserPassword = 'password'
@@ -36,15 +35,10 @@ describe('Currently testing file/folder sharing,', function () {
   var OCS_PERMISSION_CREATE = 4
   var OCS_PERMISSION_SHARE = 16
 
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var password = config.password
-  var owncloudURL = config.owncloudURL
-
   describe('Currently testing folder sharing,', function () {
     beforeEach(function (done) {
-      oc = new OwnCloud(owncloudURL)
-      oc.login(username, password)
+      oc = new OwnCloud(config.owncloudURL)
+      oc.login(config.username, config.password)
 
       oc.files.createFolder(testFolder).then(status => {
         expect(status).toBe(true)
@@ -169,8 +163,8 @@ describe('Currently testing file/folder sharing,', function () {
 
   describe('Currently testing file sharing,', function () {
     beforeEach(function (done) {
-      oc = new OwnCloud(owncloudURL)
-      oc.login(username, password)
+      oc = new OwnCloud(config.owncloudURL)
+      oc.login(config.username, config.password)
 
       // CREATING TEST USER
       oc.users.createUser(testUser, testUserPassword).then(status => {

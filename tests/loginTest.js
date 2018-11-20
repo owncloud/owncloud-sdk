@@ -1,6 +1,7 @@
-/* globals OwnCloud, __karma__ */
+describe('Main: Currently testing Login and initLibrary,', function () {
+  var OwnCloud = require('../owncloud/owncloud')
+  var config = require('../owncloud/test/config.json')
 
-describe('Currently testing Login and initLibrary,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
 
@@ -9,11 +10,6 @@ describe('Currently testing Login and initLibrary,', function () {
 
   // TESTING CONFIGS
   var nonExistingUser = 'nonExistingUser' + timeRightNow
-
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var password = config.password
-  var owncloudURL = config.owncloudURL
 
   beforeEach(function () {
     oc = null
@@ -32,7 +28,7 @@ describe('Currently testing Login and initLibrary,', function () {
   it('checking method : login with a non existent instance URL', function (done) {
     oc = new OwnCloud('someRandomName')
 
-    oc.login(username, password).then(status => {
+    oc.login(config.username, config.password).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -41,10 +37,10 @@ describe('Currently testing Login and initLibrary,', function () {
     })
   })
 
-  it('checking method : login with wrong username and password', function (done) {
-    oc = new OwnCloud(owncloudURL)
+  it('checking method : login with wrong config.username and config.password', function (done) {
+    oc = new OwnCloud(config.owncloudURL)
 
-    oc.login(nonExistingUser, 'password' + timeRightNow).then(status => {
+    oc.login(nonExistingUser, 'config.password' + timeRightNow).then(status => {
       expect(status).tobe(null)
       done()
     }).catch(error => {
@@ -53,10 +49,10 @@ describe('Currently testing Login and initLibrary,', function () {
     })
   })
 
-  it('checking method : login with correct username only', function (done) {
-    oc = new OwnCloud(owncloudURL)
+  it('checking method : login with correct config.username only', function (done) {
+    oc = new OwnCloud(config.owncloudURL)
 
-    oc.login(username, 'password' + timeRightNow).then(status => {
+    oc.login(config.username, 'config.password' + timeRightNow).then(status => {
       expect(status).tobe(null)
       done()
     }).catch(error => {
@@ -65,10 +61,10 @@ describe('Currently testing Login and initLibrary,', function () {
     })
   })
 
-  it('checking method : login with correct username and password', function (done) {
-    oc = new OwnCloud(owncloudURL)
+  it('checking method : login with correct config.username and config.password', function (done) {
+    oc = new OwnCloud(config.owncloudURL)
 
-    oc.login(username, password).then(status => {
+    oc.login(config.username, config.password).then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       done()
     }).catch(error => {

@@ -1,6 +1,7 @@
-/* globals OwnCloud, __karma__ */
+describe('Main: Currently testing group management,', function () {
+  var OwnCloud = require('../owncloud/owncloud')
+  var config = require('../owncloud/test/config.json')
 
-describe('Currently testing group management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
 
@@ -11,14 +12,9 @@ describe('Currently testing group management,', function () {
   var testGroup = 'testGroup' + timeRightNow
   var nonExistingGroup = 'nonExistingGroup' + timeRightNow
 
-  var config = __karma__.config.ownCloudConfig
-  var username = config.username
-  var password = config.password
-  var owncloudURL = config.owncloudURL
-
   beforeEach(function (done) {
-    oc = new OwnCloud(owncloudURL)
-    oc.login(username, password).then(status => {
+    oc = new OwnCloud(config.owncloudURL)
+    oc.login(config.username, config.password).then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       return oc.groups.createGroup(testGroup)
     }).then(status2 => {
@@ -75,7 +71,7 @@ describe('Currently testing group management,', function () {
   it('checking method : getGroupMembers', function (done) {
     oc.groups.getGroupMembers('admin').then(data => {
       expect(typeof (data)).toBe('object')
-      expect(data.indexOf(username)).toBeGreaterThan(-1)
+      expect(data.indexOf(config.username)).toBeGreaterThan(-1)
       done()
     }).catch(error => {
       expect(error).toBe(null)

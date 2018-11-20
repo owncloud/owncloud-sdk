@@ -23,7 +23,7 @@ describe('Currently testing apps management,', function () {
     oc.login(username, password)
   })
 
-  it('checking method : getApps', function (done) {
+  xit('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).not.toBe(null)
       expect(typeof (apps)).toBe('object')

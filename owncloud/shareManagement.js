@@ -1,12 +1,12 @@
-/////////////////////////////
-///////    SHARING    ///////
-/////////////////////////////
+/// //////////////////////////
+/// ////    SHARING    ///////
+/// //////////////////////////
 
-var Promise = require('promise');
-var parser = require('./xmlParser.js');
-var utf8 = require('utf8');
-var shareInfo = require('./shareInfo.js');
-var helpers;
+var Promise = require('promise')
+var parser = require('./xmlParser.js')
+var utf8 = require('utf8')
+var shareInfo = require('./shareInfo.js')
+var helpers
 
 /**
  * @class shares
@@ -35,8 +35,8 @@ var helpers;
  * @version 1.0.0
  * @param   {object}  helperFile  instance of the helpers class
  */
-function shares(helperFile) {
-    helpers = helperFile;
+function shares (helperFile) {
+  helpers = helperFile
 }
 
 /**
@@ -46,40 +46,40 @@ function shares(helperFile) {
  * @returns {Promise.<shareInfo>}        instance of class shareInfo
  * @returns {Promise.<error>}            string: error message, if any.
  */
-shares.prototype.shareFileWithLink = function(path, optionalParams) {
-    path = helpers._normalizePath(path);
-    //path = helpers._encodeString(path);
+shares.prototype.shareFileWithLink = function (path, optionalParams) {
+  path = helpers._normalizePath(path)
+  // path = helpers._encodeString(path);
 
-    var postData = {
-        'shareType': helpers.OCS_SHARE_TYPE_LINK,
-        'path': path
-    };
+  var postData = {
+    'shareType': helpers.OCS_SHARE_TYPE_LINK,
+    'path': path
+  }
 
-    if (optionalParams) {
-        if (optionalParams.perms) {
-            postData.permissions = optionalParams.perms;
-        }
-        if (optionalParams.password) {
-            postData.password = optionalParams.password;
-        }
-        if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
-            postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
-        }
+  if (optionalParams) {
+    if (optionalParams.perms) {
+      postData.permissions = optionalParams.perms
     }
+    if (optionalParams.password) {
+      postData.password = optionalParams.password
+    }
+    if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
+      postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()
+    }
+  }
 
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
-            .then(data => {
-                data.body = utf8.encode(data.body);
-                var shareDetails = parser.xml2js(data.body).ocs.data;
-                var share = new shareInfo(shareDetails);
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        data.body = utf8.encode(data.body)
+        var shareDetails = parser.xml2js(data.body).ocs.data
+        var share = new shareInfo(shareDetails)
 
-                resolve(share);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+        resolve(share)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Shares a remote file with specified user
@@ -88,38 +88,38 @@ shares.prototype.shareFileWithLink = function(path, optionalParams) {
  * @returns {Promise.<shareInfo>}        instance of class shareInfo
  * @returns {Promise.<error>}            string: error message, if any.
  */
-shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
-    path = helpers._normalizePath(path);
-    // path = helpers._encodeString(path);
+shares.prototype.shareFileWithUser = function (path, username, optionalParams) {
+  path = helpers._normalizePath(path)
+  // path = helpers._encodeString(path);
 
-    var postData = {
-        'shareType': helpers.OCS_SHARE_TYPE_USER,
-        'shareWith': username,
-        'path': path
-    };
+  var postData = {
+    'shareType': helpers.OCS_SHARE_TYPE_USER,
+    'shareWith': username,
+    'path': path
+  }
 
-    if (optionalParams) {
-        if (optionalParams.perms) {
-            postData.permissions = optionalParams.perms;
-        }
-
-        if (optionalParams.remoteUser) {
-            postData.shareType = helpers.OCS_SHARE_TYPE_REMOTE;
-        }
+  if (optionalParams) {
+    if (optionalParams.perms) {
+      postData.permissions = optionalParams.perms
     }
 
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
-            .then(data => {
-                var shareData = data.data.ocs.data
-                var share = new shareInfo(shareData);
+    if (optionalParams.remoteUser) {
+      postData.shareType = helpers.OCS_SHARE_TYPE_REMOTE
+    }
+  }
 
-                resolve(share);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        var shareData = data.data.ocs.data
+        var share = new shareInfo(shareData)
+
+        resolve(share)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Shares a remote file with specified group
@@ -128,31 +128,31 @@ shares.prototype.shareFileWithUser = function(path, username, optionalParams) {
  * @returns {Promise.<shareInfo>}        instance of class shareInfo
  * @returns {Promise.<error>}            string: error message, if any.
  */
-shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) {
-    path = helpers._normalizePath(path);
+shares.prototype.shareFileWithGroup = function (path, groupName, optionalParams) {
+  path = helpers._normalizePath(path)
 
-    var postData = {
-        'shareType': helpers.OCS_SHARE_TYPE_GROUP,
-        'shareWith': groupName,
-        'path': path
-    };
+  var postData = {
+    'shareType': helpers.OCS_SHARE_TYPE_GROUP,
+    'shareWith': groupName,
+    'path': path
+  }
 
-    if (optionalParams && optionalParams.perms) {
-        postData.permissions = optionalParams.perms;
-    }
+  if (optionalParams && optionalParams.perms) {
+    postData.permissions = optionalParams.perms
+  }
 
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
-            .then(data => {
-                var shareData = data.data.ocs.data;
-                var share = new shareInfo(shareData);
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        var shareData = data.data.ocs.data
+        var share = new shareInfo(shareData)
 
-                resolve(share);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+        resolve(share)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Returns array of shares
@@ -162,62 +162,62 @@ shares.prototype.shareFileWithGroup = function(path, groupName, optionalParams) 
  * @returns {Promise.<shareInfo>}     Array of instances of class shareInfo for all shares
  * @returns {Promise.<error>}         string: error message, if any.
  */
-shares.prototype.getShares = function(path, optionalParams) {
-    var data = 'shares';
-    var send = {};
+shares.prototype.getShares = function (path, optionalParams) {
+  var data = 'shares'
+  var send = {}
 
-    if (path !== '') {
-        data += '?';
+  if (path !== '') {
+    data += '?'
 
-        send.path = helpers._normalizePath(path);
-        optionalParams = helpers._convertObjectToBool(optionalParams);
+    send.path = helpers._normalizePath(path)
+    optionalParams = helpers._convertObjectToBool(optionalParams)
 
-        if (optionalParams) {
-            if (optionalParams.reshares && typeof(optionalParams.reshares) === "boolean") {
-                send.reshares = optionalParams.reshares;
-            }
+    if (optionalParams) {
+      if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
+        send.reshares = optionalParams.reshares
+      }
 
-            if (optionalParams.subfiles && typeof(optionalParams.subfiles) === "boolean") {
-                send.subfiles = optionalParams.subfiles;
-            }
+      if (optionalParams.subfiles && typeof (optionalParams.subfiles) === 'boolean') {
+        send.subfiles = optionalParams.subfiles
+      }
 
-            /*jshint camelcase: false */
-            if (optionalParams.shared_with_me && typeof(optionalParams.shared_with_me) === "boolean") {
-                send.shared_with_me = optionalParams.shared_with_me;
-            }
-            /*jshint camelcase: true */
-        }
-
-        var urlString = '';
-        for (var key in send) {
-            urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key]);
-        }
-        urlString = urlString.slice(1); // removing the first '&'
-
-        data += urlString;
+      /* jshint camelcase: false */
+      if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
+        send.shared_with_me = optionalParams.shared_with_me
+      }
+      /* jshint camelcase: true */
     }
 
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
-            .then(data => {
-                var elements = data.data.ocs.data.element || [];
-                var shares = [];
+    var urlString = ''
+    for (var key in send) {
+      urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key])
+    }
+    urlString = urlString.slice(1) // removing the first '&'
 
-                if (elements && elements.constructor !== Array) {
-                    // just a single element
-                    elements = [elements];
-                }
-                for (var i = 0; i < elements.length; i++) {
-                    var share = new shareInfo(elements[i]);
-                    shares.push(share);
-                }
+    data += urlString
+  }
 
-                resolve(shares);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, data)
+      .then(data => {
+        var elements = data.data.ocs.data.element || []
+        var shares = []
+
+        if (elements && elements.constructor !== Array) {
+          // just a single element
+          elements = [elements]
+        }
+        for (var i = 0; i < elements.length; i++) {
+          var share = new shareInfo(elements[i])
+          shares.push(share)
+        }
+
+        resolve(shares)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Checks wether a path is already shared
@@ -225,18 +225,18 @@ shares.prototype.getShares = function(path, optionalParams) {
  * @returns {Promise.<status>}  boolean: true if shared
  * @returns {Promise.<error>}   string: error message, if any.
  */
-shares.prototype.isShared = function(path) {
-    var self = this;
+shares.prototype.isShared = function (path) {
+  var self = this
 
-    return new Promise((resolve, reject) => {
-        self.getShares(path)
-        .then(shares => {
-            resolve(shares.length > 0);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-};
+  return new Promise((resolve, reject) => {
+    self.getShares(path)
+      .then(shares => {
+        resolve(shares.length > 0)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Gets share information about known share
@@ -244,41 +244,41 @@ shares.prototype.isShared = function(path) {
  * @returns {Promise.<shareInfo>}   instance of class shareInfo
  * @returns {Promise.<error>}       string: error message, if any.
  */
-shares.prototype.getShare = function(shareId) {
-    return new Promise((resolve, reject) => {
-        if (isNaN((parseInt(shareId)))) {
-            reject("Please pass a valid share ID (Integer)");
-            return;
-        }
-        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
-            .then(data => {
-                var shareData = data.data.ocs.data.element;
-                var share = new shareInfo(shareData);
+shares.prototype.getShare = function (shareId) {
+  return new Promise((resolve, reject) => {
+    if (isNaN((parseInt(shareId)))) {
+      reject('Please pass a valid share ID (Integer)')
+      return
+    }
+    helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
+      .then(data => {
+        var shareData = data.data.ocs.data.element
+        var share = new shareInfo(shareData)
 
-                resolve(share);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+        resolve(share)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * List all pending remote share
  * @returns {Promise.<shares>}  all open remote shares
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.listOpenRemoteShare = function() {
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
-            .then(data => {
-                var shares = data.data.ocs.data.element || [];
+shares.prototype.listOpenRemoteShare = function () {
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
+      .then(data => {
+        var shares = data.data.ocs.data.element || []
 
-                resolve(shares);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+        resolve(shares)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Accepts a remote share
@@ -286,23 +286,23 @@ shares.prototype.listOpenRemoteShare = function() {
  * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.acceptRemoteShare = function(shareId) {
-    return new Promise((resolve, reject) => {
-        if (isNaN((parseInt(shareId)))) {
-            reject("Please pass a valid share ID (Integer)", null);
-            return;
-        }
+shares.prototype.acceptRemoteShare = function (shareId) {
+  return new Promise((resolve, reject) => {
+    if (isNaN((parseInt(shareId)))) {
+      reject('Please pass a valid share ID (Integer)', null)
+      return
+    }
 
-        /* jshint unused: false */
-        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE,
-            'remote_shares/pending' + encodeURIComponent(shareId.toString())
-        ).then(data => {
-            resolve(true);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-};
+    /* jshint unused: false */
+    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE,
+      'remote_shares/pending' + encodeURIComponent(shareId.toString())
+    ).then(data => {
+      resolve(true)
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
 
 /**
  * Declines a remote share
@@ -310,23 +310,23 @@ shares.prototype.acceptRemoteShare = function(shareId) {
  * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.declineRemoteShare = function(shareId) {
-    return new Promise((resolve, reject) => {
-        if (isNaN((parseInt(shareId)))) {
-            reject("Please pass a valid share ID (Integer)", null);
-            return;
-        }
+shares.prototype.declineRemoteShare = function (shareId) {
+  return new Promise((resolve, reject) => {
+    if (isNaN((parseInt(shareId)))) {
+      reject('Please pass a valid share ID (Integer)', null)
+      return
+    }
 
-        /* jshint unused: false */
-        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE,
-            'remote_shares/pending' + encodeURIComponent(shareId.toString())
-        ).then(data => {
-            resolve(true);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-};
+    /* jshint unused: false */
+    helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE,
+      'remote_shares/pending' + encodeURIComponent(shareId.toString())
+    ).then(data => {
+      resolve(true)
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
 
 /**
  * Updates a given share
@@ -335,33 +335,32 @@ shares.prototype.declineRemoteShare = function(shareId) {
  * @returns {Promise.<status>}         boolean: true if successful
  * @returns {Promise.<error>}          string: error message, if any.
  */
-shares.prototype.updateShare = function(shareId, optionalParams) {
-    var postData = {};
-    var self = this;
+shares.prototype.updateShare = function (shareId, optionalParams) {
+  var postData = {}
 
-    if (optionalParams) {
-        if (optionalParams.perms) {
-            postData.permissions = optionalParams.perms;
-        }
-        if (optionalParams.password) {
-            postData.password = optionalParams.password;
-        }
-        if (optionalParams.publicUpload && typeof(optionalParams.publicUpload) === "boolean") {
-            postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase();
-        }
+  if (optionalParams) {
+    if (optionalParams.perms) {
+      postData.permissions = optionalParams.perms
     }
+    if (optionalParams.password) {
+      postData.password = optionalParams.password
+    }
+    if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
+      postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()
+    }
+  }
 
-    /* jshint unused: false */
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE,
-            'shares/' + shareId.toString(), postData, 1
-        ).then(data => {
-            resolve(true);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-};
+  /* jshint unused: false */
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE,
+      'shares/' + shareId.toString(), postData, 1
+    ).then(data => {
+      resolve(true)
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
 
 /**
  * Deletes a share
@@ -369,22 +368,22 @@ shares.prototype.updateShare = function(shareId, optionalParams) {
  * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.deleteShare = function(shareId) {
-    return new Promise((resolve, reject) => {
-        if (isNaN((parseInt(shareId)))) {
-            reject("Please pass a valid share ID (Integer)", null);
-            return;
-        }
+shares.prototype.deleteShare = function (shareId) {
+  return new Promise((resolve, reject) => {
+    if (isNaN((parseInt(shareId)))) {
+      reject('Please pass a valid share ID (Integer)', null)
+      return
+    }
 
-        /* jshint unused: false */
-        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE,
-            'shares/' + encodeURIComponent(shareId.toString())
-        ).then(data => {
-            resolve(true);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-};
+    /* jshint unused: false */
+    helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_SHARE,
+      'shares/' + encodeURIComponent(shareId.toString())
+    ).then(data => {
+      resolve(true)
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
 
-module.exports = shares;
+module.exports = shares

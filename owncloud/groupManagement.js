@@ -1,10 +1,10 @@
-//////////////////////////////////////
-///////    GROUP MANAGEMENT    ///////
-//////////////////////////////////////
+/// ///////////////////////////////////
+/// ////    GROUP MANAGEMENT    ///////
+/// ///////////////////////////////////
 
-var Promise = require('promise');
-var parser = require('./xmlParser.js');
-var helpers;
+var Promise = require('promise')
+var parser = require('./xmlParser.js')
+var helpers
 
 /**
  * @class groups
@@ -27,8 +27,8 @@ var helpers;
  * @version 1.0.0
  * @param {object}  helperFile  instance of the helpers class
  */
-function groups(helperFile) {
-    helpers = helperFile;
+function groups (helperFile) {
+  helpers = helperFile
 }
 
 /**
@@ -37,18 +37,18 @@ function groups(helperFile) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.createGroup = function(groupName) {
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {
-                'groupid': groupName
-            })
-            .then(data => {
-                helpers._OCSuserResponseHandler(data, resolve, reject);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+groups.prototype.createGroup = function (groupName) {
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {
+      'groupid': groupName
+    })
+      .then(data => {
+        helpers._OCSuserResponseHandler(data, resolve, reject)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * deletes an existing group
@@ -56,34 +56,34 @@ groups.prototype.createGroup = function(groupName) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.deleteGroup = function(groupName) {
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
-            .then(data => {
-                helpers._OCSuserResponseHandler(data, resolve, reject);
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+groups.prototype.deleteGroup = function (groupName) {
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
+      .then(data => {
+        helpers._OCSuserResponseHandler(data, resolve, reject)
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Gets all groups in the instance
  * @returns {Promise.<groups>}  array: all group-names
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.getGroups = function() {
-    var self = this;
+groups.prototype.getGroups = function () {
+  var self = this
 
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups')
-            .then(data => {
-                self.handleObjectResponse(resolve, reject, data, 'groups');
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups')
+      .then(data => {
+        self.handleObjectResponse(resolve, reject, data, 'groups')
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * Gets all the members of a group
@@ -91,18 +91,18 @@ groups.prototype.getGroups = function() {
  * @returns {Promise.<users>}   array: all usernames who are part of the group
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.getGroupMembers = function(groupName) {
-    var self = this;
+groups.prototype.getGroupMembers = function (groupName) {
+  var self = this
 
-    return new Promise((resolve, reject) => {
-        helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
-            .then(data => {
-                self.handleObjectResponse(resolve, reject, data, 'users');
-            }).catch(error => {
-                reject(error);
-            });
-    });
-};
+  return new Promise((resolve, reject) => {
+    helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'groups/' + encodeURIComponent(groupName))
+      .then(data => {
+        self.handleObjectResponse(resolve, reject, data, 'users')
+      }).catch(error => {
+        reject(error)
+      })
+  })
+}
 
 /**
  * checks whether a group exists
@@ -110,36 +110,36 @@ groups.prototype.getGroupMembers = function(groupName) {
  * @returns {Promise.<status>}  boolean: true if group exists
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.groupExists = function(groupName) {
-    var self = this;
+groups.prototype.groupExists = function (groupName) {
+  var self = this
 
-    return new Promise((resolve, reject) => {
-        self.getGroups().then(groups => {
-            resolve(groups.indexOf(groupName) > -1);
-        }).catch(error => {
-            reject(error);
-        });
-    });
-};
+  return new Promise((resolve, reject) => {
+    self.getGroups().then(groups => {
+      resolve(groups.indexOf(groupName) > -1)
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
 
 /**
  * IS A RESPONSE HANDLER
  */
-groups.prototype.handleObjectResponse = function(resolve, reject, data, what) {
-    var tree = parser.xml2js(data.body);
+groups.prototype.handleObjectResponse = function (resolve, reject, data, what) {
+  var tree = parser.xml2js(data.body)
 
-    var statusCode = parseInt(helpers._checkOCSstatusCode(tree));
-    if (statusCode === 999) {
-        reject("Provisioning API has been disabled at your instance");
-        return;
-    }
+  var statusCode = parseInt(helpers._checkOCSstatusCode(tree))
+  if (statusCode === 999) {
+    reject('Provisioning API has been disabled at your instance')
+    return
+  }
 
-    var toReturn = tree.ocs.data[what].element || [];
-    if (toReturn && toReturn.constructor !== Array) {
-        // single element
-        toReturn = [toReturn];
-    }
-    resolve(toReturn);
-};
+  var toReturn = tree.ocs.data[what].element || []
+  if (toReturn && toReturn.constructor !== Array) {
+    // single element
+    toReturn = [toReturn]
+  }
+  resolve(toReturn)
+}
 
-module.exports = groups;
+module.exports = groups

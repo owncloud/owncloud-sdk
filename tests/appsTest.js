@@ -17,6 +17,11 @@ describe('Main: Currently testing apps management,', function () {
     oc.login(config.username, config.password)
   })
 
+  afterEach(function () {
+    oc.logout()
+    oc = null
+  })
+
   xit('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).not.toBe(null)

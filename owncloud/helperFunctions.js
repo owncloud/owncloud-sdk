@@ -71,6 +71,13 @@ helpers.prototype.getAuthorization = function() {
     return this._authHeader;
 };
 
+helpers.prototype.logout = function () {
+    this._authHeader = null;
+    this._version = null;
+    this._capabilities = null;
+    this._currentUser = null;
+};
+
 /**
  * gets the OC version
  * @returns {string}    OC version

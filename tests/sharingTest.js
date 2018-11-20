@@ -57,6 +57,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
         expect(error).toBe(null)
         done()
       })
+      oc.logout()
+      oc = null
     })
 
     describe('sharedFolder,', function () {

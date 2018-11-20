@@ -33,6 +33,9 @@ describe('Main: Currently testing group management,', function () {
     }).catch(error => {
       expect(error).toBe(null)
       done()
+    }).then(() => {
+      oc.logout()
+      oc = null
     })
   })
 

@@ -10,6 +10,11 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     oc.login(config.username, config.password)
   })
 
+  afterEach(function () {
+    oc.logout()
+    oc = null
+  })
+
   it('checking method : getConfig', function (done) {
     oc.getConfig().then(config => {
       expect(config).not.toBe(null)

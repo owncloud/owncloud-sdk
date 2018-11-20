@@ -32,6 +32,11 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
+  afterEach(function () {
+    oc.logout()
+    oc = null
+  })
+
   it('creates the testFolder at instance', function (done) {
     oc.files.createFolder(testFolder).then(status => {
       expect(status).toBe(true)

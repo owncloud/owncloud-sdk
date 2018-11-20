@@ -41,6 +41,9 @@ describe('Main: Currently testing user management,', function () {
     }).catch(error => {
       expect(error).toBe(null)
       done()
+    }).then(() => {
+      oc.logout()
+      oc = null
     })
   })
 

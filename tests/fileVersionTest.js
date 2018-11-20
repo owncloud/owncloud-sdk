@@ -46,6 +46,8 @@ describe('Main: Currently testing file versions management,', function () {
   })
   afterEach(function () {
     oc.files.delete(testFolder)
+    oc.logout()
+    oc = null
   })
 
   it('retrieves file versions', function (done) {

@@ -1,9 +1,9 @@
 describe('Main: Currently testing apps management,', function () {
 // CURRENT TIME
   var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../owncloud/owncloud')
+  var OwnCloud = require('../src/owncloud')
   var utf8 = require('utf8')
-  var config = require('../owncloud/test/config.json')
+  var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
   var oc

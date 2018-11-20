@@ -1,11 +1,8 @@
 const path = require('path')
 
 module.exports = function (config) {
-  var ownCloudConfig = require('./owncloud/test/config.json')
   config.set({
-
     client: {
-      ownCloudConfig: ownCloudConfig,
       jasmine: {
         random: false
       }

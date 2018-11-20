@@ -1,8 +1,8 @@
 describe('Main: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../owncloud/owncloud')
-  var config = require('../owncloud/test/config.json')
+  var OwnCloud = require('../src/owncloud')
+  var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
   var oc

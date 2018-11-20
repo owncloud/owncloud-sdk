@@ -1,8 +1,8 @@
 describe('Main: Currently testing file/folder sharing,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../owncloud/owncloud')
-  var config = require('../owncloud/test/config.json')
+  var OwnCloud = require('../src/owncloud')
+  var config = require('./config/config.json')
   var utf8 = require('utf8')
 
   // LIBRARY INSTANCE

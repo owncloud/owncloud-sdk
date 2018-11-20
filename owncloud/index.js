@@ -1,3 +1,3 @@
-var ownCloud = require("./owncloud");
+var ownCloud = require('./owncloud')
 
-module.exports = ownCloud;
+module.exports = ownCloud

@@ -3,7 +3,6 @@
 /// //////////////////////////
 
 var Promise = require('promise')
-var request = require('browser-request')
 var parser = require('./xmlParser.js')
 var parser2 = require('xml-js')
 var utf8 = require('utf8')
@@ -172,73 +171,71 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
 
   // Configure the request
   var options = {
-    url: this.instance + path,
     method: method,
     headers: headers
   }
 
-  var serialize = function (obj) {
-    var str = []
-    for (var p in obj) {
-      if (obj.hasOwnProperty(p)) {
-        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
+  if (method !== 'GET' && method !== 'HEAD') {
+    var serialize = function (obj) {
+      var str = []
+      for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+          str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
+        }
       }
+      return str.join('&')
     }
-    return str.join('&')
+    options.headers['content-type'] = 'application/x-www-form-urlencoded'
+    options.body = serialize(data).replace(/%20/g, '+')
   }
-  options.headers['content-type'] = 'application/x-www-form-urlencoded'
-  options.body = serialize(data).replace(/%20/g, '+')
 
   return new Promise((resolve, reject) => {
-    // Start the request
-    request(options, function (error, response, body) {
-      if (!self.instance) {
-        reject('Please specify a server URL first')
-        return
-      }
+    if (!self.instance) {
+      reject('Please specify a server URL first')
+      return
+    }
 
-      if (!self._authHeader) {
-        reject('Please specify an authorization first.')
-        return
-      }
+    if (!self._authHeader) {
+      reject('Please specify an authorization first.')
+      return
+    }
 
-      if (error) {
-        reject(error)
-        return
-      }
-
-      let tree = null
-      try {
-        tree = parser.xml2js(body)
-        error = self._checkOCSstatus(tree)
-        if (error) {
-          reject(error)
-          return
-        }
-      } catch (e) {
-        try {
-          tree = JSON.parse(body)
-          if ('message' in tree) {
-            reject(tree.message)
-            return
+    fetch(this.instance + path, options)
+      .then(response => {
+        response.text().then(body => {
+          let tree = null
+          try {
+            tree = parser.xml2js(body)
+            var error = self._checkOCSstatus(tree)
+            if (error) {
+              reject(error)
+              return
+            }
+          } catch (e) {
+            try {
+              tree = JSON.parse(body)
+              if ('message' in tree) {
+                reject(tree.message)
+                return
+              }
+              error = self._checkOCSstatus(tree)
+              if (error) {
+                reject(error)
+                return
+              }
+            } catch (e) {
+              reject('Invalid response body: ' + body)
+              return
+            }
           }
-          error = self._checkOCSstatus(tree)
-          if (error) {
-            reject(error)
-            return
-          }
-        } catch (e) {
-          reject('Invalid response body: ' + body)
-          return
-        }
-      }
 
-      resolve({
-        response: response,
-        body: body,
-        data: tree
+          resolve({
+            response: response,
+            body: body,
+            data: tree
+          })
+        })
       })
-    })
   })
 }
 
@@ -277,31 +274,16 @@ helpers.prototype._get = function (url) {
       return
     }
 
-    // Start the request
-    request(options, function (error, response, body) {
-      if (error) {
-        reject(error)
-      } else {
-        resolve({
-          response: response,
-          body: body
+    fetch(url, options)
+      .then(response => {
+        response.blob().then(blob => {
+          resolve({
+            response: response,
+            body: blob
+          })
         })
-      }
-    })
+      })
   })
-}
-
-/**
- * checks whether a path's extension is ".ZIP"
- * @param   {string}    path    path to check
- * @return  {boolean}           true if extension is ".ZIP"
- */
-helpers.prototype._checkExtensionZip = function (path) {
-  var extension = path.slice(-4)
-  if (extension !== '.zip') {
-    path += '.zip'
-  }
-  return path
 }
 
 /**

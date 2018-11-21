@@ -1,11 +1,14 @@
-[![Build Status](https://travis-ci.org/owncloud/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client) [![Dependencies Status](https://david-dm.org/noveens/js-owncloud-client.svg)](https://david-dm.org/noveens/js-owncloud-client.svg) [![devDependencies Status](https://david-dm.org/noveens/js-owncloud-client/dev-status.svg)](https://david-dm.org/noveens/js-owncloud-client?type=dev)
+[![Build Status](https://travis-ci.org/owncloud/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client)
+[![codecov](https://codecov.io/gh/owncloud/js-owncloud-client/branch/master/graph/badge.svg)](https://codecov.io/gh/owncloud/js-owncloud-client)
+
 
 <p align="center">
   <img src="https://i.imgur.com/9mKra3O.png" />
 </p>
 
-Use this light-weight JS library with a promise based interface for seaemless communication with your ownCloud instance.<br>
-Supports both Node.JS and browser JS.
+Use this light-weight JS library with a promise based interface for seamless communication with your ownCloud instance.<br>
+Supports only browser JS but requires Javascript techniques like webpack to compile it properly
+For Nods.js please have a look at [this tag](https://github.com/owncloud/js-owncloud-client/releases/tag/last-nodejs)
 
 
 ## Install
@@ -17,7 +20,6 @@ $ npm install js-owncloud-client
 
 ## Usage
 
-### Node.JS
 ```js
 var owncloud = require('js-owncloud-client');
 var oc = new owncloud('*owncloud instance URL*');
@@ -44,43 +46,11 @@ oc.files.list('/path/to/file/folder').then(files => {
 });
 ```
 
-### Browser
-```html
-<script type="text/javascript" src="./js-owncloud-client/browser/owncloud.js"></script>
-
-<script type="text/javascript">
-  // var oc is global
-  oc.setInstance('*owncloud instance URL*');
-
-  // Login
-  oc.login('username', 'password').then(status => {
-    window.alert(status);
-  }).catch(error => {
-    window.alert(error);
-  });
-
-  // Share File With Link
-  oc.shares.shareFileWithLink('linkToYourFile').then(shareInfo => {
-      window.alert("Link is : " + shareInfo.getLink());
-  }).catch(error => {
-      window.alert(error);
-  });
-
-  // List all files
-  oc.files.list('/path/to/file/folder').then(files => {
-      console.log(files);
-  }).catch(error => {
-      console.log(error);
-  });
-</script>
-```
-
 ## Example Projects
 
-### Node.JS Based
+### ownCloud Phoenix
 
-### Browser Based
-A sample text-file saving and retreiving static web app which uses this library: <a href="https://github.com/noveens/staticOwncloudWebapp">link</a>
+
 
 ## All Methods Available
 
@@ -190,28 +160,13 @@ userIsInSubadminGroup  | `oc.users.userIsInSubadminGroup(username, groupName)`
 
 ## Building the Documentation
 
-### Swagger Documentation
-
-Stuck? Just type this to see all the above available methods live in action in your browser!<br>
-
-```
-$ cd node_modules/js-owncloud-client/
-$ make swagger
-```
-If you open the link showed by running the above command, you will see something like this :
-
-<img src="https://imgur.com/u0SzHs8.gif" title="Swagger GIF"/>
-
-Here, you can click on any method and type in values, to experiment with the methods in the browser itself!<br>
-Now isn't that cool? :wink:
-
 ### JSDocs
 
 To build the jsdocs, type this command and follow the instructions on the terminal :
 
 ```
 $ cd node_modules/js-owncloud-client/
-$ make jsdocs
+$ yarn run docs
 ```
 
 ## Unit tests
@@ -220,13 +175,33 @@ The following command will run all unit tests. Before running the command, make 
 
 ```
 $ cd node_modules/js-owncloud-client/
-$ make test
+$ yarn test
 ```
 
 
 ## Team
 
-[![Noveen Sachdeva](http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144)](https://github.com/noveens) &nbsp; &nbsp; &nbsp; &nbsp; [![Vincent Petry](https://avatars1.githubusercontent.com/u/277525?v=3&s=144)](https://github.com/PVince81)
-<br>Noveen Sachdeva &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Vincent Petry
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top">
+        <img width="150" height="150" src="http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144">
+        <br>
+        <a href="https://github.com/noveens">Noveen Sachdeva</a>
+      </td>
+      <td align="center" valign="top">
+        <img width="150" height="150" src="https://avatars1.githubusercontent.com/u/277525?v=3&s=144">
+        <br>
+        <a href="https://github.com/PVince82">Vincent Petry</a>
+      </td>
+      <td align="center" width="20%" valign="top">
+        <img width="150" height="150" src="https://avatars0.githubusercontent.com/u/1005065?s=144&v=4">
+        <br>
+        <a href="https://github.com/DeepDiver1975">Thomas Müller</a>
+      </td>
+     </tr>
+  </tbody>
+</table>
+
 
 # ![GSoC'17](http://cltk.org/assets/GSoC2016Logo.jpg)

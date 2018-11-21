@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><p><a href="https://travis-ci.org/noveens/js-owncloud-client"><img src="https://travis-ci.org/owncloud/js-owncloud-client.svg?branch=master" alt="Build Status"></a>
+<a href="https://codecov.io/gh/owncloud/js-owncloud-client"><img src="https://codecov.io/gh/owncloud/js-owncloud-client/branch/master/graph/badge.svg" alt="codecov"></a></p>
+<p align="center">
+  <img src="https://i.imgur.com/9mKra3O.png" />
+</p>
+
+<p>Use this light-weight JS library with a promise based interface for seamless communication with your ownCloud instance.<br>
+Supports only browser JS but requires Javascript techniques like webpack to compile it properly
+For Nods.js please have a look at <a href="https://github.com/owncloud/js-owncloud-client/releases/tag/last-nodejs">this tag</a></p>
+<h2>Install</h2><pre class="prettyprint source"><code>$ npm install js-owncloud-client</code></pre><h2>Usage</h2><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');
+
+// Login
+oc.login('username', 'password').then(status => {
+    // STUFF
+}).catch(error => {
+    // HANDLE ERROR
+});
+
+// Share File With Link
+oc.shares.shareFileWithLink('linkToYourFile').then(shareInfo => {
+    console.log(&quot;Link is : &quot; + shareInfo.getLink());
+}).catch(error => {
+    // HANDLE ERROR
+});
+
+// List all files
+oc.files.list('/path/to/file/folder').then(files => {
+    console.log(files);
+}).catch(error => {
+    console.log(error);
+});</code></pre><h2>Example Projects</h2><h3>ownCloud Phoenix</h3><h2>All Methods Available</h2><h3>General</h3><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');</code></pre><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setInstance</td>
+<td><code>oc.setInstance(instance)</code></td>
+</tr>
+<tr>
+<td>login</td>
+<td><code>oc.login(username, password)</code></td>
+</tr>
+<tr>
+<td>getConfig</td>
+<td><code>oc.getConfig()</code></td>
+</tr>
+<tr>
+<td>getVersion</td>
+<td><code>oc.getVersion()</code></td>
+</tr>
+<tr>
+<td>getCapabilities</td>
+<td><code>oc.getCapabilities()</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Files Management</h3><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');</code></pre><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>list</td>
+<td><code>oc.files.list(/path/to/file/folder, depth)</code></td>
+</tr>
+<tr>
+<td>getFileContents</td>
+<td><code>oc.files.getFileContents(path/to/file/folder)</code></td>
+</tr>
+<tr>
+<td>putFileContents</td>
+<td><code>oc.files.putFileContents(path/to/file, contents)</code></td>
+</tr>
+<tr>
+<td>mkdir</td>
+<td><code>oc.files.mkdir(path/to/folder)</code></td>
+</tr>
+<tr>
+<td>createFolder</td>
+<td><code>oc.files.createFolder(path/to/folder)</code></td>
+</tr>
+<tr>
+<td>delete</td>
+<td><code>oc.files.delete(path/to/file/folder)</code></td>
+</tr>
+<tr>
+<td>fileInfo</td>
+<td><code>oc.files.fileInfo(path/to/file/folder)</code></td>
+</tr>
+<tr>
+<td>getFile</td>
+<td><code>oc.files.getFile(remotePath, localPath)</code></td>
+</tr>
+<tr>
+<td>getDirectoryAsZip</td>
+<td><code>oc.files.getDirectoryAsZip(remotePath, localPath)</code></td>
+</tr>
+<tr>
+<td>putFile</td>
+<td><code>oc.files.putFile(remotePath, localPath)</code></td>
+</tr>
+<tr>
+<td>putDirectory</td>
+<td><code>oc.files.putDirectory(remotePath, localPath)</code></td>
+</tr>
+<tr>
+<td>move</td>
+<td><code>oc.files.move(source, target)</code></td>
+</tr>
+<tr>
+<td>copy</td>
+<td><code>oc.files.copy(source, target)</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Apps Management</h3><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');</code></pre><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>getApps</td>
+<td><code>oc.apps.getApps()</code></td>
+</tr>
+<tr>
+<td>getAttribute</td>
+<td><code>oc.apps.getAttribute(app, key)</code></td>
+</tr>
+<tr>
+<td>setAttribute</td>
+<td><code>oc.apps.setAttribute(app, key, value)</code></td>
+</tr>
+<tr>
+<td>deleteAttribute</td>
+<td><code>oc.apps.deleteAttribute(app, key)</code></td>
+</tr>
+<tr>
+<td>enableApp</td>
+<td><code>oc.apps.enableApp(appName)</code></td>
+</tr>
+<tr>
+<td>disableApp</td>
+<td><code>oc.apps.disableApp(appName)</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Group Management</h3><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');</code></pre><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>createGroup</td>
+<td><code>oc.groups.createGroup(groupName)</code></td>
+</tr>
+<tr>
+<td>deleteGroup</td>
+<td><code>oc.groups.deleteGroup(groupName)</code></td>
+</tr>
+<tr>
+<td>getGroups</td>
+<td><code>oc.groups.getGroups()</code></td>
+</tr>
+<tr>
+<td>getGroupMembers</td>
+<td><code>oc.groups.getGroupMembers(groupName)</code></td>
+</tr>
+<tr>
+<td>groupExists</td>
+<td><code>oc.groups.groupExists(groupName)</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Share Management</h3><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');</code></pre><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>shareFileWithLink</td>
+<td><code>oc.shares.shareFileWithLink(path, {perms: perms, publicUpload: publicUpload, password: password})</code></td>
+</tr>
+<tr>
+<td>updateShare</td>
+<td><code>oc.shares.updateShare(shareId, {perms: perms, publicUpload: publicUpload, password: password})</code></td>
+</tr>
+<tr>
+<td>shareFileWithUser</td>
+<td><code>oc.shares.shareFileWithUser(path, username, {perms: perms, remoteUser: remoteUser })</code></td>
+</tr>
+<tr>
+<td>shareFileWithGroup</td>
+<td><code>oc.shares.shareFileWithGroup(path, groupname, {perms: perms })</code></td>
+</tr>
+<tr>
+<td>getShares</td>
+<td><code>oc.shares.getShares()</code></td>
+</tr>
+<tr>
+<td>isShared</td>
+<td><code>oc.shares.isShared(path/to/file/folder)</code></td>
+</tr>
+<tr>
+<td>getShare</td>
+<td><code>oc.shares.getShare(shareId)</code></td>
+</tr>
+<tr>
+<td>listOpenRemoteShare</td>
+<td><code>oc.shares.listOpenRemoteShare()</code></td>
+</tr>
+<tr>
+<td>acceptRemoteShare</td>
+<td><code>oc.shares.acceptRemoteShare(shareId)</code></td>
+</tr>
+<tr>
+<td>declineRemoteShare</td>
+<td><code>oc.shares.declineRemoteShare(shareId)</code></td>
+</tr>
+<tr>
+<td>deleteShare</td>
+<td><code>oc.shares.deleteShare(shareId)</code></td>
+</tr>
+</tbody>
+</table>
+<h3>User Management</h3><pre class="prettyprint source lang-js"><code>var owncloud = require('js-owncloud-client');
+var oc = new owncloud('*owncloud instance URL*');</code></pre><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>createUser</td>
+<td><code>oc.users.createUser(username, password)</code></td>
+</tr>
+<tr>
+<td>deleteUser</td>
+<td><code>oc.users.deleteUser(username)</code></td>
+</tr>
+<tr>
+<td>searchUsers</td>
+<td><code>oc.users.searchUsers(searchKey)</code></td>
+</tr>
+<tr>
+<td>userExists</td>
+<td><code>oc.users.userExists(username)</code></td>
+</tr>
+<tr>
+<td>getUsers</td>
+<td><code>oc.users.getUsers()</code></td>
+</tr>
+<tr>
+<td>setUserAttribute</td>
+<td><code>oc.users.setUserAttribute(username, key, value)</code></td>
+</tr>
+<tr>
+<td>addUserToGroup</td>
+<td><code>oc.users.addUserToGroup(username, groupName)</code></td>
+</tr>
+<tr>
+<td>getUserGroups</td>
+<td><code>oc.users.getUserGroups(username)</code></td>
+</tr>
+<tr>
+<td>userIsInGroup</td>
+<td><code>oc.users.userIsInGroup(username, groupName)</code></td>
+</tr>
+<tr>
+<td>getUser</td>
+<td><code>oc.users.getUser(username)</code></td>
+</tr>
+<tr>
+<td>removeUserFromGroup</td>
+<td><code>oc.users.removeUserFromGroup(username, groupName)</code></td>
+</tr>
+<tr>
+<td>addUserToSubadminGroup</td>
+<td><code>oc.users.addUserToSubadminGroup(username, groupName)</code></td>
+</tr>
+<tr>
+<td>getUserSubadminGroups</td>
+<td><code>oc.users.getUserSubadminGroups(username)</code></td>
+</tr>
+<tr>
+<td>userIsInSubadminGroup</td>
+<td><code>oc.users.userIsInSubadminGroup(username, groupName)</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Building the Documentation</h2><h3>JSDocs</h3><p>To build the jsdocs, type this command and follow the instructions on the terminal :</p>
+<pre class="prettyprint source"><code>$ cd node_modules/js-owncloud-client/
+$ yarn run docs</code></pre><h2>Unit tests</h2><p>The following command will run all unit tests. Before running the command, make sure you have edited the <code>owncloud/test/config.json</code> file accordingly.</p>
+<pre class="prettyprint source"><code>$ cd node_modules/js-owncloud-client/
+$ yarn test</code></pre><h2>Team</h2><table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top">
+        <img width="150" height="150" src="http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144">
+        <br>
+        <a href="https://github.com/noveens">Noveen Sachdeva</a>
+      </td>
+      <td align="center" valign="top">
+        <img width="150" height="150" src="https://avatars1.githubusercontent.com/u/277525?v=3&s=144">
+        <br>
+        <a href="https://github.com/PVince82">Vincent Petry</a>
+      </td>
+      <td align="center" width="20%" valign="top">
+        <img width="150" height="150" src="https://avatars0.githubusercontent.com/u/1005065?s=144&v=4">
+        <br>
+        <a href="https://github.com/DeepDiver1975">Thomas Müller</a>
+      </td>
+     </tr>
+  </tbody>
+</table>
+
+
+<h1><img src="http://cltk.org/assets/GSoC2016Logo.jpg" alt="GSoC'17"></h1></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="apps.html">apps</a></li><li><a href="fileInfo.html">fileInfo</a></li><li><a href="files.html">files</a></li><li><a href="groups.html">groups</a></li><li><a href="ownCloud.html">ownCloud</a></li><li><a href="shareInfo.html">shareInfo</a></li><li><a href="shares.html">shares</a></li><li><a href="users.html">users</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Nov 21 2018 09:43:24 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

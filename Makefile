@@ -23,22 +23,8 @@ test: deps
 	echo ""
 	npm test
 
-jsdocs:
-	#Install jsdoc if it doesn't exist
-	if [ ! -f node_modules/.bin/jsdoc ] ; then make ; fi;
-
-	#Delete existing documentation (if any)
-	rm -rf jsdoc/
-
-	#Create documentation
-	node_modules/.bin/jsdoc owncloud/*.js -d jsdoc/
-
-	#Output the final documentation link
-	echo "To read the documentation, click here : file://"${DIR}"/jsdoc/ownCloud.html"
-
 clean:
 	#Delete existing documentation
-	rm -rf jsdoc/
 	rm -rf node_modules/
 	rm -rf tests/config/config.json
 

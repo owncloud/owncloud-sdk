@@ -1,9 +1,7 @@
 node_modules/
-owncloud/test/config.json
-owncloud/test/testDownloadDir
+tests/config/config.json
 docs-swagger/node_modules
 swagger.config.js
 jsdoc/
 .idea
-browser/owncloud.js
 coverage

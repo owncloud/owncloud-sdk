@@ -1,6 +1,6 @@
 describe('Main: Currently testing group management,', function () {
-  var OwnCloud = require('../owncloud/owncloud')
-  var config = require('../owncloud/test/config.json')
+  var OwnCloud = require('../src/owncloud')
+  var config = require('./config/config.json')
 
   // CURRENT TIME
   var timeRightNow = new Date().getTime()

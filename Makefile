@@ -9,23 +9,19 @@ endif
 .PHONY: all
 
 all: deps
-	if [ ! -f owncloud/test/config.json ] ; then cp owncloud/test/config.sample.json owncloud/test/config.json ; fi;
-	bash readOCInfo.sh
+	if [ ! -f tests/config/config.json ] ; then cp tests/config/config.sample.json tests/config/config.json ; fi;
 
 deps:
 	npm i
 
 test: deps
-	if [ owncloud/test/testDownloadDir ] ; then rm -rf owncloud/test/testDownloadDir ; fi;
-	mkdir owncloud/test/testDownloadDir
-	if [ ! -f owncloud/test/config.json ] ; then \
-		cp owncloud/test/config.sample.json owncloud/test/config.json ; \
+	if [ ! -f tests/config/config.json ] ; then \
+		cp tests/config/config.sample.json tests/config/config.json ; \
 	fi;
 	echo "CONFIGS : "
-	cat owncloud/test/config.json
+	cat tests/config/config.json
 	echo ""
 	npm test
-	rm -rf owncloud/test/testDownloadDir
 
 jsdocs:
 	#Install jsdoc if it doesn't exist
@@ -44,7 +40,7 @@ clean:
 	#Delete existing documentation
 	rm -rf jsdoc/
 	rm -rf node_modules/
-	rm -rf owncloud/test/config.json
+	rm -rf tests/config/config.json
 
 	#Output success message
 	echo "Repo cleaned, run \"make\" to setup again."

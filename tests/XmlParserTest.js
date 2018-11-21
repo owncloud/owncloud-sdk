@@ -1,5 +1,5 @@
 describe('Main: Currently testing XmlParser,', function () {
-  var parser = require('../owncloud/xmlParser.js').xml2js
+  var parser = require('../src/xmlParser.js').xml2js
 
   var sampleXml1 =
         '<cont:contact xmlns:cont = "www.tutorialspoint.com/profile">' +

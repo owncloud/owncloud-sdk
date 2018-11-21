@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/owncloud/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client)
 [![codecov](https://codecov.io/gh/owncloud/js-owncloud-client/branch/master/graph/badge.svg)](https://codecov.io/gh/owncloud/js-owncloud-client)
-
+[![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/js-owncloud-client/)
 
 <p align="center">
   <img src="https://i.imgur.com/9mKra3O.png" />
@@ -50,9 +50,11 @@ oc.files.list('/path/to/file/folder').then(files => {
 
 ### ownCloud Phoenix
 
-
+[ownCloud Phoenix](https://github.com/owncloud/phoenix) will be the next generation Web frontend for ownCloud. It uses js-owncloud-client.
 
 ## All Methods Available
+
+Full API documentation is available at [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/js-owncloud-client/)
 
 ### General
 ```js

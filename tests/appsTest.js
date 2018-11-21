@@ -22,7 +22,7 @@ describe('Main: Currently testing apps management,', function () {
     oc = null
   })
 
-  xit('checking method : getApps', function (done) {
+  it('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).not.toBe(null)
       expect(typeof (apps)).toBe('object')

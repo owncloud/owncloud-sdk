@@ -26,7 +26,8 @@
   "scripts": {
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
-    "test": "karma start --single-run --browsers ChromeHeadless"
+    "test": "karma start --single-run --browsers ChromeHeadless",
+    "docs": "jsdoc -c jsdoc.conf.json"
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
   "devDependencies": {

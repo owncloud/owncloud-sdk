@@ -98,7 +98,7 @@ files.prototype.getFileContents = function (path) {
       var response = data.response
       var body = data.body
 
-      if (response.statusCode === 200) {
+      if (response.status === 200) {
         resolve(body)
       } else {
         var err = helpers._parseDAVerror(body)
@@ -108,6 +108,10 @@ files.prototype.getFileContents = function (path) {
       reject(error)
     })
   })
+}
+
+files.prototype.getFileUrl = function (path) {
+  return helpers._buildFullWebDAVPath(path)
 }
 
 /**

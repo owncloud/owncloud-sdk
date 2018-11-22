@@ -172,6 +172,7 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
   // Configure the request
   var options = {
     method: method,
+    mode: 'cors',
     headers: headers
   }
 
@@ -236,6 +237,9 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
           })
         })
       })
+      .catch(error => {
+        reject(error)
+      })
   })
 }
 
@@ -276,10 +280,10 @@ helpers.prototype._get = function (url) {
 
     fetch(url, options)
       .then(response => {
-        response.blob().then(blob => {
+        response.text().then(text => {
           resolve({
             response: response,
-            body: blob
+            body: text
           })
         })
       })

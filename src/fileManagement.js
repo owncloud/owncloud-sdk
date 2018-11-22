@@ -111,6 +111,15 @@ files.prototype.getFileContents = function (path) {
 }
 
 /**
+ * Returns the url of a remote file
+ * @param   {string}  path    path of the remote file at OC instance
+ * @returns {string}          Url of the remore file
+ */
+files.prototype.getFileUrl = function (path) {
+  return helpers._buildFullWebDAVPath(path)
+}
+
+/**
  * Write data into a remote file
  * @param   {string} path       path of the file at OC instance
  * @param   {string} content    content to be put

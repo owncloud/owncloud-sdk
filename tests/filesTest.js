@@ -172,6 +172,11 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
+  it('checking method: getFileUrl', function () {
+    const url = oc.files.getFileUrl('/foo/bar')
+    expect(url).toBe(config.owncloudURL + 'remote.php/webdav/foo/bar')
+  })
+
   it('checking method : putFileContents for a non existing parent path', function (done) {
     oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
       expect(status).toBe(null)

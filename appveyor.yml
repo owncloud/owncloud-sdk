@@ -13,6 +13,7 @@ install:
   - yarn --version
   - yarn remove git-hooks
   - yarn install --frozen-lockfile
+  - docker images
   - docker-switch-linux
   - docker pull owncloud:10.0
   - docker run -d --name=owncloud -p 8888:80 owncloud:10.0

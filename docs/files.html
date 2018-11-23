@@ -42,7 +42,6 @@ Supported Methods are:
          <li>createFolder</li>
          <li>delete</li>
          <li>fileInfo</li>
-         <li>getFile</li>
          <li>getDirectoryAsZip</li>
          <li>putFile</li>
          <li>putDirectory</li>
@@ -527,7 +526,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line187">line 187</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -704,7 +703,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line197">line 197</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line196">line 196</a>
     </li></ul></dd>
     
 
@@ -780,7 +779,207 @@ Supported Methods are:
     
 
     
-    <h4 class="name" id="fileInfo"><span class="type-signature"></span>fileInfo<span class="signature">(path)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="fileInfo.html">fileInfo</a>>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="favorite"><span class="type-signature"></span>favorite<span class="signature">(path, value)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Mark a remote file or directory as favorite
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of file/folder</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Add or remove the favorite marker of a file/folder</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line328">line 328</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    boolean: whether the operation was successful
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;status></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    string: error message, if any.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;error></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="fileInfo"><span class="type-signature"></span>fileInfo<span class="signature">(path, properties)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="fileInfo.html">fileInfo</a>>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -841,6 +1040,29 @@ Supported Methods are:
             
 
             <td class="description last">path of the file/folder at OC instance</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>properties</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object.&lt;string, string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">WebDAV properties</td>
         </tr>
 
     
@@ -1058,7 +1280,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line94">line 94</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -1235,7 +1457,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line118">line 118</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line117">line 117</a>
     </li></ul></dd>
     
 
@@ -1438,7 +1660,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line59">line 59</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -1792,7 +2014,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line156">line 156</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line155">line 155</a>
     </li></ul></dd>
     
 
@@ -2192,7 +2414,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line129">line 129</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -2959,7 +3181,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line187">line 187</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -3136,7 +3358,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line197">line 197</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line196">line 196</a>
     </li></ul></dd>
     
 
@@ -3212,7 +3434,207 @@ Supported Methods are:
     
 
     
-    <h4 class="name" id="fileInfo"><span class="type-signature"></span>fileInfo<span class="signature">(path)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="fileInfo.html">fileInfo</a>>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="favorite"><span class="type-signature"></span>favorite<span class="signature">(path, value)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Mark a remote file or directory as favorite
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of file/folder</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Add or remove the favorite marker of a file/folder</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line328">line 328</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    boolean: whether the operation was successful
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;status></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    string: error message, if any.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;error></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="fileInfo"><span class="type-signature"></span>fileInfo<span class="signature">(path, properties)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="fileInfo.html">fileInfo</a>>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -3273,6 +3695,29 @@ Supported Methods are:
             
 
             <td class="description last">path of the file/folder at OC instance</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>properties</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object.&lt;string, string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">WebDAV properties</td>
         </tr>
 
     
@@ -3490,7 +3935,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line94">line 94</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -3667,7 +4112,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line118">line 118</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line117">line 117</a>
     </li></ul></dd>
     
 
@@ -3870,7 +4315,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line59">line 59</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -4224,7 +4669,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line156">line 156</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line155">line 155</a>
     </li></ul></dd>
     
 
@@ -4624,7 +5069,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line129">line 129</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -4894,7 +5339,7 @@ This function first makes all the directories required
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Nov 22 2018 12:24:43 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Nov 23 2018 16:06:51 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

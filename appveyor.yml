@@ -11,6 +11,7 @@ install:
   - node --version
   - npm --version
   - yarn --version
+  - yarn remove git-hooks
   - yarn install --frozen-lockfile
   - docker-switch-linux
   - docker pull owncloud:10.0

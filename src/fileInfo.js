@@ -94,7 +94,8 @@ fileInfo.prototype.getLastModified = function () {
 
 /**
  * Gets arbitrary property
- * @returns {string}   Value of the property
+ * @param   {string} property name of the property
+ * @returns {string}          Value of the property
  */
 fileInfo.prototype.getProperty = function (property) {
   return this.fileInfo[property]

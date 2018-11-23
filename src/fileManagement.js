@@ -22,7 +22,6 @@ var davClient
  *          <li>createFolder</li>
  *          <li>delete</li>
  *          <li>fileInfo</li>
- *          <li>getFile</li>
  *          <li>getDirectoryAsZip</li>
  *          <li>putFile</li>
  *          <li>putDirectory</li>
@@ -217,9 +216,10 @@ files.prototype.delete = function (path) {
 
 /**
  * Returns the file info for the given remote file
- * @param   {string}  path          path of the file/folder at OC instance
- * @returns {Promise.<fileInfo>}    object: instance of class fileInfo
- * @returns {Promise.<error>}       string: error message, if any.
+ * @param   {string}                    path          path of the file/folder at OC instance
+ * @param   {Object.<string, string>}   properties    WebDAV properties
+ * @returns {Promise.<fileInfo>}                      object: instance of class fileInfo
+ * @returns {Promise.<error>}                         string: error message, if any.
  */
 files.prototype.fileInfo = function (path, properties) {
   return new Promise((resolve, reject) => {
@@ -306,6 +306,37 @@ files.prototype.copy = function (source, target) {
     davClient.request('COPY', helpers._buildFullWebDAVPath(source), {
       'Authorization': helpers.getAuthorization(),
       'Destination': helpers._buildFullWebDAVPath(target)
+    }).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        resolve(true)
+      } else {
+        reject(helpers._parseDAVerror(result.body))
+      }
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
+
+/**
+ * Mark a remote file or directory as favorite
+ * @param   {string} path       path of file/folder
+ * @param   {boolean} value     Add or remove the favorite marker of a file/folder
+ * @returns {Promise.<status>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}   string: error message, if any.
+ */
+files.prototype.favorite = function (path, value) {
+  if (typeof value === 'undefined') {
+    value = true
+  }
+  return new Promise((resolve, reject) => {
+    if (!helpers.getAuthorization()) {
+      reject('Please specify an authorization first.')
+    }
+    davClient.propPatch(helpers._buildFullWebDAVPath(path), {
+      '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
+    }, {
+      'Authorization': helpers.getAuthorization()
     }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)

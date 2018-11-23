@@ -177,6 +177,33 @@ describe('Main: Currently testing files management,', function () {
     expect(url).toBe(config.owncloudURL + 'remote.php/webdav/foo/bar')
   })
 
+  it('checking method: favorite', function (done) {
+    var newFile = testFolder + '/' + 'file.txt'
+
+    oc.files.putFileContents(newFile, testContent).then(status => {
+      expect(status).toBe(true)
+      return oc.files.favorite(newFile)
+    }).then(status2 => {
+      expect(status2).toEqual(true)
+      return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}favorite'])
+    }).then(fileInfo => {
+      expect(fileInfo.getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
+      return oc.files.favorite(newFile, false)
+    }).then(status2 => {
+      expect(status2).toEqual(true)
+      return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}favorite'])
+    }).then(fileInfo => {
+      expect(fileInfo.getProperty('{http://owncloud.org/ns}favorite')).toEqual('0')
+      return oc.files.delete(newFile)
+    }).then(status2 => {
+      expect(status2).toEqual(true)
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
   it('checking method : putFileContents for a non existing parent path', function (done) {
     oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
       expect(status).toBe(null)

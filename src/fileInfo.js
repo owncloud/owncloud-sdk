@@ -86,10 +86,19 @@ fileInfo.prototype.getContentType = function () {
 
 /**
  * Gets last modified time of file/folder
- * @returns {integer}   Last modified time of file/folder
+ * @returns {Date}   Last modified time of file/folder
  */
 fileInfo.prototype.getLastModified = function () {
   return new Date(this.fileInfo['{DAV:}getlastmodified'])
+}
+
+/**
+ * Gets arbitrary property
+ * @param   {string} property name of the property
+ * @returns {string}          Value of the property
+ */
+fileInfo.prototype.getProperty = function (property) {
+  return this.fileInfo[property]
 }
 
 /**

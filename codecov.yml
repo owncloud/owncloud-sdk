@@ -1,0 +1,4 @@
+codecov:
+  ci:
+    - drone.owncloud.com
+    - !appveyor

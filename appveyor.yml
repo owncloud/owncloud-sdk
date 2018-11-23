@@ -1,0 +1,28 @@
+version: "{build}"
+
+environment:
+  nodejs_version: "6"
+
+matrix:
+  fast_finish: true
+
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - node --version
+  - npm --version
+  - yarn --version
+  - yarn install --frozen-lockfile
+  - docker-switch-linux
+  - docker pull owncloud:10.0
+  - docker run -d --name=owncloud -p 8888:80 owncloud:10.0
+  - sleep 5
+  - docker inspect owncloud
+  - docker exec -u www-data owncloud ./occ maintenance:install --admin-user="admin" --admin-pass="admin" --database="sqlite"
+  - docker exec -u www-data owncloud ./occ config:system:set cors.allowed-domains 0 --value http://127.0.0.1:9876
+  - docker exec -u www-data owncloud ./occ config:system:set cors.allowed-domains 1 --value http://localhost:9876
+
+
+test_script:
+  - yarn run test-ie
+
+build: off

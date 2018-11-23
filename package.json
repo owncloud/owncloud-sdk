@@ -27,6 +27,7 @@
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
     "test": "karma start --single-run --browsers ChromeHeadless",
+    "test-ie": "karma start --single-run --browsers IE",
     "docs": "jsdoc -c jsdoc.conf.json"
   },
   "homepage": "https://github.com/noveens/js-owncloud-client#readme",
@@ -50,6 +51,7 @@
     "karma-babel-preprocessor": "^7.0.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage-istanbul-reporter": "^2.0.4",
+    "karma-ie-launcher": "^1.0.0",
     "karma-jasmine": "^1.1.2",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.5",

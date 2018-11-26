@@ -72,4 +72,25 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       done()
     })
   })
+
+  it('checking method: ctor with options', (done) => {
+    oc = new OwnCloud(config.owncloudURL, {
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
+
+    oc.getVersion().then(version => {
+      expect(version).not.toBe(null)
+      expect(typeof (version)).toEqual('string')
+      expect(version.split('.').length).toBeGreaterThan(2)
+      done()
+    }).catch(error => {
+      expect(error).tobe(null)
+      done()
+    })
+  })
 })

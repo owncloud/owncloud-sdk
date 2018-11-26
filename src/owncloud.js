@@ -3,13 +3,13 @@
 /// //////////////////////////
 
 var Promise = require('promise')
-var helperFile = require('./helperFunctions.js')
-var apps = require('./appManagement.js')
-var shares = require('./shareManagement.js')
-var users = require('./userManagement.js')
-var groups = require('./groupManagement.js')
-var files = require('./fileManagement.js')
-var fileVersion = require('./fileVersionManagement.js')
+var HelperFile = require('./helperFunctions.js')
+var Apps = require('./appManagement.js')
+var Shares = require('./shareManagement.js')
+var Users = require('./userManagement.js')
+var Groups = require('./groupManagement.js')
+var Files = require('./fileManagement.js')
+var FileVersion = require('./fileVersionManagement.js')
 
 /**
  * @class ownCloud
@@ -30,7 +30,7 @@ var fileVersion = require('./fileVersionManagement.js')
  *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {string}  URL  URL of the ownCloud instance
+ * @param {string}  instance  URL of the ownCloud instance
  */
 function ownCloud (instance) {
   var slash = ''
@@ -50,16 +50,16 @@ function ownCloud (instance) {
     set = ''
   }
 
-  var helpers = new helperFile()
+  var helpers = new HelperFile()
   helpers.setInstance(set)
 
   this.helpers = helpers
-  this.apps = new apps(this.helpers)
-  this.shares = new shares(this.helpers)
-  this.users = new users(this.helpers)
-  this.groups = new groups(this.helpers)
-  this.files = new files(this.helpers)
-  this.fileVersions = new fileVersion(this.helpers)
+  this.apps = new Apps(this.helpers)
+  this.shares = new Shares(this.helpers)
+  this.users = new Users(this.helpers)
+  this.groups = new Groups(this.helpers)
+  this.files = new Files(this.helpers)
+  this.fileVersions = new FileVersion(this.helpers)
 }
 
 /**

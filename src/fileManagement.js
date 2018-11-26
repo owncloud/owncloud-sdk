@@ -1,16 +1,12 @@
-/// ///////////////////////////////////
-/// ////    FILES MANAGEMENT    ///////
-/// ///////////////////////////////////
-
 var Promise = require('promise')
 var dav = require('davclient.js')
 var helpers
 var davClient
 
 /**
- * @class files
+ * @class Files
  * @classdesc
- * <b><i> The files class, has all the methods for your owncloud files management.</i></b><br><br>
+ * <b><i> The Files class, has all the methods for your ownCloud files management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *  <li><b>Files Management</b>
@@ -35,7 +31,7 @@ var davClient
  * @version 1.0.0
  * @param   {helpers}    helperFile  instance of the helpers class
  */
-function files (helperFile) {
+function Files (helperFile) {
   helpers = helperFile
   davClient = new dav.Client({
     baseUrl: helpers._webdavUrl,
@@ -55,7 +51,7 @@ function files (helperFile) {
  * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
  * @returns {Promise.<error>}         string: error message, if any.
  */
-files.prototype.list = function (path, depth, properties) {
+Files.prototype.list = function (path, depth, properties) {
   if (path[path.length - 1] !== '/') {
     path += '/'
   }
@@ -90,7 +86,7 @@ files.prototype.list = function (path, depth, properties) {
  * @returns {Promise.<contents>}    string: contents of file
  * @returns {Promise.<error>}       string: error message, if any.
  */
-files.prototype.getFileContents = function (path) {
+Files.prototype.getFileContents = function (path) {
   return new Promise((resolve, reject) => {
     // TODO: use davclient ?
     helpers._get(helpers._buildFullWebDAVPath(path)).then(data => {
@@ -114,7 +110,7 @@ files.prototype.getFileContents = function (path) {
  * @param   {string}  path    path of the remote file at OC instance
  * @returns {string}          Url of the remore file
  */
-files.prototype.getFileUrl = function (path) {
+Files.prototype.getFileUrl = function (path) {
   return helpers._buildFullWebDAVPath(path)
 }
 
@@ -125,7 +121,7 @@ files.prototype.getFileUrl = function (path) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-files.prototype.putFileContents = function (path, content) {
+Files.prototype.putFileContents = function (path, content) {
   return new Promise((resolve, reject) => {
     if (!helpers.getAuthorization()) {
       reject('Please specify an authorization first.')
@@ -152,7 +148,7 @@ files.prototype.putFileContents = function (path, content) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-files.prototype.mkdir = function (path) {
+Files.prototype.mkdir = function (path) {
   if (path[path.length - 1] !== '/') {
     path += '/'
   }
@@ -183,7 +179,7 @@ files.prototype.mkdir = function (path) {
  * @returns {Promise.<status>}    boolean: wether the operation was successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-files.prototype.createFolder = function (path) {
+Files.prototype.createFolder = function (path) {
   return this.mkdir(path)
 }
 
@@ -193,7 +189,7 @@ files.prototype.createFolder = function (path) {
  * @returns {Promise.<status>}    boolean: wether the operation was successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-files.prototype.delete = function (path) {
+Files.prototype.delete = function (path) {
   return new Promise((resolve, reject) => {
     if (!helpers.getAuthorization()) {
       reject('Please specify an authorization first.')
@@ -221,7 +217,7 @@ files.prototype.delete = function (path) {
  * @returns {Promise.<fileInfo>}                      object: instance of class fileInfo
  * @returns {Promise.<error>}                         string: error message, if any.
  */
-files.prototype.fileInfo = function (path, properties) {
+Files.prototype.fileInfo = function (path, properties) {
   return new Promise((resolve, reject) => {
     this.list(path, '0', properties).then(fileInfo => {
       resolve(fileInfo[0])
@@ -238,8 +234,7 @@ files.prototype.fileInfo = function (path, properties) {
  * @return {Promise.<status>}    boolean: wether mkdir was successful
  * @returns {Promise.<error>}    string: error message, if any.
  */
-files.prototype.recursiveMkdir = function (array) {
-  /* jshint unused : false */
+Files.prototype.recursiveMkdir = function (array) {
   var self = this
   return new Promise(function (resolve, reject) {
     self.mkdir(array[0].path).then(status => {
@@ -257,7 +252,6 @@ files.prototype.recursiveMkdir = function (array) {
       reject(error)
     })
   })
-  /* jshint unused : true */
 }
 
 /**
@@ -267,7 +261,7 @@ files.prototype.recursiveMkdir = function (array) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-files.prototype.move = function (source, target) {
+Files.prototype.move = function (source, target) {
   return new Promise((resolve, reject) => {
     if (!helpers.getAuthorization()) {
       reject('Please specify an authorization first.')
@@ -296,7 +290,7 @@ files.prototype.move = function (source, target) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-files.prototype.copy = function (source, target) {
+Files.prototype.copy = function (source, target) {
   return new Promise((resolve, reject) => {
     if (!helpers.getAuthorization()) {
       reject('Please specify an authorization first.')
@@ -325,7 +319,7 @@ files.prototype.copy = function (source, target) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-files.prototype.favorite = function (path, value) {
+Files.prototype.favorite = function (path, value) {
   if (typeof value === 'undefined') {
     value = true
   }
@@ -349,4 +343,4 @@ files.prototype.favorite = function (path, value) {
   })
 }
 
-module.exports = files
+module.exports = Files

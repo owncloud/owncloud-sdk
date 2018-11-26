@@ -7,16 +7,8 @@ var request = require('browser-request')
 var parser = require('./xmlParser.js')
 var parser2 = require('xml-js')
 var utf8 = require('utf8')
-var fileInfo = require('./fileInfo.js')
+var FileInfo = require('./fileInfo.js')
 
-/**
- * @class helpers
- * @classdesc
- * <b><i>This is a class for helper functions, dont mess with this until sure!</i></b><br><br>
- *
- * @author Noveen Sachdeva
- * @version 1.0.0
- */
 function helpers () {
   this.OCS_BASEPATH = 'ocs/v1.php/'
   this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1'
@@ -375,7 +367,7 @@ helpers.prototype._checkOCSstatus = function (json, acceptedCodes) {
 /**
  * Returns the status code of the xml response
  * @param   {object}    json    parsed response
- * @return  {integer}           status-code
+ * @return  {number}           status-code
  */
 helpers.prototype._checkOCSstatusCode = function (json) {
   if (json.ocs) {
@@ -561,7 +553,7 @@ helpers.prototype._parseFileInfo = function (response) {
     }
   }
 
-  return new fileInfo(name, fileType, props)
+  return new FileInfo(name, fileType, props)
 }
 
 module.exports = helpers

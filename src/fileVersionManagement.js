@@ -4,9 +4,9 @@ var helpers
 var davClient
 
 /**
- * @class files
+ * @class FilesVersions
  * @classdesc
- * <b><i> The files class, has all the methods for your owncloud files management.</i></b><br><br>
+ * <b><i> The FilesVersions class, has all the methods for your ownCloud files version management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *  <li><b>Files Management</b>
@@ -32,7 +32,7 @@ var davClient
  * @version 1.0.0
  * @param   {object}    helperFile  instance of the helpers class
  */
-function files (helperFile) {
+function FilesVersions (helperFile) {
   helpers = helperFile
   davClient = new dav.Client({
     baseUrl: helpers._webdavUrl,
@@ -49,7 +49,7 @@ function files (helperFile) {
  * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
  * @returns {Promise.<error>}         string: error message, if any.
  */
-files.prototype.listVersions = function (fileId) {
+FilesVersions.prototype.listVersions = function (fileId) {
   const path = '/meta/' + fileId + '/v'
 
   return new Promise((resolve, reject) => {
@@ -67,4 +67,4 @@ files.prototype.listVersions = function (fileId) {
   })
 }
 
-module.exports = files
+module.exports = FilesVersions

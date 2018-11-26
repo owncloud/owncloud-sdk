@@ -21,8 +21,7 @@
     {
       "files": ["src/*.js"],
       "rules": {
-        "prefer-promise-reject-errors": "off",
-        "new-cap": "off"
+        "prefer-promise-reject-errors": "off"
       }
     }
   ]

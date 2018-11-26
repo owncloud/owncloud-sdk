@@ -1,13 +1,11 @@
-/* jshint camelcase: false */
-
 /**
- * @class fileInfo
- * @classdesc fileInfo class, stores information regarding a file/folder
+ * @class FileInfo
+ * @classdesc FileInfo class, stores information regarding a file/folder
  * @param   {string}    name     name of file/folder
  * @param   {string}    type     "file" => file ; "dir" => folder
  * @param   {string}    attr     attributes of file like size, time added etc.
  */
-function fileInfo (name, type, attr) {
+function FileInfo (name, type, attr) {
   this.name = name
   this.type = type
   this.fileInfo = {}
@@ -21,7 +19,7 @@ function fileInfo (name, type, attr) {
  * Gets the name of file/folder
  * @returns {string}    name of file/folder
  */
-fileInfo.prototype.getName = function () {
+FileInfo.prototype.getName = function () {
   var name = this.name.split('/')
   name = name.filter(function (n) {
     return n !== ''
@@ -35,7 +33,7 @@ fileInfo.prototype.getName = function () {
  * Gets path of file/folder
  * @returns {string}    Path of file/folder
  */
-fileInfo.prototype.getPath = function () {
+FileInfo.prototype.getPath = function () {
   var name = this.name.split('/')
   name = name.filter(function (n) {
     return n !== ''
@@ -50,9 +48,9 @@ fileInfo.prototype.getPath = function () {
 
 /**
  * Gets size of the file/folder
- * @returns {integer}   Size of file/folder
+ * @returns {number}   Size of file/folder
  */
-fileInfo.prototype.getSize = function () {
+FileInfo.prototype.getSize = function () {
   return parseInt(this.fileInfo['{DAV:}getcontentlength']) || null
 }
 
@@ -60,7 +58,7 @@ fileInfo.prototype.getSize = function () {
  * Gets the file id
  * @returns {string}    file id
  */
-fileInfo.prototype.getFileId = function () {
+FileInfo.prototype.getFileId = function () {
   return this.fileInfo['{http://owncloud.org/ns}fileid'] || null
 }
 
@@ -68,7 +66,7 @@ fileInfo.prototype.getFileId = function () {
  * Gets ETag of file/folder
  * @returns {string}    ETag of file/folder
  */
-fileInfo.prototype.getETag = function () {
+FileInfo.prototype.getETag = function () {
   return this.fileInfo['{DAV:}getetag'] || null
 }
 
@@ -76,7 +74,7 @@ fileInfo.prototype.getETag = function () {
  * Gets content-type of file/folder
  * @returns {string}    content-type of file/folder
  */
-fileInfo.prototype.getContentType = function () {
+FileInfo.prototype.getContentType = function () {
   var type = this.fileInfo['{DAV:}getcontenttype']
   if (this.isDir()) {
     type = 'httpd/unix-directory'
@@ -88,7 +86,7 @@ fileInfo.prototype.getContentType = function () {
  * Gets last modified time of file/folder
  * @returns {Date}   Last modified time of file/folder
  */
-fileInfo.prototype.getLastModified = function () {
+FileInfo.prototype.getLastModified = function () {
   return new Date(this.fileInfo['{DAV:}getlastmodified'])
 }
 
@@ -97,7 +95,7 @@ fileInfo.prototype.getLastModified = function () {
  * @param   {string} property name of the property
  * @returns {string}          Value of the property
  */
-fileInfo.prototype.getProperty = function (property) {
+FileInfo.prototype.getProperty = function (property) {
   return this.fileInfo[property]
 }
 
@@ -105,8 +103,8 @@ fileInfo.prototype.getProperty = function (property) {
  * Checks wether the information is for a folder
  * @returns {boolean}   true if folder
  */
-fileInfo.prototype.isDir = function () {
+FileInfo.prototype.isDir = function () {
   return this.type === 'dir'
 }
 
-module.exports = fileInfo
+module.exports = FileInfo

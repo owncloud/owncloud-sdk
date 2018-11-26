@@ -6,7 +6,7 @@ var Promise = require('promise')
 var helpers
 
 /**
- * @class apps
+ * @class Apps
  * @classdesc
  * <b><i> The apps class, has all the OC-Apps related methods.</i></b><br><br>
  * Supported Methods are:
@@ -27,7 +27,7 @@ var helpers
  * @version 1.0.0
  * @param {object}    helperFile    instance of the helpers class
  */
-function apps (helperFile) {
+function Apps (helperFile) {
   helpers = helperFile
 }
 
@@ -36,7 +36,7 @@ function apps (helperFile) {
  * @returns    {Promise.<apps>}     object: {for each app: Boolean("enabled or not")}
  * @returns    {Promise.<error>}    string: error message, if any.
  */
-apps.prototype.getApps = function () {
+Apps.prototype.getApps = function () {
   var send = {}
 
   var allAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'apps')
@@ -78,7 +78,7 @@ apps.prototype.getApps = function () {
  * @returns  {Promise.<attr>}    string: value of application's key
  * @returns  {Promise.<error>}   string: error message, if any.
  */
-apps.prototype.getAttribute = function (app, key) {
+Apps.prototype.getAttribute = function (app, key) {
   var send = 'getattribute'
   if (app) {
     send += '/' + encodeURIComponent(app)
@@ -130,7 +130,7 @@ apps.prototype.getAttribute = function (app, key) {
  * @returns     {Promise.<status>}  boolean: true if successful
  * @returns     {Promise.<error>}   string: error message, if any.
  */
-apps.prototype.setAttribute = function (app, key, value) {
+Apps.prototype.setAttribute = function (app, key, value) {
   var path = 'setattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key))
 
   /* jshint unused: false */
@@ -153,7 +153,7 @@ apps.prototype.setAttribute = function (app, key, value) {
  * @returns     {Promise.<status>}   boolean: true if successful
  * @returns     {Promise.<error>}    string: error message, if any.
  */
-apps.prototype.deleteAttribute = function (app, key) {
+Apps.prototype.deleteAttribute = function (app, key) {
   var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key))
 
   /* jshint unused: false */
@@ -169,11 +169,11 @@ apps.prototype.deleteAttribute = function (app, key) {
 
 /**
  * Enables an app via the Provisioning API
- * @param       {string}    app      name of the app to be enabled
+ * @param       {string}    appname      name of the app to be enabled
  * @returns     {Promise.<status>}   boolean: true if successful
  * @returns     {Promise.<error>}    string: error message, if any.
  */
-apps.prototype.enableApp = function (appname) {
+Apps.prototype.enableApp = function (appname) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
       .then(data => {
@@ -189,11 +189,11 @@ apps.prototype.enableApp = function (appname) {
 
 /**
  * Disables an app via the Provisioning API
- * @param       {string}    app      name of the app to be disabled
+ * @param       {string}    appname      name of the app to be disabled
  * @returns     {Promise.<status>}   boolean: true if successful
  * @returns     {Promise.<error>}    string: error message, if any.
  */
-apps.prototype.disableApp = function (appname) {
+Apps.prototype.disableApp = function (appname) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
       .then(data => {
@@ -204,4 +204,4 @@ apps.prototype.disableApp = function (appname) {
   })
 }
 
-module.exports = apps
+module.exports = Apps

@@ -1,7 +1,3 @@
-/// //////////////////////////
-/// ////    HELPERS    ///////
-/// //////////////////////////
-
 var Promise = require('promise')
 var request = require('browser-request')
 var parser = require('./xmlParser.js')
@@ -91,6 +87,14 @@ helpers.prototype.getCapabilities = function () {
  */
 helpers.prototype.getCurrentUser = function () {
   return this._currentUser
+}
+
+/**
+ * Sets the logged in user
+ * @param {object}  userInfo user info
+ */
+helpers.prototype.setCurrentUser = function (userInfo) {
+  this._currentUser = userInfo
 }
 
 /**

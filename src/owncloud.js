@@ -31,8 +31,9 @@ var FileVersion = require('./fileVersionManagement.js')
  * @author Noveen Sachdeva
  * @version 1.0.0
  * @param {string}  instance  URL of the ownCloud instance
+ * @param {object}  options   additional options
  */
-function ownCloud (instance) {
+function ownCloud (instance, options = {}) {
   var slash = ''
   instance = instance || ''
 
@@ -52,6 +53,18 @@ function ownCloud (instance) {
 
   var helpers = new HelperFile()
   helpers.setInstance(set)
+  if (options.auth) {
+    if (options.auth.bearer) {
+      helpers.setAuthorization('Bearer ' + options.auth.bearer)
+    }
+    if (options.auth.basic) {
+      var basicAuth = 'Basic ' + Buffer.from(options.auth.basic.username + ':' + options.auth.basic.password).toString('base64')
+      helpers.setAuthorization('Bearer ' + basicAuth)
+    }
+  }
+  if (options.userInfo) {
+    helpers.setCurrentUser(options.userInfo)
+  }
 
   this.helpers = helpers
   this.apps = new Apps(this.helpers)

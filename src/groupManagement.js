@@ -1,15 +1,11 @@
-/// ///////////////////////////////////
-/// ////    GROUP MANAGEMENT    ///////
-/// ///////////////////////////////////
-
 var Promise = require('promise')
 var parser = require('./xmlParser.js')
 var helpers
 
 /**
- * @class groups
+ * @class Groups
  * @classdesc
- * <b><i> The groups class, has all the methods for group management.</i></b><br><br>
+ * <b><i> The Groups class, has all the methods for group management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *  <li><b>Group Management</b>
@@ -27,7 +23,7 @@ var helpers
  * @version 1.0.0
  * @param {object}  helperFile  instance of the helpers class
  */
-function groups (helperFile) {
+function Groups (helperFile) {
   helpers = helperFile
 }
 
@@ -37,7 +33,7 @@ function groups (helperFile) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.createGroup = function (groupName) {
+Groups.prototype.createGroup = function (groupName) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'groups', {
       'groupid': groupName
@@ -56,7 +52,7 @@ groups.prototype.createGroup = function (groupName) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.deleteGroup = function (groupName) {
+Groups.prototype.deleteGroup = function (groupName) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'groups/' + groupName)
       .then(data => {
@@ -68,11 +64,11 @@ groups.prototype.deleteGroup = function (groupName) {
 }
 
 /**
- * Gets all groups in the instance
+ * Gets all Groups in the instance
  * @returns {Promise.<groups>}  array: all group-names
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.getGroups = function () {
+Groups.prototype.getGroups = function () {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -91,7 +87,7 @@ groups.prototype.getGroups = function () {
  * @returns {Promise.<users>}   array: all usernames who are part of the group
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.getGroupMembers = function (groupName) {
+Groups.prototype.getGroupMembers = function (groupName) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -110,7 +106,7 @@ groups.prototype.getGroupMembers = function (groupName) {
  * @returns {Promise.<status>}  boolean: true if group exists
  * @returns {Promise.<error>}   string: error message, if any.
  */
-groups.prototype.groupExists = function (groupName) {
+Groups.prototype.groupExists = function (groupName) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -125,7 +121,7 @@ groups.prototype.groupExists = function (groupName) {
 /**
  * IS A RESPONSE HANDLER
  */
-groups.prototype.handleObjectResponse = function (resolve, reject, data, what) {
+Groups.prototype.handleObjectResponse = function (resolve, reject, data, what) {
   var tree = parser.xml2js(data.body)
 
   var statusCode = parseInt(helpers._checkOCSstatusCode(tree))
@@ -142,4 +138,4 @@ groups.prototype.handleObjectResponse = function (resolve, reject, data, what) {
   resolve(toReturn)
 }
 
-module.exports = groups
+module.exports = Groups

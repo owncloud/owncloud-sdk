@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: users</title>
+    <title>JSDoc: Class: Files</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: users</h1>
+    <h1 class="page-title">Class: Files</h1>
 
     
 
@@ -28,27 +28,25 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>users<span class="signature">(helperFile)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Files<span class="signature">(helperFile)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><b><i> The users class, has all the methods for user management.</i></b><br><br>
+            <div class="class-description"><b><i> The Files class, has all the methods for your ownCloud files management.</i></b><br><br>
 Supported Methods are:
 <ul>
-    <li><b>User Management</b>
+ <li><b>Files Management</b>
      <ul>
-         <li>createUser</li>
-         <li>deleteUser</li>
-         <li>searchUsers</li>
-         <li>userExists</li>
-         <li>getUsers</li>
-         <li>setUserAttribute</li>
-         <li>addUserToGroup</li>
-         <li>getUserGroups</li>
-         <li>userIsInGroup</li>
-         <li>getUser</li>
-         <li>removeUserFromGroup</li>
-         <li>addUserToSubadminGroup</li>
-         <li>getUserSubadminGroups</li>
-         <li>userIsInSubadminGroup</li>
+         <li>list</li>
+         <li>getFileContents</li>
+         <li>putFileContents</li>
+         <li>mkdir</li>
+         <li>createFolder</li>
+         <li>delete</li>
+         <li>fileInfo</li>
+         <li>getDirectoryAsZip</li>
+         <li>putFile</li>
+         <li>putDirectory</li>
+         <li>move</li>
+         <li>copy</li>
      </ul>
  </li>
 </ul></div>
@@ -66,7 +64,7 @@ Supported Methods are:
     
 
     
-    <h4 class="name" id="users"><span class="type-signature"></span>new users<span class="signature">(helperFile)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Files"><span class="type-signature"></span>new Files<span class="signature">(helperFile)</span><span class="type-signature"></span></h4>
     
 
     
@@ -112,7 +110,7 @@ Supported Methods are:
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">helpers</span>
 
 
             
@@ -173,7 +171,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line8">line 8</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line6">line 6</a>
     </li></ul></dd>
     
 
@@ -227,7 +225,7 @@ Supported Methods are:
     
 
     
-    <h4 class="name" id="addUserToGroup"><span class="type-signature"></span>addUserToGroup<span class="signature">(username, groupName)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="copy"><span class="type-signature"></span>copy<span class="signature">(source, target)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -235,7 +233,7 @@ Supported Methods are:
 
 
 <div class="description">
-    Adds a user to group
+    Copies a remote file or directory
 </div>
 
 
@@ -271,7 +269,7 @@ Supported Methods are:
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>source</code></td>
             
 
             <td class="type">
@@ -287,14 +285,14 @@ Supported Methods are:
 
             
 
-            <td class="description last">name of user to be added</td>
+            <td class="description last">initial path of file/folder</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>groupName</code></td>
+                <td class="name"><code>target</code></td>
             
 
             <td class="type">
@@ -310,7 +308,7 @@ Supported Methods are:
 
             
 
-            <td class="description last">name of group user is to be added to</td>
+            <td class="description last">path where to copy file/folder finally</td>
         </tr>
 
     
@@ -351,7 +349,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line155">line 155</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line293">line 293</a>
     </li></ul></dd>
     
 
@@ -378,7 +376,7 @@ Supported Methods are:
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if successful
+    boolean: whether the operation was successful
 </div>
 
 
@@ -427,7 +425,7 @@ Supported Methods are:
     
 
     
-    <h4 class="name" id="addUserToSubadminGroup"><span class="type-signature"></span>addUserToSubadminGroup<span class="signature">(username, groupName)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="createFolder"><span class="type-signature"></span>createFolder<span class="signature">(path)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -435,7 +433,7 @@ Supported Methods are:
 
 
 <div class="description">
-    Adds user to a subadmin group
+    Creates a remote directory
 </div>
 
 
@@ -471,7 +469,7 @@ Supported Methods are:
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
@@ -487,30 +485,7 @@ Supported Methods are:
 
             
 
-            <td class="description last">name of user</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>groupName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of group</td>
+            <td class="description last">path of the folder to be created at OC instance</td>
         </tr>
 
     
@@ -551,7 +526,7 @@ Supported Methods are:
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line261">line 261</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line182">line 182</a>
     </li></ul></dd>
     
 
@@ -578,7 +553,7 @@ Supported Methods are:
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if successful
+    boolean: wether the operation was successful
 </div>
 
 
@@ -627,7 +602,7 @@ Supported Methods are:
     
 
     
-    <h4 class="name" id="createUser"><span class="type-signature"></span>createUser<span class="signature">(username, password)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="delete"><span class="type-signature"></span>delete<span class="signature">(remotePath)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -635,9 +610,7 @@ Supported Methods are:
 
 
 <div class="description">
-    Creates user via the provisioning API<br>
-If user already exists, an error is given back : "User already exists"<br>
-If provisoning API has been disabled, an error is given back saying the same.
+    Deletes a remote file or directory
 </div>
 
 
@@ -673,7 +646,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>remotePath</code></td>
             
 
             <td class="type">
@@ -689,30 +662,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">username of the new user to be created</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">password of the new user to be created</td>
+            <td class="description last">path of the file/folder at OC instance</td>
         </tr>
 
     
@@ -753,7 +703,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line52">line 52</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line192">line 192</a>
     </li></ul></dd>
     
 
@@ -780,7 +730,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if successful
+    boolean: wether the operation was successful
 </div>
 
 
@@ -829,7 +779,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
 
     
-    <h4 class="name" id="deleteUser"><span class="type-signature"></span>deleteUser<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="favorite"><span class="type-signature"></span>favorite<span class="signature">(path, value)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -837,7 +787,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
 
 <div class="description">
-    Deletes a user via provisioning API
+    Mark a remote file or directory as favorite
 </div>
 
 
@@ -873,7 +823,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
@@ -889,1329 +839,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">name of user to be deleted</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line71">line 71</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    boolean: true if successful
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;status></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getUser"><span class="type-signature"></span>getUser<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;userInfo>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Retrieves information about a user
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>username</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of the user</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line214">line 214</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    object: all user related information
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;userInfo></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getUserGroups"><span class="type-signature"></span>getUserGroups<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="groups.html">groups</a>>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Get a list of groups associated to a user
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>username</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of user to list groups</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line175">line 175</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    array: all groups which user is part of
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;<a href="groups.html">groups</a>></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getUsers"><span class="type-signature"></span>getUsers<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="users.html">users</a>>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Get all users via Provisioning API
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line323">line 323</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    array: all users
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;<a href="users.html">users</a>></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getUserSubadminGroups"><span class="type-signature"></span>getUserSubadminGroups<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="groups.html">groups</a>>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Get a list of subadmin groups associated to a user
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>username</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of user</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line281">line 281</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    array: all groups user is admin of
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;<a href="groups.html">groups</a>></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="handleObjectResponse"><span class="type-signature"></span>handleObjectResponse<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    IS A RESPONSE HANDLER
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line336">line 336</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="removeUserFromGroup"><span class="type-signature"></span>removeUserFromGroup<span class="signature">(username, groupName)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Removes user from a group
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>username</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of user</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>groupName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of group</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line240">line 240</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    boolean: true if successful
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;status></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="searchUsers"><span class="type-signature"></span>searchUsers<span class="signature">(usernname)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="users.html">users</a>>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Searches for users via provisioning API
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>usernname</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">username of the user to be searched</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line88">line 88</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-<ul>
-        <li>
-<div class="param-desc">
-    array: all users matching the search query
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;<a href="users.html">users</a>></span>
-
-
-    </dd>
-</dl>
-</li>
-    
-        <li>
-<div class="param-desc">
-    string: error message, if any.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;error></span>
-
-
-    </dd>
-</dl>
-</li>
-    </ul>
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setUserAttribute"><span class="type-signature"></span>setUserAttribute<span class="signature">(username, key, value)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Sets a user attribute via the Provisioning API
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>username</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of the user to modify</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>key</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">key of the attribute to be set (email, quota, display, password)</td>
+            <td class="description last">path of file/folder</td>
         </tr>
 
     
@@ -2224,7 +852,7 @@ If provisoning API has been disabled, an error is given back saying the same.
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -2234,7 +862,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">value to be set</td>
+            <td class="description last">Add or remove the favorite marker of a file/folder</td>
         </tr>
 
     
@@ -2275,7 +903,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line135">line 135</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line322">line 322</a>
     </li></ul></dd>
     
 
@@ -2302,7 +930,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if successful
+    boolean: whether the operation was successful
 </div>
 
 
@@ -2351,7 +979,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
 
     
-    <h4 class="name" id="userExists"><span class="type-signature"></span>userExists<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="fileInfo"><span class="type-signature"></span>fileInfo<span class="signature">(path, properties)</span><span class="type-signature"> &rarr; {Promise.&lt;fileInfo>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -2359,7 +987,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
 
 <div class="description">
-    Checks a user via provisioning API
+    Returns the file info for the given remote file
 </div>
 
 
@@ -2395,7 +1023,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
@@ -2411,7 +1039,30 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">name of user to be checked</td>
+            <td class="description last">path of the file/folder at OC instance</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>properties</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object.&lt;string, string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">WebDAV properties</td>
         </tr>
 
     
@@ -2452,7 +1103,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line112">line 112</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line220">line 220</a>
     </li></ul></dd>
     
 
@@ -2479,7 +1130,741 @@ If provisoning API has been disabled, an error is given back saying the same.
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if exists
+    object: instance of class fileInfo
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;fileInfo></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    string: error message, if any.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;error></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getFileContents"><span class="type-signature"></span>getFileContents<span class="signature">(path)</span><span class="type-signature"> &rarr; {Promise.&lt;contents>|Promise.&lt;error>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns the contents of a remote file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the remote file at OC instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line89">line 89</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    string: contents of file
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;contents></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    string: error message, if any.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;error></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getFileUrl"><span class="type-signature"></span>getFileUrl<span class="signature">(path)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns the url of a remote file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the remote file at OC instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line113">line 113</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Url of the remore file
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="list"><span class="type-signature"></span>list<span class="signature">(path, depth, properties)</span><span class="type-signature"> &rarr; {Promise.&lt;fileInfo>|Promise.&lt;error>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns the listing/contents of the given remote directory
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the file/folder at OC instance</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>depth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">0: only file/folder, 1: upto 1 depth, infinity: infinite depth</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>properties</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Array[string] with dav properties to be requested</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line54">line 54</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    Array[objects]: each object is an instance of class fileInfo
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;fileInfo></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    string: error message, if any.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;error></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="mkdir"><span class="type-signature"></span>mkdir<span class="signature">(path)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creates a remote directory
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">path of the folder to be created at OC instance</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line151">line 151</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    boolean: whether the operation was successful
 </div>
 
 
@@ -2528,7 +1913,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
 
     
-    <h4 class="name" id="userIsInGroup"><span class="type-signature"></span>userIsInGroup<span class="signature">(username, groupName)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="move"><span class="type-signature"></span>move<span class="signature">(source, target)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -2536,7 +1921,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
 
 <div class="description">
-    Checks whether user is in group
+    Moves a remote file or directory
 </div>
 
 
@@ -2572,7 +1957,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>source</code></td>
             
 
             <td class="type">
@@ -2588,14 +1973,14 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">name of user</td>
+            <td class="description last">initial path of file/folder</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>groupName</code></td>
+                <td class="name"><code>target</code></td>
             
 
             <td class="type">
@@ -2611,7 +1996,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">name of group</td>
+            <td class="description last">path where to move file/folder finally</td>
         </tr>
 
     
@@ -2652,7 +2037,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line196">line 196</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line264">line 264</a>
     </li></ul></dd>
     
 
@@ -2679,7 +2064,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if user is part of group
+    boolean: whether the operation was successful
 </div>
 
 
@@ -2728,7 +2113,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
 
     
-    <h4 class="name" id="userIsInSubadminGroup"><span class="type-signature"></span>userIsInSubadminGroup<span class="signature">(username, groupName)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    <h4 class="name" id="putFileContents"><span class="type-signature"></span>putFileContents<span class="signature">(path, content)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
     
 
     
@@ -2736,7 +2121,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
 
 <div class="description">
-    Checks whether user is in subadmin group
+    Write data into a remote file
 </div>
 
 
@@ -2772,7 +2157,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
@@ -2788,14 +2173,14 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">name of user</td>
+            <td class="description last">path of the file at OC instance</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>groupName</code></td>
+                <td class="name"><code>content</code></td>
             
 
             <td class="type">
@@ -2811,7 +2196,7 @@ If provisoning API has been disabled, an error is given back saying the same.
 
             
 
-            <td class="description last">name of group</td>
+            <td class="description last">content to be put</td>
         </tr>
 
     
@@ -2852,7 +2237,7 @@ If provisoning API has been disabled, an error is given back saying the same.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="userManagement.js.html">userManagement.js</a>, <a href="userManagement.js.html#line306">line 306</a>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -2879,7 +2264,185 @@ If provisoning API has been disabled, an error is given back saying the same.
 <ul>
         <li>
 <div class="param-desc">
-    boolean: true if user is admin of specified group
+    boolean: whether the operation was successful
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;status></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    string: error message, if any.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;error></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="recursiveMkdir"><span class="type-signature"></span>recursiveMkdir<span class="signature">(array)</span><span class="type-signature"> &rarr; {Promise.&lt;status>|Promise.&lt;error>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Helper for putDirectory
+This function first makes all the directories required
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>array</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">file list (ls -R) of the directory to be put</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="fileManagement.js.html">fileManagement.js</a>, <a href="fileManagement.js.html#line237">line 237</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    boolean: wether mkdir was successful
 </div>
 
 
@@ -2938,13 +2501,13 @@ If provisoning API has been disabled, an error is given back saying the same.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Apps.html">Apps</a></li><li><a href="FileInfo.html">FileInfo</a></li><li><a href="Files.html">Files</a></li><li><a href="FilesVersions.html">FilesVersions</a></li><li><a href="groups.html">groups</a></li><li><a href="ownCloud.html">ownCloud</a></li><li><a href="shareInfo.html">shareInfo</a></li><li><a href="shares.html">shares</a></li><li><a href="users.html">users</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Apps.html">Apps</a></li><li><a href="FileInfo.html">FileInfo</a></li><li><a href="Files.html">Files</a></li><li><a href="FilesVersions.html">FilesVersions</a></li><li><a href="Groups.html">Groups</a></li><li><a href="ownCloud.html">ownCloud</a></li><li><a href="ShareInfo.html">ShareInfo</a></li><li><a href="Shares.html">Shares</a></li><li><a href="Users.html">Users</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Nov 26 2018 09:52:04 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Nov 26 2018 09:56:59 GMT+0100 (CET)
 </footer>
 
 <script> prettyPrint(); </script>

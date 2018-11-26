@@ -1,14 +1,10 @@
-/// //////////////////////////////////
-/// ////    USER MANAGEMENT    ///////
-/// //////////////////////////////////
-
 var Promise = require('promise')
 var helpers
 
 /**
- * @class users
+ * @class Users
  * @classdesc
- * <b><i> The users class, has all the methods for user management.</i></b><br><br>
+ * <b><i> The Users class, has all the methods for user management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *     <li><b>User Management</b>
@@ -35,7 +31,7 @@ var helpers
  * @version 1.0.0
  * @param {object}    helperFile    instance of the helpers class
  */
-function users (helperFile) {
+function Users (helperFile) {
   helpers = helperFile
 }
 
@@ -49,7 +45,7 @@ function users (helperFile) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-users.prototype.createUser = function (username, password) {
+Users.prototype.createUser = function (username, password) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'users', {
       'password': password,
@@ -68,7 +64,7 @@ users.prototype.createUser = function (username, password) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-users.prototype.deleteUser = function (username) {
+Users.prototype.deleteUser = function (username) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'users/' + username)
       .then(data => {
@@ -80,12 +76,12 @@ users.prototype.deleteUser = function (username) {
 }
 
 /**
- * Searches for users via provisioning API
- * @param      {string}  usernname  username of the user to be searched
+ * Searches for Users via provisioning API
+ * @param      {string}  name  username of the user to be searched
  * @returns {Promise.<users>}    array: all users matching the search query
  * @returns {Promise.<error>}      string: error message, if any.
  */
-users.prototype.searchUsers = function (name) {
+Users.prototype.searchUsers = function (name) {
   var self = this
 
   var action = 'users'
@@ -105,11 +101,11 @@ users.prototype.searchUsers = function (name) {
 
 /**
  * Checks a user via provisioning API
- * @param      {string}  username  name of user to be checked
+ * @param      {string}  name  name of user to be checked
  * @returns {Promise.<status>}  boolean: true if exists
  * @returns {Promise.<error>}     string: error message, if any.
  */
-users.prototype.userExists = function (name) {
+Users.prototype.userExists = function (name) {
   var self = this
   if (!name) {
     name = ''
@@ -132,7 +128,7 @@ users.prototype.userExists = function (name) {
  * @returns {Promise.<status>}  boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-users.prototype.setUserAttribute = function (username, key, value) {
+Users.prototype.setUserAttribute = function (username, key, value) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), {
       'key': helpers._encodeString(key),
@@ -152,7 +148,7 @@ users.prototype.setUserAttribute = function (username, key, value) {
  * @returns {Promise.<status>}   boolean: true if successful
  * @returns {Promise.<error>}    string: error message, if any.
  */
-users.prototype.addUserToGroup = function (username, groupName) {
+Users.prototype.addUserToGroup = function (username, groupName) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD,
       'users/' + encodeURIComponent(username) + '/groups', {
@@ -172,7 +168,7 @@ users.prototype.addUserToGroup = function (username, groupName) {
  * @returns {Promise.<groups>}   array: all groups which user is part of
  * @returns {Promise.<error>}    string: error message, if any.
  */
-users.prototype.getUserGroups = function (username) {
+Users.prototype.getUserGroups = function (username) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -193,7 +189,7 @@ users.prototype.getUserGroups = function (username) {
  * @returns {Promise.<status>}   boolean: true if user is part of group
  * @returns {Promise.<error>}    string: error message, if any.
  */
-users.prototype.userIsInGroup = function (username, groupName) {
+Users.prototype.userIsInGroup = function (username, groupName) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -211,7 +207,7 @@ users.prototype.userIsInGroup = function (username, groupName) {
  * @returns {Promise.<userInfo>}    object: all user related information
  * @returns {Promise.<error>}       string: error message, if any.
  */
-users.prototype.getUser = function (username) {
+Users.prototype.getUser = function (username) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD,
       'users/' + encodeURIComponent(username)
@@ -237,7 +233,7 @@ users.prototype.getUser = function (username) {
  * @returns {Promise.<status>}   boolean: true if successful
  * @returns {Promise.<error>}    string: error message, if any.
  */
-users.prototype.removeUserFromGroup = function (username, groupName) {
+Users.prototype.removeUserFromGroup = function (username, groupName) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD,
       'users/' + encodeURIComponent(username) + '/groups', {
@@ -258,7 +254,7 @@ users.prototype.removeUserFromGroup = function (username, groupName) {
  * @returns {Promise.<status>}   boolean: true if successful
  * @returns {Promise.<error>}    string: error message, if any.
  */
-users.prototype.addUserToSubadminGroup = function (username, groupName) {
+Users.prototype.addUserToSubadminGroup = function (username, groupName) {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD,
       'users/' + encodeURIComponent(username) + '/subadmins', {
@@ -278,7 +274,7 @@ users.prototype.addUserToSubadminGroup = function (username, groupName) {
  * @returns {Promise.<groups>}  array: all groups user is admin of
  * @returns {Promise.<error>}   string: error message, if any.
  */
-users.prototype.getUserSubadminGroups = function (username) {
+Users.prototype.getUserSubadminGroups = function (username) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -303,7 +299,7 @@ users.prototype.getUserSubadminGroups = function (username) {
  * @returns {Promise.<status>}   boolean: true if user is admin of specified group
  * @returns {Promise.<error>}    string: error message, if any.
  */
-users.prototype.userIsInSubadminGroup = function (username, groupName) {
+Users.prototype.userIsInSubadminGroup = function (username, groupName) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -320,7 +316,7 @@ users.prototype.userIsInSubadminGroup = function (username, groupName) {
  * @returns {Promise.<users>}   array: all users
  * @returns {Promise.<error>}   string: error message, if any.
  */
-users.prototype.getUsers = function () {
+Users.prototype.getUsers = function () {
   return new Promise((resolve, reject) => {
     this.searchUsers('').then(users => {
       resolve(users)
@@ -333,7 +329,7 @@ users.prototype.getUsers = function () {
 /**
  * IS A RESPONSE HANDLER
  */
-users.prototype.handleObjectResponse = function (resolve, reject, data, what) {
+Users.prototype.handleObjectResponse = function (resolve, reject, data, what) {
   var statusCode = parseInt(helpers._checkOCSstatusCode(data.data))
 
   if (statusCode === 999) {
@@ -353,4 +349,4 @@ users.prototype.handleObjectResponse = function (resolve, reject, data, what) {
   resolve(toReturn)
 }
 
-module.exports = users
+module.exports = Users

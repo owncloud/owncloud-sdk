@@ -1,17 +1,13 @@
-/// //////////////////////////
-/// ////    SHARING    ///////
-/// //////////////////////////
-
 var Promise = require('promise')
 var parser = require('./xmlParser.js')
 var utf8 = require('utf8')
-var shareInfo = require('./shareInfo.js')
+var ShareInfo = require('./shareInfo.js')
 var helpers
 
 /**
- * @class shares
+ * @class Shares
  * @classdesc
- * <b><i> The shares class, has all the methods for share management.</i></b><br><br>
+ * <b><i> The Shares class, has all the methods for share management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
  *     <li><b>Share Management</b>
@@ -35,7 +31,7 @@ var helpers
  * @version 1.0.0
  * @param   {object}  helperFile  instance of the helpers class
  */
-function shares (helperFile) {
+function Shares (helperFile) {
   helpers = helperFile
 }
 
@@ -46,7 +42,7 @@ function shares (helperFile) {
  * @returns {Promise.<shareInfo>}        instance of class shareInfo
  * @returns {Promise.<error>}            string: error message, if any.
  */
-shares.prototype.shareFileWithLink = function (path, optionalParams) {
+Shares.prototype.shareFileWithLink = function (path, optionalParams) {
   path = helpers._normalizePath(path)
   // path = helpers._encodeString(path);
 
@@ -72,7 +68,7 @@ shares.prototype.shareFileWithLink = function (path, optionalParams) {
       .then(data => {
         data.body = utf8.encode(data.body)
         var shareDetails = parser.xml2js(data.body).ocs.data
-        var share = new shareInfo(shareDetails)
+        var share = new ShareInfo(shareDetails)
 
         resolve(share)
       }).catch(error => {
@@ -85,10 +81,10 @@ shares.prototype.shareFileWithLink = function (path, optionalParams) {
  * Shares a remote file with specified user
  * @param   {string}    path             path to the remote file share
  * @param   {object}    optionalParams   {perms: integer, remoteUser: boolean}
- * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
  * @returns {Promise.<error>}            string: error message, if any.
  */
-shares.prototype.shareFileWithUser = function (path, username, optionalParams) {
+Shares.prototype.shareFileWithUser = function (path, username, optionalParams) {
   path = helpers._normalizePath(path)
   // path = helpers._encodeString(path);
 
@@ -112,7 +108,7 @@ shares.prototype.shareFileWithUser = function (path, username, optionalParams) {
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
       .then(data => {
         var shareData = data.data.ocs.data
-        var share = new shareInfo(shareData)
+        var share = new ShareInfo(shareData)
 
         resolve(share)
       }).catch(error => {
@@ -125,10 +121,10 @@ shares.prototype.shareFileWithUser = function (path, username, optionalParams) {
  * Shares a remote file with specified group
  * @param   {string}    path             path to the remote file share
  * @param   {object}    optionalParams   {perms: integer}
- * @returns {Promise.<shareInfo>}        instance of class shareInfo
+ * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
  * @returns {Promise.<error>}            string: error message, if any.
  */
-shares.prototype.shareFileWithGroup = function (path, groupName, optionalParams) {
+Shares.prototype.shareFileWithGroup = function (path, groupName, optionalParams) {
   path = helpers._normalizePath(path)
 
   var postData = {
@@ -145,7 +141,7 @@ shares.prototype.shareFileWithGroup = function (path, groupName, optionalParams)
     helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_SHARE, 'shares', postData)
       .then(data => {
         var shareData = data.data.ocs.data
-        var share = new shareInfo(shareData)
+        var share = new ShareInfo(shareData)
 
         resolve(share)
       }).catch(error => {
@@ -159,10 +155,10 @@ shares.prototype.shareFileWithGroup = function (path, groupName, optionalParams)
  * @param   {string}  path            path to the file whose share needs to be checked
  * @param   {object}  optionalParams  object of values {"reshares": boolean,
  *                                    "subfiles": boolean, "shared_with_me": boolean}
- * @returns {Promise.<shareInfo>}     Array of instances of class shareInfo for all shares
+ * @returns {Promise.<ShareInfo>}     Array of instances of class ShareInfo for all Shares
  * @returns {Promise.<error>}         string: error message, if any.
  */
-shares.prototype.getShares = function (path, optionalParams) {
+Shares.prototype.getShares = function (path, optionalParams) {
   var data = 'shares'
   var send = {}
 
@@ -208,7 +204,7 @@ shares.prototype.getShares = function (path, optionalParams) {
           elements = [elements]
         }
         for (var i = 0; i < elements.length; i++) {
-          var share = new shareInfo(elements[i])
+          var share = new ShareInfo(elements[i])
           shares.push(share)
         }
 
@@ -225,7 +221,7 @@ shares.prototype.getShares = function (path, optionalParams) {
  * @returns {Promise.<status>}  boolean: true if shared
  * @returns {Promise.<error>}   string: error message, if any.
  */
-shares.prototype.isShared = function (path) {
+Shares.prototype.isShared = function (path) {
   var self = this
 
   return new Promise((resolve, reject) => {
@@ -240,11 +236,11 @@ shares.prototype.isShared = function (path) {
 
 /**
  * Gets share information about known share
- * @param   {integer}   shareId     ID of the share to be checked
- * @returns {Promise.<shareInfo>}   instance of class shareInfo
+ * @param   {number}   shareId     ID of the share to be checked
+ * @returns {Promise.<ShareInfo>}   instance of class ShareInfo
  * @returns {Promise.<error>}       string: error message, if any.
  */
-shares.prototype.getShare = function (shareId) {
+Shares.prototype.getShare = function (shareId) {
   return new Promise((resolve, reject) => {
     if (isNaN((parseInt(shareId)))) {
       reject('Please pass a valid share ID (Integer)')
@@ -253,7 +249,7 @@ shares.prototype.getShare = function (shareId) {
     helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
       .then(data => {
         var shareData = data.data.ocs.data.element
-        var share = new shareInfo(shareData)
+        var share = new ShareInfo(shareData)
 
         resolve(share)
       }).catch(error => {
@@ -267,7 +263,7 @@ shares.prototype.getShare = function (shareId) {
  * @returns {Promise.<shares>}  all open remote shares
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.listOpenRemoteShare = function () {
+Shares.prototype.listOpenRemoteShare = function () {
   return new Promise((resolve, reject) => {
     helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_SHARE, 'remote_shares/pending')
       .then(data => {
@@ -282,11 +278,11 @@ shares.prototype.listOpenRemoteShare = function () {
 
 /**
  * Accepts a remote share
- * @param   {integer}   shareId   ID of the share to accept
+ * @param   {number}   shareId   ID of the share to accept
  * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.acceptRemoteShare = function (shareId) {
+Shares.prototype.acceptRemoteShare = function (shareId) {
   return new Promise((resolve, reject) => {
     if (isNaN((parseInt(shareId)))) {
       reject('Please pass a valid share ID (Integer)', null)
@@ -306,11 +302,11 @@ shares.prototype.acceptRemoteShare = function (shareId) {
 
 /**
  * Declines a remote share
- * @param   {integer}   shareId   ID of the share to decline
+ * @param   {number}   shareId   ID of the share to decline
  * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.declineRemoteShare = function (shareId) {
+Shares.prototype.declineRemoteShare = function (shareId) {
   return new Promise((resolve, reject) => {
     if (isNaN((parseInt(shareId)))) {
       reject('Please pass a valid share ID (Integer)', null)
@@ -330,12 +326,12 @@ shares.prototype.declineRemoteShare = function (shareId) {
 
 /**
  * Updates a given share
- * @param   {integer}  shareId         ID of the share to update
+ * @param   {number}  shareId         ID of the share to update
  * @param   {object}   optionalParams  {perms: integer, publicUpload: boolean, password: string}
  * @returns {Promise.<status>}         boolean: true if successful
  * @returns {Promise.<error>}          string: error message, if any.
  */
-shares.prototype.updateShare = function (shareId, optionalParams) {
+Shares.prototype.updateShare = function (shareId, optionalParams) {
   var postData = {}
 
   if (optionalParams) {
@@ -364,11 +360,11 @@ shares.prototype.updateShare = function (shareId, optionalParams) {
 
 /**
  * Deletes a share
- * @param   {integer}   shareId   ID of the share to delete
+ * @param   {number}   shareId   ID of the share to delete
  * @returns {Promise.<status>}    boolean: true if successful
  * @returns {Promise.<error>}     string: error message, if any.
  */
-shares.prototype.deleteShare = function (shareId) {
+Shares.prototype.deleteShare = function (shareId) {
   return new Promise((resolve, reject) => {
     if (isNaN((parseInt(shareId)))) {
       reject('Please pass a valid share ID (Integer)', null)
@@ -386,4 +382,4 @@ shares.prototype.deleteShare = function (shareId) {
   })
 }
 
-module.exports = shares
+module.exports = Shares

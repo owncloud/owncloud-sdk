@@ -1,11 +1,11 @@
 /* jshint camelcase: false */
 
 /**
- * @class shareInfo
- * @classdesc shareInfo class, stores information regarding a share
- * @param {object} containing information like id, url etc. of the share
+ * @class ShareInfo
+ * @classdesc ShareInfo class, stores information regarding a share
+ * @param {object} ShareInfo containing information like id, url etc. of the share
  */
-function shareInfo (shareInfo) {
+function ShareInfo (shareInfo) {
   this.shareInfo = {}
 
   // Below keys don't need to be stored
@@ -20,17 +20,17 @@ function shareInfo (shareInfo) {
 
 /**
  * Gets the ID of share
- * @returns {integer} ID of share
+ * @returns {number} ID of share
  */
-shareInfo.prototype.getId = function () {
+ShareInfo.prototype.getId = function () {
   return this._getInt('id')
 }
 
 /**
  * Gets share type of share
- * @returns {integer} Share type of share
+ * @returns {number} Share type of share
  */
-shareInfo.prototype.getShareType = function () {
+ShareInfo.prototype.getShareType = function () {
   return this._getInt('share_type')
 }
 
@@ -38,7 +38,7 @@ shareInfo.prototype.getShareType = function () {
  * Gets shareWith of the share
  * @returns {string} shareWith of share
  */
-shareInfo.prototype.getShareWith = function () {
+ShareInfo.prototype.getShareWith = function () {
   if (this.shareInfo.hasOwnProperty('share_with')) {
     return this.shareInfo.share_with
   }
@@ -49,7 +49,7 @@ shareInfo.prototype.getShareWith = function () {
  * Gets display name of share
  * @returns {string} display name of share
  */
-shareInfo.prototype.getShareWithDisplayName = function () {
+ShareInfo.prototype.getShareWithDisplayName = function () {
   if (this.shareInfo.hasOwnProperty('share_with_displayname')) {
     return this.shareInfo.share_with_displayname
   }
@@ -60,7 +60,7 @@ shareInfo.prototype.getShareWithDisplayName = function () {
  * Gets path of share
  * @returns {string} Path of share
  */
-shareInfo.prototype.getPath = function () {
+ShareInfo.prototype.getPath = function () {
   if (this.shareInfo.hasOwnProperty('path')) {
     return this.shareInfo.path
   }
@@ -71,23 +71,23 @@ shareInfo.prototype.getPath = function () {
  * Gets permissions of share
  * @returns {string} permissions of share
  */
-shareInfo.prototype.getPermissions = function () {
+ShareInfo.prototype.getPermissions = function () {
   return this._getInt('permissions')
 }
 
 /**
  * Gets share time of share
- * @returns {integer} Share time of share
+ * @returns {number} Share time of share
  */
-shareInfo.prototype.getShareTime = function () {
+ShareInfo.prototype.getShareTime = function () {
   this._getInt('stime')
 }
 
 /**
  * Gets expiration time of share
- * @returns {integer} Expiration time of share
+ * @returns {number} Expiration time of share
  */
-shareInfo.prototype.getExpiration = function () {
+ShareInfo.prototype.getExpiration = function () {
   return this._getInt('expiration') || null
 }
 
@@ -95,7 +95,7 @@ shareInfo.prototype.getExpiration = function () {
  * Gets token of share
  * @returns {string} token of share
  */
-shareInfo.prototype.getToken = function () {
+ShareInfo.prototype.getToken = function () {
   if (this.shareInfo.hasOwnProperty('token')) {
     return this.shareInfo.token
   }
@@ -106,7 +106,7 @@ shareInfo.prototype.getToken = function () {
  * Gets link of share
  * @returns {string} Link of share
  */
-shareInfo.prototype.getLink = function () {
+ShareInfo.prototype.getLink = function () {
   if (this.shareInfo.hasOwnProperty('url')) {
     return this.shareInfo.url
   }
@@ -117,7 +117,7 @@ shareInfo.prototype.getLink = function () {
  * Gets UID owner of share
  * @returns {string} UID owner of share
  */
-shareInfo.prototype.getUidOwner = function () {
+ShareInfo.prototype.getUidOwner = function () {
   if (this.shareInfo.hasOwnProperty('uid_file_owner')) {
     return this.shareInfo.uid_file_owner
   }
@@ -128,7 +128,7 @@ shareInfo.prototype.getUidOwner = function () {
  * Gets name of owner of share
  * @returns {string} name of owner of share
  */
-shareInfo.prototype.getDisplaynameOwner = function () {
+ShareInfo.prototype.getDisplaynameOwner = function () {
   if (this.shareInfo.hasOwnProperty('displayname_file_owner')) {
     return this.shareInfo.displayname_file_owner
   }
@@ -138,10 +138,10 @@ shareInfo.prototype.getDisplaynameOwner = function () {
 /**
  * Typecasts to integer
  * @param   {string}    [key]   Corresponding key element to be typecasted to an integer
- * @returns {integer}           typcasted integer
+ * @returns {number}           typcasted integer
  */
-shareInfo.prototype._getInt = function (key) {
+ShareInfo.prototype._getInt = function (key) {
   return parseInt(this.shareInfo[key])
 }
 
-module.exports = shareInfo
+module.exports = ShareInfo

@@ -50,12 +50,41 @@ describe('Main: Currently testing file versions management,', function () {
     oc = null
   })
 
+  it('checking method: getFileVersionUrl', function () {
+    const url = oc.fileVersions.getFileVersionUrl(666, 123456)
+    expect(url).toBe(config.owncloudURL + 'remote.php/dav/meta/666/v/123456')
+  })
+
   it('retrieves file versions', function (done) {
     oc.fileVersions.listVersions(versionedFileInfo.getFileId()).then(versions => {
       expect(versions.length).toEqual(2)
       expect(versions[0].getSize()).toEqual(2)
       expect(versions[1].getSize()).toEqual(1)
-      done()
+      oc.fileVersions.getFileVersionContents(versionedFileInfo.getFileId(), versions[0].getName()).then(content => {
+        expect(content).toBe('**')
+        oc.fileVersions.getFileVersionContents(versionedFileInfo.getFileId(), versions[1].getName()).then(content => {
+          expect(content).toBe('*')
+          done()
+        })
+      })
+    })
+  })
+
+  it('restore file version', function (done) {
+    oc.fileVersions.listVersions(versionedFileInfo.getFileId()).then(versions => {
+      expect(versions.length).toEqual(2)
+      expect(versions[0].getSize()).toEqual(2)
+      expect(versions[1].getSize()).toEqual(1)
+      oc.fileVersions.restoreFileVersion(versionedFileInfo.getFileId(), versions[0].getName(), versionedFile).then(status => {
+        expect(status).toBe(true)
+        oc.files.getFileContents(versionedFile).then(content => {
+          expect(content).toBe('**')
+          done()
+        })
+      }).catch(reason => {
+        fail(reason)
+        done()
+      })
     })
   })
 })

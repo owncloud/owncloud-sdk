@@ -9,21 +9,11 @@ var davClient
  * <b><i> The FilesVersions class, has all the methods for your ownCloud files version management.</i></b><br><br>
  * Supported Methods are:
  * <ul>
- *  <li><b>Files Management</b>
+ *  <li><b>Files Versions Management</b>
  *      <ul>
- *          <li>list</li>
- *          <li>getFileContents</li>
- *          <li>putFileContents</li>
- *          <li>mkdir</li>
- *          <li>createFolder</li>
- *          <li>delete</li>
- *          <li>fileInfo</li>
- *          <li>getFile</li>
- *          <li>getDirectoryAsZip</li>
- *          <li>putFile</li>
- *          <li>putDirectory</li>
- *          <li>move</li>
- *          <li>copy</li>
+ *          <li>listVersions</li>
+ *          <li>getFileVersionContents</li>
+ *          <li>restoreFileVersion</li>
  *      </ul>
  *  </li>
  * </ul>
@@ -65,6 +55,74 @@ FilesVersions.prototype.listVersions = function (fileId) {
       reject(error)
     })
   })
+}
+
+/**
+ * Returns the content of a version of a remote file version
+ * @param   {string}  fileId     id of the remote file at OC instance
+ * @param   {string}  versionId  id of the version of the remote file at OC instance
+ */
+FilesVersions.prototype.getFileVersionContents = function (fileId, versionId) {
+  const path = '/meta/' + fileId + '/v/' + versionId
+
+  return new Promise((resolve, reject) => {
+    // TODO: use davclient ?
+    helpers._get(helpers._buildFullWebDAVPathV2(path)).then(data => {
+      var response = data.response
+      var body = data.body
+
+      if (response.statusCode === 200) {
+        resolve(body)
+      } else {
+        var err = helpers._parseDAVerror(body)
+        reject(err)
+      }
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
+
+/**
+ * Restores a version of a remote file version
+ * @param   {string}  fileId     id of the remote file at OC instance
+ * @param   {string}  versionId  id of the version of the remote file at OC instance
+ * @param   {string}  targetPath path of the remote file at OC instance
+ */
+FilesVersions.prototype.restoreFileVersion = (fileId, versionId, targetPath) => {
+  return new Promise((resolve, reject) => {
+    if (!helpers.getAuthorization()) {
+      reject('Please specify an authorization first.')
+      return
+    }
+
+    const source = '/meta/' + fileId + '/v/' + versionId
+    const target = '/files/' + helpers.getCurrentUser().id + '/' + targetPath
+
+    davClient.request('COPY', helpers._buildFullWebDAVPathV2(source), {
+      'Authorization': helpers.getAuthorization(),
+      'Destination': helpers._buildFullWebDAVPathV2(target)
+    }).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        resolve(true)
+      } else {
+        reject(helpers._parseDAVerror(result.body))
+      }
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
+
+/**
+ * Returns the url of a remote file version
+ * @param   {string}  fileId     id of the remote file at OC instance
+ * @param   {string}  versionId  id of the version of the remote file at OC instance
+ * @returns {string}             Url of the remote file version
+ */
+FilesVersions.prototype.getFileVersionUrl = function (fileId, versionId) {
+  const source = '/meta/' + fileId + '/v/' + versionId
+  return helpers._buildFullWebDAVPathV2(source)
 }
 
 module.exports = FilesVersions

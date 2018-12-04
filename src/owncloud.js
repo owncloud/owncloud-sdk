@@ -73,6 +73,27 @@ function ownCloud (instance, options = {}) {
   this.groups = new Groups(this.helpers)
   this.files = new Files(this.helpers)
   this.fileVersions = new FileVersion(this.helpers)
+  this.requests = {
+    ocs: function (options = {}) {
+      let defaults = {
+        method: 'GET',
+        service: helpers.OCS_SERVICE_CLOUD,
+        action: 'user',
+        data: {}
+      }
+      options = Object.assign({}, defaults, options)
+      const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
+      const url = helpers.instance + helpers.OCS_BASEPATH_V2 + options.service + '/' + action
+
+      return fetch(url, {
+        method: options.method,
+        headers: {
+          authorization: helpers.getAuthorization(),
+          'OCS-APIREQUEST': true
+        }
+      })
+    }
+  }
 }
 
 /**

@@ -79,19 +79,24 @@ function ownCloud (instance, options = {}) {
         method: 'GET',
         service: helpers.OCS_SERVICE_CLOUD,
         action: 'user',
-        data: {}
+        data: null
       }
       options = Object.assign({}, defaults, options)
       const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
       const url = helpers.instance + helpers.OCS_BASEPATH_V2 + options.service + '/' + action
-
-      return fetch(url, {
+      const init = {
         method: options.method,
+        mode: 'cors',
         headers: {
           authorization: helpers.getAuthorization(),
           'OCS-APIREQUEST': true
         }
-      })
+      }
+      if (options.data !== null) {
+        init.body = JSON.stringify(options.data)
+        init.headers['Content-Type'] = 'application/json'
+      }
+      return fetch(url, init)
     }
   }
 }

@@ -1168,7 +1168,8 @@ date-now@^0.1.4:
 
 "davclient.js@https://github.com/owncloud/davclient.js.git":
   version "0.1.3"
-  resolved "https://github.com/owncloud/davclient.js.git#6fc854ee835dea382a8fbc319ce6cf772bf1d699"
+  uid "07237a4bb813eb19e19e322e2457ce216721d529"
+  resolved "https://github.com/owncloud/davclient.js.git#07237a4bb813eb19e19e322e2457ce216721d529"
 
 debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"

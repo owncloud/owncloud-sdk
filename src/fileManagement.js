@@ -52,10 +52,6 @@ function Files (helperFile) {
  * @returns {Promise.<error>}         string: error message, if any.
  */
 Files.prototype.list = function (path, depth, properties) {
-  if (path[path.length - 1] !== '/') {
-    path += '/'
-  }
-
   if (typeof depth === 'undefined') {
     depth = 1
   }

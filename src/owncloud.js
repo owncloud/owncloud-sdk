@@ -1,15 +1,12 @@
-/// //////////////////////////
-/// ////    GENERAL    ///////
-/// //////////////////////////
-
-var Promise = require('promise')
-var HelperFile = require('./helperFunctions.js')
-var Apps = require('./appManagement.js')
-var Shares = require('./shareManagement.js')
-var Users = require('./userManagement.js')
-var Groups = require('./groupManagement.js')
-var Files = require('./fileManagement.js')
-var FileVersion = require('./fileVersionManagement.js')
+const Promise = require('promise')
+const HelperFile = require('./helperFunctions.js')
+const Apps = require('./appManagement.js')
+const Shares = require('./shareManagement.js')
+const Users = require('./userManagement.js')
+const Groups = require('./groupManagement.js')
+const Files = require('./fileManagement.js')
+const FileVersion = require('./fileVersionManagement.js')
+const uuidv4 = require('uuid/v4')
 
 /**
  * @class ownCloud
@@ -89,7 +86,8 @@ function ownCloud (instance, options = {}) {
         mode: 'cors',
         headers: {
           authorization: helpers.getAuthorization(),
-          'OCS-APIREQUEST': true
+          'OCS-APIREQUEST': true,
+          'X-Request-ID': uuidv4()
         }
       }
       if (options.data !== null) {

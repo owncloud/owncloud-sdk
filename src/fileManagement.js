@@ -339,4 +339,46 @@ Files.prototype.favorite = function (path, value) {
   })
 }
 
+Files.prototype.search = function (pattern, limit) {
+  pattern = pattern || ''
+  limit = limit || 30
+
+  return new Promise((resolve, reject) => {
+    if (!helpers.getAuthorization()) {
+      reject('Please specify an authorization first.')
+      return
+    }
+
+    let body =
+      '<?xml version="1.0"?>\n' +
+      '<oc:search-files '
+    let namespace
+    for (namespace in davClient.xmlNamespaces) {
+      body += ' xmlns:' + davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
+    }
+    body += '>\n' +
+    '  <oc:search>\n' +
+    '    <oc:pattern>' + helpers.escapeXml(pattern) + '</oc:pattern>\n' +
+    '    <oc:limit>' + helpers.escapeXml(limit) + '</oc:limit>\n' +
+    '  </oc:search>\n' +
+    '</oc:search-files>'
+
+    const path = '/files/' + helpers.getCurrentUser().id + '/'
+
+    davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), {
+      'Authorization': helpers.getAuthorization(),
+      'Content-Type': 'application/xml; charset=utf-8'
+    }, body).then(result => {
+      if (result.status !== 207) {
+        resolve(null)
+      } else {
+        // TODO: convert body into file objects as expected
+        resolve(helpers._parseBody(result.body, 2))
+      }
+    }).catch(error => {
+      reject(error)
+    })
+  })
+}
+
 module.exports = Files

@@ -499,14 +499,14 @@ helpers.prototype._getXMLns = function (xml) {
   return replacedXMLns
 }
 
-helpers.prototype._parseBody = function (responses) {
+helpers.prototype._parseBody = function (responses, davVersion) {
   if (!Array.isArray(responses)) {
     responses = [responses]
   }
   var self = this
   var fileInfos = []
   for (var i = 0; i < responses.length; i++) {
-    var fileInfo = self._parseFileInfo(responses[i])
+    var fileInfo = self._parseFileInfo(responses[i], davVersion)
     if (fileInfo !== null) {
       fileInfos.push(fileInfo)
     }
@@ -514,7 +514,7 @@ helpers.prototype._parseBody = function (responses) {
   return fileInfos
 }
 
-helpers.prototype._extractPath = function (path) {
+helpers.prototype._extractPath = function (path, leftTrimComponents) {
   var pathSections = path.split('/')
   pathSections = pathSections.filter(function (section) { return section !== '' })
 
@@ -526,8 +526,9 @@ helpers.prototype._extractPath = function (path) {
   }
 
   // build the sub-path from the remaining sections
+  leftTrimComponents = leftTrimComponents || 0
   var subPath = ''
-  var i = 2
+  var i = leftTrimComponents + 2
   while (i < pathSections.length) {
     subPath += '/' + decodeURIComponent(pathSections[i])
     i++
@@ -535,8 +536,9 @@ helpers.prototype._extractPath = function (path) {
   return subPath
 }
 
-helpers.prototype._parseFileInfo = function (response) {
-  var path = this._extractPath(response.href)
+helpers.prototype._parseFileInfo = function (response, davVersion) {
+  davVersion = davVersion || 1
+  var path = this._extractPath(response.href, davVersion === 2 ? 2 : 0)
   // invalid subpath
   if (path === null) {
     return null
@@ -558,6 +560,21 @@ helpers.prototype._parseFileInfo = function (response) {
   }
 
   return new FileInfo(name, fileType, props)
+}
+
+helpers.prototype.escapeXml = function (unsafe) {
+  if (typeof unsafe !== 'string') {
+    return unsafe
+  }
+  return unsafe.replace(/[<>&'"]/g, function (c) {
+    switch (c) {
+      case '<': return '&lt;'
+      case '>': return '&gt;'
+      case '&': return '&amp;'
+      case '\'': return '&apos;'
+      case '"': return '&quot;'
+    }
+  })
 }
 
 module.exports = helpers

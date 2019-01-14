@@ -1,7 +1,6 @@
 var Promise = require('promise')
 var request = require('browser-request')
 var parser = require('./xmlParser.js')
-var parser2 = require('xml-js')
 var utf8 = require('utf8')
 var FileInfo = require('./fileInfo.js')
 
@@ -288,19 +287,6 @@ helpers.prototype._get = function (url) {
 }
 
 /**
- * checks whether a path's extension is ".ZIP"
- * @param   {string}    path    path to check
- * @return  {boolean}           true if extension is ".ZIP"
- */
-helpers.prototype._checkExtensionZip = function (path) {
-  var extension = path.slice(-4)
-  if (extension !== '.zip') {
-    path += '.zip'
-  }
-  return path
-}
-
-/**
  * Parses a DAV response error.
  */
 helpers.prototype._parseDAVerror = function (body) {
@@ -430,73 +416,6 @@ helpers.prototype._OCSuserResponseHandler = function (data, resolve, reject) {
   }
 
   resolve(true)
-}
-
-/**
- * performs a PUT request from a file
- * @param   {string}  source     source path of the file to move/copy
- * @param   {string}  target     target path of the file to move/copy
- * @param   {object}  headers    extra headers to add for the PUT request
- * @returns {Promise.<status>}   boolean: whether the operation was successful
- * @returns {Promise.<error>}    string: error message, if any.
- */
-helpers.prototype._webdavMoveCopy = function (source, target, method) {
-  var self = this
-  return new Promise((resolve, reject) => {
-    if (method !== 'MOVE' && method !== 'COPY') {
-      reject('Please specify a valid method')
-      return
-    }
-
-    source = self._normalizePath(source)
-
-    target = self._normalizePath(target)
-    target = encodeURIComponent(target)
-    target = target.split('%2F').join('/')
-
-    var headers = {
-      'Destination': self._webdavUrl + target
-    }
-
-    self._makeDAVrequest(method, source, headers).then(data => {
-      resolve(data)
-    }).catch(error => {
-      reject(error)
-    })
-  })
-}
-
-/**
- * gets the fileName from a path
- * @param  {string}  path  path to get fileName from
- * @return {string}        fileName
- */
-helpers.prototype._getFileName = function (path) {
-  var pathSplit = path.split('/')
-  pathSplit = pathSplit.filter(function (n) {
-    return n !== ''
-  })
-  return pathSplit[pathSplit.length - 1]
-}
-
-/**
- * returns all xml namespaces in an object
- * @param  {string} xml xml which has namespace
- * @return {object}     object with namespace
- */
-helpers.prototype._getXMLns = function (xml) {
-  var tree = parser2.xml2js(xml, {
-    compact: true
-  })
-  var xmlns = tree['d:multistatus']._attributes
-  var replacedXMLns = {}
-
-  for (var ns in xmlns) {
-    var changedKey = ns.split(':')[1]
-    replacedXMLns[changedKey] = xmlns[ns]
-  }
-
-  return replacedXMLns
 }
 
 helpers.prototype._parseBody = function (responses, davVersion) {

@@ -1,15 +1,11 @@
-/// //////////////////////////
-/// ////    GENERAL    ///////
-/// //////////////////////////
-
-var Promise = require('promise')
-var HelperFile = require('./helperFunctions.js')
-var Apps = require('./appManagement.js')
-var Shares = require('./shareManagement.js')
-var Users = require('./userManagement.js')
-var Groups = require('./groupManagement.js')
-var Files = require('./fileManagement.js')
-var FileVersion = require('./fileVersionManagement.js')
+const Promise = require('promise')
+const HelperFile = require('./helperFunctions.js')
+const Apps = require('./appManagement.js')
+const Shares = require('./shareManagement.js')
+const Users = require('./userManagement.js')
+const Groups = require('./groupManagement.js')
+const Files = require('./fileManagement.js')
+const FileVersion = require('./fileVersionManagement.js')
 
 /**
  * @class ownCloud
@@ -84,13 +80,12 @@ function ownCloud (instance, options = {}) {
       options = Object.assign({}, defaults, options)
       const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
       const url = helpers.instance + helpers.OCS_BASEPATH_V2 + options.service + '/' + action
+      var headers = helpers.buildHeaders()
+      headers['OCS-APIREQUEST'] = true
       const init = {
         method: options.method,
         mode: 'cors',
-        headers: {
-          authorization: helpers.getAuthorization(),
-          'OCS-APIREQUEST': true
-        }
+        headers: headers
       }
       if (options.data !== null) {
         init.body = JSON.stringify(options.data)

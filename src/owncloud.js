@@ -6,7 +6,6 @@ const Users = require('./userManagement.js')
 const Groups = require('./groupManagement.js')
 const Files = require('./fileManagement.js')
 const FileVersion = require('./fileVersionManagement.js')
-const uuidv4 = require('uuid/v4')
 
 /**
  * @class ownCloud
@@ -81,14 +80,12 @@ function ownCloud (instance, options = {}) {
       options = Object.assign({}, defaults, options)
       const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
       const url = helpers.instance + helpers.OCS_BASEPATH_V2 + options.service + '/' + action
+      var headers = helpers.buildHeaders()
+      headers['OCS-APIREQUEST'] = true
       const init = {
         method: options.method,
         mode: 'cors',
-        headers: {
-          authorization: helpers.getAuthorization(),
-          'OCS-APIREQUEST': true,
-          'X-Request-ID': uuidv4()
-        }
+        headers: headers
       }
       if (options.data !== null) {
         init.body = JSON.stringify(options.data)

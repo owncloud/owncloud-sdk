@@ -61,6 +61,7 @@
     "davclient.js": "https://github.com/owncloud/davclient.js.git",
     "promise": "^8.0.0",
     "request": "^2.81.0",
+    "semver": "^5.6.0",
     "utf8": "^3.0.0",
     "uuid": "^3.3.2",
     "xhr": "^2.5.0",

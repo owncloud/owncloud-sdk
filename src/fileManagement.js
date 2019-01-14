@@ -2,7 +2,6 @@ const Promise = require('promise')
 const dav = require('davclient.js')
 let helpers
 let davClient
-const uuidv4 = require('uuid/v4')
 
 /**
  * @class Files
@@ -61,11 +60,9 @@ Files.prototype.list = function (path, depth, properties) {
     properties = []
   }
 
+  const headers = helpers.buildHeaders()
   return new Promise((resolve, reject) => {
-    davClient.propFind(helpers._buildFullWebDAVPath(path), properties, depth, {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4()
-    }).then(result => {
+    davClient.propFind(helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
       if (result.status !== 207) {
         resolve(null)
       } else {
@@ -126,10 +123,7 @@ Files.prototype.putFileContents = function (path, content) {
       return
     }
 
-    davClient.request('PUT', helpers._buildFullWebDAVPath(path), {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4()
-    }, content).then(result => {
+    davClient.request('PUT', helpers._buildFullWebDAVPath(path), helpers.buildHeaders(), content).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)
       } else {
@@ -158,10 +152,7 @@ Files.prototype.mkdir = function (path) {
       return
     }
 
-    davClient.request('MKCOL', helpers._buildFullWebDAVPath(path), {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4()
-    }).then(result => {
+    davClient.request('MKCOL', helpers._buildFullWebDAVPath(path), helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)
       } else {
@@ -196,10 +187,7 @@ Files.prototype.delete = function (path) {
       return
     }
 
-    davClient.request('DELETE', helpers._buildFullWebDAVPath(path), {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4()
-    }).then(result => {
+    davClient.request('DELETE', helpers._buildFullWebDAVPath(path), helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)
       } else {
@@ -269,11 +257,9 @@ Files.prototype.move = function (source, target) {
       return
     }
 
-    davClient.request('MOVE', helpers._buildFullWebDAVPath(source), {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4(),
-      'Destination': helpers._buildFullWebDAVPath(target)
-    }).then(result => {
+    const headers = helpers.buildHeaders()
+    headers['Destination'] = helpers._buildFullWebDAVPath(target)
+    davClient.request('MOVE', helpers._buildFullWebDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)
       } else {
@@ -299,11 +285,9 @@ Files.prototype.copy = function (source, target) {
       return
     }
 
-    davClient.request('COPY', helpers._buildFullWebDAVPath(source), {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4(),
-      'Destination': helpers._buildFullWebDAVPath(target)
-    }).then(result => {
+    const headers = helpers.buildHeaders()
+    headers['Destination'] = helpers._buildFullWebDAVPath(target)
+    davClient.request('COPY', helpers._buildFullWebDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)
       } else {
@@ -332,10 +316,7 @@ Files.prototype.favorite = function (path, value) {
     }
     davClient.propPatch(helpers._buildFullWebDAVPath(path), {
       '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
-    }, {
-      'Authorization': helpers.getAuthorization(),
-      'X-Request-ID': uuidv4()
-    }).then(result => {
+    }, helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         resolve(true)
       } else {
@@ -373,10 +354,10 @@ Files.prototype.search = function (pattern, limit) {
 
     const path = '/files/' + helpers.getCurrentUser().id + '/'
 
-    davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), {
-      'Authorization': helpers.getAuthorization(),
-      'Content-Type': 'application/xml; charset=utf-8'
-    }, body).then(result => {
+    const headers = helpers.buildHeaders()
+    headers['Content-Type'] = helpers._buildFullWebDAVPath('application/xml; charset=utf-8')
+
+    davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), headers, body).then(result => {
       if (result.status !== 207) {
         resolve(null)
       } else {

@@ -112,6 +112,7 @@ helpers.prototype._updateCapabilities = function () {
 
         self._capabilities = body.capabilities
         self._version = body.version.string + '-' + body.version.edition
+        self._versionNumber = body.version.major + '.' + body.version.minor + '.' + body.version.micro
 
         resolve(self._capabilities)
       }).catch(error => {
@@ -141,6 +142,25 @@ helpers.prototype._updateCurrentUser = function () {
   })
 }
 
+helpers.prototype.buildHeaders = function () {
+  var headers = {
+    authorization: this._authHeader,
+    'OCS-APIREQUEST': true
+  }
+  if (this.atLeastVersion('10.1.0')) {
+    headers['X-Request-ID'] = uuidv4()
+  }
+  return headers
+}
+
+helpers.prototype.atLeastVersion = function (minVersion) {
+  if (typeof this._versionNumber === 'undefined') {
+    return false
+  }
+  const semver = require('semver')
+  return semver.gte(this._versionNumber, minVersion)
+}
+
 /**
  * Makes an OCS API request.
  * @param   {string} method     method of request (GET, POST etc.)
@@ -154,11 +174,8 @@ helpers.prototype._makeOCSrequest = function (method, service, action, data) {
   var self = this
 
   // Set the headers
-  var headers = {
-    authorization: this._authHeader,
-    'OCS-APIREQUEST': true,
-    'X-Request-ID': uuidv4()
-  }
+  var headers = this.buildHeaders()
+  headers['OCS-APIREQUEST'] = true
 
   var slash = ''
 

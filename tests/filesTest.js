@@ -403,6 +403,19 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
+  it('searches in the instance', function (done) {
+    oc.files.search('abc').then(files => {
+      expect(typeof (files)).toBe('object')
+      expect(files.length).toEqual(1)
+      expect(files[0].getName()).toEqual('abc.txt')
+      expect(files[0].getPath()).toEqual(testFolder + '/')
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
   it('deletes the test folder at instance', function (done) {
     oc.files.delete(testFolder).then(status => {
       expect(status).toBe(true)

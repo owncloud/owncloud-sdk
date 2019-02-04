@@ -241,20 +241,7 @@ ownCloud.prototype.getCapabilities = function () {
  * @returns {Promise.<reject>}
  */
 ownCloud.prototype.getCurrentUser = function () {
-  var user = this.helpers.getCurrentUser()
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    if (user === null) {
-      this.helpers._updateCurrentUser()
-        .then(body => {
-          resolve(body)
-        }).catch(error => {
-          reject(error)
-        })
-    } else {
-      resolve(user)
-    }
-  })
+  return this.helpers.getCurrentUserAsync()
 }
 
 module.exports = ownCloud

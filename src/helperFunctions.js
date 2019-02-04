@@ -90,6 +90,23 @@ helpers.prototype.getCurrentUser = function () {
   return this._currentUser
 }
 
+helpers.prototype.getCurrentUserAsync = function () {
+  const user = this.getCurrentUser()
+  /* jshint unused: false */
+  return new Promise((resolve, reject) => {
+    if (user === null) {
+      this._updateCurrentUser()
+        .then(body => {
+          resolve(body)
+        }).catch(error => {
+          reject(error)
+        })
+    } else {
+      resolve(user)
+    }
+  })
+}
+
 /**
  * Sets the logged in user
  * @param {object}  userInfo user info

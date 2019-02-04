@@ -404,11 +404,20 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('searches in the instance', function (done) {
-    oc.files.search('abc').then(files => {
+    const davProperties = [
+      '{http://owncloud.org/ns}favorite',
+      '{DAV:}getcontentlength',
+      '{http://owncloud.org/ns}size',
+      '{DAV:}getlastmodified',
+      '{DAV:}resourcetype'
+    ]
+
+    oc.files.search('abc', 30, davProperties).then(files => {
       expect(typeof (files)).toBe('object')
       expect(files.length).toEqual(1)
       expect(files[0].getName()).toEqual('abc.txt')
       expect(files[0].getPath()).toEqual(testFolder + '/')
+      expect(files[0].getSize()).toEqual(11)
       done()
     }).catch(error => {
       expect(error).toBe(null)

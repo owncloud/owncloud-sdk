@@ -328,7 +328,7 @@ Files.prototype.favorite = function (path, value) {
   })
 }
 
-Files.prototype.search = function (pattern, limit) {
+Files.prototype.search = function (pattern, limit, properties) {
   pattern = pattern || ''
   limit = limit || 30
 
@@ -345,7 +345,27 @@ Files.prototype.search = function (pattern, limit) {
     for (namespace in davClient.xmlNamespaces) {
       body += ' xmlns:' + davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
     }
-    body += '>\n' +
+    body += '>\n'
+
+    if (properties) {
+      body += '  <d:prop>\n'
+
+      for (var ii in properties) {
+        if (!properties.hasOwnProperty(ii)) {
+          continue
+        }
+
+        const property = davClient.parseClarkNotation(properties[ii])
+        if (davClient.xmlNamespaces[property.namespace]) {
+          body += '    <' + davClient.xmlNamespaces[property.namespace] + ':' + property.name + ' />\n'
+        } else {
+          body += '    <x:' + property.name + ' xmlns:x="' + property.namespace + '" />\n'
+        }
+      }
+      body += '  </d:prop>\n'
+    }
+
+    body +=
     '  <oc:search>\n' +
     '    <oc:pattern>' + helpers.escapeXml(pattern) + '</oc:pattern>\n' +
     '    <oc:limit>' + helpers.escapeXml(limit) + '</oc:limit>\n' +

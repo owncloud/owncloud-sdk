@@ -372,20 +372,21 @@ Files.prototype.search = function (pattern, limit, properties) {
     '  </oc:search>\n' +
     '</oc:search-files>'
 
-    const path = '/files/' + helpers.getCurrentUser().id + '/'
+    helpers.getCurrentUserAsync().then(user => {
+      const path = '/files/' + user.id + '/'
 
-    const headers = helpers.buildHeaders()
-    headers['Content-Type'] = helpers._buildFullWebDAVPath('application/xml; charset=utf-8')
+      const headers = helpers.buildHeaders()
+      headers['Content-Type'] = helpers._buildFullWebDAVPath('application/xml; charset=utf-8')
 
-    davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), headers, body).then(result => {
-      if (result.status !== 207) {
-        resolve(null)
-      } else {
-        // TODO: convert body into file objects as expected
-        resolve(helpers._parseBody(result.body, 2))
-      }
-    }).catch(error => {
-      reject(error)
+      davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), headers, body).then(result => {
+        if (result.status !== 207) {
+          resolve(null)
+        } else {
+          resolve(helpers._parseBody(result.body, 2))
+        }
+      }).catch(error => {
+        reject(error)
+      })
     })
   })
 }

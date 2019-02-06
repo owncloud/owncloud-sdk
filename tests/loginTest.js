@@ -3,7 +3,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   var config = require('./config/config.json')
 
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  var timeRightNow = Math.random().toString(36).substr(2, 9)
 
   // LIBRARY INSTANCE
   var oc
@@ -44,7 +44,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       expect(status).tobe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Current user is not logged in')
       done()
     })
   })
@@ -56,7 +56,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       expect(status).tobe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Current user is not logged in')
       done()
     })
   })

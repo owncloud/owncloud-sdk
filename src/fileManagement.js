@@ -135,7 +135,10 @@ Files.prototype.putFileContents = function (path, content, options) {
 
     davClient.request('PUT', helpers._buildFullWebDAVPath(path), headers, content).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-        resolve(true)
+        resolve({
+          'ETag': result.xhr.getResponseHeader('etag'),
+          'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
+        })
       } else {
         reject(helpers._parseDAVerror(result.body))
       }

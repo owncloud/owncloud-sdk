@@ -5,3 +5,6 @@ swagger.config.js
 jsdoc/
 .idea
 coverage
+Dockerfile
+*.zip
+core-*

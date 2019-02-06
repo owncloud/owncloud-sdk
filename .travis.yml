@@ -3,17 +3,19 @@ language: node_js
 node_js:
   - 6
 
-env:
-  - OC_VERSION=10.0
-
 sudo: required
 
 services:
   - docker
 
 before_install:
-  - docker pull owncloud:$OC_VERSION
-  - DOCKER_ID=$(docker run -d -p 8888:80 owncloud:$OC_VERSION)
+  - wget https://raw.githubusercontent.com/owncloud-docker/server/master/Dockerfile
+  - wget https://github.com/owncloud/core/archive/c9ea65107399be23a76d43ef3108eca95c08c18b.zip
+  - unzip c9ea65107399be23a76d43ef3108eca95c08c18b.zip
+  - cd core-c9ea65107399be23a76d43ef3108eca95c08c18b
+  - make
+  - docker build -t local-oc
+  - DOCKER_ID=$(docker run -d -p 8888:80 local-oc)
 
   - # needed else occ isn't available directly...
   - sleep 5

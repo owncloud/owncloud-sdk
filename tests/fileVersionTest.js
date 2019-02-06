@@ -26,7 +26,7 @@ describe('Main: Currently testing file versions management,', function () {
       oc.files.createFolder(testFolder).then(status => {
         oc.files.putFileContents(versionedFile, '*').then(status => {
           sleep(1000).then(() => {
-            oc.files.putFileContents(versionedFile, '**').then(status => {
+            oc.files.putFileContents(versionedFile, '**', { previousEntityTag: '' }).then(status => {
               sleep(1000).then(() => {
                 oc.files.putFileContents(versionedFile, '***').then(status => {
                   oc.files.fileInfo(versionedFile, ['{http://owncloud.org/ns}fileid']).then(fileInfo => {

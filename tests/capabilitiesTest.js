@@ -5,9 +5,15 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
   // LIBRARY INSTANCE
   var oc
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password)
+    oc.login(config.username, config.password).then(status => {
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
   })
 
   afterEach(function () {

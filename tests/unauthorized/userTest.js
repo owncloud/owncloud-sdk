@@ -23,7 +23,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -33,7 +33,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -43,7 +43,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -53,7 +53,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -63,7 +63,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -73,7 +73,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -83,7 +83,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -93,7 +93,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -103,7 +103,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -113,7 +113,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -123,7 +123,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -133,7 +133,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -143,7 +143,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -153,7 +153,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })

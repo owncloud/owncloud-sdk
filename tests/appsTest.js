@@ -1,6 +1,6 @@
 describe('Main: Currently testing apps management,', function () {
 // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
   var utf8 = require('utf8')
   var config = require('./config/config.json')
@@ -12,9 +12,15 @@ describe('Main: Currently testing apps management,', function () {
   var testApp = 'someAppName' + timeRightNow
   var nonExistingApp = 'nonExistingApp' + timeRightNow
 
-  beforeEach(function () {
+  beforeEach(function (done) {
     oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password)
+    oc.login(config.username, config.password).then(status => {
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
   })
 
   afterEach(function () {

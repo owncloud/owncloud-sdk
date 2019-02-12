@@ -116,16 +116,29 @@ Files.prototype.getFileUrl = function (path) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-Files.prototype.putFileContents = function (path, content) {
+Files.prototype.putFileContents = function (path, content, options) {
   return new Promise((resolve, reject) => {
     if (!helpers.getAuthorization()) {
       reject('Please specify an authorization first.')
       return
     }
+    options = options || []
+    const headers = helpers.buildHeaders()
+    const previousEntityTag = options.previousEntityTag || false
+    if (previousEntityTag) {
+      // will ensure that no other client uploaded a different version meanwhile
+      headers['If-Match'] = previousEntityTag
+    } else {
+      // will trigger 412 precondition failed if a file already exists
+      headers['If-None-Match'] = '*'
+    }
 
-    davClient.request('PUT', helpers._buildFullWebDAVPath(path), helpers.buildHeaders(), content).then(result => {
+    davClient.request('PUT', helpers._buildFullWebDAVPath(path), headers, content).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-        resolve(true)
+        resolve({
+          'ETag': result.xhr.getResponseHeader('etag'),
+          'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
+        })
       } else {
         reject(helpers._parseDAVerror(result.body))
       }

@@ -1,6 +1,6 @@
 describe('Main: Currently testing file/folder sharing,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
   var utf8 = require('utf8')
@@ -179,7 +179,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         for (var i = 0; i < testFiles.length; i++) {
           // CREATING TEST FILES
           oc.files.putFileContents(testFiles[i], testContent).then(status => {
-            expect(status).toBe(true)
+            expect(typeof status).toBe('object')
             count++
             if (count === testFiles.length) {
               done()
@@ -610,13 +610,14 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : isShared with existent but non shared file', function (done) {
-      oc.files.putFileContents('newFileCreated' + timeRightNow).then(status => {
-        expect(status).toBe(true)
-        return oc.shares.isShared('newFileCreated' + timeRightNow)
+      const suffix = Math.random().toString(36).substr(2, 9)
+      oc.files.putFileContents('newFileCreated' + suffix).then(status => {
+        expect(typeof status).toBe('object')
+        return oc.shares.isShared('newFileCreated' + suffix)
       }).then(isShared => {
         expect(isShared).toEqual(false)
         // DELETING THE NEWLY CREATED FILE
-        return oc.files.delete('newFileCreated' + timeRightNow)
+        return oc.files.delete('newFileCreated' + suffix)
       }).then(status2 => {
         expect(status2).toBe(true)
         done()
@@ -650,14 +651,15 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : getShares for existent but non shared file', function (done) {
-      oc.files.putFileContents('newFileCreated' + timeRightNow).then(status => {
-        expect(status).toBe(true)
-        return oc.shares.getShares('newFileCreated' + timeRightNow)
+      const suffix = Math.random().toString(36).substr(2, 9)
+      oc.files.putFileContents('newFileCreated' + suffix).then(status => {
+        expect(typeof status).toBe('object')
+        return oc.shares.getShares('newFileCreated' + suffix)
       }).then(shares => {
         expect(shares.constructor).toEqual(Array)
         expect(shares.length).toEqual(0)
         // DELETING THE NEWLY CREATED FILE
-        return oc.files.delete('newFileCreated' + timeRightNow)
+        return oc.files.delete('newFileCreated' + suffix)
       }).then(status2 => {
         expect(status2).toBe(true)
         done()

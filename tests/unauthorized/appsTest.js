@@ -20,7 +20,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(apps).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -35,7 +35,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('CORS request rejected')
+        expect(error).toMatch('Unauthorised')
         count++
         if (count === key.length) {
           done()
@@ -53,7 +53,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
         expect(data).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('CORS request rejected')
+        expect(error).toMatch('Unauthorised')
         count++
         if (count === key.length) {
           done()
@@ -71,7 +71,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('CORS request rejected')
+        expect(error).toMatch('Unauthorised')
         count++
         if (count === key.length) {
           done()
@@ -85,7 +85,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -95,7 +95,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })

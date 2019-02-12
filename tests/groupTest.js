@@ -3,7 +3,7 @@ describe('Main: Currently testing group management,', function () {
   var config = require('./config/config.json')
 
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  var timeRightNow = Math.random().toString(36).substr(2, 9)
 
   // LIBRARY INSTANCE
   var oc

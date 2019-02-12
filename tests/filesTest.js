@@ -1,6 +1,6 @@
 describe('Main: Currently testing files management,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
@@ -62,7 +62,7 @@ describe('Main: Currently testing files management,', function () {
 
     for (var i = 0; i < testSubFiles.length; i++) {
       oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
-        expect(status).toBe(true)
+        expect(typeof status).toBe('object')
         count++
         if (count === testSubFiles.length) {
           done()
@@ -158,7 +158,7 @@ describe('Main: Currently testing files management,', function () {
     var newFile = testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
-      expect(status).toBe(true)
+      expect(typeof status).toBe('object')
       return oc.files.getFileContents(newFile)
     }).then(content => {
       expect(content).toEqual(testContent)
@@ -181,7 +181,7 @@ describe('Main: Currently testing files management,', function () {
     var newFile = testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
-      expect(status).toBe(true)
+      expect(typeof status).toBe('object')
       return oc.files.favorite(newFile)
     }).then(status2 => {
       expect(status2).toEqual(true)

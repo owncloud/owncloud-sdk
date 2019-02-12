@@ -1,27 +1,35 @@
 language: node_js
 
 node_js:
-  - 6
-
-env:
-  - OC_VERSION=10.0
+  - 8
 
 sudo: required
 
 services:
   - docker
 
+branches:
+  only:
+  - master
+
+env:
+  - OC_HASH: bb8b8878b40edaeeba831663275d9815272cdea2
+
 before_install:
-  - docker pull owncloud:$OC_VERSION
-  - DOCKER_ID=$(docker run -d -p 8888:80 owncloud:$OC_VERSION)
+  - wget https://github.com/owncloud/core/archive/$OC_HASH.zip
+  - unzip $OC_HASH.zip
+  - cd core-$OC_HASH
+  - make dist
+  - cd ..
+  - tar -xjf core-$OC_HASH/build/dist/owncloud-core.tar.bz2
+  - DOCKER_ID=$(docker run -d -p 8888:8080 -e OWNCLOUD_DOMAIN=localhost -e OWNCLOUD_DB_TYPE=sqlite -e OWNCLOUD_ADMIN_USERNAME=admin -e OWNCLOUD_ADMIN_PASSWORD=admin --volume $(pwd)/owncloud:/var/www/owncloud owncloud/base:latest)
 
   - # needed else occ isn't available directly...
   - sleep 5
 
   - docker inspect $DOCKER_ID
-  - docker exec -u www-data $DOCKER_ID ./occ maintenance:install --admin-user="admin" --admin-pass="admin" --database="sqlite"
-  - docker exec -u www-data $DOCKER_ID ./occ config:system:set cors.allowed-domains 0 --value http://127.0.0.1:9876
-  - docker exec -u www-data $DOCKER_ID ./occ config:system:set cors.allowed-domains 1 --value http://localhost:9876
+  - docker exec $DOCKER_ID occ config:system:set cors.allowed-domains 0 --value http://127.0.0.1:9876
+  - docker exec $DOCKER_ID occ config:system:set cors.allowed-domains 1 --value http://localhost:9876
 
 script:
   - npm run lint

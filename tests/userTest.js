@@ -1,6 +1,6 @@
 describe('Main: Currently testing user management,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

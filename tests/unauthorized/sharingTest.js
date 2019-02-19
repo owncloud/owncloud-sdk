@@ -25,7 +25,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(share).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -35,7 +35,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(share).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -47,7 +47,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(share).toEqual(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -57,7 +57,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -67,7 +67,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(share).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -77,7 +77,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(shares).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -87,7 +87,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(share).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -97,7 +97,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })

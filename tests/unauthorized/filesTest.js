@@ -24,8 +24,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : list', function (done) {
-    oc.files.list(testFolder, 1).then(files => {
-      expect(files).toBe(null)
+    oc.files.list(testFolder, 1).then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('CORS request rejected')
@@ -37,8 +37,8 @@ describe('Unauthorized: Currently testing files management,', function () {
     var count = 0
 
     for (var i = 0; i < testSubFiles.length; i++) {
-      oc.files.getFileContents(testSubFiles[i]).then(content => {
-        expect(content).toBe(null)
+      oc.files.getFileContents(testSubFiles[i]).then(() => {
+        fail()
         done()
       }).catch(error => {
         expect(error).toMatch('CORS request rejected')
@@ -53,8 +53,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it('checking method : putFileContents', function (done) {
     var newFile = testFolder + '/' + 'file.txt'
 
-    oc.files.putFileContents(newFile, testContent).then(status => {
-      expect(status).toBe(null)
+    oc.files.putFileContents(newFile, testContent).then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('Unknown error')
@@ -65,8 +65,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it('checking method : mkdir', function (done) {
     var newFolder = testFolder + '/' + 'new folder/'
 
-    oc.files.mkdir(newFolder).then(status => {
-      expect(status).toBe(null)
+    oc.files.mkdir(newFolder).then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('Unknown error')
@@ -77,8 +77,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it('checking method : delete', function (done) {
     var newFolder = testFolder + '/' + 'new folder'
 
-    oc.files.mkdir(newFolder).then(status => {
-      expect(status).toBe(null)
+    oc.files.mkdir(newFolder).then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('Unknown error')
@@ -89,8 +89,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it('checking method : getFile', function (done) {
     var file = 'tempFile' + timeRightNow
 
-    oc.files.putFileContents(file, testContent).then(status => {
-      expect(status).toBe(null)
+    oc.files.putFileContents(file, testContent).then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('Unknown error')
@@ -99,8 +99,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : move', function (done) {
-    oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
-      expect(status).toBe(null)
+    oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('Unknown error')
@@ -109,8 +109,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : copy', function (done) {
-    oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
-      expect(status).toBe(null)
+    oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文.txt').then(() => {
+      fail()
       done()
     }).catch(error => {
       expect(error).toMatch('Unknown error')

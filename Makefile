@@ -12,7 +12,7 @@ all: deps
 	if [ ! -f tests/config/config.json ] ; then cp tests/config/config.sample.json tests/config/config.json ; fi;
 
 deps:
-	npm i
+	yarn install
 
 test: deps
 	if [ ! -f tests/config/config.json ] ; then \
@@ -21,7 +21,7 @@ test: deps
 	echo "CONFIGS : "
 	cat tests/config/config.json
 	echo ""
-	npm test
+	yarn test
 
 clean:
 	#Delete existing documentation

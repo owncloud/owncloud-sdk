@@ -41,7 +41,7 @@ describe('Unauthorized: Currently testing files management,', function () {
         fail()
         done()
       }).catch(error => {
-        expect(error).toMatch('CORS request rejected')
+        expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
         count++
         if (count === testSubFiles.length) {
           done()
@@ -57,7 +57,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unknown error')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })
@@ -69,7 +69,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unknown error')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })
@@ -81,7 +81,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unknown error')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })
@@ -93,7 +93,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unknown error')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })
@@ -103,7 +103,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unknown error')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })
@@ -113,7 +113,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unknown error')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })

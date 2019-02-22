@@ -27,7 +27,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
       expect(typeof (config)).toBe('object')
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      fail(error)
       done()
     })
   })

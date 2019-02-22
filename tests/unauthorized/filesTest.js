@@ -28,7 +28,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('CORS request rejected')
+      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
       done()
     })
   })

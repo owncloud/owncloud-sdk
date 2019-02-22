@@ -259,7 +259,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status2).toEqual(true)
       return oc.files.list(newFolder, 0)
     }).then(folder2 => {
-      expect(folder2).toBe(null)
+      fail(folder2)
       done()
     }).catch(error => {
       expect(error).toBe('File with name ' + newFolder.slice(1) + ' could not be located')

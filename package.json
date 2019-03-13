@@ -54,7 +54,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.5",
     "utf8": "^3.0.0",
-    "webpack": "^3.0.0"
+    "webpack": "^4.29.6"
   },
   "dependencies": {
     "browser-request": "^0.3.3",

@@ -60,13 +60,17 @@ Files.prototype.list = function (path, depth, properties) {
     properties = []
   }
 
-  const headers = helpers.buildHeaders()
   return new Promise((resolve, reject) => {
+    if (!helpers.getAuthorization()) {
+      reject('Please specify an authorization first.')
+      return
+    }
+
+    const headers = helpers.buildHeaders()
     davClient.propFind(helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
       if (result.status !== 207) {
-        resolve(null)
+        reject(helpers._parseDAVerror(result.xhr.response))
       } else {
-        // TODO: convert body into file objects as expected
         resolve(helpers._parseBody(result.body))
       }
     }).catch(error => {

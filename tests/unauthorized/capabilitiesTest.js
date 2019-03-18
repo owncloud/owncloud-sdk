@@ -14,7 +14,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
       expect(version).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Current user is not logged in')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -24,7 +24,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
       expect(capabilities).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Current user is not logged in')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })

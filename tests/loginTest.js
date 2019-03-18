@@ -28,10 +28,11 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   it('checking method : login with a non existent instance URL', function (done) {
     oc = new OwnCloud('someRandomName')
 
-    oc.login(config.username, config.password).then(status => {
-      expect(status).toBe(null)
+    oc.login(config.username, config.password).then(() => {
+      fail()
       done()
     }).catch(error => {
+      // talking to some other server will result in rejection of the request due to CORS
       expect(error).toMatch('CORS request rejected')
       done()
     })
@@ -40,11 +41,11 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   it('checking method : login with wrong config.username and config.password', function (done) {
     oc = new OwnCloud(config.owncloudURL)
 
-    oc.login(nonExistingUser, 'config.password' + timeRightNow).then(status => {
-      expect(status).tobe(null)
+    oc.login(nonExistingUser, 'config.password' + timeRightNow).then(() => {
+      fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Current user is not logged in')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -52,11 +53,11 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   it('checking method : login with correct config.username only', function (done) {
     oc = new OwnCloud(config.owncloudURL)
 
-    oc.login(config.username, 'config.password' + timeRightNow).then(status => {
-      expect(status).tobe(null)
+    oc.login(config.username, 'config.password' + timeRightNow).then(() => {
+      fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Current user is not logged in')
+      expect(error).toMatch('Unauthorised')
       done()
     })
   })
@@ -68,7 +69,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       done()
     }).catch(error => {
-      expect(error).toBe(null)
+      fail(error)
       done()
     })
   })
@@ -89,7 +90,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       expect(version.split('.').length).toBeGreaterThan(2)
       done()
     }).catch(error => {
-      expect(error).tobe(null)
+      fail(error)
       done()
     })
   })

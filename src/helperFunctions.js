@@ -326,10 +326,14 @@ helpers.prototype._get = function (url) {
  * Parses a DAV response error.
  */
 helpers.prototype._parseDAVerror = function (body) {
-  var tree = parser.xml2js(body)
+  try {
+    var tree = parser.xml2js(body)
 
-  if (tree['d:error'] && tree['d:error']['s:message']) {
-    return tree['d:error']['s:message']
+    if (tree['d:error'] && tree['d:error']['s:message']) {
+      return tree['d:error']['s:message']
+    }
+  } catch (error) {
+    return 'Unknown error'
   }
   return 'Unknown error'
 }

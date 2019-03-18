@@ -13,17 +13,23 @@ branches:
   - master
 
 env:
-  - OC_HASH: bb8b8878b40edaeeba831663275d9815272cdea2
+  - OC_HASH: master
+  - OC_HASH: stable10
 
 before_install:
   - wget https://github.com/owncloud/core/archive/$OC_HASH.zip
   - unzip $OC_HASH.zip
   - cd core-$OC_HASH
+  - composer install --no-dev
   - make dist
   - cd ..
   - tar -xjf core-$OC_HASH/build/dist/owncloud-core.tar.bz2
   - DOCKER_ID=$(docker run -d -p 8888:8080 -e OWNCLOUD_DOMAIN=localhost -e OWNCLOUD_DB_TYPE=sqlite -e OWNCLOUD_ADMIN_USERNAME=admin -e OWNCLOUD_ADMIN_PASSWORD=admin --volume $(pwd)/owncloud:/var/www/owncloud owncloud/base:latest)
 
+install:
+  - yarn install
+
+script:
   - # needed else occ isn't available directly...
   - sleep 5
 
@@ -31,10 +37,12 @@ before_install:
   - docker exec $DOCKER_ID occ config:system:set cors.allowed-domains 0 --value http://127.0.0.1:9876
   - docker exec $DOCKER_ID occ config:system:set cors.allowed-domains 1 --value http://localhost:9876
 
-script:
-  - npm run lint
+  - yarn lint
   - sleep 10
   - make test
+
+after_failure:
+  - docker logs $DOCKER_ID
 
 after_script:
   - codecov

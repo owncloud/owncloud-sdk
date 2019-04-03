@@ -42,7 +42,7 @@
     "eslint-plugin-standard": "^4.0.0",
     "git-hooks": "^1.1.10",
     "istanbul-instrumenter-loader": "^3.0.1",
-    "jasmine": "2.99",
+    "jasmine": "3.3",
     "jasmine-core": "3.3",
     "jsdoc": "^3.4.3",
     "jszip": "^3.1.3",

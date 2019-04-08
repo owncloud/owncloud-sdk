@@ -1,0 +1,35 @@
+branches:
+  - master
+
+pipeline:
+  increment-version:
+    image: node
+    commands:
+      - yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}
+    when:
+      event: [push]
+
+  build-docs:
+    image: node
+    commands:
+      - yarn install
+      - yarn build:docs
+
+  build-system:
+    image: node
+    commands:
+      - yarn install
+      - yarn build:system
+
+  publish-docs:
+    image: plugins/gh-pages:1
+    secrets: [github_username, github_password]
+    pages_directory: docs
+    when:
+      event: [push]
+
+  publish-system:
+    image: plugins/npm:1
+    secrets: [npm_username, npm_email, npm_token]
+    when:
+      event: [push]

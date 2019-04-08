@@ -2,7 +2,7 @@
   "name": "js-owncloud-client",
   "version": "0.2.0-alpha1",
   "description": "ownCloud client library for JavaScript",
-  "main": "./src/index.js",
+  "main": "./dist/owncloud.js",
   "keywords": [
     "owncloud",
     "api",
@@ -16,25 +16,30 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/noveens/js-owncloud-client.git"
+    "url": "git+https://github.com/owncloud/js-owncloud-client.git"
   },
-  "author": "Noveen Sachdeva <noveen.sachdeva@research.iiit.ac.in>",
+  "author": "ownclouders <devops@owncloud.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/noveens/js-owncloud-client/issues"
+    "url": "https://github.com/owncloud/js-owncloud-client/issues"
   },
   "scripts": {
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
     "test": "karma start --single-run --browsers ChromeHeadless",
-    "docs": "jsdoc -c jsdoc.conf.json"
+    "build:docs": "jsdoc -c jsdoc.conf.json",
+    "build:system": "webpack"
   },
-  "homepage": "https://github.com/noveens/js-owncloud-client#readme",
+  "homepage": "https://owncloud.github.io/js-owncloud-client/",
   "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "babel-loader": "^8.0.5",
     "babel-core": "^6.26.3",
     "codecov": "^3.1.0",
     "eslint": "^5.9.0",
     "eslint-config-standard": "^12.0.0",
+    "eslint-loader": "^2.1.2",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jasmine": "^2.10.1",
     "eslint-plugin-node": "^8.0.0",
@@ -54,7 +59,8 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.5",
     "utf8": "^3.0.0",
-    "webpack": "^3.0.0"
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
   },
   "dependencies": {
     "browser-request": "^0.3.3",

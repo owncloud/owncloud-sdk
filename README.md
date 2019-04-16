@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/owncloud/js-owncloud-client.svg?branch=master)](https://travis-ci.org/noveens/js-owncloud-client)
-[![codecov](https://codecov.io/gh/owncloud/js-owncloud-client/branch/master/graph/badge.svg)](https://codecov.io/gh/owncloud/js-owncloud-client)
-[![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/js-owncloud-client/)
+[![Build Status](https://travis-ci.org/owncloud/owncloud-sdk.svg?branch=master)](https://travis-ci.org/owncloud/owncloud-sdk)
+[![codecov](https://codecov.io/gh/owncloud/owncloud-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/owncloud/owncloud-sdk)
+[![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/owncloud-sdk/)
 
 <p align="center">
   <img src="https://i.imgur.com/9mKra3O.png" />
@@ -8,20 +8,20 @@
 
 Use this light-weight JS library with a promise based interface for seamless communication with your ownCloud instance.<br>
 Supports only browser JS but requires Javascript techniques like webpack to compile it properly
-For Nods.js please have a look at [this tag](https://github.com/owncloud/js-owncloud-client/releases/tag/last-nodejs)
+For Node.js please have a look at [this tag](https://github.com/owncloud/owncloud-sdk/releases/tag/last-nodejs)
 
 
 ## Install
 
 ```
-$ npm install js-owncloud-client
+$ npm install owncloud-sdk
 ```
 
 
 ## Usage
 
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 
 // Login
@@ -50,15 +50,15 @@ oc.files.list('/path/to/file/folder').then(files => {
 
 ### ownCloud Phoenix
 
-[ownCloud Phoenix](https://github.com/owncloud/phoenix) will be the next generation Web frontend for ownCloud. It uses js-owncloud-client.
+[ownCloud Phoenix](https://github.com/owncloud/phoenix) will be the next generation Web frontend for ownCloud. It uses owncloud-sdk.
 
 ## All Methods Available
 
-Full API documentation is available at [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/js-owncloud-client/)
+Full API documentation is available at [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/owncloud-sdk/)
 
 ### General
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 ```
 Method          | Code
@@ -71,7 +71,7 @@ getCapabilities | `oc.getCapabilities()`
 
 ### Files Management
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 ```
 
@@ -93,7 +93,7 @@ copy              | `oc.files.copy(source, target)`
 
 ### Apps Management
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 ```
 Method          | Code
@@ -107,7 +107,7 @@ disableApp      | `oc.apps.disableApp(appName)`
 
 ### Group Management
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 ```
 
@@ -121,7 +121,7 @@ groupExists     | `oc.groups.groupExists(groupName)`
 
 ### Share Management
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 ```
 Method              | Code
@@ -140,7 +140,7 @@ deleteShare         | `oc.shares.deleteShare(shareId)`
 
 ### User Management
 ```js
-var owncloud = require('js-owncloud-client');
+var owncloud = require('owncloud-sdk');
 var oc = new owncloud('*owncloud instance URL*');
 ```
 Method                 | Code
@@ -167,7 +167,6 @@ userIsInSubadminGroup  | `oc.users.userIsInSubadminGroup(username, groupName)`
 To build the jsdocs, type this command and follow the instructions on the terminal :
 
 ```
-$ cd node_modules/js-owncloud-client/
 $ yarn run docs
 ```
 
@@ -176,7 +175,6 @@ $ yarn run docs
 The following command will run all unit tests. Before running the command, make sure you have edited the `owncloud/test/config.json` file accordingly.
 
 ```
-$ cd node_modules/js-owncloud-client/
 $ yarn test
 ```
 

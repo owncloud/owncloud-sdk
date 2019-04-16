@@ -82,10 +82,11 @@ Files.prototype.list = function (path, depth, properties) {
 /**
  * Returns the contents of a remote file
  * @param   {string}  path          path of the remote file at OC instance
+ * @param   {Object} options
  * @returns {Promise.<contents>}    string: contents of file
  * @returns {Promise.<error>}       string: error message, if any.
  */
-Files.prototype.getFileContents = function (path) {
+Files.prototype.getFileContents = function (path, options) {
   return new Promise((resolve, reject) => {
     // TODO: use davclient ?
     helpers._get(helpers._buildFullWebDAVPath(path)).then(data => {
@@ -93,7 +94,18 @@ Files.prototype.getFileContents = function (path) {
       var body = data.body
 
       if (response.statusCode === 200) {
-        resolve(body)
+        options = options || []
+        const resolveWithResponseObject = options.resolveWithResponseObject || false
+        if (resolveWithResponseObject) {
+          resolve({
+            body: body,
+            headers: {
+              'ETag': response.getResponseHeader('etag'),
+              'OC-FileId': response.getResponseHeader('oc-fileid')
+            } })
+        } else {
+          resolve(body)
+        }
       } else {
         var err = helpers._parseDAVerror(body)
         reject(err)
@@ -117,6 +129,7 @@ Files.prototype.getFileUrl = function (path) {
  * Write data into a remote file
  * @param   {string} path       path of the file at OC instance
  * @param   {string} content    content to be put
+ * @param   {Object} options
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */

@@ -130,8 +130,9 @@ describe('Main: Currently testing files management,', function () {
     var count = 0
 
     for (var i = 0; i < testSubFiles.length; i++) {
-      oc.files.getFileContents(testSubFiles[i]).then(content => {
-        expect(content).toEqual(testContent)
+      oc.files.getFileContents(testSubFiles[i], { resolveWithResponseObject: true }).then((resp) => {
+        expect(resp.body).toEqual(testContent)
+        expect(resp.headers.ETag).toBeDefined()
         count++
         if (count === testSubFiles.length) {
           done()

@@ -3,6 +3,9 @@
   "version": "1.0.0-dev",
   "description": "ownCloud client library for JavaScript",
   "main": "./dist/owncloud.js",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "owncloud",
     "api",
@@ -16,12 +19,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/owncloud/js-owncloud-client.git"
+    "url": "git+https://github.com/owncloud/owncloud-sdk.git"
   },
   "author": "ownclouders <devops@owncloud.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/owncloud/js-owncloud-client/issues"
+    "url": "https://github.com/owncloud/owncloud-sdk/issues"
   },
   "scripts": {
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
@@ -30,7 +33,7 @@
     "build:docs": "jsdoc -c jsdoc.conf.json",
     "build:system": "webpack"
   },
-  "homepage": "https://owncloud.github.io/js-owncloud-client/",
+  "homepage": "https://owncloud.github.io/owncloud-sdk/",
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",

@@ -8,3 +8,4 @@ coverage
 *.zip
 core-*
 dist
+docs

@@ -61,6 +61,8 @@ pipeline:
 
   test:
     image: node
+    pull: true
+    commands:
       - yarn test
 
   publish-docs:

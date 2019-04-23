@@ -1,3 +1,6 @@
+workspace:
+  base: /var/www/owncloud
+
 branches:
   - master
 
@@ -53,7 +56,7 @@ pipeline:
     image: owncloudci/php:${PHP_VERSION=7.1}
     pull: true
     commands:
-      - wait-for-it -t 300 phoenix:8300
+      - wait-for-it -t 300 owncloud:80
 
   test:
     image: node
@@ -71,3 +74,11 @@ pipeline:
     secrets: [npm_username, npm_email, npm_token]
     when:
       event: [push]
+
+  owncloud:
+    image: owncloudci/php:${PHP_VERSION=7.1}
+    pull: true
+    environment:
+      - APACHE_WEBROOT=/var/www/owncloud/
+    command: [ "/usr/local/bin/apachectl", "-e", "debug", "-D", "FOREGROUND" ]
+

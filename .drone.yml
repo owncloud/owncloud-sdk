@@ -21,6 +21,44 @@ pipeline:
       - yarn install
       - yarn build:system
 
+  install-server:
+    image: owncloudci/core
+    version: ${OC_VERSION=daily-master-qa}
+    pull: true
+    db_type: ${DB_TYPE=sqlite}
+    db_name: ${DB_NAME=sqlite}
+    db_host: ${DB_TYPE=sqlite}
+    db_username: autotest
+    db_password: owncloud
+    core_path: /var/www/owncloud/
+
+  configure-server:
+    image: owncloudci/php:${PHP_VERSION=7.1}
+    pull: true
+    commands:
+      - cd /var/www/owncloud/
+      - php occ config:system:set trusted_domains 1 --value=owncloud
+      - php occ config:system:set cors.allowed-domains 0 --value=http://phoenix:8300
+      - php occ log:manage --level 0
+      - php occ config:list
+
+  owncloud-log:
+    image: owncloud/ubuntu:16.04
+    detach: true
+    pull: true
+    commands:
+      - tail -f /var/www/owncloud/data/owncloud.log
+
+  wait-for-owncloud:
+    image: owncloudci/php:${PHP_VERSION=7.1}
+    pull: true
+    commands:
+      - wait-for-it -t 300 phoenix:8300
+
+  test:
+    image: node
+      - yarn test
+
   publish-docs:
     image: plugins/gh-pages:1
     secrets: [github_username, github_password]

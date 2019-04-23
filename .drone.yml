@@ -60,7 +60,7 @@ pipeline:
       - wait-for-it -t 300 owncloud:80
 
   test:
-    image: node
+    image: zenika/alpine-chrome:with-node
     pull: true
     commands:
       - cp tests/config/config.drone.json tests/config/config.json

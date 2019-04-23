@@ -76,6 +76,7 @@ pipeline:
     when:
       event: [push]
 
+services:
   owncloud:
     image: owncloudci/php:${PHP_VERSION=7.1}
     pull: true

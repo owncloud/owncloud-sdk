@@ -60,7 +60,7 @@ pipeline:
       - wait-for-it -t 300 owncloud:80
 
   test:
-    image: owncloudcu/nodejs
+    image: owncloudci/nodejs
     pull: true
     commands:
       - apt-get update -y

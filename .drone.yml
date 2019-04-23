@@ -42,7 +42,7 @@ pipeline:
     commands:
       - cd /var/www/owncloud/
       - php occ config:system:set trusted_domains 1 --value=owncloud
-      - php occ config:system:set cors.allowed-domains 0 --value=http://phoenix:8300
+      - php occ config:system:set cors.allowed-domains 0 --value=http://127.0.0.1:9876
       - php occ log:manage --level 0
       - php occ config:list
 
@@ -63,6 +63,7 @@ pipeline:
     image: node
     pull: true
     commands:
+      - cp tests/config/config.drone.json tests/config/config.json
       - yarn test
 
   publish-docs:

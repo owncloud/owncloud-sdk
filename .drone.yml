@@ -60,9 +60,12 @@ pipeline:
       - wait-for-it -t 300 owncloud:80
 
   test:
-    image: zenika/alpine-chrome:with-node
+    image: owncloudcu/nodejs
     pull: true
     commands:
+      - apt-get update -y
+      - apt-get upgrade -y
+      - apt-get install -y chromium
       - cp tests/config/config.drone.json tests/config/config.json
       - yarn test
 

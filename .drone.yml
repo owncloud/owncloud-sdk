@@ -1,5 +1,6 @@
 workspace:
   base: /var/www/owncloud
+  path: onwcloud-sdk
 
 branches:
   - master

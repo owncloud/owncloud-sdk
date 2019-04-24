@@ -30,6 +30,7 @@
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
     "test": "karma start --single-run --browsers ChromeHeadless",
+    "test-drone": "karma start --single-run --browsers ChromeHeadlessNoSandbox",
     "build:docs": "jsdoc -c jsdoc.conf.json",
     "build:system": "webpack"
   },

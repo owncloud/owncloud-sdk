@@ -23,6 +23,7 @@ pipeline:
     image: node
     commands:
       - yarn install
+      - yarn lint
       - yarn build:system
 
   install-server:
@@ -35,6 +36,9 @@ pipeline:
     db_username: autotest
     db_password: owncloud
     core_path: /var/www/owncloud/
+    when:
+      matrix:
+        PIPELINE: test
 
   configure-server:
     image: owncloudci/php:${PHP_VERSION=7.1}
@@ -46,6 +50,9 @@ pipeline:
       - php occ log:manage --level 0
       - php occ config:list
       - chown www-data * -R
+    when:
+      matrix:
+        PIPELINE: test
 
   owncloud-log:
     image: owncloud/ubuntu:16.04
@@ -53,18 +60,27 @@ pipeline:
     pull: true
     commands:
       - tail -f /var/www/owncloud/data/owncloud.log
+    when:
+      matrix:
+        PIPELINE: test
 
   wait-for-owncloud:
     image: owncloudci/php:${PHP_VERSION=7.1}
     pull: true
     commands:
       - wait-for-it -t 300 owncloud:80
+    when:
+      matrix:
+        PIPELINE: test
 
   test:
     image: owncloudci/chromium
     commands:
       - cp tests/config/config.drone.json tests/config/config.json
       - yarn test-drone
+    when:
+      matrix:
+        PIPELINE: test
 
   publish-docs:
     image: plugins/gh-pages:1
@@ -72,12 +88,16 @@ pipeline:
     pages_directory: docs
     when:
       event: [push]
+      matrix:
+        PIPELINE: publish
 
   publish-system:
     image: plugins/npm:1
     secrets: [npm_username, npm_email, npm_token]
     when:
       event: [push]
+      matrix:
+        PIPELINE: publish
 
 services:
   owncloud:
@@ -86,4 +106,14 @@ services:
     environment:
       - APACHE_WEBROOT=/var/www/owncloud/
     command: [ "/usr/local/bin/apachectl", "-e", "debug", "-D", "FOREGROUND" ]
+    when:
+      matrix:
+        PIPELINE: test
 
+matrix:
+  include:
+    - PIPELINE: test
+      OC_VERSION: daily-master-qa
+    - PIPELINE: test
+      OC_VERSION: daily-stable10-qa
+    - PIPELINE: publish

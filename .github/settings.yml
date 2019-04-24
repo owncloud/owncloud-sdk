@@ -3,6 +3,7 @@ repository:
   description: :cloud: ownCloud client library for JavaScript
   homepage: https://www.npmjs.com/package/owncloud-sdk
   has_wiki: false
+  
 labels:
   - name: 1 - To develop
     color: ededed

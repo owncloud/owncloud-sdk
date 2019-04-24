@@ -72,7 +72,7 @@ pipeline:
     secrets: [codecov_token]
     pull: true
     files:
-      - 'lcov.info'
+      - '*.info'
     paths:
       - coverage
     when:

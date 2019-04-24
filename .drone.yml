@@ -67,6 +67,20 @@ pipeline:
       - cp tests/config/config.drone.json tests/config/config.json
       - yarn test-drone
 
+  codecov:
+    image: plugins/codecov:2
+    secrets: [codecov_token]
+    pull: true
+    files:
+      - 'lcov.info'
+    paths:
+      - coverage
+    when:
+      event: [push, pull_request]
+      matrix:
+        COVERAGE: true
+
+
   publish-docs:
     image: plugins/gh-pages:1
     secrets: [github_username, github_password]

@@ -77,9 +77,6 @@ pipeline:
       - coverage
     when:
       event: [push, pull_request]
-      matrix:
-        COVERAGE: true
-
 
   publish-docs:
     image: plugins/gh-pages:1

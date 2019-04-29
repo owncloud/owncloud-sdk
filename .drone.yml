@@ -7,20 +7,20 @@ branches:
 
 pipeline:
   increment-version:
-    image: node
+    image: node:11
     commands:
       - yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}
     when:
       event: [push]
 
   build-docs:
-    image: node
+    image: node:11
     commands:
       - yarn install
       - yarn build:docs
 
   build-system:
-    image: node
+    image: node:11
     commands:
       - yarn install
       - yarn lint

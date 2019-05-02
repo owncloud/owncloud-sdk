@@ -382,4 +382,38 @@ Shares.prototype.deleteShare = function (shareId) {
   })
 }
 
+/**
+ * Deletes a share
+ * @param {string} search
+ * @param {string} itemType
+ * @param {int} page
+ * @param {int} perPage
+ * @returns {Promise.<status>}    boolean: true if successful
+ * @returns {Promise.<error>}     string: error message, if any.
+ */
+Shares.prototype.getRecipients = function (search, itemType, page = 1, perPage = 200) {
+  if (isNaN(parseInt(page)) || page < 1) {
+    return Promise.reject(new Error('Please pass a valid page parameter (Integer)'))
+  }
+  if (isNaN(parseInt(perPage)) || perPage < 1) {
+    return Promise.reject(new Error('Please pass a valid perPage parameter (Integer)'))
+  }
+
+  return helpers.ocs({
+    method: 'GET',
+    service: 'apps/files_sharing',
+    action: 'api/v1/sharees?search=' + encodeURIComponent(search) + '&itemType=' + encodeURIComponent(itemType) +
+      '&page=' + page + '&perPage=' + perPage
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      }
+      throw new Error(response.status + '/' + response.statusText)
+    })
+    .then(json => {
+      return json.ocs.data
+    })
+}
+
 module.exports = Shares

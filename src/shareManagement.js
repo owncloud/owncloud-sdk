@@ -332,7 +332,7 @@ Shares.prototype.declineRemoteShare = function (shareId) {
  * @returns {Promise.<error>}          string: error message, if any.
  */
 Shares.prototype.updateShare = function (shareId, optionalParams) {
-  var postData = {}
+  let postData = {}
 
   if (optionalParams) {
     if (optionalParams.perms) {
@@ -347,14 +347,10 @@ Shares.prototype.updateShare = function (shareId, optionalParams) {
   }
 
   /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE,
-      'shares/' + shareId.toString(), postData, 1
-    ).then(data => {
-      resolve(true)
-    }).catch(error => {
-      reject(error)
-    })
+  return helpers._makeOCSrequest('PUT', helpers.OCS_SERVICE_SHARE,
+    'shares/' + shareId.toString(), postData, 1
+  ).then(data => {
+    return Promise.resolve(new ShareInfo(data.data.ocs.data))
   })
 }
 

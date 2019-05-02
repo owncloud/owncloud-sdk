@@ -88,8 +88,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('updating share permissions,', function () {
         beforeEach(function (done) {
           oc.shares.updateShare(testFolderShareID, { perms: 31 }) // max-permissions
-            .then(status => {
-              expect(status).toBe(null)
+            .then(updatedShare => {
+              expect(updatedShare.getId()).toBe(testFolderShareID)
+              expect(updatedShare.getPermissions()).toBe(31)
               done()
             }).catch(error => {
               var check = 'can\'t change permissions for public share links'
@@ -116,8 +117,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // needs to be double checked
       describe('making publicUpload true,', function () {
         beforeEach(function (done) {
-          oc.shares.updateShare(testFolderShareID, { publicUpload: true }).then(data => {
-            expect(data).toBe(true)
+          oc.shares.updateShare(testFolderShareID, { publicUpload: true }).then(updatedShare => {
+            expect(updatedShare.getId()).toBe(testFolderShareID)
+            expect(updatedShare.getPermissions() & OCS_PERMISSION_CREATE).toBeGreaterThan(0)
+            expect(updatedShare.getPermissions() & OCS_PERMISSION_UPDATE).toBeGreaterThan(0)
             done()
           }).catch(error => {
             expect(error).toBe(null)
@@ -140,8 +143,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // needs to be double checked
       describe('adding password,', function () {
         beforeEach(function (done) {
-          oc.shares.updateShare(testFolderShareID, { password: 'testPassword' }).then(status => {
-            expect(status).toEqual(true)
+          oc.shares.updateShare(testFolderShareID, { password: 'testPassword' }).then(updatedShare => {
+            expect(updatedShare.getId()).toBe(testFolderShareID)
+            expect(typeof (updatedShare.getShareWith())).toEqual('string')
+            expect(typeof (updatedShare.getShareWithDisplayName())).toEqual('string')
             done()
           }).catch(error => {
             expect(error).toBe(null)
@@ -378,8 +383,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
           var count = 0
 
           for (var file in sharedFilesWithUser) {
-            oc.shares.updateShare(sharedFilesWithUser[file], { perms: maxPerms }).then(status => {
-              expect(status).toEqual(true)
+            oc.shares.updateShare(sharedFilesWithUser[file], { perms: maxPerms }).then(updatedShare => {
+              expect(updatedShare.getPermissions()).toBe(maxPerms)
               count++
               if (count === Object.keys(sharedFilesWithUser).length) {
                 done()

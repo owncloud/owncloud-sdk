@@ -477,17 +477,18 @@ helpers.prototype._extractPath = function (path, leftTrimComponents) {
   var pathSections = path.split('/')
   pathSections = pathSections.filter(function (section) { return section !== '' })
 
-  if (decodeURIComponent(pathSections[0]) !== 'remote.php') {
+  let remoteIndex = pathSections.findIndex(section => decodeURIComponent(section) === 'remote.php')
+  if (remoteIndex === -1) {
     return null
   }
-  if (['webdav', 'dav'].indexOf(decodeURIComponent(pathSections[1])) === -1) {
+  if (['webdav', 'dav'].indexOf(decodeURIComponent(pathSections[remoteIndex + 1])) === -1) {
     return null
   }
 
   // build the sub-path from the remaining sections
   leftTrimComponents = leftTrimComponents || 0
-  var subPath = ''
-  var i = leftTrimComponents + 2
+  let subPath = ''
+  let i = remoteIndex + leftTrimComponents + 2
   while (i < pathSections.length) {
     subPath += '/' + decodeURIComponent(pathSections[i])
     i++

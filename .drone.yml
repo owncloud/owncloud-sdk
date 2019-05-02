@@ -35,13 +35,13 @@ pipeline:
     db_host: ${DB_TYPE=sqlite}
     db_username: autotest
     db_password: owncloud
-    core_path: /var/www/owncloud/
+    core_path: /var/www/owncloud${SUBFOLDER=/}
 
   configure-server:
     image: owncloudci/php:${PHP_VERSION=7.1}
     pull: true
     commands:
-      - cd /var/www/owncloud/
+      - cd /var/www/owncloud${SUBFOLDER=/}
       - php occ config:system:set trusted_domains 1 --value=owncloud
       - php occ config:system:set cors.allowed-domains 0 --value=http://localhost:9876
       - php occ log:manage --level 0
@@ -53,7 +53,7 @@ pipeline:
     detach: true
     pull: true
     commands:
-      - tail -f /var/www/owncloud/data/owncloud.log
+      - tail -f /var/www/owncloud${SUBFOLDER=/}data/owncloud.log
 
   wait-for-owncloud:
     image: owncloudci/php:${PHP_VERSION=7.1}
@@ -61,10 +61,19 @@ pipeline:
     commands:
       - wait-for-it -t 300 owncloud:80
 
+  prepare-test-config:
+    image: owncloud/ubuntu:16.04
+    environment:
+      - SUBFOLDER=${SUBFOLDER=/}
+    commands:
+      - apt update
+      - apt install gettext -y
+      - envsubst < tests/config/config.drone.json > tests/config/config.json
+      - cat tests/config/config.json
+
   test:
     image: owncloudci/chromium
     commands:
-      - cp tests/config/config.drone.json tests/config/config.json
       - yarn test-drone
 
   codecov:
@@ -108,4 +117,11 @@ matrix:
     - PUBLISH: false
       OC_VERSION: daily-master-qa
     - PUBLISH: true
+      OC_VERSION: daily-stable10-qa
+
+    - PUBLISH: false
+      SUBFOLDER: /sub/
+      OC_VERSION: daily-master-qa
+    - PUBLISH: false
+      SUBFOLDER: /sub/
       OC_VERSION: daily-stable10-qa

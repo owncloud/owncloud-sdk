@@ -139,9 +139,6 @@ labels:
     color: FFFF00
   - name: review carefully!
     color: ededed
-  - name: security
-  - name: settings:admin
-    color: 02d7e1
   - name: technical debt
     color: FFFF00
   - name: tested

@@ -49,7 +49,7 @@
     "eslint-loader": "^2.1.2",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jasmine": "^2.10.1",
-    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-node": "^9.0.0",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "git-hooks": "^1.1.10",

@@ -18,6 +18,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'node_modules/babel-polyfill/dist/polyfill.js',
       'tests/karma.js'
     ],
 
@@ -40,6 +41,11 @@ module.exports = function (config) {
       devtool: 'inline-source-map',
       module: {
         rules: [
+          {
+            test: /\.js?$/,
+            exclude: /node_modules/,
+            loader: 'babel-loader'
+          },
           {
             test: /\.js$/,
             exclude: [ /node_modules/ ],

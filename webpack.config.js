@@ -2,8 +2,7 @@ module.exports = {
   mode: 'production',
   entry: {
     files: [
-      'core-js/modules/es6.promise',
-      'core-js/modules/es6.array.iterator',
+      '@babel/polyfill',
       './src/index.js'
     ]
   },

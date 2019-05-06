@@ -40,6 +40,7 @@
     "@babel/plugin-proposal-class-properties": "^7.4.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-transform-runtime": "^7.4.3",
+    "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.3",
     "@babel/runtime": "^7.4.3",
     "babel-loader": "^8.0.5",
@@ -82,14 +83,23 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-env"
-    ],
-    "plugins": [
-      "@babel/plugin-syntax-dynamic-import",
-      "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-object-rest-spread",
-      "@babel/plugin-transform-runtime",
-      "@babel/plugin-transform-modules-commonjs"
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "browsers": [
+              "> 1%",
+              "last 2 versions",
+              "not Explorer > 0",
+              "IE 11",
+              "not ExplorerMobile > 0",
+              "not BlackBerry > 0",
+              "not OperaMini all",
+              "not OperaMobile > 0"
+            ]
+          }
+        }
+      ]
     ]
   },
   "browserslist": [

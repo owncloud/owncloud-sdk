@@ -39,7 +39,6 @@ function Files (helperFile) {
       'DAV:': 'd',
       'http://owncloud.org/ns': 'oc'
     }
-
   })
 }
 
@@ -336,7 +335,7 @@ Files.prototype.copy = function (source, target) {
  * @returns {Promise.<status>}  boolean: whether the operation was successful
  * @returns {Promise.<error>}   string: error message, if any.
  */
-Files.prototype.favorite = function (path, value) {
+Files.prototype.favorite = function (path, value = true) {
   if (typeof value === 'undefined') {
     value = true
   }
@@ -358,67 +357,136 @@ Files.prototype.favorite = function (path, value) {
   })
 }
 
+/**
+ * Search in all files of the user for a given pattern
+ * @param   {string} pattern        pattern to be searched for
+ * @param   {int} limit             maximum number of results
+ * @param   {string[]} properties   list of DAV properties which are expected in the response
+ * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}       string: error message, if any.
+ */
 Files.prototype.search = function (pattern, limit, properties) {
   pattern = pattern || ''
   limit = limit || 30
 
-  return new Promise((resolve, reject) => {
-    if (!helpers.getAuthorization()) {
-      reject('Please specify an authorization first.')
-      return
-    }
+  let body =
+    '<?xml version="1.0"?>\n' +
+    '<oc:search-files '
+  let namespace
+  for (namespace in davClient.xmlNamespaces) {
+    body += ' xmlns:' + davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
+  }
+  body += '>\n'
+  body += this._renderProperties(properties)
 
-    let body =
-      '<?xml version="1.0"?>\n' +
-      '<oc:search-files '
-    let namespace
-    for (namespace in davClient.xmlNamespaces) {
-      body += ' xmlns:' + davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
-    }
-    body += '>\n'
-
-    if (properties) {
-      body += '  <d:prop>\n'
-
-      for (var ii in properties) {
-        if (!properties.hasOwnProperty(ii)) {
-          continue
-        }
-
-        const property = davClient.parseClarkNotation(properties[ii])
-        if (davClient.xmlNamespaces[property.namespace]) {
-          body += '    <' + davClient.xmlNamespaces[property.namespace] + ':' + property.name + ' />\n'
-        } else {
-          body += '    <x:' + property.name + ' xmlns:x="' + property.namespace + '" />\n'
-        }
-      }
-      body += '  </d:prop>\n'
-    }
-
-    body +=
+  body +=
     '  <oc:search>\n' +
     '    <oc:pattern>' + helpers.escapeXml(pattern) + '</oc:pattern>\n' +
     '    <oc:limit>' + helpers.escapeXml(limit) + '</oc:limit>\n' +
     '  </oc:search>\n' +
     '</oc:search-files>'
 
-    helpers.getCurrentUserAsync().then(user => {
-      const path = '/files/' + user.id + '/'
+  return this._sendDavReport(body)
+}
 
-      const headers = helpers.buildHeaders()
-      headers['Content-Type'] = helpers._buildFullWebDAVPath('application/xml; charset=utf-8')
+/**
+ * Get all favorite files and folder of the user
+ * @param   {string[]} properties   list of DAV properties which are expected in the response
+ * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}       string: error message, if any.
+ */
+Files.prototype.getFavoriteFiles = function (properties) {
+  let body =
+    '<?xml version="1.0"?>\n' +
+    '<oc:filter-files '
+  let namespace
+  for (namespace in davClient.xmlNamespaces) {
+    body += ' xmlns:' + davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
+  }
+  body += '>\n'
 
-      davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), headers, body).then(result => {
-        if (result.status !== 207) {
-          resolve(null)
-        } else {
-          resolve(helpers._parseBody(result.body, 2))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+  body += this._renderProperties(properties)
+
+  body +=
+    '<oc:filter-rules>\n' +
+    '<oc:favorite>1</oc:favorite>\n' +
+    '</oc:filter-rules>\n' +
+    '</oc:filter-files>'
+
+  return this._sendDavReport(body)
+}
+
+Files.prototype._renderProperties = function (properties) {
+  if (!properties) {
+    return ''
+  }
+  let body = '  <d:prop>\n'
+
+  for (let ii in properties) {
+    if (!properties.hasOwnProperty(ii)) {
+      continue
+    }
+
+    const property = davClient.parseClarkNotation(properties[ii])
+    if (davClient.xmlNamespaces[property.namespace]) {
+      body += '    <' + davClient.xmlNamespaces[property.namespace] + ':' + property.name + ' />\n'
+    } else {
+      body += '    <x:' + property.name + ' xmlns:x="' + property.namespace + '" />\n'
+    }
+  }
+  body += '  </d:prop>\n'
+  return body
+}
+
+/**
+ * Get all files and folder of the user for a given list of tags
+ * @param   {int[]} tags            list of tag ids
+ * @param   {string[]} properties   list of DAV properties which are expected in the response
+ * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+ * @returns {Promise.<error>}       string: error message, if any.
+ */
+Files.prototype.getFilesByTags = function (tags, properties) {
+  let body =
+    '<?xml version="1.0"?>\n' +
+    '<oc:filter-files '
+  let namespace
+  for (namespace in davClient.xmlNamespaces) {
+    body += ' xmlns:' + davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
+  }
+  body += '>\n'
+  body += this._renderProperties(properties)
+
+  body += '<oc:filter-rules>'
+  for (let tag in tags) {
+    body += '<oc:systemtag>'
+    body += tags[tag]
+    body += '</oc:systemtag>'
+  }
+
+  body += '</oc:filter-rules>'
+  body += '</oc:filter-files>'
+
+  return this._sendDavReport(body)
+}
+
+Files.prototype._sendDavReport = function (body) {
+  if (!helpers.getAuthorization()) {
+    return Promise.reject('Please specify an authorization first.')
+  }
+
+  return helpers.getCurrentUserAsync().then(user => {
+    const path = '/files/' + user.id + '/'
+
+    const headers = helpers.buildHeaders()
+    headers['Content-Type'] = 'application/xml; charset=utf-8'
+
+    return davClient.request('REPORT', helpers._buildFullWebDAVPathV2(path), headers, body).then(result => {
+      if (result.status !== 207) {
+        return Promise.reject(new Error('Error: ' + result.status))
+      } else {
+        return Promise.resolve(helpers._parseBody(result.body, 2))
+      }
     })
   })
 }
-
 module.exports = Files

@@ -71,27 +71,7 @@ function ownCloud (instance, options = {}) {
   this.fileVersions = new FileVersion(this.helpers)
   this.requests = {
     ocs: function (options = {}) {
-      let defaults = {
-        method: 'GET',
-        service: helpers.OCS_SERVICE_CLOUD,
-        action: 'user',
-        data: null
-      }
-      options = Object.assign({}, defaults, options)
-      const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
-      const url = helpers.instance + helpers.OCS_BASEPATH_V2 + options.service + '/' + action
-      var headers = helpers.buildHeaders()
-      headers['OCS-APIREQUEST'] = true
-      const init = {
-        method: options.method,
-        mode: 'cors',
-        headers: headers
-      }
-      if (options.data !== null) {
-        init.body = JSON.stringify(options.data)
-        init.headers['Content-Type'] = 'application/json'
-      }
-      return fetch(url, init)
+      return helpers.ocs(options)
     }
   }
 }

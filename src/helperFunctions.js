@@ -536,4 +536,28 @@ helpers.prototype.escapeXml = function (unsafe) {
   })
 }
 
+helpers.prototype.ocs = function (options = {}) {
+  let defaults = {
+    method: 'GET',
+    service: this.OCS_SERVICE_CLOUD,
+    action: 'user',
+    data: null
+  }
+  options = Object.assign({}, defaults, options)
+  const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
+  const url = this.instance + this.OCS_BASEPATH_V2 + options.service + '/' + action
+  let headers = this.buildHeaders()
+  headers['OCS-APIREQUEST'] = true
+  const init = {
+    method: options.method,
+    mode: 'cors',
+    headers: headers
+  }
+  if (options.data !== null) {
+    init.body = JSON.stringify(options.data)
+    init.headers['Content-Type'] = 'application/json'
+  }
+  return fetch(url, init)
+}
+
 module.exports = helpers

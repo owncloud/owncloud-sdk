@@ -205,6 +205,28 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
+  it('checking method: favorite filter', function (done) {
+    const newFile = testFolder + '/' + 'file.txt'
+
+    oc.files.putFileContents(newFile, testContent).then(status => {
+      expect(typeof status).toBe('object')
+      return oc.files.favorite(newFile)
+    }).then(status2 => {
+      expect(status2).toEqual(true)
+      return oc.files.getFavoriteFiles(['{http://owncloud.org/ns}favorite'])
+    }).then(files => {
+      expect(files.length).toEqual(1)
+      expect(files[0].getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
+      return oc.files.delete(newFile)
+    }).then(status2 => {
+      expect(status2).toEqual(true)
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
   it('checking method : putFileContents for a non existing parent path', function (done) {
     oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
       expect(status).toBe(null)
@@ -419,6 +441,33 @@ describe('Main: Currently testing files management,', function () {
       expect(files[0].getName()).toEqual('abc.txt')
       expect(files[0].getPath()).toEqual(testFolder + '/')
       expect(files[0].getSize()).toEqual(11)
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
+  it('checking method: filter by tag', function (done) {
+    const newFile = testFolder + '/' + 'fileToTag.txt'
+    const newTagName = 'testSystemTag' + timeRightNow
+    let fileId = 0
+    let tagId = 0
+
+    oc.files.putFileContents(newFile, testContent).then(status => {
+      expect(typeof status).toBe('object')
+      return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
+    }).then(fileInfo => {
+      fileId = fileInfo.getFileId()
+      return oc.systemTags.createTag({ name: newTagName })
+    }).then(resp => {
+      tagId = resp
+      return oc.systemTags.tagFile(fileId, tagId)
+    }).then(status2 => {
+      return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
+    }).then(files => {
+      expect(files.length).toEqual(1)
+      expect(files[0].getName()).toEqual('fileToTag.txt')
       done()
     }).catch(error => {
       expect(error).toBe(null)

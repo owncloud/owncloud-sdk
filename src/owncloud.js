@@ -6,6 +6,7 @@ const Users = require('./userManagement.js')
 const Groups = require('./groupManagement.js')
 const Files = require('./fileManagement.js')
 const FileVersion = require('./fileVersionManagement.js')
+const SystemTags = require('./systemTags')
 
 /**
  * @class ownCloud
@@ -69,6 +70,7 @@ function ownCloud (instance, options = {}) {
   this.groups = new Groups(this.helpers)
   this.files = new Files(this.helpers)
   this.fileVersions = new FileVersion(this.helpers)
+  this.systemTags = new SystemTags(this.helpers)
   this.requests = {
     ocs: function (options = {}) {
       return helpers.ocs(options)

@@ -1,5 +1,5 @@
 {
-    "owncloudURL": "http://owncloud/",
+    "owncloudURL": "http://owncloud${SUBFOLDER}",
     "username": "admin",
     "password": "admin"
 }

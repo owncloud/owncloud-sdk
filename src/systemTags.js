@@ -2,30 +2,10 @@ var Promise = require('promise')
 const dav = require('davclient.js')
 
 /**
- * @class Files
+ * @class SystemTags
  * @classdesc
- * <b><i> The Files class, has all the methods for your ownCloud files management.</i></b><br><br>
- * Supported Methods are:
- * <ul>
- *  <li><b>Files Management</b>
- *      <ul>
- *          <li>list</li>
- *          <li>getFileContents</li>
- *          <li>putFileContents</li>
- *          <li>mkdir</li>
- *          <li>createFolder</li>
- *          <li>delete</li>
- *          <li>fileInfo</li>
- *          <li>getDirectoryAsZip</li>
- *          <li>putFile</li>
- *          <li>putDirectory</li>
- *          <li>move</li>
- *          <li>copy</li>
- *      </ul>
- *  </li>
- * </ul>
+ * <b><i> The SystemTags class, has all the methods for ownCloud system tags management.</i></b><br><br>
  *
- * @author Noveen Sachdeva
  * @version 1.0.0
  * @param   {helpers}    helperFile  instance of the helpers class
  */

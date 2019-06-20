@@ -28,7 +28,7 @@ pipeline:
 
   install-server:
     image: owncloudci/core
-    version: ${OC_VERSION=daily-master-qa}
+    GIT_REFERENCE: ${OC_REFERENCE=feature/webdav-trash}
     pull: true
     db_type: ${DB_TYPE=sqlite}
     db_name: ${DB_NAME=sqlite}
@@ -115,13 +115,17 @@ services:
 matrix:
   include:
     - PUBLISH: false
-      OC_VERSION: daily-master-qa
+      OC_REFERENCE: feature/webdav-trash-2
+    - PUBLISH: false
+      SUBFOLDER: /sub/
+      OC_REFERENCE: feature/webdav-trash-2
+    - PUBLISH: false
+      OC_REFERENCE: master
     - PUBLISH: true
-      OC_VERSION: daily-stable10-qa
-
+      OC_REFERENCE: stable10
     - PUBLISH: false
       SUBFOLDER: /sub/
-      OC_VERSION: daily-master-qa
+      OC_REFERENCE: master
     - PUBLISH: false
       SUBFOLDER: /sub/
-      OC_VERSION: daily-stable10-qa
+      OC_REFERENCE: stable10

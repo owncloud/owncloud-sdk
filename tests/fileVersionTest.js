@@ -18,8 +18,17 @@ describe('Main: Currently testing file versions management,', function () {
   }
 
   beforeEach(function (done) {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password).then(status => {
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
+
+    oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
 
       // create three versions

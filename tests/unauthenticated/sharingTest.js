@@ -16,7 +16,9 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
   var testFile = '/文件' + timeRightNow + '.txt'
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL
+    })
   })
 
   it('checking method : shareFileWithLink', function (done) {

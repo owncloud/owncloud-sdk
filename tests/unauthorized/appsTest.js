@@ -11,8 +11,17 @@ describe('Unauthorized: Currently testing apps management,', function () {
   var testApp = 'someAppName' + timeRightNow
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password + timeRightNow)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password + timeRightNow
+        }
+      }
+    })
+
+    oc.login()
   })
 
   it('checking method : getApps', function (done) {

@@ -1,17 +1,26 @@
 describe('Main: Currently testing getConfig, getVersion and getCapabilities', function () {
-  var OwnCloud = require('../src/owncloud')
-  var config = require('./config/config.json')
+  const OwnCloud = require('../src/owncloud')
+  const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   beforeEach(function (done) {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password).then(status => {
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
+
+    oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       done()
     }).catch(error => {
-      expect(error).toBe(null)
+      fail(error)
       done()
     })
   })
@@ -32,32 +41,20 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     })
   })
 
-  it('checking method : getVersion', function (done) {
-    oc.getVersion().then(version => {
-      expect(version).not.toBe(null)
-      expect(typeof (version)).toEqual('string')
-      expect(version.split('.').length).toBeGreaterThan(2)
-      done()
-    }).catch(error => {
-      expect(error).tobe(null)
-      done()
-    })
-  })
-
   it('checking method : getCapabilities', function (done) {
     oc.getCapabilities().then(capabilities => {
       expect(capabilities).not.toBe(null)
       expect(typeof (capabilities)).toBe('object')
 
       // Files App is never disabled
-      expect(capabilities.files).not.toBe(null)
-      expect(capabilities.files).not.toBe(undefined)
+      expect(capabilities.capabilities.files).not.toBe(null)
+      expect(capabilities.capabilities.files).not.toBe(undefined)
 
       // Big file chunking of files app is always on
-      expect(parseInt(capabilities.files.bigfilechunking)).toEqual(1)
+      expect(parseInt(capabilities.capabilities.files.bigfilechunking)).toEqual(1)
       done()
     }).catch(error => {
-      expect(error).toBe(null)
+      fail(error)
       done()
     })
   })

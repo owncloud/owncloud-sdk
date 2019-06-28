@@ -8,22 +8,37 @@ describe('oc.fileTrash', function () {
   const userId = config.username
 
   beforeEach(function (done) {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password).then(status => {
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
+
+    oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
 
       oc.getCapabilities().then(cap => {
-        trashEnabled = (cap.dav.trashbin !== undefined)
+        trashEnabled = (cap.capabilities.dav.trashbin !== undefined)
         if (trashEnabled) {
           oc.fileTrash.clearTrashBin().then(() => {
+            done()
+          }).catch(error => {
+            fail(error)
             done()
           })
         } else {
           done()
         }
+      }).catch(error => {
+        fail(error)
+        done()
       })
     }).catch(error => {
-      expect(error).toBe(null)
+      fail(error)
       done()
     })
   })
@@ -33,12 +48,15 @@ describe('oc.fileTrash', function () {
     done()
   })
 
-  it('should have the trahbin capability set', function (done) {
+  it('should have the trashbin capability set', function (done) {
     if (!trashEnabled) {
       pending()
     }
     oc.getCapabilities().then(cap => {
-      expect(cap.dav.trashbin).toEqual('1.0')
+      expect(cap.capabilities.dav.trashbin).toEqual('1.0')
+      done()
+    }).catch(error => {
+      fail(error)
       done()
     })
   })

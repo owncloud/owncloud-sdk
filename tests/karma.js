@@ -1,4 +1,4 @@
 require('../src')
 
-var context = require.context('.', true, /Test\.js$/)
+const context = require.context('.', true, /Test\.js$/)
 context.keys().forEach(context)

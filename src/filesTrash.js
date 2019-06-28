@@ -28,12 +28,8 @@ class FilesTrash {
    * @param   {array}     properties    Array[string] with dav properties to be requested
    * @returns {Promise.<fileInfo | string | Error>}
    */
-  list (path, depth, properties) {
-    if (typeof depth === 'undefined') {
-      depth = '1'
-    }
-
-    if (typeof properties === 'undefined') {
+  list (path, depth = '1', properties = undefined) {
+    if (properties === undefined) {
       properties = [
         '{http://owncloud.org/ns}trashbin-original-filename',
         '{http://owncloud.org/ns}trashbin-original-location',

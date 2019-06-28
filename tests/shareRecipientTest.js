@@ -13,20 +13,29 @@ describe('Main: Currently testing share recipient,', function () {
   var testGroup = 'testGroup' + timeRightNow
 
   beforeEach(function (done) {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
 
-    // CREATING TEST USER
-    oc.users.createUser(testUser, testUserPassword).then(status => {
-      expect(status).toBe(true)
-      // CREATING TEST GROUP
-      return oc.groups.createGroup(testGroup)
-    }).then(status => {
-      expect(status).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
+    oc.login().then(() => {
+      // CREATING TEST USER
+      oc.users.createUser(testUser, testUserPassword).then(status => {
+        expect(status).toBe(true)
+        // CREATING TEST GROUP
+        return oc.groups.createGroup(testGroup)
+      }).then(status => {
+        expect(status).toBe(true)
+        done()
+      }).catch(error => {
+        expect(error).toBe(null)
+        done()
+      })
     })
   })
 

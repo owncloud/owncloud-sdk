@@ -17,215 +17,108 @@ const FilesTrash = require('./filesTrash.js')
  * <ul>
  *  <li><b>General</b>
  *      <ul>
- *          <li>setInstance</li>
+ *          <li>init</li>
  *          <li>login</li>
+ *          <li>logout</li>
  *          <li>getConfig</li>
- *          <li>getVersion</li>
  *          <li>getCapabilities</li>
+ *          <li>getCurrentUser</li>
  *      </ul>
  *  </li>
  * </ul>
  *
  * @author Noveen Sachdeva
  * @version 1.0.0
- * @param {string}  instance  URL of the ownCloud instance
  * @param {object}  options   additional options
  */
-function ownCloud (instance, options = {}) {
-  var slash = ''
-  instance = instance || ''
-
-  if (instance.slice(-1) !== '/') {
-    slash = '/'
+class ownCloud {
+  constructor (options = {}) {
+    this.init(options)
   }
 
-  var http = ''
-  if (instance.slice(0, 4) !== 'http') {
-    http = 'http://'
-  }
-  var set = http + instance + slash
-
-  if (!instance) {
-    set = ''
-  }
-
-  var helpers = new HelperFile()
-  helpers.setInstance(set)
-  if (options.auth) {
-    if (options.auth.bearer) {
-      helpers.setAuthorization('Bearer ' + options.auth.bearer)
+  init (options) {
+    let baseUrl = ''
+    if (options.baseUrl) {
+      baseUrl = new URL(options.baseUrl).href
     }
-    if (options.auth.basic) {
-      var basicAuth = 'Basic ' + Buffer.from(options.auth.basic.username + ':' + options.auth.basic.password).toString('base64')
-      helpers.setAuthorization('Bearer ' + basicAuth)
-    }
-  }
-  if (options.userInfo) {
-    helpers.setCurrentUser(options.userInfo)
-  }
 
-  this.helpers = helpers
-  this.apps = new Apps(this.helpers)
-  this.shares = new Shares(this.helpers)
-  this.users = new Users(this.helpers)
-  this.groups = new Groups(this.helpers)
-  this.files = new Files(this.helpers)
-  this.fileVersions = new FileVersion(this.helpers)
-  this.systemTags = new SystemTags(this.helpers)
-  this.fileTrash = new FilesTrash(this.helpers)
-  this.requests = {
-    ocs: function (options = {}) {
-      return helpers.ocs(options)
+    let helpers = new HelperFile()
+    helpers.setInstance(baseUrl)
+    if (options.auth) {
+      if (options.auth.bearer) {
+        helpers.setAuthorization('Bearer ' + options.auth.bearer)
+      }
+      if (options.auth.basic) {
+        const basicAuth = 'Basic ' + Buffer.from(options.auth.basic.username + ':' + options.auth.basic.password).toString('base64')
+        helpers.setAuthorization(basicAuth)
+      }
+    }
+    if (options.userInfo) {
+      helpers.setCurrentUser(options.userInfo)
+    }
+
+    this.helpers = helpers
+    this.apps = new Apps(this.helpers)
+    this.shares = new Shares(this.helpers)
+    this.users = new Users(this.helpers)
+    this.groups = new Groups(this.helpers)
+    this.files = new Files(this.helpers)
+    this.fileVersions = new FileVersion(this.helpers)
+    this.systemTags = new SystemTags(this.helpers)
+    this.fileTrash = new FilesTrash(this.helpers)
+    this.requests = {
+      ocs: function (options = {}) {
+        return helpers.ocs(options)
+      }
     }
   }
-}
 
-/**
- * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param   {string} username     name of the user to login
- * @param   {string} password     password of the user to login
- * @returns {Promise.<status>}    boolean: whether login was successful or not
- * @returns {Promise.<error>}     string: error message, if any.
- */
-ownCloud.prototype.login = function (username, password) {
-  var basicAuth = 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
-  this.helpers.setAuthorization(basicAuth)
-
-  var self = this
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    this.helpers._updateCapabilities()
+  /**
+   * Logs in to the specified ownCloud instance (Updates capabilities)
+   * @returns {Promise.<status>}    boolean: whether login was successful or not
+   * @returns {Promise.<error>}     string: error message, if any.
+   */
+  login () {
+    const self = this
+    return this.helpers.getCapabilities()
       .then(() => {
-        resolve(self.getCurrentUser())
-      }).catch(error => {
-        reject(error)
+        return Promise.resolve(self.getCurrentUser())
       })
-  })
-  /* jshint unused: true */
-}
-
-/**
- * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param   {string} token        name of the user to login
- * @returns {Promise.<status>}    boolean: whether login was successful or not
- * @returns {Promise.<error>}     string: error message, if any.
- */
-ownCloud.prototype.loginWithBearer = function (token) {
-  this.helpers.setAuthorization('Bearer ' + token)
-
-  var self = this
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    this.helpers._updateCapabilities()
-      .then(() => {
-        resolve(self.getCurrentUser())
-      }).catch(error => {
-        reject(error)
-      })
-  })
-  /* jshint unused: true */
-}
-
-ownCloud.prototype.logout = function () {
-  this.helpers.logout()
-}
-
-/**
- * Logs in to the specified ownCloud instance (Updates capabilities)
- * @param   {string}  instance    URL of the OC instance
- * @returns {boolean}             always true.
- */
-ownCloud.prototype.setInstance = function (instance) {
-  var slash = ''
-  instance = instance || ''
-
-  if (instance.slice(-1) !== '/') {
-    slash = '/'
   }
 
-  var http = ''
-  if (instance.slice(0, 4) !== 'http') {
-    http = 'http://'
-  }
-  var set = http + instance + slash
-
-  if (!instance) {
-    set = ''
+  logout () {
+    this.helpers.logout()
   }
 
-  this.helpers.setInstance(set)
-
-  return true
-}
-
-/**
- * Returns ownCloud config information
- * @returns {Promise.<configs>} object: {"version" : "1.7", "website" : "ownCloud" etc...}
- * @returns {Promise.<error>}     string: error message, if any.
- */
-ownCloud.prototype.getConfig = function () {
-  return new Promise((resolve, reject) => {
-    this.helpers._makeOCSrequest('GET', '', 'config')
+  /**
+   * Returns ownCloud config information
+   * @returns {Promise.<configs>} object: {"version" : "1.7", "website" : "ownCloud" etc...}
+   * @returns {Promise.<error>}     string: error message, if any.
+   */
+  getConfig () {
+    return this.helpers._makeOCSrequest('GET', '', 'config')
       .then(data => {
-        resolve(data.data.ocs.data)
-      }).catch(error => {
-        reject(error)
+        return Promise.resolve(data.data.ocs.data)
       })
-  })
-}
+  }
 
-/**
- * Gets the ownCloud version of the connected server
- * @returns {Promise.<version>} string: ownCloud version
- * @returns {Promise.<error>}     string: error message, if any.
- */
-ownCloud.prototype.getVersion = function () {
-  var version = this.helpers.getVersion()
+  /**
+   * Gets the ownCloud app capabilities
+   * @returns {Promise.<capabilities>}    string: ownCloud version
+   * @returns {Promise.<reject>}             object: capabilites
+   */
+  getCapabilities () {
+    return this.helpers.getCapabilities()
+  }
 
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    if (version === null) {
-      this.helpers._updateCapabilities()
-        .then(body => {
-          resolve(this.helpers.getVersion())
-        }).catch(error => {
-          reject(error)
-        })
-    } else {
-      resolve(version)
-    }
-  })
-}
-
-/**
- * Gets the ownCloud app capabilities
- * @returns {Promise.<capabilities>}    string: ownCloud version
- * @returns {Promise.<reject>}             object: capabilites
- */
-ownCloud.prototype.getCapabilities = function () {
-  var capabilities = this.helpers.getCapabilities()
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    if (capabilities === null) {
-      this.helpers._updateCapabilities()
-        .then(body => {
-          resolve(body)
-        }).catch(error => {
-          reject(error)
-        })
-    } else {
-      resolve(capabilities)
-    }
-  })
-}
-
-/**
- * Gets the currently logged in user
- * @returns {Promise.<capabilities>}
- * @returns {Promise.<reject>}
- */
-ownCloud.prototype.getCurrentUser = function () {
-  return this.helpers.getCurrentUserAsync()
+  /**
+   * Gets the currently logged in user
+   * @returns {Promise.<user>}
+   * @returns {Promise.<reject>}
+   */
+  getCurrentUser () {
+    return this.helpers.getCurrentUserAsync()
+  }
 }
 
 module.exports = ownCloud

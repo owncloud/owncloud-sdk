@@ -22,8 +22,17 @@ describe('Main: Currently testing files management,', function () {
   ]
 
   beforeEach(function (done) {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password).then(status => {
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
+
+    oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       done()
     }).catch(error => {
@@ -200,7 +209,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status2).toEqual(true)
       done()
     }).catch(error => {
-      expect(error).toBe(null)
+      fail(error)
       done()
     })
   })

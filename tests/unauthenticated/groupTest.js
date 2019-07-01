@@ -12,7 +12,9 @@ describe('Unauthenticated: Currently testing group management,', function () {
   var testGroup = 'testGroup' + timeRightNow
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL
+    })
   })
 
   it('checking method : createGroup', function (done) {

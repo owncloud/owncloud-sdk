@@ -21,11 +21,19 @@ $ npm install owncloud-sdk
 ## Usage
 
 ```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
+const owncloud = require('owncloud-sdk');
+let oc = new owncloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+});
 
 // Login
-oc.login('username', 'password').then(status => {
+oc.login().then(status => {
     // STUFF
 }).catch(error => {
     // HANDLE ERROR
@@ -55,110 +63,6 @@ oc.files.list('/path/to/file/folder').then(files => {
 ## All Methods Available
 
 Full API documentation is available at [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/owncloud-sdk/)
-
-### General
-```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
-```
-Method          | Code
-----------------|------------------------------
-setInstance     | `oc.setInstance(instance)`
-login           | `oc.login(username, password)`
-getConfig       | `oc.getConfig()`
-getVersion      | `oc.getVersion()`
-getCapabilities | `oc.getCapabilities()`
-
-### Files Management
-```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
-```
-
-Method            | Code
-------------------|----------------------------------------------------
-list              | `oc.files.list(/path/to/file/folder, depth)`
-getFileContents   | `oc.files.getFileContents(path/to/file/folder)`
-putFileContents   | `oc.files.putFileContents(path/to/file, contents)`
-mkdir             | `oc.files.mkdir(path/to/folder)`
-createFolder      | `oc.files.createFolder(path/to/folder)`
-delete            | `oc.files.delete(path/to/file/folder)`
-fileInfo          | `oc.files.fileInfo(path/to/file/folder)`
-getFile           | `oc.files.getFile(remotePath, localPath)`
-getDirectoryAsZip | `oc.files.getDirectoryAsZip(remotePath, localPath)`
-putFile           | `oc.files.putFile(remotePath, localPath)`
-putDirectory      | `oc.files.putDirectory(remotePath, localPath)`
-move              | `oc.files.move(source, target)`
-copy              | `oc.files.copy(source, target)`
-
-### Apps Management
-```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
-```
-Method          | Code
-----------------|----------------------------------------
-getApps         | `oc.apps.getApps()`
-getAttribute    | `oc.apps.getAttribute(app, key)`
-setAttribute    | `oc.apps.setAttribute(app, key, value)`
-deleteAttribute | `oc.apps.deleteAttribute(app, key)`
-enableApp       | `oc.apps.enableApp(appName)`
-disableApp      | `oc.apps.disableApp(appName)`
-
-### Group Management
-```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
-```
-
-Method          | Code
-----------------|---------------------------------------
-createGroup     | `oc.groups.createGroup(groupName)`
-deleteGroup     | `oc.groups.deleteGroup(groupName)`
-getGroups       | `oc.groups.getGroups()`
-getGroupMembers | `oc.groups.getGroupMembers(groupName)`
-groupExists     | `oc.groups.groupExists(groupName)`
-
-### Share Management
-```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
-```
-Method              | Code
---------------------|----------------------------------------------------------------------------------------------------
-shareFileWithLink   | `oc.shares.shareFileWithLink(path, {perms: perms, publicUpload: publicUpload, password: password})`
-updateShare         | `oc.shares.updateShare(shareId, {perms: perms, publicUpload: publicUpload, password: password})`
-shareFileWithUser   | `oc.shares.shareFileWithUser(path, username, {perms: perms, remoteUser: remoteUser })`
-shareFileWithGroup  | `oc.shares.shareFileWithGroup(path, groupname, {perms: perms })`
-getShares           | `oc.shares.getShares()`
-isShared            | `oc.shares.isShared(path/to/file/folder)`
-getShare            | `oc.shares.getShare(shareId)`
-listOpenRemoteShare | `oc.shares.listOpenRemoteShare()`
-acceptRemoteShare   | `oc.shares.acceptRemoteShare(shareId)`
-declineRemoteShare  | `oc.shares.declineRemoteShare(shareId)`
-deleteShare         | `oc.shares.deleteShare(shareId)`
-
-### User Management
-```js
-var owncloud = require('owncloud-sdk');
-var oc = new owncloud('*owncloud instance URL*');
-```
-Method                 | Code
------------------------|------------------------------------------------------
-createUser             | `oc.users.createUser(username, password)`
-deleteUser             | `oc.users.deleteUser(username)`
-searchUsers            | `oc.users.searchUsers(searchKey)`
-userExists             | `oc.users.userExists(username)`
-getUsers               | `oc.users.getUsers()`
-setUserAttribute       | `oc.users.setUserAttribute(username, key, value)`
-addUserToGroup         | `oc.users.addUserToGroup(username, groupName)`
-getUserGroups          | `oc.users.getUserGroups(username)`
-userIsInGroup          | `oc.users.userIsInGroup(username, groupName)`
-getUser                | `oc.users.getUser(username)`
-removeUserFromGroup    | `oc.users.removeUserFromGroup(username, groupName)`
-addUserToSubadminGroup | `oc.users.addUserToSubadminGroup(username, groupName)`
-getUserSubadminGroups  | `oc.users.getUserSubadminGroups(username)`
-userIsInSubadminGroup  | `oc.users.userIsInSubadminGroup(username, groupName)`
 
 ## Building the Documentation
 

@@ -1,27 +1,19 @@
 describe('Unauthenticated: Currently testing getConfig, getVersion and getCapabilities', function () {
-  var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
+  const OwnCloud = require('../../src')
+  let config = require('../config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL
+    })
   })
 
   it('checking method : getConfig', function (done) {
     oc.getConfig().then(config => {
       expect(config).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Please specify an authorization first.')
-      done()
-    })
-  })
-
-  it('checking method : getVersion', function (done) {
-    oc.getVersion().then(version => {
-      expect(version).toBe(null)
       done()
     }).catch(error => {
       expect(error).toMatch('Please specify an authorization first.')

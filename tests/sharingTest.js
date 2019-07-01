@@ -37,15 +37,24 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   describe('Currently testing folder sharing,', function () {
     beforeEach(function (done) {
-      oc = new OwnCloud(config.owncloudURL)
-      oc.login(config.username, config.password)
+      oc = new OwnCloud({
+        baseUrl: config.owncloudURL,
+        auth: {
+          basic: {
+            username: config.username,
+            password: config.password
+          }
+        }
+      })
 
-      oc.files.createFolder(testFolder).then(status => {
-        expect(status).toBe(true)
-        done()
-      }).catch(error => {
-        expect(error).toBe(null)
-        done()
+      oc.login().then(() => {
+        oc.files.createFolder(testFolder).then(status => {
+          expect(status).toBe(true)
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
       })
     })
 
@@ -170,33 +179,42 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   describe('Currently testing file sharing,', function () {
     beforeEach(function (done) {
-      oc = new OwnCloud(config.owncloudURL)
-      oc.login(config.username, config.password)
-
-      // CREATING TEST USER
-      oc.users.createUser(testUser, testUserPassword).then(status => {
-        expect(status).toBe(true)
-        // CREATING TEST GROUP
-        return oc.groups.createGroup(testGroup)
-      }).then(status => {
-        expect(status).toBe(true)
-        var count = 0
-        for (var i = 0; i < testFiles.length; i++) {
-          // CREATING TEST FILES
-          oc.files.putFileContents(testFiles[i], testContent).then(status => {
-            expect(typeof status).toBe('object')
-            count++
-            if (count === testFiles.length) {
-              done()
-            }
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
+      oc = new OwnCloud({
+        baseUrl: config.owncloudURL,
+        auth: {
+          basic: {
+            username: config.username,
+            password: config.password
+          }
         }
-      }).catch(error => {
-        expect(error).toBe(null)
-        done()
+      })
+
+      oc.login().then(() => {
+        // CREATING TEST USER
+        oc.users.createUser(testUser, testUserPassword).then(status => {
+          expect(status).toBe(true)
+          // CREATING TEST GROUP
+          return oc.groups.createGroup(testGroup)
+        }).then(status => {
+          expect(status).toBe(true)
+          var count = 0
+          for (var i = 0; i < testFiles.length; i++) {
+            // CREATING TEST FILES
+            oc.files.putFileContents(testFiles[i], testContent).then(status => {
+              expect(typeof status).toBe('object')
+              count++
+              if (count === testFiles.length) {
+                done()
+              }
+            }).catch(error => {
+              expect(error).toBe(null)
+              done()
+            })
+          }
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
       })
     })
 

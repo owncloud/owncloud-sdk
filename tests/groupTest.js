@@ -13,8 +13,17 @@ describe('Main: Currently testing group management,', function () {
   var nonExistingGroup = 'nonExistingGroup' + timeRightNow
 
   beforeEach(function (done) {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password).then(status => {
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password
+        }
+      }
+    })
+
+    oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
       return oc.groups.createGroup(testGroup)
     }).then(status2 => {

@@ -14,7 +14,9 @@ describe('Unauthenticated: Currently testing user management,', function () {
   var nonExistingUser = 'nonExistingUser' + timeRightNow
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL
+    })
   })
 
   it('checking method : getUser', function (done) {

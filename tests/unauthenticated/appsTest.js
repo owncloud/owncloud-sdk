@@ -11,7 +11,9 @@ describe('Unauthenticated: Currently testing apps management,', function () {
   var testApp = 'someAppName' + timeRightNow
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL
+    })
   })
 
   it('checking method : getApps', function (done) {

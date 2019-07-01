@@ -1,22 +1,21 @@
 describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
-  var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
+  const OwnCloud = require('../../src')
+  let config = require('../config/config.json')
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   beforeEach(function () {
-    oc = new OwnCloud(config.owncloudURL)
-    oc.login(config.username, config.password + new Date().getTime())
-  })
-
-  it('checking method : getVersion', function (done) {
-    oc.getVersion().then(version => {
-      expect(version).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorised')
-      done()
+    oc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.username,
+          password: config.password + new Date().getTime()
+        }
+      }
     })
+
+    oc.login()
   })
 
   it('checking method : getCapabilities', function (done) {

@@ -154,13 +154,13 @@ Shares.prototype.shareFileWithGroup = function (path, groupName, optionalParams)
  * Returns array of shares
  * @param   {string}  path            path to the file whose share needs to be checked
  * @param   {object}  optionalParams  object of values {"reshares": boolean,
- *                                    "subfiles": boolean, "shared_with_me": boolean}
+ *                                    "subfiles": boolean, "shared_with_me": boolean, "state": int}
  * @returns {Promise.<ShareInfo>}     Array of instances of class ShareInfo for all Shares
  * @returns {Promise.<error>}         string: error message, if any.
  */
 Shares.prototype.getShares = function (path, optionalParams) {
-  var data = 'shares'
-  var send = {}
+  let data = 'shares'
+  let send = {}
 
   if (path !== '') {
     data += '?'
@@ -180,6 +180,9 @@ Shares.prototype.getShares = function (path, optionalParams) {
       /* jshint camelcase: false */
       if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
         send.shared_with_me = optionalParams.shared_with_me
+        if (optionalParams.state) {
+          send.state = optionalParams.state
+        }
       }
       /* jshint camelcase: true */
     }
@@ -216,7 +219,7 @@ Shares.prototype.getShares = function (path, optionalParams) {
 }
 
 /**
- * Checks wether a path is already shared
+ * Checks whether a path is already shared
  * @param   {string}    path    path to the share to be checked
  * @returns {Promise.<status>}  boolean: true if shared
  * @returns {Promise.<error>}   string: error message, if any.

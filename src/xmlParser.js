@@ -1,5 +1,5 @@
-var parser = require('xml-js')
-var myParser = {}
+const parser = require('xml-js')
+const myParser = {}
 
 /**
  * The main function
@@ -8,7 +8,7 @@ var myParser = {}
  * @return {object}         parsed js object
  */
 myParser.xml2js = function (xml, xmlns) {
-  var parsed = parser.xml2js(xml, {
+  let parsed = parser.xml2js(xml, {
     compact: true
   })
 
@@ -28,13 +28,13 @@ myParser.xml2js = function (xml, xmlns) {
  * @return {object}      Namespace replaced object
  */
 function keepNamespace (json, ns) {
-  var nsKeys = Object.keys(ns)
+  const nsKeys = Object.keys(ns)
 
-  for (var key in json) {
-    var parseKey = parseKeyNS(key)
+  for (let key in json) {
+    const parseKey = parseKeyNS(key)
     if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
-      var index = nsKeys.indexOf(parseKey)
-      var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1]
+      const index = nsKeys.indexOf(parseKey)
+      const prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1]
 
       json[prop] = json[key]
       json[prop] = recursiveNS(json[prop], ns)
@@ -51,8 +51,8 @@ function keepNamespace (json, ns) {
  * Intermediate of keepNamespace()
  */
 function deleteDuplicates (json, ns) {
-  var ret = {}
-  var nsKeys = Object.keys(ns)
+  let ret = {}
+  const nsKeys = Object.keys(ns)
   if (json.constructor === Array) {
     ret = []
   }
@@ -61,11 +61,11 @@ function deleteDuplicates (json, ns) {
     return json
   }
 
-  for (var key in json) {
+  for (let key in json) {
     if (json.constructor === Array) {
       ret.push(recursiveDeleteDuplicates(json[key], ns))
     } else {
-      var parseKey = parseKeyNS(key)
+      const parseKey = parseKeyNS(key)
       if (parseKey && nsKeys.indexOf(parseKey) === -1) {
         ret[key] = recursiveDeleteDuplicates(json[key], ns)
       }
@@ -81,9 +81,8 @@ function deleteDuplicates (json, ns) {
  * @return {object}      cleaned object
  */
 function cleanseJson (json) {
-  for (var key in json) {
-    var a = recursiveCleanse(json[key])
-    json[key] = a
+  for (let key in json) {
+    json[key] = recursiveCleanse(json[key])
   }
   return json
 }
@@ -95,13 +94,13 @@ function recursiveNS (json, ns) {
   if (typeof (json) !== 'object') {
     return json
   }
-  var nsKeys = Object.keys(ns)
+  const nsKeys = Object.keys(ns)
 
-  for (var key in json) {
-    var parseKey = parseKeyNS(key)
+  for (let key in json) {
+    const parseKey = parseKeyNS(key)
     if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
-      var index = nsKeys.indexOf(parseKey)
-      var prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1]
+      const index = nsKeys.indexOf(parseKey)
+      const prop = '{' + ns[nsKeys[index]] + '}' + key.split(':')[1]
 
       json[prop] = json[key]
       json[prop] = recursiveNS(json[prop], ns)
@@ -120,16 +119,16 @@ function recursiveDeleteDuplicates (json, ns) {
     return json
   }
 
-  var nsKeys = Object.keys(ns)
-  var ret = {}
+  const nsKeys = Object.keys(ns)
+  let ret = {}
   if (json.constructor === Array) {
     ret = []
   }
-  for (var key in json) {
+  for (let key in json) {
     if (json.constructor === Array) {
       ret.push(recursiveDeleteDuplicates(json[key], ns))
     } else {
-      var parseKey = parseKeyNS(key)
+      const parseKey = parseKeyNS(key)
       if (parseKey && nsKeys.indexOf(parseKey) === -1) {
         ret[key] = recursiveDeleteDuplicates(json[key], ns)
       }
@@ -146,7 +145,7 @@ function recursiveCleanse (json) {
     return json
   }
 
-  for (var key in json) {
+  for (let key in json) {
     if (key === '_text') {
       return json[key]
     }
@@ -161,7 +160,7 @@ function recursiveCleanse (json) {
  * @return {string}     parsed key
  */
 function parseKeyNS (key) {
-  var parseKey = key
+  let parseKey = key
   if (parseKey.indexOf('{') > -1 && parseKey.indexOf('}') > -1) {
     parseKey = parseKey.split('{')[1].split('}')[0]
   } else if (parseKey.indexOf(':') > -1) {

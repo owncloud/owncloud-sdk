@@ -145,7 +145,7 @@ class helpers {
    * @returns {Promise.<error>}   string: error message, if any.
    */
   _makeOCSrequest (method, service, action, data) {
-    var self = this
+    const self = this
 
     if (!self.instance) {
       return Promise.reject('Please specify a server URL first')
@@ -233,7 +233,7 @@ class helpers {
    * @returns {Promise.<error>}   string: error message, if any.
    */
   _get (url) {
-    var err = null
+    let err = null
 
     if (!this.instance) {
       err = 'Please specify a server URL first'
@@ -243,13 +243,13 @@ class helpers {
       err = 'Please specify an authorization first.'
     }
 
-    var headers = {
+    const headers = {
       authorization: this._authHeader,
       'Content-Type': 'application/x-www-form-urlencoded'
     }
 
     // Configure the request
-    var options = {
+    const options = {
       url: url,
       method: 'GET',
       headers: headers
@@ -280,7 +280,7 @@ class helpers {
    */
   _parseDAVerror (body) {
     try {
-      var tree = parser.xml2js(body)
+      const tree = parser.xml2js(body)
 
       if (tree['d:error'] && tree['d:error']['s:message']) {
         return tree['d:error']['s:message']
@@ -329,11 +329,11 @@ class helpers {
       acceptedCodes = [100]
     }
 
-    var meta
+    let meta
     if (json.ocs) {
       meta = json.ocs.meta
     }
-    var ret
+    let ret
 
     if (meta && acceptedCodes.indexOf(parseInt(meta.statuscode)) === -1) {
       ret = meta.message
@@ -350,11 +350,11 @@ class helpers {
   /**
    * Returns the status code of the xml response
    * @param   {object}    json    parsed response
-   * @return  {number}           status-code
+   * @return  {number|null}       status-code
    */
   _checkOCSstatusCode (json) {
     if (json.ocs) {
-      var meta = json.ocs.meta
+      const meta = json.ocs.meta
       return parseInt(meta.statuscode)
     }
     return null
@@ -387,7 +387,7 @@ class helpers {
       return object
     }
 
-    for (var key in object) {
+    for (let key in object) {
       if (object[key] === 'true') {
         object[key] = true
       }
@@ -403,7 +403,7 @@ class helpers {
    * Handles Provisionging API boolean response
    */
   _OCSuserResponseHandler (data, resolve, reject) {
-    var statuscode = parseInt(this._checkOCSstatusCode(data.data))
+    const statuscode = parseInt(this._checkOCSstatusCode(data.data))
     if (statuscode === 999) {
       reject('Provisioning API has been disabled at your instance')
     }
@@ -415,10 +415,10 @@ class helpers {
     if (!Array.isArray(responses)) {
       responses = [responses]
     }
-    var self = this
-    var fileInfos = []
-    for (var i = 0; i < responses.length; i++) {
-      var fileInfo = self._parseFileInfo(responses[i], davVersion)
+    const self = this
+    const fileInfos = []
+    for (let i = 0; i < responses.length; i++) {
+      const fileInfo = self._parseFileInfo(responses[i], davVersion)
       if (fileInfo !== null) {
         fileInfos.push(fileInfo)
       }
@@ -427,7 +427,7 @@ class helpers {
   }
 
   _extractPath (path, leftTrimComponents) {
-    var pathSections = path.split('/')
+    let pathSections = path.split('/')
     pathSections = pathSections.filter(function (section) {
       return section !== ''
     })
@@ -453,7 +453,7 @@ class helpers {
 
   _parseFileInfo (response, davVersion) {
     davVersion = davVersion || 1
-    var path = this._extractPath(response.href, davVersion === 2 ? 2 : 0)
+    const path = this._extractPath(response.href, davVersion === 2 ? 2 : 0)
     // invalid subpath
     if (path === null) {
       return null
@@ -464,11 +464,11 @@ class helpers {
       return null
     }
 
-    var props = response.propStat[0].properties
+    const props = response.propStat[0].properties
     let fileType = 'file'
-    var resType = props['{DAV:}resourcetype']
+    const resType = props['{DAV:}resourcetype']
     if (resType) {
-      var xmlvalue = resType[0]
+      const xmlvalue = resType[0]
       if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
         fileType = 'dir'
       }

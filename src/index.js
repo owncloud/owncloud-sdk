@@ -1,3 +1,3 @@
-var ownCloud = require('./owncloud')
+const ownCloud = require('./owncloud')
 
 module.exports = ownCloud

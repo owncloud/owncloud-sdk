@@ -1,9 +1,4 @@
-/// ////////////////////////////////
-/// ////    APP MANGEMENT    ///////
-/// ////////////////////////////////
-
-var Promise = require('promise')
-var helpers
+const Promise = require('promise')
 
 /**
  * @class Apps
@@ -27,181 +22,162 @@ var helpers
  * @version 1.0.0
  * @param {object}    helperFile    instance of the helpers class
  */
-function Apps (helperFile) {
-  helpers = helperFile
-}
+class Apps {
+  constructor (helperFile) {
+    this.helpers = helperFile
+  }
 
-/**
- * Gets all enabled and non-enabled apps downloaded on the instance.
- * @returns    {Promise.<apps>}     object: {for each app: Boolean("enabled or not")}
- * @returns    {Promise.<error>}    string: error message, if any.
- */
-Apps.prototype.getApps = function () {
-  var send = {}
+  /**
+   * Gets all enabled and non-enabled apps downloaded on the instance.
+   * @returns    {Promise.<apps>}     object: {for each app: Boolean("enabled or not")}
+   * @returns    {Promise.<error>}    string: error message, if any.
+   */
+  getApps () {
+    const send = {}
 
-  var allAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'apps')
-  var allEnabledAppsP = helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_CLOUD, 'apps?filter=enabled')
+    const allAppsP = this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_CLOUD, 'apps')
+    const allEnabledAppsP = this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_CLOUD, 'apps?filter=enabled')
 
-  return new Promise((resolve, reject) => {
-    Promise.all([allAppsP, allEnabledAppsP])
+    return Promise.all([allAppsP, allEnabledAppsP])
       .then(apps => {
-        if (parseInt(helpers._checkOCSstatusCode(apps[0].data)) === 999) {
-          reject('Provisioning API has been disabled at your instance')
-          return
+        if (parseInt(this.helpers._checkOCSstatusCode(apps[0].data)) === 999) {
+          return Promise.reject('Provisioning API has been disabled at your instance')
         }
 
         if ((!(apps[0].data.ocs.data)) || (!(apps[1].data.ocs.data))) {
-          reject(apps[0].data.ocs)
+          return Promise.reject(apps[0].data.ocs)
         }
 
-        var allApps = apps[0].data.ocs.data.apps.element
-        var allEnabledApps = apps[1].data.ocs.data.apps.element
+        const allApps = apps[0].data.ocs.data.apps.element
+        const allEnabledApps = apps[1].data.ocs.data.apps.element
 
-        for (var i = 0; i < allApps.length; i++) {
+        for (let i = 0; i < allApps.length; i++) {
           send[allApps[i]] = false
         }
-        for (i = 0; i < allEnabledApps.length; i++) {
+        for (let i = 0; i < allEnabledApps.length; i++) {
           send[allEnabledApps[i]] = true
         }
 
-        resolve(send)
-      }).catch(error => {
-        reject(error)
+        return Promise.resolve(send)
       })
-  })
-}
-
-/**
- * Returns an application attribute
- * @param    {string}    app     application ID (Generally app-name)
- * @param    {string}    key     attribute key or None to retrieve all values for the given application
- * @returns  {Promise.<attr>}    string: value of application's key
- * @returns  {Promise.<error>}   string: error message, if any.
- */
-Apps.prototype.getAttribute = function (app, key) {
-  var send = 'getattribute'
-  if (app) {
-    send += '/' + encodeURIComponent(app)
-
-    if (key) {
-      send += '/' + encodeURIComponent(helpers._encodeString(key))
-    }
   }
 
-  return new Promise((resolve, reject) => {
-    helpers._makeOCSrequest('GET', helpers.OCS_SERVICE_PRIVATEDATA, send)
+  /**
+   * Returns an application attribute
+   * @param    {string}    app     application ID (Generally app-name)
+   * @param    {string}    key     attribute key or None to retrieve all values for the given application
+   * @returns  {Promise.<string>}  string: value of application's key
+   * @returns  {Promise.<error>}   string: error message, if any.
+   */
+  getAttribute (app, key) {
+    let send = 'getattribute'
+    if (app) {
+      send += '/' + encodeURIComponent(app)
+
+      if (key) {
+        send += '/' + encodeURIComponent(this.helpers._encodeString(key))
+      }
+    }
+
+    return this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_PRIVATEDATA, send)
       .then(data => {
-        var elements = data.data.ocs.data.element
+        let elements = data.data.ocs.data.element
 
         if (key) {
           if (!elements) {
-            reject(app + ' has no key named "' + key + '"')
+            return Promise.reject(app + ' has no key named "' + key + '"')
           } else {
-            var value = elements.value
+            const value = elements.value
             elements.value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value
-            resolve(elements.value)
+            return Promise.resolve(elements.value)
           }
         } else {
           if (!elements) {
-            resolve({})
-            return
+            return Promise.resolve({})
           }
           if (elements.constructor !== Array) {
             elements = [elements]
           }
-          var allAttributes = {}
-          for (var i = 0; i < elements.length; i++) {
+          const allAttributes = {}
+          for (let i = 0; i < elements.length; i++) {
             allAttributes[elements[i].key] = elements[i].value
           }
-          resolve(allAttributes)
+          return Promise.resolve(allAttributes)
         }
       })
-      .catch(error => {
-        reject(error)
-      })
-  })
-}
+  }
 
-/**
- * Sets an application attribute
- * @param       {string}   app      application ID (Generally app-name)
- * @param       {string}   key      attribute key or None to retrieve all values for the given application
- * @param       {string}   value    value to set of given attribute
- * @returns     {Promise.<status>}  boolean: true if successful
- * @returns     {Promise.<error>}   string: error message, if any.
- */
-Apps.prototype.setAttribute = function (app, key, value) {
-  var path = 'setattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key))
+  /**
+   * Sets an application attribute
+   * @param       {string}   app      application ID (Generally app-name)
+   * @param       {string}   key      attribute key or None to retrieve all values for the given application
+   * @param       {string}   value    value to set of given attribute
+   * @returns     {Promise.<status>}  boolean: true if successful
+   * @returns     {Promise.<error>}   string: error message, if any.
+   */
+  setAttribute (app, key, value) {
+    const path = 'setattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(this.helpers._encodeString(key))
 
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path, {
-      'value': helpers._encodeString(value)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_PRIVATEDATA, path, {
+      'value': this.helpers._encodeString(value)
     })
-      .then(data => {
-        resolve(true)
-      }).catch(error => {
-        reject(error)
+      .then(() => {
+        return Promise.resolve(true)
       })
-  })
-}
+  }
 
-/**
- * Deletes an application attribute
- * @param       {string}    app      application ID (generally app-name)
- * @param       {string}    key      attribute key to delete for the given application
- * @returns     {Promise.<status>}   boolean: true if successful
- * @returns     {Promise.<error>}    string: error message, if any.
- */
-Apps.prototype.deleteAttribute = function (app, key) {
-  var path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(helpers._encodeString(key))
+  /**
+   * Deletes an application attribute
+   * @param       {string}    app      application ID (generally app-name)
+   * @param       {string}    key      attribute key to delete for the given application
+   * @returns     {Promise.<status>}   boolean: true if successful
+   * @returns     {Promise.<error>}    string: error message, if any.
+   */
+  deleteAttribute (app, key) {
+    const path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(this.helpers._encodeString(key))
 
-  /* jshint unused: false */
-  return new Promise((resolve, reject) => {
-    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_PRIVATEDATA, path)
-      .then(data => {
-        resolve(true)
-      }).catch(error => {
-        reject(error)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_PRIVATEDATA, path)
+      .then(() => {
+        return Promise.resolve(true)
       })
-  })
-}
+  }
 
-/**
- * Enables an app via the Provisioning API
- * @param       {string}    appname      name of the app to be enabled
- * @returns     {Promise.<status>}   boolean: true if successful
- * @returns     {Promise.<error>}    string: error message, if any.
- */
-Apps.prototype.enableApp = function (appname) {
-  return new Promise((resolve, reject) => {
-    helpers._makeOCSrequest('POST', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+  /**
+   * Enables an app via the Provisioning API
+   * @param       {string}    appName      name of the app to be enabled
+   * @returns     {Promise.<status>}   boolean: true if successful
+   * @returns     {Promise.<error>}    string: error message, if any.
+   */
+  enableApp (appName) {
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appName))
       .then(data => {
         if (!data.body) {
-          reject('No app found by the name "' + appname + '"')
+          return Promise.reject('No app found by the name "' + appName + '"')
         }
-        helpers._OCSuserResponseHandler(data, resolve, reject)
-      }).catch(error => {
-        reject(error)
+        const statusCode = parseInt(this.helpers._checkOCSstatusCode(data.data))
+        if (statusCode === 999) {
+          return Promise.reject('Provisioning API has been disabled at your instance')
+        }
+        return Promise.resolve(true)
       })
-  })
-}
+  }
 
-/**
- * Disables an app via the Provisioning API
- * @param       {string}    appname      name of the app to be disabled
- * @returns     {Promise.<status>}   boolean: true if successful
- * @returns     {Promise.<error>}    string: error message, if any.
- */
-Apps.prototype.disableApp = function (appname) {
-  return new Promise((resolve, reject) => {
-    helpers._makeOCSrequest('DELETE', helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appname))
+  /**
+   * Disables an app via the Provisioning API
+   * @param       {string}    appName      name of the app to be disabled
+   * @returns     {Promise.<status>}   boolean: true if successful
+   * @returns     {Promise.<error>}    string: error message, if any.
+   */
+  disableApp (appName) {
+    return this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_CLOUD, 'apps/' + encodeURIComponent(appName))
       .then(data => {
-        helpers._OCSuserResponseHandler(data, resolve, reject)
-      }).catch(error => {
-        reject(error)
+        const statusCode = parseInt(this.helpers._checkOCSstatusCode(data.data))
+        if (statusCode === 999) {
+          return Promise.reject('Provisioning API has been disabled at your instance')
+        }
+        return Promise.resolve(true)
       })
-  })
+  }
 }
 
 module.exports = Apps

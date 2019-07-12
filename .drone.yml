@@ -28,7 +28,7 @@ pipeline:
 
   install-server:
     image: owncloudci/core
-    version: ${OC_VERSION=daily-master-qa}
+    GIT_REFERENCE: ${OC_VERSION=daily-master-qa}
     pull: true
     db_type: ${DB_TYPE=sqlite}
     db_name: ${DB_NAME=sqlite}
@@ -114,14 +114,9 @@ services:
 
 matrix:
   include:
-    - PUBLISH: false
-      OC_VERSION: daily-master-qa
     - PUBLISH: true
-      OC_VERSION: daily-stable10-qa
+      OC_VERSION: feature/link-redirectin-to-phoenix
 
     - PUBLISH: false
       SUBFOLDER: /sub/
-      OC_VERSION: daily-master-qa
-    - PUBLISH: false
-      SUBFOLDER: /sub/
-      OC_VERSION: daily-stable10-qa
+      OC_VERSION: feature/link-redirectin-to-phoenix

@@ -1,19 +1,19 @@
 describe('Main: Currently testing files management,', function () {
   // CURRENT TIME
-  var timeRightNow = Math.random().toString(36).substr(2, 9)
-  var OwnCloud = require('../src/owncloud')
-  var config = require('./config/config.json')
+  const timeRightNow = Math.random().toString(36).substr(2, 9)
+  const OwnCloud = require('../src/owncloud')
+  const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testContent = 'testContent'
-  var testFolder = '/testFolder' + timeRightNow
-  var testSubDir = testFolder + '/' + 'subdir'
-  var nonExistingDir = testFolder + '/' + 'nonExistingDir'
-  var nonExistingFile = 'nonExistingFile' + timeRightNow
-  var testSubFiles = [
+  const testContent = 'testContent'
+  const testFolder = '/testFolder' + timeRightNow
+  const testSubDir = testFolder + '/' + 'subdir'
+  const nonExistingDir = testFolder + '/' + 'nonExistingDir'
+  const nonExistingFile = 'nonExistingFile' + timeRightNow
+  const testSubFiles = [
     testFolder + '/' + 'file one.txt',
     testFolder + '/' + 'zz+z.txt',
     testFolder + '/' + '中文.txt',
@@ -67,9 +67,9 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('creates subfiles at instance', function (done) {
-    var count = 0
+    let count = 0
 
-    for (var i = 0; i < testSubFiles.length; i++) {
+    for (let i = 0; i < testSubFiles.length; i++) {
       oc.files.putFileContents(testSubFiles[i], testContent).then(status => {
         expect(typeof status).toBe('object')
         count++
@@ -136,9 +136,9 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : getFileContents for existent files', function (done) {
-    var count = 0
+    let count = 0
 
-    for (var i = 0; i < testSubFiles.length; i++) {
+    for (let i = 0; i < testSubFiles.length; i++) {
       oc.files.getFileContents(testSubFiles[i], { resolveWithResponseObject: true }).then((resp) => {
         expect(resp.body).toEqual(testContent)
         expect(resp.headers.ETag).toBeDefined()
@@ -165,7 +165,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : putFileContents for an existing parent path', function (done) {
-    var newFile = testFolder + '/' + 'file.txt'
+    const newFile = testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
       expect(typeof status).toBe('object')
@@ -188,7 +188,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method: favorite', function (done) {
-    var newFile = testFolder + '/' + 'file.txt'
+    const newFile = testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
       expect(typeof status).toBe('object')
@@ -247,7 +247,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : mkdir for an existing parent path', function (done) {
-    var newFolder = testFolder + '/' + 'new folder/'
+    const newFolder = testFolder + '/' + 'new folder/'
 
     oc.files.mkdir(newFolder).then(status => {
       expect(status).toBe(true)
@@ -277,7 +277,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : delete for an existing file', function (done) {
-    var newFolder = testFolder + '/' + 'new folder'
+    const newFolder = testFolder + '/' + 'new folder'
 
     oc.files.mkdir(newFolder).then(status => {
       expect(status).toBe(true)
@@ -324,8 +324,8 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(true)
       return oc.files.list(testFolder)
     }).then(files => {
-      var fileNames = []
-      for (var i = 0; i < files.length; i++) {
+      const fileNames = []
+      for (let i = 0; i < files.length; i++) {
         fileNames.push(files[i].getName())
       }
       expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1)
@@ -342,15 +342,15 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(true)
       return oc.files.list(testFolder + '/subdir')
     }).then(files => {
-      var fileNames = []
-      for (var i = 0; i < files.length; i++) {
+      const fileNames = []
+      for (let i = 0; i < files.length; i++) {
         fileNames.push(files[i].getName())
       }
       expect(fileNames.indexOf('中文.txt')).toBe(-1)
       return oc.files.list(testFolder)
     }).then(files2 => {
-      var fileNames = []
-      for (var i = 0; i < files2.length; i++) {
+      const fileNames = []
+      for (let i = 0; i < files2.length; i++) {
         fileNames.push(files2[i].getName())
       }
       expect(fileNames.indexOf('中文123.txt')).toBe(-1)
@@ -387,8 +387,8 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(true)
       return oc.files.list(testFolder)
     }).then(files => {
-      var fileNames = []
-      for (var i = 0; i < files.length; i++) {
+      const fileNames = []
+      for (let i = 0; i < files.length; i++) {
         fileNames.push(files[i].getName())
       }
       expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1)
@@ -405,15 +405,15 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(true)
       return oc.files.list(testFolder + '/subdir')
     }).then(files => {
-      var fileNames = []
-      for (var i = 0; i < files.length; i++) {
+      const fileNames = []
+      for (let i = 0; i < files.length; i++) {
         fileNames.push(files[i].getName())
       }
       expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1)
       return oc.files.list(testFolder)
     }).then(files2 => {
-      var fileNames = []
-      for (var i = 0; i < files2.length; i++) {
+      const fileNames = []
+      for (let i = 0; i < files2.length; i++) {
         fileNames.push(files2[i].getName())
       }
       expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1)
@@ -472,11 +472,28 @@ describe('Main: Currently testing files management,', function () {
     }).then(resp => {
       tagId = resp
       return oc.systemTags.tagFile(fileId, tagId)
-    }).then(status2 => {
+    }).then(() => {
       return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
     }).then(files => {
       expect(files.length).toEqual(1)
       expect(files[0].getName()).toEqual('fileToTag.txt')
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
+  it('resolved the path of a file identified by its fileId', function (done) {
+    const newFile = testFolder + '/' + 'fileToIdentify.txt'
+
+    oc.files.putFileContents(newFile, '123456').then(() => {
+      return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
+    }).then(fileInfo => {
+      const fileId = fileInfo.getFileId()
+      return oc.files.getPathForFileId(fileId)
+    }).then(path => {
+      expect(path).toEqual(newFile)
       done()
     }).catch(error => {
       expect(error).toBe(null)

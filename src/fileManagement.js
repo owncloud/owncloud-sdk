@@ -84,7 +84,7 @@ class Files {
    * @returns {Promise.<contents>}    string: contents of file
    * @returns {Promise.<error>}       string: error message, if any.
    */
-  getFileContents (path, options) {
+  getFileContents (path, options = {}) {
     return new Promise((resolve, reject) => {
       // TODO: use this.davClient ?
       this.helpers._get(this.helpers._buildFullWebDAVPath(path)).then(data => {
@@ -125,6 +125,28 @@ class Files {
   }
 
   /**
+   * Queries the server for the real path of the authenticated user for a given fileId
+   *
+   * @param  {number} fileId
+   * @return {*|Promise<string>}
+   */
+  getPathForFileId (fileId) {
+    const path = '/meta/' + fileId
+
+    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), [
+      '{http://owncloud.org/ns}meta-path-for-user'
+    ], 0, {
+      'Authorization': this.helpers.getAuthorization()
+    }).then(result => {
+      if (result.status !== 207) {
+        return Promise.reject(new Error('No path for this fileId available'))
+      }
+      const file = this.helpers._parseBody(result.body)
+      return Promise.resolve(file[0].getProperty('{http://owncloud.org/ns}meta-path-for-user'))
+    })
+  }
+
+  /**
    * Write data into a remote file
    * @param   {string} path       path of the file at OC instance
    * @param   {string} content    content to be put
@@ -132,7 +154,7 @@ class Files {
    * @returns {Promise.<status>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}   string: error message, if any.
    */
-  putFileContents (path, content, options) {
+  putFileContents (path, content, options = {}) {
     return new Promise((resolve, reject) => {
       if (!this.helpers.getAuthorization()) {
         reject('Please specify an authorization first.')

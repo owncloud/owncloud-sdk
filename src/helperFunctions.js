@@ -4,6 +4,7 @@ const parser = require('./xmlParser.js')
 const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
 const uuidv4 = require('uuid/v4')
+const HttpError = require('./httpError.js')
 
 class helpers {
   constructor () {
@@ -275,6 +276,11 @@ class helpers {
     })
   }
 
+  buildHttpErrorFromDavResponse (status, body) {
+    const error = this._parseDAVerror(body)
+    return new HttpError(status, error)
+  }
+
   /**
    * Parses a DAV response error.
    */
@@ -283,7 +289,11 @@ class helpers {
       const tree = parser.xml2js(body)
 
       if (tree['d:error'] && tree['d:error']['s:message']) {
-        return tree['d:error']['s:message']
+        const message = tree['d:error']['s:message']
+        if (typeof message === 'string') {
+          return message
+        }
+        return ''
       }
     } catch (error) {
       return 'Unknown error'

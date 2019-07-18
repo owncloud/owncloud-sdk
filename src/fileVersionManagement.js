@@ -34,25 +34,21 @@ class FilesVersions {
 
   /**
    * Returns a list of versions for the given file id
-   * @param   {string}    fileId        file id
-   * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
-   * @returns {Promise.<error>}         string: error message, if any.
+   * @param   {string|number}      fileId        file id
+   * @returns {Promise.<fileInfo>}               Array[objects]: each object is an instance of class fileInfo
+   * @returns {Promise.<error>}                  string: error message, if any.
    */
   listVersions (fileId) {
     const path = '/meta/' + fileId + '/v'
 
-    return new Promise((resolve, reject) => {
-      this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), [], 1, {
-        'Authorization': this.helpers.getAuthorization()
-      }).then(result => {
-        if (result.status !== 207) {
-          resolve(null)
-        } else {
-          resolve(this.helpers._parseBody(result.body).splice(1))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), [], 1, {
+      'Authorization': this.helpers.getAuthorization()
+    }).then(result => {
+      if (result.status !== 207) {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      } else {
+        return Promise.resolve(this.helpers._parseBody(result.body).splice(1))
+      }
     })
   }
 
@@ -64,21 +60,15 @@ class FilesVersions {
   getFileVersionContents (fileId, versionId) {
     const path = '/meta/' + fileId + '/v/' + versionId
 
-    return new Promise((resolve, reject) => {
-      // TODO: use this.davClient ?
-      this.helpers._get(this.helpers._buildFullWebDAVPathV2(path)).then(data => {
-        const response = data.response
-        const body = data.body
+    return this.helpers._get(this.helpers._buildFullWebDAVPathV2(path)).then(data => {
+      const response = data.response
+      const body = data.body
 
-        if (response.statusCode === 200) {
-          resolve(body)
-        } else {
-          const err = this.helpers._parseDAVerror(body)
-          reject(err)
-        }
-      }).catch(error => {
-        reject(error)
-      })
+      if (response.statusCode === 200) {
+        return Promise.resolve(body)
+      } else {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response.status, body))
+      }
     })
   }
 
@@ -89,35 +79,30 @@ class FilesVersions {
    * @param   {string}  targetPath path of the remote file at OC instance
    */
   restoreFileVersion (fileId, versionId, targetPath) {
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
+
+    const source = '/meta/' + fileId + '/v/' + versionId
+    const target = '/files/' + this.helpers.getCurrentUser().id + '/' + targetPath
+
+    return this.davClient.request('COPY', this.helpers._buildFullWebDAVPathV2(source), {
+      'Authorization': this.helpers.getAuthorization(),
+      'Destination': this.helpers._buildFullWebDAVPathV2(target)
+    }).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      } else {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       }
-
-      const source = '/meta/' + fileId + '/v/' + versionId
-      const target = '/files/' + this.helpers.getCurrentUser().id + '/' + targetPath
-
-      this.davClient.request('COPY', this.helpers._buildFullWebDAVPathV2(source), {
-        'Authorization': this.helpers.getAuthorization(),
-        'Destination': this.helpers._buildFullWebDAVPathV2(target)
-      }).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve(true)
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
     })
   }
 
   /**
    * Returns the url of a remote file version
-   * @param   {string}  fileId     id of the remote file at OC instance
-   * @param   {string}  versionId  id of the version of the remote file at OC instance
-   * @returns {string}             Url of the remote file version
+   * @param   {string|number}  fileId     id of the remote file at OC instance
+   * @param   {string|number}  versionId  id of the version of the remote file at OC instance
+   * @returns {string}                    Url of the remote file version
    */
   getFileVersionUrl (fileId, versionId) {
     const source = '/meta/' + fileId + '/v/' + versionId

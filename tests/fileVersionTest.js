@@ -79,6 +79,17 @@ describe('Main: Currently testing file versions management,', function () {
     })
   })
 
+  it('retrieves file versions of not existing file', function (done) {
+    oc.fileVersions.listVersions(12345678).then(versions => {
+      expect(versions).toBe(null)
+      done()
+    }).catch(error => {
+      expect(error.statusCode).toBe(404)
+      expect(error.message).toBe('')
+      done()
+    })
+  })
+
   it('restore file version', function (done) {
     oc.fileVersions.listVersions(versionedFileInfo.getFileId()).then(versions => {
       expect(versions.length).toEqual(2)

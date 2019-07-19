@@ -70,7 +70,7 @@ class ShareInfo {
 
   /**
    * Gets permissions of share
-   * @returns {int} permissions of share
+   * @returns {number} permissions of share
    */
   getPermissions () {
     return this._getInt('permissions')

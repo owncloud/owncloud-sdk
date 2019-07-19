@@ -48,8 +48,7 @@ class FilesTrash {
 
     return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(target), properties, depth, headers).then(result => {
       if (result.status !== 207) {
-        const error = this.helpers._parseDAVerror(result.xhr.response)
-        return Promise.reject(new Error('Error: ' + result.status + ' - ' + error))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       } else {
         return Promise.resolve(this.helpers._parseBody(result.body))
       }
@@ -76,21 +75,20 @@ class FilesTrash {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        const error = this.helpers._parseDAVerror(result.xhr.response)
-        return Promise.reject(new Error('Error: ' + result.status + ' - ' + error))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       }
     })
   }
 
   /**
    * Restores an item to it's original location.
-   * @param {string}  fileId
-   * @param {string}  originalLocation
-   * @param {boolean} overWrite
+   * @param {string|number}  fileId
+   * @param {string}         originalLocation
+   * @param {boolean}        overWrite
    * @returns {Promise<void | string | Error>}
    */
   restore (fileId, originalLocation, overWrite = false) {
-    if (fileId === 'undefined') {
+    if (fileId === undefined) {
       return Promise.reject(new Error('No fileId given for restore'))
     }
     if (!this.helpers.getAuthorization()) {
@@ -107,7 +105,7 @@ class FilesTrash {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers._parseDAVerror(result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       }
     })
   }

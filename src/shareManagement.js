@@ -154,7 +154,7 @@ class Shares {
    * Returns array of shares
    * @param   {string}  path            path to the file whose share needs to be checked
    * @param   {object}  optionalParams  object of values {"reshares": boolean,
-   *                                    "subfiles": boolean, "shared_with_me": boolean, "state": int}
+   *                                    "subfiles": boolean, "shared_with_me": boolean, "state": number}
    * @returns {Promise.<ShareInfo>}     Array of instances of class ShareInfo for all Shares
    * @returns {Promise.<error>}         string: error message, if any.
    */
@@ -385,8 +385,8 @@ class Shares {
    * Deletes a share
    * @param {string} search
    * @param {string} itemType
-   * @param {int} page
-   * @param {int} perPage
+   * @param {number} page
+   * @param {number} perPage
    * @returns {Promise.<status>}    boolean: true if successful
    * @returns {Promise.<error>}     string: error message, if any.
    */

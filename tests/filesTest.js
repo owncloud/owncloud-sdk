@@ -130,7 +130,7 @@ describe('Main: Currently testing files management,', function () {
       expect(files).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistingFile + ' could not be located')
       done()
     })
   })
@@ -241,7 +241,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
       done()
     })
   })
@@ -271,7 +271,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('Parent node does not exist')
+      expect(error.message).toBe('Parent node does not exist')
       done()
     })
   })
@@ -294,7 +294,8 @@ describe('Main: Currently testing files management,', function () {
       fail(folder2)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + newFolder.slice(1) + ' could not be located')
+      console.log(error)
+      expect(error.message).toBe('File with name ' + newFolder.slice(1) + ' could not be located')
       done()
     })
   })
@@ -304,7 +305,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
       done()
     })
   })
@@ -314,7 +315,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(true)
       done()
     }).catch(error => {
-      expect(error).toBe('Source and destination uri are identical.')
+      expect(error.message).toBe('Source and destination uri are identical.')
       done()
     })
   })
@@ -367,7 +368,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistingFile + ' could not be located')
       done()
     })
   })
@@ -377,7 +378,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(true)
       done()
     }).catch(error => {
-      expect(error).toBe('Source and destination uri are identical.')
+      expect(error.message).toBe('Source and destination uri are identical.')
       done()
     })
   })
@@ -430,7 +431,7 @@ describe('Main: Currently testing files management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistingFile + ' could not be located')
       done()
     })
   })

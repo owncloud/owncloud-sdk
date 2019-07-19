@@ -49,31 +49,18 @@ class Files {
    * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
    * @returns {Promise.<error>}         string: error message, if any.
    */
-  list (path, depth, properties) {
-    if (typeof depth === 'undefined') {
-      depth = 1
+  list (path, depth = '1', properties = []) {
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
     }
 
-    if (typeof properties === 'undefined') {
-      properties = []
-    }
-
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
+    const headers = this.helpers.buildHeaders()
+    return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
+      if (result.status !== 207) {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+      } else {
+        return Promise.resolve(this.helpers._parseBody(result.body))
       }
-
-      const headers = this.helpers.buildHeaders()
-      this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
-        if (result.status !== 207) {
-          reject(this.helpers._parseDAVerror(result.xhr.response))
-        } else {
-          resolve(this.helpers._parseBody(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
     })
   }
 
@@ -81,37 +68,29 @@ class Files {
    * Returns the contents of a remote file
    * @param   {string}  path          path of the remote file at OC instance
    * @param   {Object} options
-   * @returns {Promise.<contents>}    string: contents of file
+   * @returns {Promise.<string>}    string: contents of file
    * @returns {Promise.<error>}       string: error message, if any.
    */
   getFileContents (path, options = {}) {
-    return new Promise((resolve, reject) => {
-      // TODO: use this.davClient ?
-      this.helpers._get(this.helpers._buildFullWebDAVPath(path)).then(data => {
-        const response = data.response
-        const body = data.body
+    return this.helpers._get(this.helpers._buildFullWebDAVPath(path)).then(data => {
+      const response = data.response
+      const body = data.body
 
-        if (response.statusCode === 200) {
-          options = options || []
-          const resolveWithResponseObject = options.resolveWithResponseObject || false
-          if (resolveWithResponseObject) {
-            resolve({
-              body: body,
-              headers: {
-                'ETag': response.getResponseHeader('etag'),
-                'OC-FileId': response.getResponseHeader('oc-fileid')
-              }
-            })
-          } else {
-            resolve(body)
+      if (response.statusCode !== 200) {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response.status, body))
+      }
+      options = options || []
+      const resolveWithResponseObject = options.resolveWithResponseObject || false
+      if (resolveWithResponseObject) {
+        return Promise.resolve({
+          body: body,
+          headers: {
+            'ETag': response.getResponseHeader('etag'),
+            'OC-FileId': response.getResponseHeader('oc-fileid')
           }
-        } else {
-          const err = this.helpers._parseDAVerror(body)
-          reject(err)
-        }
-      }).catch(error => {
-        reject(error)
-      })
+        })
+      }
+      return Promise.resolve(body)
     })
   }
 
@@ -139,7 +118,7 @@ class Files {
       'Authorization': this.helpers.getAuthorization()
     }).then(result => {
       if (result.status !== 207) {
-        return Promise.reject(new Error('No path for this fileId available'))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       }
       const file = this.helpers._parseBody(result.body)
       return Promise.resolve(file[0].getProperty('{http://owncloud.org/ns}meta-path-for-user'))
@@ -155,34 +134,29 @@ class Files {
    * @returns {Promise.<error>}   string: error message, if any.
    */
   putFileContents (path, content, options = {}) {
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
-      }
-      options = options || []
-      const headers = this.helpers.buildHeaders()
-      const previousEntityTag = options.previousEntityTag || false
-      if (previousEntityTag) {
-        // will ensure that no other client uploaded a different version meanwhile
-        headers['If-Match'] = previousEntityTag
-      } else {
-        // will trigger 412 precondition failed if a file already exists
-        headers['If-None-Match'] = '*'
-      }
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
+    options = options || []
+    const headers = this.helpers.buildHeaders()
+    const previousEntityTag = options.previousEntityTag || false
+    if (previousEntityTag) {
+      // will ensure that no other client uploaded a different version meanwhile
+      headers['If-Match'] = previousEntityTag
+    } else {
+      // will trigger 412 precondition failed if a file already exists
+      headers['If-None-Match'] = '*'
+    }
 
-      this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve({
-            'ETag': result.xhr.getResponseHeader('etag'),
-            'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
-          })
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve({
+          'ETag': result.xhr.getResponseHeader('etag'),
+          'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
+        })
+      } else {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      }
     })
   }
 
@@ -197,21 +171,15 @@ class Files {
       path += '/'
     }
 
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
-      }
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
 
-      this.davClient.request('MKCOL', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve(true)
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+    return this.davClient.request('MKCOL', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
     })
   }
 
@@ -232,21 +200,16 @@ class Files {
    * @returns {Promise.<error>}     string: error message, if any.
    */
   delete (path) {
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
-      }
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
 
-      this.davClient.request('DELETE', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve(true)
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      } else {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      }
     })
   }
 
@@ -258,12 +221,8 @@ class Files {
    * @returns {Promise.<error>}                         string: error message, if any.
    */
   fileInfo (path, properties) {
-    return new Promise((resolve, reject) => {
-      this.list(path, '0', properties).then(fileInfo => {
-        resolve(fileInfo[0])
-      }).catch(error => {
-        reject(error)
-      })
+    return this.list(path, '0', properties).then(fileInfo => {
+      return Promise.resolve(fileInfo[0])
     })
   }
 
@@ -302,23 +261,17 @@ class Files {
    * @returns {Promise.<error>}   string: error message, if any.
    */
   move (source, target) {
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
-      }
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
 
-      const headers = this.helpers.buildHeaders()
-      headers['Destination'] = this.helpers._buildFullWebDAVPath(target)
-      this.davClient.request('MOVE', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve(true)
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+    const headers = this.helpers.buildHeaders()
+    headers['Destination'] = this.helpers._buildFullWebDAVPath(target)
+    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
     })
   }
 
@@ -330,23 +283,17 @@ class Files {
    * @returns {Promise.<error>}   string: error message, if any.
    */
   copy (source, target) {
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
-        return
-      }
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
 
-      const headers = this.helpers.buildHeaders()
-      headers['Destination'] = this.helpers._buildFullWebDAVPath(target)
-      this.davClient.request('COPY', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve(true)
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+    const headers = this.helpers.buildHeaders()
+    headers['Destination'] = this.helpers._buildFullWebDAVPath(target)
+    return this.davClient.request('COPY', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
     })
   }
 
@@ -358,31 +305,23 @@ class Files {
    * @returns {Promise.<error>}   string: error message, if any.
    */
   favorite (path, value = true) {
-    if (typeof value === 'undefined') {
-      value = true
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
     }
-    return new Promise((resolve, reject) => {
-      if (!this.helpers.getAuthorization()) {
-        reject('Please specify an authorization first.')
+    return this.davClient.propPatch(this.helpers._buildFullWebDAVPath(path), {
+      '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
+    }, this.helpers.buildHeaders()).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
       }
-      this.davClient.propPatch(this.helpers._buildFullWebDAVPath(path), {
-        '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
-      }, this.helpers.buildHeaders()).then(result => {
-        if ([200, 201, 204, 207].indexOf(result.status) > -1) {
-          resolve(true)
-        } else {
-          reject(this.helpers._parseDAVerror(result.body))
-        }
-      }).catch(error => {
-        reject(error)
-      })
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
     })
   }
 
   /**
    * Search in all files of the user for a given pattern
    * @param   {string} pattern        pattern to be searched for
-   * @param   {int} limit             maximum number of results
+   * @param   {number} limit          maximum number of results
    * @param   {string[]} properties   list of DAV properties which are expected in the response
    * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
@@ -462,7 +401,7 @@ class Files {
 
   /**
    * Get all files and folder of the user for a given list of tags
-   * @param   {int[]} tags            list of tag ids
+   * @param   {number[]} tags            list of tag ids
    * @param   {string[]} properties   list of DAV properties which are expected in the response
    * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
@@ -504,7 +443,7 @@ class Files {
 
       return this.davClient.request('REPORT', this.helpers._buildFullWebDAVPathV2(path), headers, body).then(result => {
         if (result.status !== 207) {
-          return Promise.reject(new Error('Error: ' + result.status))
+          return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
         } else {
           return Promise.resolve(this.helpers._parseBody(result.body, 2))
         }

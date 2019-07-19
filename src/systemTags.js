@@ -24,7 +24,7 @@ class SystemTags {
   /**
    * Create a new system tag
    * @param   {string}    tagInfo          the tag info
-   * @returns {Promise.<int>}              id of the newly created system tag
+   * @returns {Promise.<number>}              id of the newly created system tag
    * @returns {Promise.<error>}            string: error message, if any.
    */
   createTag (tagInfo) {
@@ -60,8 +60,8 @@ class SystemTags {
 
   /**
    * Assing a tag to a file/folder
-   * @param   {int}    fileId              id of the file/folder
-   * @param   {int}    tagId               id of the tag
+   * @param   {number}   fileId            id of the file/folder
+   * @param   {number}   tagId             id of the tag
    * @returns {Promise}                    resolves if successful
    * @returns {Promise.<error>}            string: error message, if any.
    */

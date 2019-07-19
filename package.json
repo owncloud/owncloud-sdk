@@ -45,7 +45,7 @@
     "@babel/runtime": "^7.4.4",
     "babel-loader": "^8.0.5",
     "codecov": "^3.3.0",
-    "eslint": "^5.16.0",
+    "eslint": "^6.0.1",
     "eslint-config-standard": "^12.0.0",
     "eslint-loader": "^2.1.2",
     "eslint-plugin-import": "^2.17.2",

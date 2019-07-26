@@ -8,6 +8,7 @@ const Files = require('./fileManagement.js')
 const FileVersion = require('./fileVersionManagement.js')
 const SystemTags = require('./systemTags.js')
 const FilesTrash = require('./filesTrash.js')
+const PublicFiles = require('./publicLinkAccess.js')
 
 /**
  * @class ownCloud
@@ -66,6 +67,7 @@ class ownCloud {
     this.fileVersions = new FileVersion(this.helpers)
     this.systemTags = new SystemTags(this.helpers)
     this.fileTrash = new FilesTrash(this.helpers)
+    this.publicFiles = new PublicFiles(this.helpers)
     this.requests = {
       ocs: function (options = {}) {
         return helpers.ocs(options)

@@ -117,10 +117,12 @@ class helpers {
       })
   }
 
-  buildHeaders () {
+  buildHeaders (withAuthHeader = true) {
     let headers = {
-      authorization: this._authHeader,
       'OCS-APIREQUEST': true
+    }
+    if (withAuthHeader) {
+      headers['authorization'] = this._authHeader
     }
     if (this.atLeastVersion('10.1.0')) {
       headers['X-Request-ID'] = uuidv4()

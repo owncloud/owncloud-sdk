@@ -74,7 +74,6 @@
     "webpack-cli": "^3.3.2"
   },
   "dependencies": {
-    "browser-request": "^0.3.3",
     "davclient.js": "https://github.com/owncloud/davclient.js.git",
     "promise": "^8.0.3",
     "request": "^2.88.0",

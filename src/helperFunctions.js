@@ -1,5 +1,4 @@
 const Promise = require('promise')
-const request = require('browser-request')
 const parser = require('./xmlParser.js')
 const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
@@ -77,9 +76,8 @@ class helpers {
   getCapabilities () {
     return this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 'capabilities')
       .then(data => {
-        const body = data.data.ocs.data
-        this._versionNumber = body.version.major + '.' + body.version.minor + '.' + body.version.micro
-        return Promise.resolve(body)
+        this._versionNumber = data.version.major + '.' + data.version.minor + '.' + data.version.micro
+        return Promise.resolve(data)
       })
   }
 
@@ -116,7 +114,7 @@ class helpers {
     let self = this
     return self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'user')
       .then(data => {
-        self._currentUser = data.data.ocs.data
+        self._currentUser = data
 
         return Promise.resolve(self._currentUser)
       })
@@ -162,123 +160,23 @@ class helpers {
       return Promise.reject('Please specify an authorization first.')
     }
 
-    // Set the headers
-    const headers = this.buildHeaders()
-    let slash = ''
-
-    if (service) {
-      slash = '/'
-    }
-    const path = this.OCS_BASEPATH + service + slash + action
-
-    // Configure the request
-    let options = {
-      url: this.instance + path,
+    return this.ocs({
       method: method,
-      headers: headers
-    }
-    const serialize = function (element, key, list = []) {
-      if (typeof (element) === 'object') {
-        for (let idx in element) { serialize(element[idx], key ? key + '[' + idx + ']' : idx, list) }
-      } else {
-        list.push(encodeURIComponent(key) + '=' + encodeURIComponent(element))
-      }
-      return list.join('&')
-    }
-
-    options.headers['content-type'] = 'application/x-www-form-urlencoded'
-    options.body = serialize(data).replace(/%20/g, '+')
-
-    return new Promise((resolve, reject) => {
-      // Start the request
-      request(options, function (error, response, body) {
-        if (error) {
-          reject(error)
-          return
-        }
-
-        let tree = null
-        try {
-          tree = parser.xml2js(body)
-          error = self._checkOCSstatus(tree)
-          if (error) {
-            reject(error)
-            return
-          }
-        } catch (e) {
-          try {
-            tree = JSON.parse(body)
-            if ('message' in tree) {
-              reject(tree.message)
-              return
-            }
-            error = self._checkOCSstatus(tree)
-            if (error) {
-              reject(error)
-              return
-            }
-          } catch (e) {
-            reject('Invalid response body: ' + body)
-            return
-          }
-        }
-
-        resolve({
-          response: response,
-          body: body,
-          data: tree
-        })
-      })
+      service: service,
+      action: action,
+      data: data
     })
-  }
-
-  /**
-   * performs a simple GET request
-   * @param   {string}    url     url to perform GET on
-   * @returns {Promise.<data>}    object: {response: response, body: request body}
-   * @returns {Promise.<error>}   string: error message, if any.
-   */
-  _get (url) {
-    let err = null
-
-    if (!this.instance) {
-      err = 'Please specify a server URL first'
-    }
-
-    if (!this._authHeader) {
-      err = 'Please specify an authorization first.'
-    }
-
-    const headers = {
-      authorization: this._authHeader,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-
-    // Configure the request
-    const options = {
-      url: url,
-      method: 'GET',
-      headers: headers
-    }
-
-    return new Promise((resolve, reject) => {
-      if (err) {
-        reject(err)
-        return
-      }
-
-      // Start the request
-      request(options, function (error, response, body) {
-        if (error) {
-          reject(error)
-        } else {
-          resolve({
-            response: response,
-            body: body
+      .then(response => {
+        if (response.ok) {
+          return response.json().then(json => {
+            return json.ocs.data
           })
         }
+        return response.json().then(json => {
+          const error = self._checkOCSstatus(json)
+          throw new HttpError(response.status, error)
+        })
       })
-    })
   }
 
   buildHttpErrorFromDavResponse (status, body) {
@@ -525,21 +423,27 @@ class helpers {
       method: 'GET',
       service: this.OCS_SERVICE_CLOUD,
       action: 'user',
-      data: null
+      data: null,
+      requestContentType: 'application/json'
     }
     options = Object.assign({}, defaults, options)
     const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
     const url = this.instance + this.OCS_BASEPATH_V2 + options.service + '/' + action
     let headers = this.buildHeaders()
-    headers['OCS-APIREQUEST'] = true
     const init = {
       method: options.method,
       mode: 'cors',
       headers: headers
     }
     if (options.data !== null) {
-      init.body = JSON.stringify(options.data)
-      init.headers['Content-Type'] = 'application/json'
+      if (options.requestContentType === 'application/json') {
+        init.body = JSON.stringify(options.data)
+        init.headers['Content-Type'] = 'application/json'
+      }
+      if (options.requestContentType === 'application/x-www-form-urlencoded') {
+        init.headers['content-type'] = 'application/x-www-form-urlencoded'
+        init.body = new FormData(options.data)
+      }
     }
     return fetch(url, init)
   }

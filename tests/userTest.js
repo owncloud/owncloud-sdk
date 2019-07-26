@@ -26,7 +26,7 @@ describe('Main: Currently testing user management,', function () {
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
       return oc.users.createUser(testUser, testUserPassword)
     }).then(status2 => {
       expect(status2).toBe(true)

@@ -24,7 +24,7 @@ describe('Main: Currently testing group management,', function () {
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
       return oc.groups.createGroup(testGroup)
     }).then(status2 => {
       expect(status2).toBe(true)

@@ -17,7 +17,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
       done()
     }).catch(error => {
       fail(error)

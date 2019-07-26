@@ -40,16 +40,8 @@ class Apps {
 
     return Promise.all([allAppsP, allEnabledAppsP])
       .then(apps => {
-        if (parseInt(this.helpers._checkOCSstatusCode(apps[0].data)) === 999) {
-          return Promise.reject('Provisioning API has been disabled at your instance')
-        }
-
-        if ((!(apps[0].data.ocs.data)) || (!(apps[1].data.ocs.data))) {
-          return Promise.reject(apps[0].data.ocs)
-        }
-
-        const allApps = apps[0].data.ocs.data.apps.element
-        const allEnabledApps = apps[1].data.ocs.data.apps.element
+        const allApps = apps[0].apps
+        const allEnabledApps = apps[1].apps
 
         for (let i = 0; i < allApps.length; i++) {
           send[allApps[i]] = false
@@ -59,6 +51,16 @@ class Apps {
         }
 
         return Promise.resolve(send)
+      })
+      .catch(error => {
+        // if (parseInt(this.helpers._checkOCSstatusCode(apps[0].data)) === 999) {
+        //   return Promise.reject('Provisioning API has been disabled at your instance')
+        // }
+        //
+        // if ((!(apps[0].data.ocs.data)) || (!(apps[1].data.ocs.data))) {
+        //   return Promise.reject(apps[0].data.ocs)
+        // }
+        return Promise.reject(error)
       })
   }
 
@@ -81,22 +83,22 @@ class Apps {
 
     return this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_PRIVATEDATA, send)
       .then(data => {
-        let elements = data.data.ocs.data.element
+        let elements = data
 
         if (key) {
-          if (!elements) {
+          if (elements.length === 0) {
             return Promise.reject(app + ' has no key named "' + key + '"')
           } else {
-            const value = elements.value
-            elements.value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value
-            return Promise.resolve(elements.value)
+            let value = elements[0].value
+            value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value
+            return Promise.resolve(value)
           }
         } else {
-          if (!elements) {
-            return Promise.resolve({})
-          }
           if (elements.constructor !== Array) {
             elements = [elements]
+          }
+          if (elements.length === 0) {
+            return Promise.resolve({})
           }
           const allAttributes = {}
           for (let i = 0; i < elements.length; i++) {

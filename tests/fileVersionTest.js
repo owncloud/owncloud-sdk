@@ -29,7 +29,7 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
 
       // create three versions
       oc.files.createFolder(testFolder).then(status => {

@@ -17,7 +17,7 @@ describe('Main: Currently testing low level OCS', function () {
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
       done()
     }).catch(error => {
       expect(error).toBe(null)

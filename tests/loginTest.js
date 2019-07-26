@@ -88,7 +88,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
       done()
     }).catch(error => {
       fail(error)

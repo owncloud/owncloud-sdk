@@ -19,7 +19,7 @@ describe('oc.fileTrash', function () {
     })
 
     oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: '' })
 
       oc.getCapabilities().then(cap => {
         trashEnabled = (cap.capabilities.dav.trashbin !== undefined)

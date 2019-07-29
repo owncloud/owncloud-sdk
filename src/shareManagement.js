@@ -42,7 +42,7 @@ class Shares {
    * @returns {Promise.<shareInfo>}        instance of class shareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
-  shareFileWithLink (path, optionalParams) {
+  shareFileWithLink (path, optionalParams = {}) {
     path = this.helpers._normalizePath(path)
 
     const postData = {

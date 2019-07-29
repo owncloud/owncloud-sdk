@@ -115,8 +115,8 @@ services:
 matrix:
   include:
     - PUBLISH: true
-      OC_VERSION:  bugfix/trashbin-api-handle-locked-exception-properly
+      OC_VERSION:  feature/public-links
 
     - PUBLISH: false
       SUBFOLDER: /sub/
-      OC_VERSION:  bugfix/trashbin-api-handle-locked-exception-properly
+      OC_VERSION:  feature/public-links

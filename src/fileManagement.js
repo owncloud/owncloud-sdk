@@ -217,7 +217,7 @@ class Files {
    * Returns the file info for the given remote file
    * @param   {string}                    path          path of the file/folder at OC instance
    * @param   {Object.<string, string>}   properties    WebDAV properties
-   * @returns {Promise.<fileInfo>}                      object: instance of class fileInfo
+   * @returns {Promise.<FileInfo>}                      object: instance of class fileInfo
    * @returns {Promise.<error>}                         string: error message, if any.
    */
   fileInfo (path, properties) {

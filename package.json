@@ -58,6 +58,7 @@
     "istanbul-instrumenter-loader": "^3.0.1",
     "jasmine": "3.4",
     "jasmine-core": "3.4",
+    "jasmine-data-provider": "^2.2.0",
     "jsdoc": "^3.6.1",
     "jszip": "^3.2.1",
     "karma": "^4.1.0",

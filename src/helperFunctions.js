@@ -423,6 +423,11 @@ class helpers {
     resolve(true)
   }
 
+  /**
+   *
+   * @return {FileInfo[]}
+   * @private
+   */
   _parseBody (responses, davVersion) {
     if (!Array.isArray(responses)) {
       responses = [responses]
@@ -463,6 +468,10 @@ class helpers {
     return subPath
   }
 
+  /**
+   * @return {FileInfo|null}
+   * @private
+   */
   _parseFileInfo (response, davVersion) {
     davVersion = davVersion || 1
     const path = this._extractPath(response.href, davVersion === 2 ? 2 : 0)

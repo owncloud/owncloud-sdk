@@ -120,8 +120,15 @@ describe('oc.files.listPublicFiles', function () {
         it('should list the folder contents', function (done) {
           oc.publicFiles.list(testFolderShare.getToken(), data.passwordWhenListing).then(files => {
             if (data.shallGrantAccess) {
+              // test length
               expect(files.length).toBe(4)
+              // test root folder
               expect(files[0].getName()).toBe(testFolderShare.getToken())
+              expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
+              expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.username)
+              expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
+
+              // test folder elements
               expect(files[1].getName()).toBe(testFiles[2])
               expect(files[2].getName()).toBe(testFiles[1])
               expect(files[3].getName()).toBe(testFiles[0])

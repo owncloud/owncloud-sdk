@@ -66,14 +66,14 @@ class PublicFiles {
 
   /**
    * Download the content of a file in a public link
-   * @param token
-   * @param path
-   * @param password
+   * @param  {string}       token    public share token
+   * @param  {string}       path     path to a file in the share
+   * @param  {string|null}  password
    * @return {Promise<Response>}
    */
   download (token, path, password = null) {
     let headers = this.helpers.buildHeaders(false)
-    const url = this.helpers._buildFullWebDAVPathV2('/public-files/' + token + '/' + path)
+    const url = this.getFileUrl(token, path)
 
     if (password) {
       headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
@@ -92,6 +92,16 @@ class PublicFiles {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(resp.status, body))
       })
     })
+  }
+
+  /**
+   * Returns the url of a public file
+   * @param  {string}  token    public share token
+   * @param  {string}  path     path to a file in the share
+   * @return {string}           Url of the public file
+   */
+  getFileUrl (token, path) {
+    return this.helpers._buildFullWebDAVPathV2('/public-files/' + token + '/' + path)
   }
 }
 module.exports = PublicFiles

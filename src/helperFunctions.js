@@ -428,14 +428,14 @@ class helpers {
    * @return {FileInfo[]}
    * @private
    */
-  _parseBody (responses, davVersion) {
+  _parseBody (responses, leftTrimComponents = 0) {
     if (!Array.isArray(responses)) {
       responses = [responses]
     }
     const self = this
     const fileInfos = []
     for (let i = 0; i < responses.length; i++) {
-      const fileInfo = self._parseFileInfo(responses[i], davVersion)
+      const fileInfo = self._parseFileInfo(responses[i], leftTrimComponents)
       if (fileInfo !== null) {
         fileInfos.push(fileInfo)
       }
@@ -472,9 +472,8 @@ class helpers {
    * @return {FileInfo|null}
    * @private
    */
-  _parseFileInfo (response, davVersion) {
-    davVersion = davVersion || 1
-    const path = this._extractPath(response.href, davVersion === 2 ? 2 : 0)
+  _parseFileInfo (response, leftTrimComponents = 0) {
+    const path = this._extractPath(response.href, leftTrimComponents)
     // invalid subpath
     if (path === null) {
       return null

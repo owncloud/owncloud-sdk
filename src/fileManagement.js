@@ -95,12 +95,23 @@ class Files {
   }
 
   /**
-   * Returns the url of a remote file
+   * Returns the url of a remote file - using the version 1 endpoint
    * @param   {string}  path    path of the remote file at OC instance
    * @returns {string}          Url of the remote file
    */
   getFileUrl (path) {
     return this.helpers._buildFullWebDAVPath(path)
+  }
+
+  /**
+   * Returns the url of a remote file - using the version 2 endpoint
+   * @param   {string}  path    path of the remote file at OC instance
+   * @returns {string}          Url of the remote file
+   */
+  getFileUrlV2 (path) {
+    path = path[0] === '/' ? path : '/' + path
+    const target = '/files/' + this.helpers.getCurrentUser().id + path
+    return this.helpers._buildFullWebDAVPathV2(target)
   }
 
   /**

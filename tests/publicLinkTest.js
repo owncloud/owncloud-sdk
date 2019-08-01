@@ -124,14 +124,20 @@ describe('oc.files.listPublicFiles', function () {
               expect(files.length).toBe(4)
               // test root folder
               expect(files[0].getName()).toBe(testFolderShare.getToken())
+              expect(files[0].getPath()).toBe('/')
               expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
               expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.username)
               expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
 
               // test folder elements
               expect(files[1].getName()).toBe(testFiles[2])
+              expect(files[1].getPath()).toBe('/' + testFolderShare.getToken() + '/')
+
               expect(files[2].getName()).toBe(testFiles[1])
+              expect(files[2].getPath()).toBe('/' + testFolderShare.getToken() + '/')
+
               expect(files[3].getName()).toBe(testFiles[0])
+              expect(files[3].getPath()).toBe('/' + testFolderShare.getToken() + '/')
             } else {
               fail(files)
             }

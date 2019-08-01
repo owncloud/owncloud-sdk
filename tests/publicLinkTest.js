@@ -34,6 +34,27 @@ describe('oc.files.listPublicFiles', function () {
     oc = null
   })
 
+  describe('when creating file urls', function () {
+    using({
+      'token only': {
+        token: 'abcdef',
+        path: null,
+        expected: 'remote.php/dav/public-files/abcdef'
+      },
+      'token and path': {
+        token: 'abcdef',
+        path: 'foo/bar.txt',
+        expected: 'remote.php/dav/public-files/abcdef/foo/bar.txt'
+      }
+    }, function (data, description) {
+      it('shall work with' + description, function () {
+        expect(oc.publicFiles.getFileUrl(data.token, data.path))
+          .toBe(config.owncloudURL + data.expected)
+      })
+    }
+    )
+  })
+
   describe('when listing a shared folder', function () {
     using({
       'without password': {

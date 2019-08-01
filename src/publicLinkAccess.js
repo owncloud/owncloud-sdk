@@ -32,15 +32,15 @@ class PublicFiles {
   /**
    * Lists files in a public link as determined by the given token
    *
-   * @param {string}      token
+   * @param {string}      tokenAndPath
    * @param {string|null} password
    * @param {array}       properties
    * @param {string}      depth
    * @return {Promise<FileInfo[]>}
    */
-  list (token, password = null, properties = [], depth = '1') {
+  list (tokenAndPath, password = null, properties = [], depth = '1') {
     let headers = this.helpers.buildHeaders(false)
-    const path = '/public-files/' + token + '/'
+    const url = this.getFileUrl(tokenAndPath)
     if (password) {
       headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
@@ -55,7 +55,7 @@ class PublicFiles {
       ]
     }
 
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), properties, depth, headers).then(result => {
+    return this.davClient.propFind(url, properties, depth, headers).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       } else {
@@ -66,12 +66,12 @@ class PublicFiles {
 
   /**
    * Download the content of a file in a public link
-   * @param  {string}       token    public share token
-   * @param  {string}       path     path to a file in the share
+   * @param  {string}       token    public share token - may contain the path as well
+   * @param  {string|null}  path     path to a file in the share
    * @param  {string|null}  password
    * @return {Promise<Response>}
    */
-  download (token, path, password = null) {
+  download (token, path = null, password = null) {
     let headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(token, path)
 
@@ -96,12 +96,15 @@ class PublicFiles {
 
   /**
    * Returns the url of a public file
-   * @param  {string}  token    public share token
-   * @param  {string}  path     path to a file in the share
-   * @return {string}           Url of the public file
+   * @param  {string}       token  public share token - may contain the path as well
+   * @param  {string|null}  path   path to a file in the share
+   * @return {string}              Url of the public file
    */
-  getFileUrl (token, path) {
-    return this.helpers._buildFullWebDAVPathV2('/public-files/' + token + '/' + path)
+  getFileUrl (token, path = null) {
+    if (path) {
+      return this.helpers._buildFullWebDAVPathV2('/public-files/' + token + '/' + path)
+    }
+    return this.helpers._buildFullWebDAVPathV2('/public-files/' + token)
   }
 }
 module.exports = PublicFiles

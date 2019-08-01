@@ -187,6 +187,11 @@ describe('Main: Currently testing files management,', function () {
     expect(url).toBe(config.owncloudURL + 'remote.php/webdav/foo/bar')
   })
 
+  it('checking method: getFileUrlV2', function () {
+    const url = oc.files.getFileUrlV2('/foo/bar')
+    expect(url).toBe(config.owncloudURL + 'remote.php/dav/files/admin/foo/bar')
+  })
+
   it('checking method: favorite', function (done) {
     const newFile = testFolder + '/' + 'file.txt'
 

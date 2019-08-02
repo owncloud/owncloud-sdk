@@ -38,7 +38,7 @@ class Shares {
   /**
    * Shares a remote file with link
    * @param   {string}    path             path to the remote file share
-   * @param   {object}    optionalParams   {perms: integer, publicUpload: boolean, password: string}
+   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string}
    * @returns {Promise.<shareInfo>}        instance of class shareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -51,8 +51,8 @@ class Shares {
     }
 
     if (optionalParams) {
-      if (optionalParams.perms) {
-        postData.permissions = optionalParams.perms
+      if (optionalParams.permissions) {
+        postData.permissions = optionalParams.permissions
       }
       if (optionalParams.password) {
         postData.password = optionalParams.password

@@ -96,7 +96,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // needs to be double checked ...
       describe('updating share permissions,', function () {
         beforeEach(function (done) {
-          oc.shares.updateShare(testFolderShareID, { perms: 31 }) // max-permissions
+          oc.shares.updateShare(testFolderShareID, { permissions: 31 }) // max-permissions
             .then(updatedShare => {
               expect(updatedShare.getId()).toBe(testFolderShareID)
               expect(updatedShare.getPermissions()).toBe(31)
@@ -401,7 +401,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           var count = 0
 
           for (var file in sharedFilesWithUser) {
-            oc.shares.updateShare(sharedFilesWithUser[file], { perms: maxPerms }).then(updatedShare => {
+            oc.shares.updateShare(sharedFilesWithUser[file], { permissions: maxPerms }).then(updatedShare => {
               expect(updatedShare.getPermissions()).toBe(maxPerms)
               count++
               if (count === Object.keys(sharedFilesWithUser).length) {
@@ -503,7 +503,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         var count = 0
 
         for (var i = 0; i < testFiles.length; i++) {
-          oc.shares.shareFileWithGroup(testFiles[i], testGroup, { perms: 19 }).then(share => {
+          oc.shares.shareFileWithGroup(testFiles[i], testGroup, { permissions: 19 }).then(share => {
             expect(typeof (share)).toEqual('object')
             expect(share.getPermissions()).toEqual(19)
             sharedFilesWithGroup[share.getPath()] = share.getId()
@@ -613,7 +613,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : shareFileWithGroup with non existent file', function (done) {
-      oc.shares.shareFileWithGroup(nonExistingFile, testGroup, { perms: 19 }).then(share => {
+      oc.shares.shareFileWithGroup(nonExistingFile, testGroup, { permissions: 19 }).then(share => {
         expect(share).toBe(null)
         done()
       }).catch(error => {

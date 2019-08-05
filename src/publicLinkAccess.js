@@ -106,5 +106,92 @@ class PublicFiles {
     }
     return this.helpers._buildFullWebDAVPathV2('/public-files/' + token)
   }
+
+  /**
+   * Creates a remote directory in a public folder
+   * @param  {string}            token      public share token - may contain the path as well
+   * @param  {string|null}       path       path of the folder to be created at OC instance
+   * @param  {string|null}       password
+   * @return {Promise.<status>}  boolean: whether the operation was successful
+   * @return {Promise.<error>}   string: error message, if any.
+   */
+  createFolder (token, path = null, password = null) {
+    let headers = this.helpers.buildHeaders(false)
+    const url = this.getFileUrl(token, path)
+
+    if (password) {
+      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+    }
+
+    return this.davClient.request('MKCOL', url, headers).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+    })
+  }
+
+  /**
+   * Deletes a remote file or directory in a public folder
+   * @param  {string}            token      public share token - may contain the path as well
+   * @param  {string|null}       path       path of the folder to be created at OC instance
+   * @param  {string|null}       password
+   * @return {Promise.<status>}    boolean: whether the operation was successful
+   * @return {Promise.<error>}     string: error message, if any.
+   */
+  delete (token, path = null, password = null) {
+    let headers = this.helpers.buildHeaders(false)
+    const url = this.getFileUrl(token, path)
+
+    if (password) {
+      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+    }
+
+    return this.davClient.request('DELETE', url, headers).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      } else {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      }
+    })
+  }
+
+  /**
+   * Write data into a remote file
+   * @param  {string}            token      public share token - may contain the path as well
+   * @param  {string|null}       path       path of the folder to be created at OC instance
+   * @param  {string|null}       password
+   * @param  {string} content    content to be put
+   * @param  {Object} options
+   * @return {Promise.<status>}  boolean: whether the operation was successful
+   * @return {Promise.<error>}   string: error message, if any.
+   */
+  putFileContents (token, path = null, password = null, content = '', options = {}) {
+    let headers = this.helpers.buildHeaders(false)
+    const url = this.getFileUrl(token, path)
+
+    if (password) {
+      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+    }
+    const previousEntityTag = options.previousEntityTag || false
+    if (previousEntityTag) {
+      // will ensure that no other client uploaded a different version meanwhile
+      headers['If-Match'] = previousEntityTag
+    } else {
+      // will trigger 412 precondition failed if a file already exists
+      headers['If-None-Match'] = '*'
+    }
+
+    return this.davClient.request('PUT', url, headers, content).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve({
+          'ETag': result.xhr.getResponseHeader('etag'),
+          'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
+        })
+      } else {
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      }
+    })
+  }
 }
 module.exports = PublicFiles

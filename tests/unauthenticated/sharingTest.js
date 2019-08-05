@@ -43,7 +43,7 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
 
   it('checking method : shareFileWithGroup', function (done) {
     oc.shares.shareFileWithGroup(testFile, testGroup, {
-      perms: 19
+      permissions: 19
     }).then(share => {
       expect(share).toEqual(null)
       done()

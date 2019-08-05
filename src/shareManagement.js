@@ -83,7 +83,7 @@ class Shares {
    * Shares a remote file with specified user
    * @param   {string}    path             path to the remote file share
    * @param   {string}    username         name of the user to share with
-   * @param   {object}    optionalParams   {perms: integer, remoteUser: boolean}
+   * @param   {object}    optionalParams   {permissions: integer, remoteUser: boolean}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -97,8 +97,8 @@ class Shares {
     }
 
     if (optionalParams) {
-      if (optionalParams.perms) {
-        postData.permissions = optionalParams.perms
+      if (optionalParams.permissions) {
+        postData.permissions = optionalParams.permissions
       }
 
       if (optionalParams.remoteUser) {
@@ -123,7 +123,7 @@ class Shares {
    * Shares a remote file with specified group
    * @param   {string}    path             path to the remote file share
    * @param   {string}    groupName        name of group to share with
-   * @param   {object}    optionalParams   {perms: integer}
+   * @param   {object}    optionalParams   {permissions: integer}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -136,8 +136,8 @@ class Shares {
       'path': path
     }
 
-    if (optionalParams && optionalParams.perms) {
-      postData.permissions = optionalParams.perms
+    if (optionalParams && optionalParams.permissions) {
+      postData.permissions = optionalParams.permissions
     }
 
     return new Promise((resolve, reject) => {
@@ -333,7 +333,7 @@ class Shares {
   /**
    * Updates a given share
    * @param   {number}  shareId         ID of the share to update
-   * @param   {object}   optionalParams  {perms: integer, publicUpload: boolean, password: string}
+   * @param   {object}   optionalParams  {permissions: integer, publicUpload: boolean, password: string}
    * @returns {Promise.<status>}         boolean: true if successful
    * @returns {Promise.<error>}          string: error message, if any.
    */
@@ -341,8 +341,8 @@ class Shares {
     let postData = {}
 
     if (optionalParams) {
-      if (optionalParams.perms) {
-        postData.permissions = optionalParams.perms
+      if (optionalParams.permissions) {
+        postData.permissions = optionalParams.permissions
       }
       if (optionalParams.password) {
         postData.password = optionalParams.password

@@ -205,13 +205,13 @@ describe('oc.publicFiles', function () {
     using({
       'without password': {
         shareParams: {
-          perms: 15
+          permissions: 15
         }
       },
       'with password': {
         shareParams: {
           password: 'password',
-          perms: 15
+          permissions: 15
         }
       }
     }, function (data, description) {

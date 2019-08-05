@@ -333,7 +333,7 @@ class Shares {
   /**
    * Updates a given share
    * @param   {number}  shareId         ID of the share to update
-   * @param   {object}   optionalParams  {permissions: integer, publicUpload: boolean, password: string}
+   * @param   {object}  optionalParams  {permissions: integer, publicUpload: boolean, password: string, expireDate: string}
    * @returns {Promise.<status>}         boolean: true if successful
    * @returns {Promise.<error>}          string: error message, if any.
    */
@@ -346,6 +346,9 @@ class Shares {
       }
       if (optionalParams.password) {
         postData.password = optionalParams.password
+      }
+      if (optionalParams.expireDate) {
+        postData.expireDate = optionalParams.expireDate
       }
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
         postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()

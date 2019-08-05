@@ -227,6 +227,7 @@ describe('oc.publicFiles', function () {
           return oc.files.createFolder(testFolder).then(() => {
             return oc.shares.shareFileWithLink(testFolder, data.shareParams).then(share => {
               expect(typeof (share)).toBe('object')
+              expect(share.getPermissions()).toBe(15)
               testFolderShare = share
               done()
             })

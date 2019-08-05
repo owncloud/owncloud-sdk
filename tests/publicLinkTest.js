@@ -1,4 +1,4 @@
-describe('oc.files.listPublicFiles', function () {
+describe('oc.publicFiles', function () {
   // CURRENT TIME
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
@@ -6,9 +6,6 @@ describe('oc.files.listPublicFiles', function () {
 
   // LIBRARY INSTANCE
   let oc
-
-  // CREATED SHARES
-  let testFolderShare = null
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -47,7 +44,7 @@ describe('oc.files.listPublicFiles', function () {
         expected: 'remote.php/dav/public-files/abcdef/foo/bar.txt'
       }
     }, function (data, description) {
-      it('shall work with' + description, function () {
+      it('shall work with ' + description, function () {
         expect(oc.publicFiles.getFileUrl(data.token, data.path))
           .toBe(config.owncloudURL + data.expected)
       })
@@ -89,6 +86,9 @@ describe('oc.files.listPublicFiles', function () {
         const uniqueId = Math.random().toString(36).substr(2, 9)
         const testContent = 'testContent'
         const testFolder = '/testFolder' + uniqueId
+
+        // CREATED SHARES
+        let testFolderShare = null
 
         const testFiles = [
           '文件' + uniqueId + '.txt',
@@ -195,6 +195,92 @@ describe('oc.files.listPublicFiles', function () {
               expect(error.statusCode).toBe(401)
               done()
             }
+            done()
+          })
+        })
+      })
+    })
+  })
+  describe('when creating files and folder a shared folder', function () {
+    using({
+      'without password': {
+        shareParams: {
+          perms: 15
+        }
+      },
+      'with password': {
+        shareParams: {
+          password: 'password',
+          perms: 15
+        }
+      }
+    }, function (data, description) {
+      describe(description, function () {
+        // TESTING CONFIGS
+        const uniqueId = Math.random().toString(36).substr(2, 9)
+        const testFolder = '/testFolder' + uniqueId
+
+        // CREATED SHARES
+        let testFolderShare = null
+
+        beforeEach(function (done) {
+          return oc.files.createFolder(testFolder).then(() => {
+            return oc.shares.shareFileWithLink(testFolder, data.shareParams).then(share => {
+              expect(typeof (share)).toBe('object')
+              testFolderShare = share
+              done()
+            })
+          }).catch(error => {
+            fail(error)
+            done()
+          })
+        })
+
+        afterEach(function (done) {
+          return oc.shares.deleteShare(testFolderShare.getId()).then(() => {
+            return oc.files.delete(testFolder).then(status => {
+              done()
+            })
+          }).catch(error => {
+            fail(error)
+            done()
+          })
+        })
+
+        it('should create a folder', function (done) {
+          return oc.publicFiles.createFolder(testFolderShare.getToken(), 'foo', data.shareParams.password).then(resp => {
+            return oc.publicFiles.delete(testFolderShare.getToken(), 'foo', data.shareParams.password).then(resp => {
+              done()
+            })
+          }).catch(error => {
+            fail(error)
+            done()
+          })
+        })
+
+        it('should create a file', function (done) {
+          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(resp => {
+            return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(resp => {
+              done()
+            })
+          }).catch(error => {
+            fail(error)
+            done()
+          })
+        })
+
+        it('should update a file', function (done) {
+          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(resp => {
+            const options = {
+              previousEntityTag: resp['ETag']
+            }
+            return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, 'lorem', options).then(resp => {
+              return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(resp => {
+                done()
+              })
+            })
+          }).catch(error => {
+            fail(error)
             done()
           })
         })

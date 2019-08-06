@@ -193,5 +193,55 @@ class PublicFiles {
       }
     })
   }
+
+  /**
+   * Moves a remote file or directory
+   * @param  {string} source     initial path of file/folder - including the token aka root folder
+   * @param  {string} target     path where to move file/folder finally - including the token aka root folder
+   * @param  {string|null}       password
+   * @return {Promise.<status>}  boolean: whether the operation was successful
+   * @return {Promise.<error>}   string: error message, if any.
+   */
+  move (source, target, password = null) {
+    let headers = this.helpers.buildHeaders(false)
+    const sourceUrl = this.getFileUrl(source)
+    const targetUrl = this.getFileUrl(target)
+
+    if (password) {
+      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+    }
+    headers['Destination'] = targetUrl
+    return this.davClient.request('MOVE', sourceUrl, headers).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+    })
+  }
+
+  /**
+   * Copies a remote file or directory
+   * @param  {string} source     initial path of file/folder - including the token aka root folder
+   * @param  {string} target     path where to copy file/folder finally - including the token aka root folder
+   * @param  {string|null}       password
+   * @return {Promise.<status>}  boolean: whether the operation was successful
+   * @return {Promise.<error>}   string: error message, if any.
+   */
+  copy (source, target, password = null) {
+    let headers = this.helpers.buildHeaders(false)
+    const sourceUrl = this.getFileUrl(source)
+    const targetUrl = this.getFileUrl(target)
+
+    if (password) {
+      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+    }
+    headers['Destination'] = targetUrl
+    return this.davClient.request('COPY', sourceUrl, headers).then(result => {
+      if ([200, 201, 204, 207].indexOf(result.status) > -1) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+    })
+  }
 }
 module.exports = PublicFiles

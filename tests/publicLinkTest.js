@@ -201,7 +201,7 @@ describe('oc.publicFiles', function () {
       })
     })
   })
-  describe('when creating files and folder a shared folder', function () {
+  describe('when working with files and folder a shared folder', function () {
     using({
       'without password': {
         shareParams: {
@@ -239,7 +239,7 @@ describe('oc.publicFiles', function () {
 
         afterEach(function (done) {
           return oc.shares.deleteShare(testFolderShare.getId()).then(() => {
-            return oc.files.delete(testFolder).then(status => {
+            return oc.files.delete(testFolder).then(() => {
               done()
             })
           }).catch(error => {
@@ -249,8 +249,8 @@ describe('oc.publicFiles', function () {
         })
 
         it('should create a folder', function (done) {
-          return oc.publicFiles.createFolder(testFolderShare.getToken(), 'foo', data.shareParams.password).then(resp => {
-            return oc.publicFiles.delete(testFolderShare.getToken(), 'foo', data.shareParams.password).then(resp => {
+          return oc.publicFiles.createFolder(testFolderShare.getToken(), 'foo', data.shareParams.password).then(() => {
+            return oc.publicFiles.delete(testFolderShare.getToken(), 'foo', data.shareParams.password).then(() => {
               done()
             })
           }).catch(error => {
@@ -260,8 +260,8 @@ describe('oc.publicFiles', function () {
         })
 
         it('should create a file', function (done) {
-          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(resp => {
-            return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(resp => {
+          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(() => {
+            return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(() => {
               done()
             })
           }).catch(error => {
@@ -275,9 +275,51 @@ describe('oc.publicFiles', function () {
             const options = {
               previousEntityTag: resp['ETag']
             }
-            return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, 'lorem', options).then(resp => {
-              return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(resp => {
+            return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, 'lorem', options).then(() => {
+              return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(() => {
                 done()
+              })
+            })
+          }).catch(error => {
+            fail(error)
+            done()
+          })
+        })
+
+        it('should move a file', function (done) {
+          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(() => {
+            const source = testFolderShare.getToken() + '/lorem.txt'
+            const target = testFolderShare.getToken() + '/lorem123456.txt'
+            // move in root
+            return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
+              // move into subfolder
+              return oc.publicFiles.createFolder(testFolderShare.getToken(), 'foo', data.shareParams.password).then(() => {
+                const source = testFolderShare.getToken() + '/lorem123456.txt'
+                const target = testFolderShare.getToken() + '/foo/lorem.txt'
+                return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
+                  done()
+                })
+              })
+            })
+          }).catch(error => {
+            fail(error)
+            done()
+          })
+        })
+
+        it('should move a folder', function (done) {
+          return oc.publicFiles.createFolder(testFolderShare.getToken(), 'foo', data.shareParams.password).then(() => {
+            const source = testFolderShare.getToken() + '/' + 'foo'
+            const target = testFolderShare.getToken() + '/' + 'bar'
+            // move in root
+            return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
+              // move into subfolder
+              return oc.publicFiles.createFolder(testFolderShare.getToken(), 'foo', data.shareParams.password).then(() => {
+                const source = testFolderShare.getToken() + '/' + 'bar'
+                const target = testFolderShare.getToken() + '/foo/bar'
+                return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
+                  done()
+                })
               })
             })
           }).catch(error => {

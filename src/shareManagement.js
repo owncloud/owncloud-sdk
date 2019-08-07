@@ -38,7 +38,7 @@ class Shares {
   /**
    * Shares a remote file with link
    * @param   {string}    path             path to the remote file share
-   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string, expireDate: string}
+   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string}
    * @returns {Promise.<shareInfo>}        instance of class shareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -59,6 +59,9 @@ class Shares {
       }
       if (optionalParams.expireDate) {
         postData.expireDate = optionalParams.expireDate
+      }
+      if (optionalParams.name) {
+        postData.name = optionalParams.name
       }
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
         postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()
@@ -332,10 +335,10 @@ class Shares {
 
   /**
    * Updates a given share
-   * @param   {number}  shareId         ID of the share to update
-   * @param   {object}   optionalParams  {permissions: integer, publicUpload: boolean, password: string}
-   * @returns {Promise.<status>}         boolean: true if successful
-   * @returns {Promise.<error>}          string: error message, if any.
+   * @param  {number}  shareId         ID of the share to update
+   * @param  {object}  optionalParams  {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string}
+   * @return {Promise.<status>}        boolean: true if successful
+   * @return {Promise.<error>}         string: error message, if any.
    */
   updateShare (shareId, optionalParams) {
     let postData = {}
@@ -346,6 +349,12 @@ class Shares {
       }
       if (optionalParams.password) {
         postData.password = optionalParams.password
+      }
+      if (optionalParams.name) {
+        postData.name = optionalParams.name
+      }
+      if (optionalParams.expireDate) {
+        postData.expireDate = optionalParams.expireDate
       }
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
         postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()

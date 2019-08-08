@@ -30,6 +30,7 @@ class helpers {
 
     this.instance = null
     this._authHeader = null
+    this._headers = {}
     this._versionNumber = null
     this._currentUser = null
   }
@@ -58,6 +59,10 @@ class helpers {
 
   getAuthorization () {
     return this._authHeader
+  }
+
+  setHeaders (headers) {
+    this._headers = headers
   }
 
   logout () {
@@ -118,9 +123,8 @@ class helpers {
   }
 
   buildHeaders (withAuthHeader = true) {
-    let headers = {
-      'OCS-APIREQUEST': true
-    }
+    let headers = Object.assign({}, this._headers)
+    headers['OCS-APIREQUEST'] = true
     if (withAuthHeader) {
       headers['authorization'] = this._authHeader
     }

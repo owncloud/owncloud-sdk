@@ -57,6 +57,9 @@ class ownCloud {
     if (options.userInfo) {
       helpers.setCurrentUser(options.userInfo)
     }
+    if (options.headers) {
+      helpers.setHeaders(options.headers)
+    }
 
     this.helpers = helpers
     this.apps = new Apps(this.helpers)

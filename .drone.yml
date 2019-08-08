@@ -1,122 +1,303 @@
+---
+kind: pipeline
+name: Full build and publish
+
+platform:
+  os: linux
+  arch: amd64
+
 workspace:
   base: /var/www/owncloud
   path: onwcloud-sdk
 
-branches:
-  - master
+steps:
+- name: increment-version
+  pull: default
+  image: node:11
+  commands:
+  - "yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}"
+  when:
+    event:
+    - push
 
-pipeline:
-  increment-version:
-    image: node:11
-    commands:
-      - yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}
-    when:
-      event: [push]
+- name: build-docs
+  pull: default
+  image: node:11
+  commands:
+  - yarn install
+  - yarn build:docs
 
-  build-docs:
-    image: node:11
-    commands:
-      - yarn install
-      - yarn build:docs
+- name: build-system
+  pull: default
+  image: node:11
+  commands:
+  - yarn install
+  - yarn lint
+  - yarn build:system
 
-  build-system:
-    image: node:11
-    commands:
-      - yarn install
-      - yarn lint
-      - yarn build:system
-
-  install-server:
-    image: owncloudci/core
-    GIT_REFERENCE: ${OC_VERSION=daily-master-qa}
-    pull: true
-    db_type: ${DB_TYPE=sqlite}
-    db_name: ${DB_NAME=sqlite}
-    db_host: ${DB_TYPE=sqlite}
-    db_username: autotest
+- name: install-server
+  pull: always
+  image: owncloudci/core
+  settings:
+    GIT_REFERENCE: "feature/public-links"
+    core_path: "/var/www/owncloud"
+    db_host: "sqlite"
+    db_name: "sqlite"
     db_password: owncloud
-    core_path: /var/www/owncloud${SUBFOLDER=/}
+    db_type: "sqlite"
+    db_username: autotest
 
-  configure-server:
-    image: owncloudci/php:${PHP_VERSION=7.1}
-    pull: true
-    commands:
-      - cd /var/www/owncloud${SUBFOLDER=/}
-      - php occ config:system:set trusted_domains 1 --value=owncloud
-      - php occ config:system:set cors.allowed-domains 0 --value=http://localhost:9876
-      - php occ log:manage --level 0
-      - php occ config:list
-      - chown www-data * -R
+- name: configure-server
+  pull: always
+  image: "owncloudci/php:7.1"
+  commands:
+  - "cd /var/www/owncloud"
+  - php occ config:system:set trusted_domains 1 --value=owncloud
+  - php occ config:system:set cors.allowed-domains 0 --value=http://localhost:9876
+  - php occ log:manage --level 0
+  - php occ config:list
+  - "chown www-data * -R"
 
-  owncloud-log:
-    image: owncloud/ubuntu:16.04
-    detach: true
-    pull: true
-    commands:
-      - tail -f /var/www/owncloud${SUBFOLDER=/}data/owncloud.log
+- name: owncloud-log
+  pull: always
+  image: owncloud/ubuntu:16.04
+  detach: true
+  commands:
+  - "tail -f /var/www/owncloud/data/owncloud.log"
 
-  wait-for-owncloud:
-    image: owncloudci/php:${PHP_VERSION=7.1}
-    pull: true
-    commands:
-      - wait-for-it -t 300 owncloud:80
+- name: wait-for-owncloud
+  pull: always
+  image: "owncloudci/php:7.1"
+  commands:
+  - wait-for-it -t 300 owncloud:80
 
-  prepare-test-config:
-    image: owncloud/ubuntu:16.04
-    environment:
-      - SUBFOLDER=${SUBFOLDER=/}
-    commands:
-      - apt update
-      - apt install gettext -y
-      - envsubst < tests/config/config.drone.json > tests/config/config.json
-      - cat tests/config/config.json
+- name: prepare-test-config
+  pull: default
+  image: owncloud/ubuntu:16.04
+  commands:
+  - apt update
+  - apt install gettext -y
+  - "envsubst < tests/config/config.drone.json > tests/config/config.json"
+  - cat tests/config/config.json
+  environment:
+    SUBFOLDER: "/"
 
-  test:
-    image: owncloudci/chromium
-    commands:
-      - yarn test-drone
+- name: test
+  pull: default
+  image: owncloudci/chromium
+  commands:
+  - yarn test-drone
 
-  codecov:
-    image: plugins/codecov:2
-    secrets: [codecov_token]
-    pull: true
+- name: codecov
+  pull: always
+  image: plugins/codecov:2
+  settings:
     files:
-      - '*.info'
+      - "*.info"
     paths:
       - coverage
-    when:
-      event: [push, pull_request]
+  environment:
+    CODECOV_TOKEN:
+      from_secret: codecov_token
+  when:
+    event:
+    - push
+    - pull_request
 
-  publish-docs:
-    image: plugins/gh-pages:1
-    secrets: [github_username, github_password]
+- name: publish-docs
+  pull: default
+  image: plugins/gh-pages:1
+  settings:
     pages_directory: docs
-    when:
-      event: [push]
-      matrix:
-        PUBLISH: true
+  environment:
+    GITHUB_PASSWORD:
+      from_secret: github_password
+    GITHUB_USERNAME:
+      from_secret: github_username
+  when:
+    event:
+    - push
 
-  publish-system:
-    image: plugins/npm:1
-    secrets: [npm_username, npm_email, npm_token]
-    when:
-      event: [push]
-      matrix:
-        PUBLISH: true
+- name: publish-system
+  pull: default
+  image: plugins/npm:1
+  environment:
+    NPM_EMAIL:
+      from_secret: npm_email
+    NPM_TOKEN:
+      from_secret: npm_token
+    NPM_USERNAME:
+      from_secret: npm_username
+  when:
+    event:
+    - push
 
 services:
-  owncloud:
-    image: owncloudci/php:${PHP_VERSION=7.1}
-    pull: true
-    environment:
-      - APACHE_WEBROOT=/var/www/owncloud/
-    command: [ "/usr/local/bin/apachectl", "-e", "debug", "-D", "FOREGROUND" ]
+- name: owncloud
+  pull: always
+  image: "owncloudci/php:7.1"
+  command:
+  - /usr/local/bin/apachectl
+  - -e
+  - debug
+  - -D
+  - FOREGROUND
+  environment:
+    APACHE_WEBROOT: /var/www/owncloud/
 
-matrix:
-  include:
-    - PUBLISH: true
-      OC_VERSION:  feature/public-links
+trigger:
+  branch:
+  - master
 
-    - PUBLISH: false
-      SUBFOLDER: /sub/
-      OC_VERSION:  feature/public-links
+---
+kind: pipeline
+name: Test within a subfolder
+
+platform:
+  os: linux
+  arch: amd64
+
+workspace:
+  base: /var/www/owncloud
+  path: onwcloud-sdk
+
+steps:
+- name: increment-version
+  pull: default
+  image: node:11
+  commands:
+  - "yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}"
+  when:
+    event:
+    - push
+
+- name: build-docs
+  pull: default
+  image: node:11
+  commands:
+  - yarn install
+  - yarn build:docs
+
+- name: build-system
+  pull: default
+  image: node:11
+  commands:
+  - yarn install
+  - yarn lint
+  - yarn build:system
+
+- name: install-server
+  pull: always
+  image: owncloudci/core
+  settings:
+    GIT_REFERENCE: "feature/public-links"
+    core_path: "/var/www/owncloud/sub/"
+    db_host: "sqlite"
+    db_name: "sqlite"
+    db_password: owncloud
+    db_type: sqlite
+    db_username: autotest
+
+- name: configure-server
+  pull: always
+  image: "owncloudci/php:7.1"
+  commands:
+  - "cd /var/www/owncloud/sub/"
+  - php occ config:system:set trusted_domains 1 --value=owncloud
+  - php occ config:system:set cors.allowed-domains 0 --value=http://localhost:9876
+  - php occ log:manage --level 0
+  - php occ config:list
+  - "chown www-data * -R"
+
+- name: owncloud-log
+  pull: always
+  image: owncloud/ubuntu:16.04
+  detach: true
+  commands:
+  - "tail -f /var/www/owncloud/sub/data/owncloud.log"
+
+- name: wait-for-owncloud
+  pull: always
+  image: "owncloudci/php:7.1"
+  commands:
+  - wait-for-it -t 300 owncloud:80
+
+- name: prepare-test-config
+  pull: default
+  image: owncloud/ubuntu:16.04
+  commands:
+  - apt update
+  - apt install gettext -y
+  - "envsubst < tests/config/config.drone.json > tests/config/config.json"
+  - cat tests/config/config.json
+  environment:
+    SUBFOLDER: "/sub/"
+
+- name: test
+  pull: default
+  image: owncloudci/chromium
+  commands:
+  - yarn test-drone
+
+- name: codecov
+  pull: always
+  image: plugins/codecov:2
+  settings:
+    files:
+      - "*.info"
+    paths:
+      - coverage
+  environment:
+    CODECOV_TOKEN:
+      from_secret: codecov_token
+  when:
+    event:
+    - push
+    - pull_request
+
+- name: publish-docs
+  pull: default
+  image: plugins/gh-pages:1
+  settings:
+    pages_directory: docs
+  environment:
+    GITHUB_PASSWORD:
+      from_secret: github_password
+    GITHUB_USERNAME:
+      from_secret: github_username
+  when:
+    event:
+    - push
+
+- name: publish-system
+  pull: default
+  image: plugins/npm:1
+  environment:
+    NPM_EMAIL:
+      from_secret: npm_email
+    NPM_TOKEN:
+      from_secret: npm_token
+    NPM_USERNAME:
+      from_secret: npm_username
+  when:
+    event:
+    - push
+
+services:
+- name: owncloud
+  pull: always
+  image: "owncloudci/php:7.1"
+  command:
+  - /usr/local/bin/apachectl
+  - -e
+  - debug
+  - -D
+  - FOREGROUND
+  environment:
+    APACHE_WEBROOT: /var/www/owncloud/
+
+trigger:
+  branch:
+  - master
+
+...

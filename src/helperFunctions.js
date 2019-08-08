@@ -119,7 +119,8 @@ class helpers {
 
   buildHeaders (withAuthHeader = true) {
     let headers = {
-      'OCS-APIREQUEST': true
+      'OCS-APIREQUEST': true,
+      'X-Requested-With': 'XMLHttpRequest'
     }
     if (withAuthHeader) {
       headers['authorization'] = this._authHeader

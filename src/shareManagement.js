@@ -1,6 +1,5 @@
 const Promise = require('promise')
 const parser = require('./xmlParser.js')
-const utf8 = require('utf8')
 const ShareInfo = require('./shareInfo.js')
 
 /**
@@ -71,7 +70,7 @@ class Shares {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
         .then(data => {
-          data.body = utf8.encode(data.body)
+          //          data.body = utf8.decode(data.body)
           const shareDetails = parser.xml2js(data.body).ocs.data
           const share = new ShareInfo(shareDetails)
 

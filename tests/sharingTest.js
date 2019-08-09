@@ -1,39 +1,38 @@
 describe('Main: Currently testing file/folder sharing,', function () {
   // CURRENT TIME
-  var timeRightNow = Math.random().toString(36).substr(2, 9)
-  var OwnCloud = require('../src/owncloud')
-  var config = require('./config/config.json')
-  var utf8 = require('utf8')
+  const timeRightNow = Math.random().toString(36).substr(2, 9)
+  const OwnCloud = require('../src/owncloud')
+  const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testUserPassword = 'password'
-  var testContent = 'testContent'
-  var testUser = 'testUser' + timeRightNow
-  var testGroup = 'testGroup' + timeRightNow
-  var testFolder = '/testFolder' + timeRightNow
-  var nonExistingFile = 'nonExistingFile' + timeRightNow
+  const testUserPassword = 'password'
+  const testContent = 'testContent'
+  const testUser = 'testUser' + timeRightNow
+  const testGroup = 'testGroup' + timeRightNow
+  const testFolder = '/testFolder' + timeRightNow
+  const nonExistingFile = 'nonExistingFile' + timeRightNow
 
-  var testFiles = [
+  const testFiles = [
     '/文件' + timeRightNow + '.txt',
     '/test' + timeRightNow + '.txt',
     '/test space and + and #' + timeRightNow + '.txt'
   ]
 
   // CREATED SHARES
-  var sharedFilesWithUser = {}
-  var sharedFilesByLink = {}
-  var sharedFilesWithGroup = {}
-  var testFolderShareID = null
-  var allShareIDs = []
+  let sharedFilesWithUser = {}
+  let sharedFilesByLink = {}
+  let sharedFilesWithGroup = {}
+  let testFolderShareID = null
+  const allShareIDs = []
 
   // CONSTANTS FROM lib/public/constants.php
-  var OCS_PERMISSION_READ = 1
-  var OCS_PERMISSION_UPDATE = 2
-  var OCS_PERMISSION_CREATE = 4
-  var OCS_PERMISSION_SHARE = 16
+  const OCS_PERMISSION_READ = 1
+  const OCS_PERMISSION_UPDATE = 2
+  const OCS_PERMISSION_CREATE = 4
+  const OCS_PERMISSION_SHARE = 16
 
   describe('Currently testing folder sharing,', function () {
     beforeEach(function (done) {
@@ -72,8 +71,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     describe('sharedFolder,', function () {
       beforeEach(function (done) {
-        oc.shares.shareFileWithLink(testFolder).then(share => {
+        const testLinkName = 'Öffentlicher Link'
+        oc.shares.shareFileWithLink(testFolder, { name: testLinkName }).then(share => {
           expect(typeof (share)).toBe('object')
+          expect(share.getName()).toBe(testLinkName)
+          expect(share.getPath()).toBe(testFolder)
           testFolderShareID = share.getId()
           allShareIDs.push(testFolderShareID)
           done()
@@ -102,7 +104,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               expect(updatedShare.getPermissions()).toBe(31)
               done()
             }).catch(error => {
-              var check = 'can\'t change permissions for public share links'
+              let check = 'can\'t change permissions for public share links'
               if (error === 'can\'t change permission for public link share') {
                 check = 'can\'t change permission for public link share'
               }
@@ -197,8 +199,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.groups.createGroup(testGroup)
         }).then(status => {
           expect(status).toBe(true)
-          var count = 0
-          for (var i = 0; i < testFiles.length; i++) {
+          let count = 0
+          for (let i = 0; i < testFiles.length; i++) {
             // CREATING TEST FILES
             oc.files.putFileContents(testFiles[i], testContent).then(status => {
               expect(typeof status).toBe('object')
@@ -225,8 +227,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }).then(status2 => {
         expect(status2).toBe(true)
 
-        var count = 0
-        for (var i = 0; i < testFiles.length; i++) {
+        let count = 0
+        for (let i = 0; i < testFiles.length; i++) {
           // DELETING TEST FILES
           oc.files.delete(testFiles[i]).then(status => {
             expect(status).toBe(true)
@@ -247,12 +249,12 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     describe('sharedFilesByLink,', function () {
       beforeEach(function (done) {
-        var count = 0
-        for (var i = 0; i < testFiles.length; i++) {
+        let count = 0
+        for (let i = 0; i < testFiles.length; i++) {
           oc.shares.shareFileWithLink(testFiles[i]).then(share => {
             expect(share).not.toBe(null)
             expect(typeof (share)).toBe('object')
-            expect(testFiles.indexOf(utf8.decode(share.getPath()))).toBeGreaterThan(-1)
+            expect(testFiles.indexOf(share.getPath())).toBeGreaterThan(-1)
             expect(typeof (share.getId())).toBe('number')
             expect(typeof (share.getLink())).toBe('string')
             expect(typeof (share.getToken())).toBe('string')
@@ -270,10 +272,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterEach(function (done) {
-        var count = 0
-        var numShares = Object.keys(sharedFilesByLink).length
+        let count = 0
+        const numShares = Object.keys(sharedFilesByLink).length
 
-        for (var file in sharedFilesByLink) {
+        for (let file in sharedFilesByLink) {
           oc.shares.deleteShare(sharedFilesByLink[file]).then(status => {
             expect(status).toBe(true)
             count++
@@ -290,9 +292,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       describe('checking the shared files,', function () {
         it('checking method : isShared with shared file', function (done) {
-          var count = 0
+          let count = 0
 
-          for (var i = 0; i < testFiles.length; i++) {
+          for (let i = 0; i < testFiles.length; i++) {
             oc.shares.isShared(testFiles[i]).then(status => {
               expect(status).toEqual(true)
               count++
@@ -307,9 +309,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         it('checking method : getShare with existent share', function (done) {
-          var count = 0
+          let count = 0
 
-          for (var file in sharedFilesByLink) {
+          for (let file in sharedFilesByLink) {
             oc.shares.getShare(sharedFilesByLink[file]).then(share => {
               expect(typeof (share)).toBe('object')
               expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1)
@@ -325,18 +327,18 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         it('checking method : getShares for shared file', function (done) {
-          var count = 0
-          var allIDs = []
-          for (var file in sharedFilesByLink) {
+          let count = 0
+          const allIDs = []
+          for (let file in sharedFilesByLink) {
             allIDs.push(sharedFilesByLink[file])
           }
 
-          for (var i = 0; i < testFiles.length; i++) {
+          for (let i = 0; i < testFiles.length; i++) {
             oc.shares.getShares(testFiles[i]).then(shares => {
               expect(shares.constructor).toBe(Array)
-              var flag = 0
-              for (var i = 0; i < shares.length; i++) {
-                var share = shares[i]
+              let flag = 0
+              for (let i = 0; i < shares.length; i++) {
+                const share = shares[i]
                 if (allIDs.indexOf(share.getId()) > -1) {
                   flag = 1
                 }
@@ -357,9 +359,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     describe('sharedFilesWithUser,', function () {
       beforeEach(function (done) {
-        var count = 0
+        let count = 0
 
-        for (var i = 0; i < testFiles.length; i++) {
+        for (let i = 0; i < testFiles.length; i++) {
           oc.shares.shareFileWithUser(testFiles[i], testUser).then(share => {
             expect(share).not.toBe(null)
             expect(typeof (share)).toBe('object')
@@ -378,9 +380,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterEach(function (done) {
-        var count = 0
+        let count = 0
 
-        for (var file in sharedFilesWithUser) {
+        for (let file in sharedFilesWithUser) {
           oc.shares.deleteShare(sharedFilesWithUser[file]).then(status => {
             expect(status).toBe(true)
             count++
@@ -397,10 +399,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       describe('updating permissions', function () {
         beforeEach(function (done) {
-          var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
-          var count = 0
+          const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
+          let count = 0
 
-          for (var file in sharedFilesWithUser) {
+          for (let file in sharedFilesWithUser) {
             oc.shares.updateShare(sharedFilesWithUser[file], { permissions: maxPerms }).then(updatedShare => {
               expect(updatedShare.getPermissions()).toBe(maxPerms)
               count++
@@ -415,10 +417,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         it('confirms updated permissions', function (done) {
-          var maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
-          var count = 0
+          const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
+          let count = 0
 
-          for (var file in sharedFilesWithUser) {
+          for (let file in sharedFilesWithUser) {
             oc.shares.getShare(sharedFilesWithUser[file]).then(share => {
               expect(share.getPermissions()).toEqual(maxPerms)
               count++
@@ -434,9 +436,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('checking method : isShared with shared file', function (done) {
-        var count = 0
+        let count = 0
 
-        for (var file in sharedFilesWithUser) {
+        for (let file in sharedFilesWithUser) {
           oc.shares.isShared(file).then(status => {
             expect(status).toEqual(true)
             count++
@@ -451,9 +453,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('checking method : getShare with existent share', function (done) {
-        var count = 0
+        let count = 0
 
-        for (var file in sharedFilesWithUser) {
+        for (let file in sharedFilesWithUser) {
           oc.shares.getShare(sharedFilesWithUser[file]).then(share => {
             expect(typeof (share)).toBe('object')
             expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1)
@@ -469,8 +471,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('checking method : getShares for shared file', function (done) {
-        var count = 0
-        var allIDs = []
+        let count = 0
+        const allIDs = []
         for (var file in sharedFilesWithUser) {
           allIDs.push(sharedFilesWithUser[file])
         }
@@ -478,9 +480,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
         for (file in sharedFilesWithUser) {
           oc.shares.getShares(file).then(shares => {
             expect(shares.constructor).toBe(Array)
-            var flag = 0
-            for (var i = 0; i < shares.length; i++) {
-              var share = shares[i]
+            let flag = 0
+            for (let i = 0; i < shares.length; i++) {
+              const share = shares[i]
               if (allIDs.indexOf(share.getId()) > -1) {
                 flag = 1
               }
@@ -500,9 +502,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     describe('sharedFilesWithGroup,', function () {
       beforeEach(function (done) {
-        var count = 0
+        let count = 0
 
-        for (var i = 0; i < testFiles.length; i++) {
+        for (let i = 0; i < testFiles.length; i++) {
           oc.shares.shareFileWithGroup(testFiles[i], testGroup, { permissions: 19 }).then(share => {
             expect(typeof (share)).toEqual('object')
             expect(share.getPermissions()).toEqual(19)
@@ -520,9 +522,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterEach(function (done) {
-        var count = 0
+        let count = 0
 
-        for (var file in sharedFilesWithGroup) {
+        for (let file in sharedFilesWithGroup) {
           oc.shares.deleteShare(sharedFilesWithGroup[file]).then(status => {
             expect(status).toEqual(true)
             count++
@@ -538,9 +540,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('checking method : isShared with shared file', function (done) {
-        var count = 0
+        let count = 0
 
-        for (var file in sharedFilesWithGroup) {
+        for (let file in sharedFilesWithGroup) {
           oc.shares.isShared(file).then(status => {
             expect(status).toEqual(true)
             count++
@@ -555,9 +557,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('checking method : getShare with existent share', function (done) {
-        var count = 0
+        let count = 0
 
-        for (var file in sharedFilesWithGroup) {
+        for (let file in sharedFilesWithGroup) {
           oc.shares.getShare(sharedFilesWithGroup[file]).then(share => {
             expect(typeof (share)).toBe('object')
             expect(sharedFilesWithGroup.hasOwnProperty(share.getId())).toBeGreaterThan(-1)
@@ -573,8 +575,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('checking method : getShares for shared file', function (done) {
-        var count = 0
-        var allIDs = []
+        let count = 0
+        const allIDs = []
         for (var file in sharedFilesWithGroup) {
           allIDs.push(sharedFilesWithGroup[file])
         }
@@ -582,9 +584,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
         for (file in sharedFilesWithGroup) {
           oc.shares.getShares(file).then(shares => {
             expect(shares.constructor).toBe(Array)
-            var flag = 0
-            for (var i = 0; i < shares.length; i++) {
-              var share = shares[i]
+            let flag = 0
+            for (let i = 0; i < shares.length; i++) {
+              const share = shares[i]
               if (allIDs.indexOf(share.getId()) > -1) {
                 flag = 1
               }

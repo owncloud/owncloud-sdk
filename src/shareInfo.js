@@ -137,6 +137,17 @@ class ShareInfo {
   }
 
   /**
+   * Gets name of share
+   * @returns {string|null} name of share
+   */
+  getName () {
+    if (this.shareInfo.hasOwnProperty('name')) {
+      return this.shareInfo.name
+    }
+    return null
+  }
+
+  /**
    * Typecasts to integer
    * @param   {string}    [key]   Corresponding key element to be typecasted to an integer
    * @returns {number}           typcasted integer

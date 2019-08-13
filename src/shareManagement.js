@@ -346,13 +346,13 @@ class Shares {
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
-      if (optionalParams.password) {
-        postData.password = optionalParams.password
-      }
       if (optionalParams.name) {
         postData.name = optionalParams.name
       }
-      if (optionalParams.expireDate) {
+      if (optionalParams.password !== undefined) {
+        postData.password = optionalParams.password
+      }
+      if (optionalParams.expireDate !== undefined) {
         postData.expireDate = optionalParams.expireDate
       }
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {

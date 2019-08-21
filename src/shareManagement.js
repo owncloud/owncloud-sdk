@@ -37,7 +37,7 @@ class Shares {
   /**
    * Shares a remote file with link
    * @param   {string}    path             path to the remote file share
-   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string}
+   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string, attributes: array}
    * @returns {Promise.<shareInfo>}        instance of class shareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -65,27 +65,25 @@ class Shares {
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
         postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()
       }
+      if (optionalParams.attributes) {
+        postData.attributes = optionalParams.attributes
+      }
     }
 
-    return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
-        .then(data => {
-          //          data.body = utf8.decode(data.body)
-          const shareDetails = parser.xml2js(data.body).ocs.data
-          const share = new ShareInfo(shareDetails)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        const shareDetails = parser.xml2js(data.body).ocs.data
+        const share = new ShareInfo(shareDetails)
 
-          resolve(share)
-        }).catch(error => {
-          reject(error)
-        })
-    })
+        return Promise.resolve(share)
+      })
   }
 
   /**
    * Shares a remote file with specified user
    * @param   {string}    path             path to the remote file share
    * @param   {string}    username         name of the user to share with
-   * @param   {object}    optionalParams   {permissions: integer, remoteUser: boolean}
+   * @param   {object}    optionalParams   {permissions: integer, remoteUser: boolean, attributes: array}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -102,30 +100,28 @@ class Shares {
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
-
+      if (optionalParams.attributes) {
+        postData.attributes = optionalParams.attributes
+      }
       if (optionalParams.remoteUser) {
         postData.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
       }
     }
 
-    return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
-        .then(data => {
-          const shareData = data.data.ocs.data
-          const share = new ShareInfo(shareData)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        const shareData = data.data.ocs.data
+        const share = new ShareInfo(shareData)
 
-          resolve(share)
-        }).catch(error => {
-          reject(error)
-        })
-    })
+        return Promise.resolve(share)
+      })
   }
 
   /**
    * Shares a remote file with specified group
    * @param   {string}    path             path to the remote file share
    * @param   {string}    groupName        name of group to share with
-   * @param   {object}    optionalParams   {permissions: integer}
+   * @param   {object}    optionalParams   {permissions: integer, attributes: array}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -138,21 +134,22 @@ class Shares {
       'path': path
     }
 
-    if (optionalParams && optionalParams.permissions) {
-      postData.permissions = optionalParams.permissions
+    if (optionalParams) {
+      if (optionalParams.permissions) {
+        postData.permissions = optionalParams.permissions
+      }
+      if (optionalParams.attributes) {
+        postData.attributes = optionalParams.attributes
+      }
     }
 
-    return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
-        .then(data => {
-          const shareData = data.data.ocs.data
-          const share = new ShareInfo(shareData)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        const shareData = data.data.ocs.data
+        const share = new ShareInfo(shareData)
 
-          resolve(share)
-        }).catch(error => {
-          reject(error)
-        })
-    })
+        return Promise.resolve(share)
+      })
   }
 
   /**
@@ -335,7 +332,7 @@ class Shares {
   /**
    * Updates a given share
    * @param  {number}  shareId         ID of the share to update
-   * @param  {object}  optionalParams  {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string}
+   * @param  {object}  optionalParams  {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string, attributes: array}
    * @return {Promise.<status>}        boolean: true if successful
    * @return {Promise.<error>}         string: error message, if any.
    */
@@ -357,6 +354,12 @@ class Shares {
       }
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
         postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()
+      }
+      if (optionalParams.permissions) {
+        postData.permissions = optionalParams.permissions
+      }
+      if (optionalParams.attributes) {
+        postData.attributes = optionalParams.attributes
       }
     }
 

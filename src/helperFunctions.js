@@ -177,16 +177,15 @@ class helpers {
       method: method,
       headers: headers
     }
-
-    const serialize = function (obj) {
-      let str = []
-      for (const p in obj) {
-        if (obj.hasOwnProperty(p)) {
-          str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]))
-        }
+    const serialize = function (element, key, list = []) {
+      if (typeof (element) === 'object') {
+        for (let idx in element) { serialize(element[idx], key ? key + '[' + idx + ']' : idx, list) }
+      } else {
+        list.push(encodeURIComponent(key) + '=' + encodeURIComponent(element))
       }
-      return str.join('&')
+      return list.join('&')
     }
+
     options.headers['content-type'] = 'application/x-www-form-urlencoded'
     options.body = serialize(data).replace(/%20/g, '+')
 

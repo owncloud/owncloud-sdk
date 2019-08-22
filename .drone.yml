@@ -39,7 +39,7 @@ steps:
   pull: always
   image: owncloudci/core
   settings:
-    GIT_REFERENCE: "master"
+    GIT_REFERENCE: "bugfix/quote-etag-in-header-public-files"
     core_path: "/var/www/owncloud"
     db_host: "sqlite"
     db_name: "sqlite"
@@ -190,7 +190,7 @@ steps:
   pull: always
   image: owncloudci/core
   settings:
-    GIT_REFERENCE: "master"
+    GIT_REFERENCE: "bugfix/quote-etag-in-header-public-files"
     core_path: "/var/www/owncloud/sub/"
     db_host: "sqlite"
     db_name: "sqlite"

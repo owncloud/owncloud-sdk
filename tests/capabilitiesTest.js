@@ -51,7 +51,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
       expect(capabilities.capabilities.files).not.toBe(undefined)
 
       // Big file chunking of files app is always on
-      expect(parseInt(capabilities.capabilities.files.bigfilechunking)).toEqual(1)
+      expect(capabilities.capabilities.files.bigfilechunking).toEqual(true)
       done()
     }).catch(error => {
       fail(error)

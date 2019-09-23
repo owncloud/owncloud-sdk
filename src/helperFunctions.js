@@ -75,7 +75,7 @@ class helpers {
    * @returns {object}    all capabilities
    */
   getCapabilities () {
-    return this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 'capabilities')
+    return this._makeOCSrequest('GET', this.OCS_SERVICE_CLOUD, 'capabilities?format=json')
       .then(data => {
         const body = data.data.ocs.data
         this._versionNumber = body.version.major + '.' + body.version.minor + '.' + body.version.micro

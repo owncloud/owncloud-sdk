@@ -164,21 +164,39 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  it('checking method : putFileContents for an existing parent path', function (done) {
-    const newFile = testFolder + '/' + 'file.txt'
+  describe('checking method : putFileContents', function () {
+    it('uploads file for an existing parent path', async function () {
+      const newFile = testFolder + '/' + 'file.txt'
+      let progressCalled = false
 
-    oc.files.putFileContents(newFile, testContent).then(status => {
-      expect(typeof status).toBe('object')
-      return oc.files.getFileContents(newFile)
-    }).then(content => {
-      expect(content).toEqual(testContent)
-      return oc.files.delete(newFile)
-    }).then(status2 => {
-      expect(status2).toEqual(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
+      let options = {
+        onProgress: (progressInfo) => {
+          progressCalled = true
+        }
+      }
+
+      try {
+        let content
+        let status = await oc.files.putFileContents(newFile, testContent, options)
+        expect(typeof status).toBe('object')
+        expect(progressCalled).toEqual(true)
+        content = await oc.files.getFileContents(newFile)
+        expect(content).toEqual(testContent)
+        status = await oc.files.delete(newFile)
+        expect(status).toEqual(true)
+      } catch (error) {
+        fail(error)
+      }
+    })
+
+    it('fails with error when uploading to a non existing parent path', function (done) {
+      oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
+        expect(status).toBe(null)
+        done()
+      }).catch(error => {
+        expect(error.message).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
+        done()
+      })
     })
   })
 
@@ -237,16 +255,6 @@ describe('Main: Currently testing files management,', function () {
       done()
     }).catch(error => {
       expect(error).toBe(null)
-      done()
-    })
-  })
-
-  it('checking method : putFileContents for a non existing parent path', function (done) {
-    oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error.message).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
       done()
     })
   })

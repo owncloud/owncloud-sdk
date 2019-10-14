@@ -141,6 +141,10 @@ class Files {
    * @param   {string} path       path of the file at OC instance
    * @param   {string} content    content to be put
    * @param   {Object} options
+   * @param   {Object} [options.headers] optional extra headers
+   * @param   {boolean} [options.overwrite] whether to force-overwrite the target
+   * @param   {String} [options.previousEntityTag] previous entity tag to avoid concurrent overwrites
+   * @param   {Function} options.onProgress progress callback
    * @returns {Promise.<status>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}   string: error message, if any.
    */
@@ -149,17 +153,22 @@ class Files {
       return Promise.reject('Please specify an authorization first.')
     }
     options = options || []
-    const headers = this.helpers.buildHeaders()
+    const headers = Object.assign({}, this.helpers.buildHeaders(), options.headers)
     const previousEntityTag = options.previousEntityTag || false
     if (previousEntityTag) {
       // will ensure that no other client uploaded a different version meanwhile
       headers['If-Match'] = previousEntityTag
-    } else {
+    } else if (!options.overwrite) {
       // will trigger 412 precondition failed if a file already exists
       headers['If-None-Match'] = '*'
     }
 
-    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content).then(result => {
+    let requestOptions = {}
+    if (options.onProgress) {
+      requestOptions.onProgress = options.onProgress
+    }
+
+    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content, null, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           'ETag': result.xhr.getResponseHeader('etag'),

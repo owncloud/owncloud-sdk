@@ -8,7 +8,8 @@ module.exports = {
   },
   output: {
     filename: 'owncloud.js',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    globalObject: 'this'
   },
   module: {
     rules: [{

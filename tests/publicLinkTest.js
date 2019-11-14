@@ -259,31 +259,51 @@ describe('oc.publicFiles', function () {
           })
         })
 
-        it('should create a file', function (done) {
-          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(() => {
-            return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(() => {
-              done()
-            })
-          }).catch(error => {
+        it('should create a file', async function () {
+          try {
+            const testContent = '123456'
+            const newFile = 'lorem.txt'
+            let progressCalled = false
+            let status
+            let content
+            let resp
+            let options = {
+              onProgress: () => {
+                progressCalled = true
+              }
+            }
+            status = await oc.publicFiles.putFileContents(
+              testFolderShare.getToken(),
+              newFile,
+              data.shareParams.password,
+              testContent,
+              options
+            )
+            expect(typeof status).toBe('object')
+            expect(progressCalled).toEqual(true)
+            resp = await oc.publicFiles.download(testFolderShare.getToken(), newFile, data.shareParams.password)
+            content = await resp.text()
+            expect(content).toEqual(testContent)
+            await oc.publicFiles.delete(testFolderShare.getToken(), newFile, data.shareParams.password)
+          } catch (error) {
             fail(error)
-            done()
-          })
+          }
         })
 
-        it('should update a file', function (done) {
-          return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456').then(resp => {
+        it('should update a file', async function () {
+          try {
+            let resp
+            let status
+            resp = await oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, '123456')
             const options = {
               previousEntityTag: resp['ETag']
             }
-            return oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, 'lorem', options).then(() => {
-              return oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password).then(() => {
-                done()
-              })
-            })
-          }).catch(error => {
+            status = await oc.publicFiles.putFileContents(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password, 'lorem', options)
+            expect(typeof status).toBe('object')
+            await oc.publicFiles.delete(testFolderShare.getToken(), 'lorem.txt', data.shareParams.password)
+          } catch (error) {
             fail(error)
-            done()
-          })
+          }
         })
 
         it('should move a file', function (done) {

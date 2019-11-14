@@ -163,11 +163,15 @@ class PublicFiles {
    * @param  {string|null}       password
    * @param  {string} content    content to be put
    * @param  {Object} options
+   * @param  {Object} [options.headers] optional extra headers
+   * @param  {boolean} [options.overwrite] whether to force-overwrite the target
+   * @param  {String} [options.previousEntityTag] previous entity tag to avoid concurrent overwrites
+   * @param  {Function} options.onProgress progress callback
    * @return {Promise.<status>}  boolean: whether the operation was successful
    * @return {Promise.<error>}   string: error message, if any.
    */
   putFileContents (token, path = null, password = null, content = '', options = {}) {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = Object.assign({}, this.helpers.buildHeaders(), options.headers)
     const url = this.getFileUrl(token, path)
 
     if (password) {
@@ -177,12 +181,16 @@ class PublicFiles {
     if (previousEntityTag) {
       // will ensure that no other client uploaded a different version meanwhile
       headers['If-Match'] = previousEntityTag
-    } else {
+    } else if (!options.overwrite) {
       // will trigger 412 precondition failed if a file already exists
       headers['If-None-Match'] = '*'
     }
 
-    return this.davClient.request('PUT', url, headers, content).then(result => {
+    let requestOptions = {}
+    if (options.onProgress) {
+      requestOptions.onProgress = options.onProgress
+    }
+    return this.davClient.request('PUT', url, headers, content, null, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           'ETag': result.xhr.getResponseHeader('etag'),

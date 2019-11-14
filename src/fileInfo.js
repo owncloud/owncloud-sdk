@@ -99,7 +99,7 @@ class FileInfo {
   }
 
   /**
-   * Checks wether the information is for a folder
+   * Checks whether the information is for a folder
    * @returns {boolean}   true if folder
    */
   isDir () {

@@ -110,7 +110,7 @@ class ownCloud {
   /**
    * Gets the ownCloud app capabilities
    * @returns {Promise.<capabilities>}    string: ownCloud version
-   * @returns {Promise.<reject>}             object: capabilites
+   * @returns {Promise.<reject>}             object: capabilities
    */
   getCapabilities () {
     return this.helpers.getCapabilities()

@@ -150,7 +150,7 @@ class ShareInfo {
   /**
    * Typecasts to integer
    * @param   {string}    [key]   Corresponding key element to be typecasted to an integer
-   * @returns {number}           typcasted integer
+   * @returns {number}           typecasted integer
    */
   _getInt (key) {
     return parseInt(this.shareInfo[key])

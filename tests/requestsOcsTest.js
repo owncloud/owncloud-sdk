@@ -75,7 +75,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : PUT email', function (done) {
-    const testUser = 'testuer' + new Date().getTime()
+    const testUser = 'testuser' + new Date().getTime()
     oc.users.createUser(testUser, testUser).then(() => {
       return oc.requests.ocs({
         method: 'PUT',

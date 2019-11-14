@@ -394,7 +394,7 @@ class helpers {
 
   /**
    * converts all of object's "true" or "false" entries to booleans
-   * @param   {object}    object  object to be typcasted
+   * @param   {object}    object  object to be typecasted
    * @return  {object}            typecasted object
    */
   _convertObjectToBool (object) {
@@ -415,7 +415,7 @@ class helpers {
   }
 
   /**
-   * Handles Provisionging API boolean response
+   * Handles Provisioning API boolean response
    */
   _OCSuserResponseHandler (data, resolve, reject) {
     const statuscode = parseInt(this._checkOCSstatusCode(data.data))

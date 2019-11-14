@@ -59,7 +59,7 @@ class SystemTags {
   }
 
   /**
-   * Assing a tag to a file/folder
+   * Assign a tag to a file/folder
    * @param   {number}   fileId            id of the file/folder
    * @param   {number}   tagId             id of the tag
    * @returns {Promise}                    resolves if successful

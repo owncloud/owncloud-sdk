@@ -38,7 +38,7 @@ class Users {
   /**
    * Creates user via the provisioning API<br>
    * If user already exists, an error is given back : "User already exists"<br>
-   * If provisoning API has been disabled, an error is given back saying the same.
+   * If provisioning API has been disabled, an error is given back saying the same.
    *
    * @param      {string}  userName     username of the new user to be created
    * @param      {string}  password     password of the new user to be created

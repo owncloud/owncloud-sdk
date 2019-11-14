@@ -8,7 +8,7 @@ platform:
 
 workspace:
   base: /var/www/owncloud
-  path: onwcloud-sdk
+  path: owncloud-sdk
 
 steps:
 - name: increment-version
@@ -160,7 +160,7 @@ platform:
 
 workspace:
   base: /var/www/owncloud
-  path: onwcloud-sdk
+  path: owncloud-sdk
 
 steps:
 - name: increment-version

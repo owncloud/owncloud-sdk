@@ -1,5 +1,6 @@
 const Promise = require('promise')
 const dav = require('davclient.js')
+const WebdavProperties = require('./properties')
 
 /**
  * @class FilesTrash
@@ -26,19 +27,9 @@ class FilesTrash {
    * @param   {string}    path          path of the file/folder at OC instance
    * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
    * @param   {array}     properties    Array[string] with dav properties to be requested
-   * @returns {Promise.<fileInfo | string | Error>}
+   * @returns {Promise.<File | string | Error>}
    */
-  list (path, depth = '1', properties = undefined) {
-    if (properties === undefined) {
-      properties = [
-        '{http://owncloud.org/ns}trashbin-original-filename',
-        '{http://owncloud.org/ns}trashbin-original-location',
-        '{http://owncloud.org/ns}trashbin-delete-timestamp',
-        '{DAV:}getcontentlength',
-        '{DAV:}resourcetype'
-      ]
-    }
-
+  list (path, depth = '1') {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
@@ -46,7 +37,7 @@ class FilesTrash {
     const headers = this.helpers.buildHeaders()
     const target = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + path
 
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(target), properties, depth, headers).then(result => {
+    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(target), WebdavProperties.TrashProperties, depth, headers).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       } else {

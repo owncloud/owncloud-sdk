@@ -35,7 +35,7 @@ class FilesVersions {
   /**
    * Returns a list of versions for the given file id
    * @param   {string|number}      fileId        file id
-   * @returns {Promise.<fileInfo>}               Array[objects]: each object is an instance of class fileInfo
+   * @returns {Promise.<File>}               Array[objects]: each object is an instance of class File
    * @returns {Promise.<error>}                  string: error message, if any.
    */
   listVersions (fileId) {

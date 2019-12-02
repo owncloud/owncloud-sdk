@@ -1,14 +1,17 @@
 const Promise = require('promise')
-const HelperFile = require('./helperFunctions.js')
-const Apps = require('./appManagement.js')
-const Shares = require('./shareManagement.js')
-const Users = require('./userManagement.js')
-const Groups = require('./groupManagement.js')
-const Files = require('./fileManagement.js')
-const FileVersion = require('./fileVersionManagement.js')
-const SystemTags = require('./systemTags.js')
-const FilesTrash = require('./filesTrash.js')
-const PublicFiles = require('./publicLinkAccess.js')
+const HelperFile = require('./webdav/helperFunctions')
+const Apps = require('./webdav/appManagement')
+const Shares = require('./webdav/shareManagement')
+const Users = require('./webdav/userManagement')
+const Groups = require('./webdav/groupManagement')
+const Files = require('./webdav/fileManagement')
+const FileVersion = require('./webdav/fileVersionManagement')
+const SystemTags = require('./webdav/systemTags')
+const FilesTrash = require('./webdav/filesTrash')
+const PublicFiles = require('./webdav/publicLinkAccess')
+
+const Reva = require('./grpc/reva')
+const FilesGrpc = require('./grpc/fileManagement')
 
 /**
  * @class ownCloud
@@ -43,6 +46,8 @@ class ownCloud {
       baseUrl = new URL(options.baseUrl).href
     }
 
+    // webdav
+
     let helpers = new HelperFile()
     helpers.setInstance(baseUrl)
     if (options.auth) {
@@ -66,7 +71,6 @@ class ownCloud {
     this.shares = new Shares(this.helpers)
     this.users = new Users(this.helpers)
     this.groups = new Groups(this.helpers)
-    this.files = new Files(this.helpers)
     this.fileVersions = new FileVersion(this.helpers)
     this.systemTags = new SystemTags(this.helpers)
     this.fileTrash = new FilesTrash(this.helpers)
@@ -75,6 +79,16 @@ class ownCloud {
       ocs: function (options = {}) {
         return helpers.ocs(options)
       }
+    }
+
+    // REVA/GRPC
+    if (options.connector && options.connector.type &&
+        options.connector.type === 'grpc') {
+      this.reva = new Reva(options)
+      this.files = new FilesGrpc(this.reva)
+    } else {
+      // TODO move the rest in here
+      this.files = new Files(this.helpers)
     }
   }
 

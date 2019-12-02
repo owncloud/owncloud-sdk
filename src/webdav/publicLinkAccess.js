@@ -1,5 +1,6 @@
 const Promise = require('promise')
 const dav = require('davclient.js')
+const WebdavProperties = require('./properties')
 
 /**
  * @class PublicFiles
@@ -22,11 +23,6 @@ class PublicFiles {
     })
 
     // constant definitions
-    this.PUBLIC_LINK_ITEM_TYPE = '{http://owncloud.org/ns}public-link-item-type'
-    this.PUBLIC_LINK_PERMISSION = '{http://owncloud.org/ns}public-link-permission'
-    this.PUBLIC_LINK_EXPIRATION = '{http://owncloud.org/ns}public-link-expiration'
-    this.PUBLIC_LINK_SHARE_DATETIME = '{http://owncloud.org/ns}public-link-share-datetime'
-    this.PUBLIC_LINK_SHARE_OWNER = '{http://owncloud.org/ns}public-link-share-owner'
   }
 
   /**
@@ -36,23 +32,23 @@ class PublicFiles {
    * @param {string|null} password
    * @param {array}       properties
    * @param {string}      depth
-   * @return {Promise<FileInfo[]>}
+   * @return {Promise<File[]>}
    */
-  list (tokenAndPath, password = null, properties = [], depth = '1') {
+  list (tokenAndPath, password = null, depth = '1') {
+    let properties = WebdavProperties.BasicFileProperties
+    return this._list(tokenAndPath, password, properties, depth)
+  }
+
+  listExtended (tokenAndPath, password = null, depth = '1') {
+    let properties = WebdavProperties.BasicFileProperties.concat(WebdavProperties.PublicLinkProperties)
+    return this._list(tokenAndPath, password, properties, depth)
+  }
+
+  _list (tokenAndPath, password = null, properties, depth = '1') {
     let headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(tokenAndPath)
     if (password) {
       headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
-    }
-    if (properties.length === 0) {
-      properties = [
-        this.PUBLIC_LINK_ITEM_TYPE,
-        this.PUBLIC_LINK_PERMISSION,
-        this.PUBLIC_LINK_EXPIRATION,
-        this.PUBLIC_LINK_SHARE_DATETIME,
-        this.PUBLIC_LINK_SHARE_OWNER,
-        '{DAV:}getcontenttype'
-      ]
     }
 
     return this.davClient.propFind(url, properties, depth, headers).then(result => {

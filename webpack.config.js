@@ -22,5 +22,8 @@ module.exports = {
       exclude: /node_modules/,
       loader: 'eslint-loader'
     }]
+  },
+  watchOptions: {
+    ignored: ['.*', 'tests', 'build', 'dist', 'node_modules']
   }
 }

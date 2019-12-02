@@ -32,7 +32,8 @@
     "test": "karma start --single-run --browsers ChromeHeadless",
     "test-drone": "karma start --single-run --browsers ChromeHeadlessNoSandbox",
     "build:docs": "jsdoc -c jsdoc.conf.json",
-    "build:system": "webpack"
+    "build:system": "webpack",
+    "watch": "webpack --watch"
   },
   "homepage": "https://owncloud.github.io/owncloud-sdk/",
   "devDependencies": {
@@ -71,7 +72,12 @@
     "lint-staged": ">=8",
     "utf8": "^3.0.0",
     "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^3.3.10",
+    "@grpc/proto-loader": "^0.3.0",
+    "google-protobuf": "^3.6.1",
+    "grpc": "^1.15.0",
+    "grpc-web": "^1.0.0",
+    "cs3apis": "cs3org/js-cs3apis"
   },
   "dependencies": {
     "browser-request": "^0.3.3",

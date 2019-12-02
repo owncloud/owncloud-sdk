@@ -1,5 +1,6 @@
 const Promise = require('promise')
 const dav = require('davclient.js')
+const WebdavProperties = require('./properties')
 
 /**
  * @class Files
@@ -46,16 +47,16 @@ class Files {
    * @param   {string}    path          path of the file/folder at OC instance
    * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
    * @param   {array}     properties    Array[string] with dav properties to be requested
-   * @returns {Promise.<fileInfo>}      Array[objects]: each object is an instance of class fileInfo
+   * @returns {Promise.<File>}      Array[objects]: each object is an instance of class File
    * @returns {Promise.<error>}         string: error message, if any.
    */
-  list (path, depth = '1', properties = []) {
+  list (path, depth = '1') {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
 
     const headers = this.helpers.buildHeaders()
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
+    return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), WebdavProperties.BasicFileProperties, depth, headers).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       } else {
@@ -64,35 +65,35 @@ class Files {
     })
   }
 
-  /**
-   * Returns the contents of a remote file
-   * @param   {string}  path          path of the remote file at OC instance
-   * @param   {Object} options
-   * @returns {Promise.<string>}    string: contents of file
-   * @returns {Promise.<error>}       string: error message, if any.
-   */
-  getFileContents (path, options = {}) {
-    return this.helpers._get(this.helpers._buildFullWebDAVPath(path)).then(data => {
-      const response = data.response
-      const body = data.body
+  // /**
+  //  * Returns the contents of a remote file
+  //  * @param   {string}  path          path of the remote file at OC instance
+  //  * @param   {Object} options
+  //  * @returns {Promise.<string>}    string: contents of file
+  //  * @returns {Promise.<error>}       string: error message, if any.
+  //  */
+  // getFileContents (path, options = {}) {
+  //   return this.helpers._get(this.helpers._buildFullWebDAVPath(path)).then(data => {
+  //     const response = data.response
+  //     const body = data.body
 
-      if (response.statusCode !== 200) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response.status, body))
-      }
-      options = options || []
-      const resolveWithResponseObject = options.resolveWithResponseObject || false
-      if (resolveWithResponseObject) {
-        return Promise.resolve({
-          body: body,
-          headers: {
-            'ETag': response.getResponseHeader('etag'),
-            'OC-FileId': response.getResponseHeader('oc-fileid')
-          }
-        })
-      }
-      return Promise.resolve(body)
-    })
-  }
+  //     if (response.statusCode !== 200) {
+  //       return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response.status, body))
+  //     }
+  //     options = options || []
+  //     const resolveWithResponseObject = options.resolveWithResponseObject || false
+  //     if (resolveWithResponseObject) {
+  //       return Promise.resolve({
+  //         body: body,
+  //         headers: {
+  //           'ETag': response.getResponseHeader('etag'),
+  //           'OC-FileId': response.getResponseHeader('oc-fileid')
+  //         }
+  //       })
+  //     }
+  //     return Promise.resolve(body)
+  //   })
+  // }
 
   /**
    * Returns the url of a remote file - using the version 1 endpoint
@@ -103,16 +104,16 @@ class Files {
     return this.helpers._buildFullWebDAVPath(path)
   }
 
-  /**
-   * Returns the url of a remote file - using the version 2 endpoint
-   * @param   {string}  path    path of the remote file at OC instance
-   * @returns {string}          Url of the remote file
-   */
-  getFileUrlV2 (path) {
-    path = path[0] === '/' ? path : '/' + path
-    const target = '/files/' + this.helpers.getCurrentUser().id + path
-    return this.helpers._buildFullWebDAVPathV2(target)
-  }
+  // /**
+  //  * Returns the url of a remote file - using the version 2 endpoint
+  //  * @param   {string}  path    path of the remote file at OC instance
+  //  * @returns {string}          Url of the remote file
+  //  */
+  // getFileUrlV2 (path) {
+  //   path = path[0] === '/' ? path : '/' + path
+  //   const target = '/files/' + this.helpers.getCurrentUser().id + path
+  //   return this.helpers._buildFullWebDAVPathV2(target)
+  // }
 
   /**
    * Queries the server for the real path of the authenticated user for a given fileId
@@ -237,11 +238,11 @@ class Files {
    * Returns the file info for the given remote file
    * @param   {string}                    path          path of the file/folder at OC instance
    * @param   {Object.<string, string>}   properties    WebDAV properties
-   * @returns {Promise.<FileInfo>}                      object: instance of class fileInfo
+   * @returns {Promise.<File>}                      object: instance of class File
    * @returns {Promise.<error>}                         string: error message, if any.
    */
-  fileInfo (path, properties) {
-    return this.list(path, '0', properties).then(fileInfo => {
+  fileInfo (path) {
+    return this.list(path, '0', WebdavProperties.BasicFileProperties).then(fileInfo => {
       return Promise.resolve(fileInfo[0])
     })
   }
@@ -343,10 +344,10 @@ class Files {
    * @param   {string} pattern        pattern to be searched for
    * @param   {number} limit          maximum number of results
    * @param   {string[]} properties   list of DAV properties which are expected in the response
-   * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+   * @returns {Promise.<File[]>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
    */
-  search (pattern, limit, properties) {
+  search (pattern, limit) {
     pattern = pattern || ''
     limit = limit || 30
 
@@ -358,7 +359,7 @@ class Files {
       body += ' xmlns:' + this.davClient.xmlNamespaces[namespace] + '="' + namespace + '"'
     }
     body += '>\n'
-    body += this._renderProperties(properties)
+    body += this._renderProperties(WebdavProperties.BasicFileProperties)
 
     body +=
       '  <oc:search>\n' +
@@ -373,10 +374,10 @@ class Files {
   /**
    * Get all favorite files and folder of the user
    * @param   {string[]} properties   list of DAV properties which are expected in the response
-   * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+   * @returns {Promise.<File[]>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
    */
-  getFavoriteFiles (properties) {
+  getFavoriteFiles () {
     let body =
       '<?xml version="1.0"?>\n' +
       '<oc:filter-files '
@@ -386,7 +387,7 @@ class Files {
     }
     body += '>\n'
 
-    body += this._renderProperties(properties)
+    body += this._renderProperties(WebdavProperties.BasicFileProperties)
 
     body +=
       '<oc:filter-rules>\n' +
@@ -423,7 +424,7 @@ class Files {
    * Get all files and folder of the user for a given list of tags
    * @param   {number[]} tags            list of tag ids
    * @param   {string[]} properties   list of DAV properties which are expected in the response
-   * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+   * @returns {Promise.<File[]>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
    */
   getFilesByTags (tags, properties) {

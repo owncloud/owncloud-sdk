@@ -1,6 +1,6 @@
 const Promise = require('promise')
 const parser = require('./xmlParser.js')
-const ShareInfo = require('./shareInfo.js')
+const ShareInfo = require('../types/shareInfo')
 
 /**
  * @class Shares

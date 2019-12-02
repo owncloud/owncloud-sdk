@@ -1,10 +1,10 @@
 const Promise = require('promise')
 const request = require('browser-request')
-const parser = require('./xmlParser.js')
+const parser = require('./xmlParser')
 const utf8 = require('utf8')
-const FileInfo = require('./fileInfo.js')
+const Converter = require('./converter')
 const uuidv4 = require('uuid/v4')
-const HttpError = require('./httpError.js')
+const { HttpError } = require('../types/errors')
 
 class helpers {
   constructor () {
@@ -428,7 +428,7 @@ class helpers {
 
   /**
    *
-   * @return {FileInfo[]}
+   * @return {File[]}
    * @private
    */
   _parseBody (responses, leftTrimComponents = 0) {
@@ -472,7 +472,7 @@ class helpers {
   }
 
   /**
-   * @return {FileInfo|null}
+   * @return {File|null}
    * @private
    */
   _parseFileInfo (response, leftTrimComponents = 0) {
@@ -481,23 +481,14 @@ class helpers {
     if (path === null) {
       return null
     }
-    let name = path
 
     if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
       return null
     }
 
     const props = response.propStat[0].properties
-    let fileType = 'file'
-    const resType = props['{DAV:}resourcetype']
-    if (resType) {
-      const xmlvalue = resType[0]
-      if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
-        fileType = 'dir'
-      }
-    }
-
-    return new FileInfo(name, fileType, props)
+    let file = Converter.getFile(path, props)
+    return file
   }
 
   escapeXml (unsafe) {

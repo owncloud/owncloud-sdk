@@ -19,7 +19,7 @@
   ],
   "overrides": [
     {
-      "files": ["src/*.js"],
+      "files": ["src/*.js", "src/*/*.js"],
       "rules": {
         "prefer-promise-reject-errors": "off"
       }

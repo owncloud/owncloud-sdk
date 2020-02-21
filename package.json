@@ -50,7 +50,7 @@
     "eslint-loader": "^3.0.2",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jasmine": "^2.10.1",
-    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "git-hooks": "^1.1.10",

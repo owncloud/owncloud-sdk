@@ -1,6 +1,7 @@
 describe('Main: Currently testing file/folder sharing,', function () {
   // CURRENT TIME
-  const timeRightNow = Math.random().toString(36).substr(2, 9)
+  const currentDate = new Date()
+  const randomID = Math.random().toString(36).substr(2, 9)
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
@@ -10,15 +11,19 @@ describe('Main: Currently testing file/folder sharing,', function () {
   // TESTING CONFIGS
   const testUserPassword = 'password'
   const testContent = 'testContent'
-  const testUser = 'testUser' + timeRightNow
-  const testGroup = 'testGroup' + timeRightNow
-  const testFolder = '/testFolder' + timeRightNow
-  const nonExistingFile = 'nonExistingFile' + timeRightNow
+  const testUser = 'testUser' + randomID
+  const testGroup = 'testGroup' + randomID
+  const testFolder = '/testFolder' + randomID
+  const nonExistingFile = 'nonExistingFile' + randomID
+  let expirationDate = addDays(currentDate, 7).toISOString()
+
+  // Remove time from expirationDate
+  expirationDate = expirationDate.substring(0, expirationDate.indexOf('T'))
 
   const testFiles = [
-    '/文件' + timeRightNow + '.txt',
-    '/test' + timeRightNow + '.txt',
-    '/test space and + and #' + timeRightNow + '.txt'
+    '/文件' + randomID + '.txt',
+    '/test' + randomID + '.txt',
+    '/test space and + and #' + randomID + '.txt'
   ]
 
   // CREATED SHARES
@@ -33,6 +38,20 @@ describe('Main: Currently testing file/folder sharing,', function () {
   const OCS_PERMISSION_UPDATE = 2
   const OCS_PERMISSION_CREATE = 4
   const OCS_PERMISSION_SHARE = 16
+
+  // Helpers
+  /**
+   * Adds specified number of dates to the date
+   * @param   {object} date Date to which the days are supposed to be added
+   * @param   {number} days Number of days to be added
+   * @returns {object}      Returns the date with added days
+   */
+  function addDays (date, days) {
+    const newDate = new Date(Number(date))
+    newDate.setDate(date.getDate() + days)
+
+    return newDate
+  }
 
   describe('Currently testing folder sharing,', function () {
     beforeEach(function (done) {
@@ -718,6 +737,30 @@ describe('Main: Currently testing file/folder sharing,', function () {
         expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist')
         done()
       })
+    })
+
+    it('should share a file with another user when expiration date is set', function () {
+      // FIXME: This is only a work around to prevent an error about invalid user. Needs to be fixed and this removed
+      oc.users.getUser(testUser)
+
+      for (const file of testFiles) {
+        oc.shares.shareFileWithUser(
+          file,
+          testUser,
+          { expirationDate: expirationDate }
+        )
+          .then(share => {
+            expect(share).not.toBe(null)
+            expect(typeof share).toBe('object')
+            expect(typeof share.getId()).toBe('number')
+            expect(typeof share.getExpiration()).toBe('number')
+            sharedFilesWithUser[share.getPath()] = share.getId()
+            allShareIDs.push(share.getId())
+          })
+          .catch(error => {
+            expect(error).toBe(null)
+          })
+      }
     })
   })
 })

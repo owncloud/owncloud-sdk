@@ -83,7 +83,7 @@ class Shares {
    * Shares a remote file with specified user
    * @param   {string}    path             path to the remote file share
    * @param   {string}    username         name of the user to share with
-   * @param   {object}    optionalParams   {permissions: integer, remoteUser: boolean, attributes: array}
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: array}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -100,9 +100,15 @@ class Shares {
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
+
+      if (optionalParams.expirationDate) {
+        postData.expireDate = optionalParams.expirationDate
+      }
+
       if (optionalParams.attributes) {
         postData.attributes = optionalParams.attributes
       }
+
       if (optionalParams.remoteUser) {
         postData.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
       }
@@ -121,7 +127,7 @@ class Shares {
    * Shares a remote file with specified group
    * @param   {string}    path             path to the remote file share
    * @param   {string}    groupName        name of group to share with
-   * @param   {object}    optionalParams   {permissions: integer, attributes: array}
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, attributes: array}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -138,6 +144,11 @@ class Shares {
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
+
+      if (optionalParams.expirationDate) {
+        postData.expireDate = optionalParams.expirationDate
+      }
+
       if (optionalParams.attributes) {
         postData.attributes = optionalParams.attributes
       }

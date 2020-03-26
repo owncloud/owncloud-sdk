@@ -42,6 +42,11 @@ describe('oc.publicFiles', function () {
         token: 'abcdef',
         path: 'foo/bar.txt',
         expected: 'remote.php/dav/public-files/abcdef/foo/bar.txt'
+      },
+      'token and path starting with a forward slash': {
+        token: 'abcdef',
+        path: '/foo/bar.txt',
+        expected: 'remote.php/dav/public-files/abcdef/foo/bar.txt'
       }
     }, function (data, description) {
       it('shall work with ' + description, function () {
@@ -139,7 +144,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should list the folder contents', function (done) {
-          oc.publicFiles.list(testFolderShare.getToken(), data.passwordWhenListing).then(files => {
+          oc.publicFiles.list(testFolderShare.getToken(), null, data.passwordWhenListing).then(files => {
             if (data.shallGrantAccess) {
               // test length
               expect(files.length).toBe(4)
@@ -341,6 +346,25 @@ describe('oc.publicFiles', function () {
             fail(error)
             done()
           })
+        })
+
+        it('should get fileInfo of shared folder', async function () {
+          const sharedFolder = testFolderShare.getToken()
+          const folder = await oc.publicFiles.getFileInfo(
+            sharedFolder,
+            null,
+            data.shareParams.password
+          )
+
+          // Return error message in case the name does not exist
+          if (!folder.name) {
+            return fail(folder)
+          }
+
+          // We need to remove slash which is first char in fileInfo.name
+          const folderName = folder.name.slice(1)
+
+          expect(folderName).toBe(sharedFolder)
         })
       })
     })

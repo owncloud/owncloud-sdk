@@ -739,27 +739,27 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
     })
 
-    it('should share a file with another user when expiration date is set', function () {
-      // FIXME: This is only a work around to prevent an error about invalid user. Needs to be fixed and this removed
-      oc.users.getUser(testUser)
+    it('should share a file with another user when expiration date is set', function (done) {
+      let count = 0
 
-      for (const file of testFiles) {
+      for (let i = 0; i < testFiles.length; i++) {
         oc.shares.shareFileWithUser(
-          file,
+          testFiles[i],
           testUser,
           { expirationDate: expirationDate }
-        )
-          .then(share => {
-            expect(share).not.toBe(null)
-            expect(typeof share).toBe('object')
-            expect(typeof share.getId()).toBe('number')
-            expect(typeof share.getExpiration()).toBe('number')
-            sharedFilesWithUser[share.getPath()] = share.getId()
-            allShareIDs.push(share.getId())
-          })
-          .catch(error => {
-            expect(error).toBe(null)
-          })
+        ).then(share => {
+          expect(share).not.toBe(null)
+          expect(typeof share).toBe('object')
+          expect(typeof share.getId()).toBe('number')
+          expect(typeof share.getExpiration()).toBe('number')
+          count++
+
+          if (count === testFiles.length) {
+            done()
+          }
+        }).catch(error => {
+          fail(error)
+        })
       }
     })
   })

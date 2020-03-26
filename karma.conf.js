@@ -13,6 +13,15 @@ module.exports = function (config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
+    plugins: [
+      'karma-jasmine',
+      'karma-webpack',
+      'karma-coverage-istanbul-reporter',
+      'karma-chrome-launcher',
+      'karma-sourcemap-loader',
+      'karma-babel-preprocessor'
+    ],
+
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
@@ -49,7 +58,7 @@ module.exports = function (config) {
           },
           {
             test: /\.js$/,
-            exclude: [ /node_modules/ ],
+            exclude: [/node_modules/],
             enforce: 'post',
             use: {
               loader: 'istanbul-instrumenter-loader',
@@ -67,7 +76,7 @@ module.exports = function (config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['dots', 'coverage-istanbul'],
+    reporters: ['progress', 'coverage-istanbul'],
 
     // web server port
     port: 9876,
@@ -101,7 +110,7 @@ module.exports = function (config) {
     concurrency: Infinity,
 
     coverageIstanbulReporter: {
-      reports: [ 'lcovonly', 'text' ],
+      reports: ['lcovonly', 'text'],
       dir: path.join(__dirname, 'coverage'),
       fixWebpackSourcePaths: true
     }

@@ -67,7 +67,7 @@
     "karma-coverage-istanbul-reporter": "^2.0.5",
     "karma-jasmine": "^2.0.1",
     "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^3.0.5",
+    "karma-webpack": "^4.0.2",
     "lint-staged": ">=8",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.2",

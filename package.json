@@ -69,9 +69,9 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^3.0.5",
     "lint-staged": ">=8",
-    "utf8": "^3.0.0",
     "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^3.3.2",
+    "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
     "browser-request": "^0.3.3",

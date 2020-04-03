@@ -1,6 +1,6 @@
 describe('Unauthenticated: Currently testing getConfig, getVersion and getCapabilities', function () {
   const OwnCloud = require('../../src')
-  let config = require('../config/config.json')
+  const config = require('../config/config.json')
 
   // LIBRARY INSTANCE
   let oc

@@ -36,7 +36,7 @@ class Groups {
   createGroup (groupName) {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD, 'groups', {
-        'groupid': groupName
+        groupid: groupName
       })
         .then(data => {
           this.helpers._OCSuserResponseHandler(data, resolve, reject)

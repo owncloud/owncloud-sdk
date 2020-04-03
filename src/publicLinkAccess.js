@@ -39,10 +39,10 @@ class PublicFiles {
    * @return {Promise<FileInfo[]>}
    */
   list (tokenAndPath, password = null, properties = [], depth = '1') {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(tokenAndPath)
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     if (properties.length === 0) {
       properties = [
@@ -72,11 +72,11 @@ class PublicFiles {
    * @return {Promise<Response>}
    */
   download (token, path = null, password = null) {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(token, path)
 
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     const init = {
       method: 'GET',
@@ -116,11 +116,11 @@ class PublicFiles {
    * @return {Promise.<error>}   string: error message, if any.
    */
   createFolder (token, path = null, password = null) {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(token, path)
 
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
     return this.davClient.request('MKCOL', url, headers).then(result => {
@@ -140,11 +140,11 @@ class PublicFiles {
    * @return {Promise.<error>}     string: error message, if any.
    */
   delete (token, path = null, password = null) {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(token, path)
 
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
     return this.davClient.request('DELETE', url, headers).then(result => {
@@ -175,7 +175,7 @@ class PublicFiles {
     const url = this.getFileUrl(token, path)
 
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     const previousEntityTag = options.previousEntityTag || false
     if (previousEntityTag) {
@@ -186,14 +186,14 @@ class PublicFiles {
       headers['If-None-Match'] = '*'
     }
 
-    let requestOptions = {}
+    const requestOptions = {}
     if (options.onProgress) {
       requestOptions.onProgress = options.onProgress
     }
     return this.davClient.request('PUT', url, headers, content, null, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
-          'ETag': result.xhr.getResponseHeader('etag'),
+          ETag: result.xhr.getResponseHeader('etag'),
           'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
         })
       } else {
@@ -211,14 +211,14 @@ class PublicFiles {
    * @return {Promise.<error>}   string: error message, if any.
    */
   move (source, target, password = null) {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = this.helpers.buildHeaders(false)
     const sourceUrl = this.getFileUrl(source)
     const targetUrl = this.getFileUrl(target)
 
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
-    headers['Destination'] = targetUrl
+    headers.Destination = targetUrl
     return this.davClient.request('MOVE', sourceUrl, headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
@@ -236,14 +236,14 @@ class PublicFiles {
    * @return {Promise.<error>}   string: error message, if any.
    */
   copy (source, target, password = null) {
-    let headers = this.helpers.buildHeaders(false)
+    const headers = this.helpers.buildHeaders(false)
     const sourceUrl = this.getFileUrl(source)
     const targetUrl = this.getFileUrl(target)
 
     if (password) {
-      headers['authorization'] = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
-    headers['Destination'] = targetUrl
+    headers.Destination = targetUrl
     return this.davClient.request('COPY', sourceUrl, headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)

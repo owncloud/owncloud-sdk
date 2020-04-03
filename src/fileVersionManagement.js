@@ -42,7 +42,7 @@ class FilesVersions {
     const path = '/meta/' + fileId + '/v'
 
     return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), [], 1, {
-      'Authorization': this.helpers.getAuthorization()
+      Authorization: this.helpers.getAuthorization()
     }).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
@@ -87,8 +87,8 @@ class FilesVersions {
     const target = '/files/' + this.helpers.getCurrentUser().id + '/' + targetPath
 
     return this.davClient.request('COPY', this.helpers._buildFullWebDAVPathV2(source), {
-      'Authorization': this.helpers.getAuthorization(),
-      'Destination': this.helpers._buildFullWebDAVPathV2(target)
+      Authorization: this.helpers.getAuthorization(),
+      Destination: this.helpers._buildFullWebDAVPathV2(target)
     }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)

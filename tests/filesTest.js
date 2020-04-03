@@ -169,18 +169,17 @@ describe('Main: Currently testing files management,', function () {
       const newFile = testFolder + '/' + 'file.txt'
       let progressCalled = false
 
-      let options = {
+      const options = {
         onProgress: (progressInfo) => {
           progressCalled = true
         }
       }
 
       try {
-        let content
         let status = await oc.files.putFileContents(newFile, testContent, options)
         expect(typeof status).toBe('object')
         expect(progressCalled).toEqual(true)
-        content = await oc.files.getFileContents(newFile)
+        const content = await oc.files.getFileContents(newFile)
         expect(content).toEqual(testContent)
         status = await oc.files.delete(newFile)
         expect(status).toEqual(true)

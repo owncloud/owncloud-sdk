@@ -40,7 +40,7 @@ describe('Main: Currently testing low level OCS', function () {
         return response.json()
       })
       .then(json => {
-        let capabilities = json.ocs.data
+        const capabilities = json.ocs.data
         expect(capabilities).not.toBe(null)
         expect(typeof (capabilities)).toBe('object')
 
@@ -60,7 +60,7 @@ describe('Main: Currently testing low level OCS', function () {
       method: 'PUT',
       service: 'cloud',
       action: 'users/unknown-user',
-      data: { 'key': 'display', 'value': 'Alice' }
+      data: { key: 'display', value: 'Alice' }
     }).then(response => {
       expect(response.ok).toBe(false)
       expect(response.status).toBe(401)
@@ -81,7 +81,7 @@ describe('Main: Currently testing low level OCS', function () {
         method: 'PUT',
         service: 'cloud',
         action: 'users/' + testUser,
-        data: { 'key': 'email', 'value': 'foo@bar.net' }
+        data: { key: 'email', value: 'foo@bar.net' }
       })
     }).then(response => {
       expect(response.ok).toBe(true)

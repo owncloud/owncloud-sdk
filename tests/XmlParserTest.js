@@ -8,11 +8,11 @@ describe('Main: Currently testing XmlParser,', function () {
         '   <cont:phone>(011) 123-4567</cont:phone>' +
         '</cont:contact>'
   var sampleNS1 = {
-    'cont': 'www.tutorialspoint.com/profile'
+    cont: 'www.tutorialspoint.com/profile'
   }
   var parsedXml1 = {
     '{www.tutorialspoint.com/profile}contact': {
-      '_attributes': {
+      _attributes: {
         'xmlns:cont': 'www.tutorialspoint.com/profile'
       },
       '{www.tutorialspoint.com/profile}name': 'Tanmay Patil',
@@ -37,10 +37,10 @@ describe('Main: Currently testing XmlParser,', function () {
         '    </d:propstat>' +
         '</d:response>'
   var sampleNS2 = {
-    'd': 'DAV:',
-    's': 'http://sabredav.org/ns',
-    'oc': 'http://owncloud.org/ns',
-    'x': 'customns'
+    d: 'DAV:',
+    s: 'http://sabredav.org/ns',
+    oc: 'http://owncloud.org/ns',
+    x: 'customns'
   }
   var parsedXml2 = {
     '{DAV:}response': {

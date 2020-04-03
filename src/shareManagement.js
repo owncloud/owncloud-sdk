@@ -45,8 +45,8 @@ class Shares {
     path = this.helpers._normalizePath(path)
 
     const postData = {
-      'shareType': this.helpers.OCS_SHARE_TYPE_LINK,
-      'path': path
+      shareType: this.helpers.OCS_SHARE_TYPE_LINK,
+      path: path
     }
 
     if (optionalParams) {
@@ -91,9 +91,9 @@ class Shares {
     path = this.helpers._normalizePath(path)
 
     const postData = {
-      'shareType': this.helpers.OCS_SHARE_TYPE_USER,
-      'shareWith': username,
-      'path': path
+      shareType: this.helpers.OCS_SHARE_TYPE_USER,
+      shareWith: username,
+      path: path
     }
 
     if (optionalParams) {
@@ -135,9 +135,9 @@ class Shares {
     path = this.helpers._normalizePath(path)
 
     const postData = {
-      'shareType': this.helpers.OCS_SHARE_TYPE_GROUP,
-      'shareWith': groupName,
-      'path': path
+      shareType: this.helpers.OCS_SHARE_TYPE_GROUP,
+      shareWith: groupName,
+      path: path
     }
 
     if (optionalParams) {
@@ -173,7 +173,7 @@ class Shares {
    */
   getShares (path, optionalParams) {
     let data = 'shares'
-    let send = {}
+    const send = {}
 
     if (path !== '') {
       data += '?'
@@ -201,7 +201,7 @@ class Shares {
       }
 
       let urlString = ''
-      for (let key in send) {
+      for (const key in send) {
         urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key])
       }
       urlString = urlString.slice(1) // removing the first '&'
@@ -348,7 +348,7 @@ class Shares {
    * @return {Promise.<error>}         string: error message, if any.
    */
   updateShare (shareId, optionalParams) {
-    let postData = {}
+    const postData = {}
 
     if (optionalParams) {
       if (optionalParams.permissions) {

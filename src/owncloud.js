@@ -43,7 +43,7 @@ class ownCloud {
       baseUrl = new URL(options.baseUrl).href
     }
 
-    let helpers = new HelperFile()
+    const helpers = new HelperFile()
     helpers.setInstance(baseUrl)
     if (options.auth) {
       if (options.auth.bearer) {

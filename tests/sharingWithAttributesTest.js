@@ -49,10 +49,12 @@ describe('oc.shares', function () {
       it('shall share with permissions in attributes', function (done) {
         const testFile = testFiles[0]
         return oc.files.putFileContents(testFile, '123456').then(() => {
-          return oc.shares.shareFileWithUser(testFile, testUser, { attributes: [
-            { scope: 'ownCloud', key: 'read', value: 'true' },
-            { scope: 'ownCloud', key: 'share', value: 'true' }
-          ] }).then(share => {
+          return oc.shares.shareFileWithUser(testFile, testUser, {
+            attributes: [
+              { scope: 'ownCloud', key: 'read', value: 'true' },
+              { scope: 'ownCloud', key: 'share', value: 'true' }
+            ]
+          }).then(share => {
             expect(share.getPermissions()).toBe(17)
             done()
           })

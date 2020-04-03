@@ -32,7 +32,7 @@ class SystemTags {
       return Promise.reject('Please specify an authorization first.')
     }
 
-    let defaults = {
+    const defaults = {
       canAssign: true,
       name: '',
       userAssignable: true,

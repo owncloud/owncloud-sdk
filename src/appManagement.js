@@ -119,7 +119,7 @@ class Apps {
     const path = 'setattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(this.helpers._encodeString(key))
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_PRIVATEDATA, path, {
-      'value': this.helpers._encodeString(value)
+      value: this.helpers._encodeString(value)
     })
       .then(() => {
         return Promise.resolve(true)

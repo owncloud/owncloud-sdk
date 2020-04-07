@@ -294,7 +294,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         let count = 0
         const numShares = Object.keys(sharedFilesByLink).length
 
-        for (let file in sharedFilesByLink) {
+        for (const file in sharedFilesByLink) {
           oc.shares.deleteShare(sharedFilesByLink[file]).then(status => {
             expect(status).toBe(true)
             count++
@@ -330,10 +330,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
         it('checking method : getShare with existent share', function (done) {
           let count = 0
 
-          for (let file in sharedFilesByLink) {
+          for (const file in sharedFilesByLink) {
             oc.shares.getShare(sharedFilesByLink[file]).then(share => {
               expect(typeof (share)).toBe('object')
-              expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1)
+              expect(Object.prototype.hasOwnProperty.call(sharedFilesWithUser, share.getId())).toBeGreaterThan(-1)
               count++
               if (count === Object.keys(sharedFilesByLink).length) {
                 done()
@@ -348,7 +348,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         it('checking method : getShares for shared file', function (done) {
           let count = 0
           const allIDs = []
-          for (let file in sharedFilesByLink) {
+          for (const file in sharedFilesByLink) {
             allIDs.push(sharedFilesByLink[file])
           }
 
@@ -401,7 +401,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       afterEach(function (done) {
         let count = 0
 
-        for (let file in sharedFilesWithUser) {
+        for (const file in sharedFilesWithUser) {
           oc.shares.deleteShare(sharedFilesWithUser[file]).then(status => {
             expect(status).toBe(true)
             count++
@@ -421,7 +421,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
           let count = 0
 
-          for (let file in sharedFilesWithUser) {
+          for (const file in sharedFilesWithUser) {
             oc.shares.updateShare(sharedFilesWithUser[file], { permissions: maxPerms }).then(updatedShare => {
               expect(updatedShare.getPermissions()).toBe(maxPerms)
               count++
@@ -439,7 +439,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
           let count = 0
 
-          for (let file in sharedFilesWithUser) {
+          for (const file in sharedFilesWithUser) {
             oc.shares.getShare(sharedFilesWithUser[file]).then(share => {
               expect(share.getPermissions()).toEqual(maxPerms)
               count++
@@ -457,7 +457,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       it('checking method : isShared with shared file', function (done) {
         let count = 0
 
-        for (let file in sharedFilesWithUser) {
+        for (const file in sharedFilesWithUser) {
           oc.shares.isShared(file).then(status => {
             expect(status).toEqual(true)
             count++
@@ -474,10 +474,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       it('checking method : getShare with existent share', function (done) {
         let count = 0
 
-        for (let file in sharedFilesWithUser) {
+        for (const file in sharedFilesWithUser) {
           oc.shares.getShare(sharedFilesWithUser[file]).then(share => {
             expect(typeof (share)).toBe('object')
-            expect(sharedFilesWithUser.hasOwnProperty(share.getId())).toBeGreaterThan(-1)
+            expect(Object.prototype.hasOwnProperty.call(sharedFilesWithUser, share.getId())).toBeGreaterThan(-1)
             count++
             if (count === Object.keys(sharedFilesWithUser).length) {
               done()
@@ -543,7 +543,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       afterEach(function (done) {
         let count = 0
 
-        for (let file in sharedFilesWithGroup) {
+        for (const file in sharedFilesWithGroup) {
           oc.shares.deleteShare(sharedFilesWithGroup[file]).then(status => {
             expect(status).toEqual(true)
             count++
@@ -561,7 +561,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       it('checking method : isShared with shared file', function (done) {
         let count = 0
 
-        for (let file in sharedFilesWithGroup) {
+        for (const file in sharedFilesWithGroup) {
           oc.shares.isShared(file).then(status => {
             expect(status).toEqual(true)
             count++
@@ -578,10 +578,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       it('checking method : getShare with existent share', function (done) {
         let count = 0
 
-        for (let file in sharedFilesWithGroup) {
+        for (const file in sharedFilesWithGroup) {
           oc.shares.getShare(sharedFilesWithGroup[file]).then(share => {
             expect(typeof (share)).toBe('object')
-            expect(sharedFilesWithGroup.hasOwnProperty(share.getId())).toBeGreaterThan(-1)
+            expect(Object.prototype.hasOwnProperty.call(sharedFilesWithGroup, share.getId())).toBeGreaterThan(-1)
             count++
             if (count === Object.keys(sharedFilesWithGroup).length) {
               done()

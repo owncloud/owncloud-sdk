@@ -99,8 +99,8 @@ class FilesTrash {
     const source = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + fileId
     const target = '/files/' + this.helpers.getCurrentUser().id + '/' + originalLocation
 
-    headers['Destination'] = this.helpers._buildFullWebDAVPathV2(target)
-    headers['Overwrite'] = overWrite ? 'T' : 'F'
+    headers.Destination = this.helpers._buildFullWebDAVPathV2(target)
+    headers.Overwrite = overWrite ? 'T' : 'F'
     return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPathV2(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()

@@ -12,7 +12,7 @@ class ShareInfo {
     // Below keys don't need to be stored
     const notNeededKeys = ['item_type', 'item_source', 'file_source', 'parent', 'storage', 'mail_send']
 
-    for (let key in shareInfo) {
+    for (const key in shareInfo) {
       if (!(key in notNeededKeys)) {
         this.shareInfo[key] = shareInfo[key]
       }
@@ -40,7 +40,7 @@ class ShareInfo {
    * @returns {string|null} shareWith of share
    */
   getShareWith () {
-    if (this.shareInfo.hasOwnProperty('share_with')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'share_with')) {
       return this.shareInfo.share_with
     }
     return null
@@ -51,7 +51,7 @@ class ShareInfo {
    * @returns {string|null} display name of share
    */
   getShareWithDisplayName () {
-    if (this.shareInfo.hasOwnProperty('share_with_displayname')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'share_with_displayname')) {
       return this.shareInfo.share_with_displayname
     }
     return null
@@ -62,7 +62,7 @@ class ShareInfo {
    * @returns {string} Path of share
    */
   getPath () {
-    if (this.shareInfo.hasOwnProperty('path')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'path')) {
       return this.shareInfo.path
     }
     return null
@@ -97,7 +97,7 @@ class ShareInfo {
    * @returns {string|null} token of share
    */
   getToken () {
-    if (this.shareInfo.hasOwnProperty('token')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'token')) {
       return this.shareInfo.token
     }
     return null
@@ -108,7 +108,7 @@ class ShareInfo {
    * @returns {string|null} Link of share
    */
   getLink () {
-    if (this.shareInfo.hasOwnProperty('url')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'url')) {
       return this.shareInfo.url
     }
     return null
@@ -119,7 +119,7 @@ class ShareInfo {
    * @returns {string|null} UID owner of share
    */
   getUidOwner () {
-    if (this.shareInfo.hasOwnProperty('uid_file_owner')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'uid_file_owner')) {
       return this.shareInfo.uid_file_owner
     }
     return null
@@ -130,7 +130,7 @@ class ShareInfo {
    * @returns {string|null} name of owner of share
    */
   getDisplaynameOwner () {
-    if (this.shareInfo.hasOwnProperty('displayname_file_owner')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'displayname_file_owner')) {
       return this.shareInfo.displayname_file_owner
     }
     return null
@@ -141,7 +141,7 @@ class ShareInfo {
    * @returns {string|null} name of share
    */
   getName () {
-    if (this.shareInfo.hasOwnProperty('name')) {
+    if (Object.prototype.hasOwnProperty.call(this.shareInfo, 'name')) {
       return this.shareInfo.name
     }
     return null

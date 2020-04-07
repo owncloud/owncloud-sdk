@@ -30,7 +30,7 @@ myParser.xml2js = function (xml, xmlns) {
 function keepNamespace (json, ns) {
   const nsKeys = Object.keys(ns)
 
-  for (let key in json) {
+  for (const key in json) {
     const parseKey = parseKeyNS(key)
     if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
       const index = nsKeys.indexOf(parseKey)
@@ -61,7 +61,7 @@ function deleteDuplicates (json, ns) {
     return json
   }
 
-  for (let key in json) {
+  for (const key in json) {
     if (json.constructor === Array) {
       ret.push(recursiveDeleteDuplicates(json[key], ns))
     } else {
@@ -81,7 +81,7 @@ function deleteDuplicates (json, ns) {
  * @return {object}      cleaned object
  */
 function cleanseJson (json) {
-  for (let key in json) {
+  for (const key in json) {
     json[key] = recursiveCleanse(json[key])
   }
   return json
@@ -96,7 +96,7 @@ function recursiveNS (json, ns) {
   }
   const nsKeys = Object.keys(ns)
 
-  for (let key in json) {
+  for (const key in json) {
     const parseKey = parseKeyNS(key)
     if (key.indexOf(':') > -1 && nsKeys.indexOf(parseKey) > -1) {
       const index = nsKeys.indexOf(parseKey)
@@ -124,7 +124,7 @@ function recursiveDeleteDuplicates (json, ns) {
   if (json.constructor === Array) {
     ret = []
   }
-  for (let key in json) {
+  for (const key in json) {
     if (json.constructor === Array) {
       ret.push(recursiveDeleteDuplicates(json[key], ns))
     } else {
@@ -145,7 +145,7 @@ function recursiveCleanse (json) {
     return json
   }
 
-  for (let key in json) {
+  for (const key in json) {
     if (key === '_text') {
       return json[key]
     }

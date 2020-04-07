@@ -113,7 +113,7 @@ class helpers {
    * @returns {Promise.<error>}           string: error message, if any.
    */
   _updateCurrentUser () {
-    let self = this
+    const self = this
     return self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'user')
       .then(data => {
         self._currentUser = data.data.ocs.data
@@ -123,10 +123,10 @@ class helpers {
   }
 
   buildHeaders (withAuthHeader = true) {
-    let headers = Object.assign({}, this._headers)
+    const headers = Object.assign({}, this._headers)
     headers['OCS-APIREQUEST'] = true
     if (withAuthHeader) {
-      headers['authorization'] = this._authHeader
+      headers.authorization = this._authHeader
     }
     if (this.atLeastVersion('10.1.0')) {
       headers['X-Request-ID'] = uuidv4()
@@ -172,14 +172,14 @@ class helpers {
     const path = this.OCS_BASEPATH + service + slash + action
 
     // Configure the request
-    let options = {
+    const options = {
       url: this.instance + path,
       method: method,
       headers: headers
     }
     const serialize = function (element, key, list = []) {
       if (typeof (element) === 'object') {
-        for (let idx in element) { serialize(element[idx], key ? key + '[' + idx + ']' : idx, list) }
+        for (const idx in element) { serialize(element[idx], key ? key + '[' + idx + ']' : idx, list) }
       } else {
         list.push(encodeURIComponent(key) + '=' + encodeURIComponent(element))
       }
@@ -402,7 +402,7 @@ class helpers {
       return object
     }
 
-    for (let key in object) {
+    for (const key in object) {
       if (object[key] === 'true') {
         object[key] = true
       }
@@ -452,7 +452,7 @@ class helpers {
       return section !== ''
     })
 
-    let remoteIndex = pathSections.findIndex(section => decodeURIComponent(section) === 'remote.php')
+    const remoteIndex = pathSections.findIndex(section => decodeURIComponent(section) === 'remote.php')
     if (remoteIndex === -1) {
       return null
     }
@@ -481,7 +481,7 @@ class helpers {
     if (path === null) {
       return null
     }
-    let name = path
+    const name = path
 
     if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
       return null
@@ -521,7 +521,7 @@ class helpers {
   }
 
   ocs (options = {}) {
-    let defaults = {
+    const defaults = {
       method: 'GET',
       service: this.OCS_SERVICE_CLOUD,
       action: 'user',
@@ -530,7 +530,7 @@ class helpers {
     options = Object.assign({}, defaults, options)
     const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
     const url = this.instance + this.OCS_BASEPATH_V2 + options.service + '/' + action
-    let headers = this.buildHeaders()
+    const headers = this.buildHeaders()
     headers['OCS-APIREQUEST'] = true
     const init = {
       method: options.method,

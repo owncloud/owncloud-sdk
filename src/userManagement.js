@@ -48,8 +48,8 @@ class Users {
   createUser (userName, password) {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD, 'users', {
-        'password': password,
-        'userid': userName
+        password: password,
+        userid: userName
       }).then(data => {
         this.helpers._OCSuserResponseHandler(data, resolve, reject)
       }).catch(error => {
@@ -131,8 +131,8 @@ class Users {
   setUserAttribute (username, key, value) {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('PUT', this.helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(username), {
-        'key': this.helpers._encodeString(key),
-        'value': this.helpers._encodeString(value)
+        key: this.helpers._encodeString(key),
+        value: this.helpers._encodeString(value)
       }).then(data => {
         this.helpers._OCSuserResponseHandler(data, resolve, reject)
       }).catch(error => {
@@ -152,7 +152,7 @@ class Users {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD,
         'users/' + encodeURIComponent(userName) + '/groups', {
-          'groupid': groupName
+          groupid: groupName
         }
       ).then(data => {
         this.helpers._OCSuserResponseHandler(data, resolve, reject)
@@ -237,7 +237,7 @@ class Users {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_CLOUD,
         'users/' + encodeURIComponent(userName) + '/groups', {
-          'groupid': groupName
+          groupid: groupName
         }
       ).then(data => {
         this.helpers._OCSuserResponseHandler(data, resolve, reject)
@@ -258,7 +258,7 @@ class Users {
     return new Promise((resolve, reject) => {
       this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD,
         'users/' + encodeURIComponent(userName) + '/subadmins', {
-          'groupid': groupName
+          groupid: groupName
         }
       ).then(data => {
         this.helpers._OCSuserResponseHandler(data, resolve, reject)

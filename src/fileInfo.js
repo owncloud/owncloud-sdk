@@ -11,7 +11,7 @@ class FileInfo {
     this.type = type
     this.fileInfo = {}
 
-    for (let key in attr) {
+    for (const key in attr) {
       this.fileInfo[key] = attr[key]
     }
   }

@@ -32,18 +32,21 @@ class PublicFiles {
   /**
    * Lists files in a public link as determined by the given token
    *
-   * @param {string}      tokenAndPath
+   * @param {string}      token
+   * @param {string}      path
    * @param {string|null} password
    * @param {array}       properties
    * @param {string}      depth
-   * @return {Promise<FileInfo[]>}
+   * @return {FileInfo[]}
    */
-  list (tokenAndPath, password = null, properties = [], depth = '1') {
+  async list (token, path = null, password = null, properties = [], depth = '1') {
     const headers = this.helpers.buildHeaders(false)
-    const url = this.getFileUrl(tokenAndPath)
+    const url = this.getFileUrl(token, path)
+
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
+
     if (properties.length === 0) {
       properties = [
         this.PUBLIC_LINK_ITEM_TYPE,
@@ -55,13 +58,13 @@ class PublicFiles {
       ]
     }
 
-    return this.davClient.propFind(url, properties, depth, headers).then(result => {
-      if (result.status !== 207) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
-      } else {
-        return Promise.resolve(this.helpers._parseBody(result.body, 1))
-      }
-    })
+    const result = await this.davClient.propFind(url, properties, depth, headers)
+
+    if (result.status === 207) {
+      return this.helpers._parseBody(result.body, 1)
+    }
+
+    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
   }
 
   /**
@@ -102,8 +105,12 @@ class PublicFiles {
    */
   getFileUrl (token, path = null) {
     if (path) {
+      // In case of the path starting with a "/" we remove it
+      path = path.replace(/^\//, '')
+
       return this.helpers._buildFullWebDAVPathV2('/public-files/' + token + '/' + path)
     }
+
     return this.helpers._buildFullWebDAVPathV2('/public-files/' + token)
   }
 
@@ -251,5 +258,21 @@ class PublicFiles {
       return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
     })
   }
+
+  /**
+   * Returns the file info for the given public resource
+   * @param {string} token public share token
+   * @param {string} path path to the resource
+   * @param {string|null} password public link's password
+   * @param {Array} properties WebDAV properties
+   * @returns {FileInfo} instance of class fileInfo
+   * @returns {Promise.<error>} error, if exists.
+   */
+  async getFileInfo (token, path, password = null, properties = []) {
+    const fileInfo = await this.list(token, path, password, properties, '0')
+
+    return fileInfo[0] ? fileInfo[0] : fileInfo
+  }
 }
+
 module.exports = PublicFiles

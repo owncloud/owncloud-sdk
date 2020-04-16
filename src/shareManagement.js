@@ -354,7 +354,7 @@ class Shares {
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
-      if (optionalParams.name) {
+      if (optionalParams.name !== undefined) {
         postData.name = optionalParams.name
       }
       if (optionalParams.password !== undefined) {

@@ -49,7 +49,7 @@ steps:
 
 - name: configure-server
   pull: always
-  image: "owncloudci/php:7.1"
+  image: "owncloudci/php:7.3"
   commands:
   - "cd /var/www/owncloud"
   - php occ config:system:set trusted_domains 1 --value=owncloud
@@ -68,7 +68,7 @@ steps:
 
 - name: wait-for-owncloud
   pull: always
-  image: "owncloudci/php:7.1"
+  image: "owncloudci/php:7.3"
   commands:
   - wait-for-it -t 300 owncloud:80
 
@@ -136,7 +136,7 @@ steps:
 services:
 - name: owncloud
   pull: always
-  image: "owncloudci/php:7.1"
+  image: "owncloudci/php:7.3"
   command:
   - /usr/local/bin/apachectl
   - -e
@@ -201,7 +201,7 @@ steps:
 
 - name: configure-server
   pull: always
-  image: "owncloudci/php:7.1"
+  image: "owncloudci/php:7.3"
   commands:
   - "cd /var/www/owncloud/sub/"
   - php occ config:system:set trusted_domains 1 --value=owncloud
@@ -220,7 +220,7 @@ steps:
 
 - name: wait-for-owncloud
   pull: always
-  image: "owncloudci/php:7.1"
+  image: "owncloudci/php:7.3"
   commands:
   - wait-for-it -t 300 owncloud:80
 
@@ -288,7 +288,7 @@ steps:
 services:
 - name: owncloud
   pull: always
-  image: "owncloudci/php:7.1"
+  image: "owncloudci/php:7.3"
   command:
   - /usr/local/bin/apachectl
   - -e

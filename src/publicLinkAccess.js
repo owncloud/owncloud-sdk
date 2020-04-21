@@ -32,16 +32,16 @@ class PublicFiles {
   /**
    * Lists files in a public link as determined by the given token
    *
-   * @param {string}      token
+   * @param {string}      tokenAndPath
    * @param {string}      path
    * @param {string|null} password
    * @param {array}       properties
    * @param {string}      depth
    * @return {FileInfo[]}
    */
-  async list (token, path = null, password = null, properties = [], depth = '1') {
+  async list (tokenAndPath, password = null, properties = [], depth = '1') {
     const headers = this.helpers.buildHeaders(false)
-    const url = this.getFileUrl(token, path)
+    const url = this.getFileUrl(tokenAndPath)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
@@ -261,15 +261,14 @@ class PublicFiles {
 
   /**
    * Returns the file info for the given public resource
-   * @param {string} token public share token
-   * @param {string} path path to the resource
+   * @param {string} tokenAndPath public share token and path to the resource
    * @param {string|null} password public link's password
    * @param {Array} properties WebDAV properties
    * @returns {FileInfo} instance of class fileInfo
    * @returns {Promise.<error>} error, if exists.
    */
-  async getFileInfo (token, path, password = null, properties = []) {
-    const fileInfo = await this.list(token, path, password, properties, '0')
+  async getFileInfo (tokenAndPath, password = null, properties = []) {
+    const fileInfo = await this.list(tokenAndPath, password, properties, '0')
 
     return fileInfo[0] ? fileInfo[0] : fileInfo
   }

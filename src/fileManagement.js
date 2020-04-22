@@ -59,7 +59,9 @@ class Files {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
       } else {
-        return Promise.resolve(this.helpers._parseBody(result.body))
+        const entries = this.helpers._parseBody(result.body)
+        entries[0].tusSupport = this.helpers._parseTusHeaders(result.xhr)
+        return Promise.resolve(entries)
       }
     })
   }

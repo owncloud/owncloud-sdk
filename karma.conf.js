@@ -7,7 +7,13 @@ module.exports = function (config) {
         random: false,
         timeoutInterval: 10000
       },
-      captureConsole: false
+      captureConsole: true,
+
+      // pass through console.log output
+      browserConsoleLogOptions: {
+        terminal: true,
+        level: ""
+      }
     },
 
     // base path that will be used to resolve all patterns (eg. files, exclude)

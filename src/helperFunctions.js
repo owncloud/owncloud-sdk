@@ -124,7 +124,7 @@ class helpers {
 
   buildHeaders (withAuthHeader = true) {
     const headers = Object.assign({}, this._headers)
-    headers['OCS-APIREQUEST'] = true
+    headers['OCS-APIREQUEST'] = 'true'
     if (withAuthHeader) {
       headers.authorization = this._authHeader
     }
@@ -500,6 +500,26 @@ class helpers {
     return new FileInfo(name, fileType, props)
   }
 
+  _parseTusHeaders (xhr) {
+    const result = {}
+    const version = xhr.getResponseHeader('tus-version')
+    if (!version) {
+      // TUS not supported
+      return null
+    }
+    result.version = version.split(',')
+    if (xhr.getResponseHeader('tus-extension')) {
+      result.extension = xhr.getResponseHeader('tus-extension').split(',')
+    }
+    if (xhr.getResponseHeader('tus-resumable')) {
+      result.resumable = xhr.getResponseHeader('tus-resumable')
+    }
+    if (xhr.getResponseHeader('tus-max-size')) {
+      result.maxSize = parseInt(xhr.getResponseHeader('tus-max-size'), 10)
+    }
+    return result
+  }
+
   escapeXml (unsafe) {
     if (typeof unsafe !== 'string') {
       return unsafe
@@ -531,7 +551,7 @@ class helpers {
     const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
     const url = this.instance + this.OCS_BASEPATH_V2 + options.service + '/' + action
     const headers = this.buildHeaders()
-    headers['OCS-APIREQUEST'] = true
+    headers['OCS-APIREQUEST'] = 'true'
     const init = {
       method: options.method,
       mode: 'cors',

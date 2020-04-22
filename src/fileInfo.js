@@ -10,6 +10,7 @@ class FileInfo {
     this.name = name
     this.type = type
     this.fileInfo = {}
+    this.tusSupport = null
 
     for (const key in attr) {
       this.fileInfo[key] = attr[key]
@@ -104,6 +105,14 @@ class FileInfo {
    */
   isDir () {
     return this.type === 'dir'
+  }
+
+  /**
+   * Returns TUS support information or null if TUS is not supported on this resource.
+   * @returns {Object|null} tus support information or null
+   */
+  getTusSupport () {
+    return this.tusSupport || null
   }
 }
 

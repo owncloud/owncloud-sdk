@@ -1,8 +1,10 @@
 describe('Main: Currently testing files management,', function () {
   // CURRENT TIME
   const timeRightNow = Math.random().toString(36).substr(2, 9)
+  const FileInfo = require('../src/fileInfo')
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
+  const sinon = require('sinon')
 
   // LIBRARY INSTANCE
   let oc
@@ -521,6 +523,87 @@ describe('Main: Currently testing files management,', function () {
     }).catch(error => {
       expect(error).toBe(null)
       done()
+    })
+  })
+
+  describe('TUS detection', function () {
+    var parseBodyStub
+    var xhr
+    var requests
+
+    beforeEach(function () {
+      xhr = sinon.useFakeXMLHttpRequest()
+      requests = []
+      xhr.onCreate = function (xhr) {
+        requests.push(xhr)
+      }
+      const dummyFileInfo1 = new FileInfo('dummy', 'dir', {})
+      const dummyFileInfo2 = new FileInfo('dummy2', 'dir', {})
+      parseBodyStub = sinon.stub(oc.helpers, '_parseBody').returns([dummyFileInfo1, dummyFileInfo2])
+    })
+
+    afterEach(function () {
+      parseBodyStub.restore()
+      xhr.restore()
+    })
+
+    it('returns TUS support information when TUS headers are set for a list call', function (done) {
+      const promise = oc.files.list('')
+      promise.then(entries => {
+        const tusSupport = entries[0].getTusSupport()
+        expect(tusSupport.resumable).toEqual('1.0.0')
+        expect(tusSupport.version).toEqual(['1.0.0', '0.2.1', '0.1.1'])
+        expect(tusSupport.extension).toEqual(['create', 'create-with-upload'])
+        expect(tusSupport.maxSize).toEqual(100000000)
+        // only the first entry gets the header
+        expect(entries[1].getTusSupport()).toEqual(null)
+        done()
+      })
+      requests[0].respond(
+        207, {
+          'Content-Type': 'application/xml',
+          'Tus-Resumable': '1.0.0',
+          'Tus-Version': '1.0.0,0.2.1,0.1.1',
+          'Tus-Extension': 'create,create-with-upload',
+          'Tus-Max-Size': '100000000'
+        },
+        '<dummy></dummy>' // irrelevant parsing skipped with parseBodyStub
+      )
+    })
+    it('returns TUS support information when TUS headers are set for a fileinfo call', function (done) {
+      const promise = oc.files.fileInfo('somedir')
+      promise.then(entry => {
+        const tusSupport = entry.getTusSupport()
+        expect(tusSupport.resumable).toEqual('1.0.0')
+        expect(tusSupport.version).toEqual(['1.0.0', '0.2.1', '0.1.1'])
+        expect(tusSupport.extension).toEqual(['create', 'create-with-upload'])
+        expect(tusSupport.maxSize).toEqual(100000000)
+        done()
+      })
+      requests[0].respond(
+        207, {
+          'Content-Type': 'application/xml',
+          'Tus-Resumable': '1.0.0',
+          'Tus-Version': '1.0.0,0.2.1,0.1.1',
+          'Tus-Extension': 'create,create-with-upload',
+          'Tus-Max-Size': '100000000'
+        },
+        '<dummy></dummy>' // irrelevant parsing skipped with parseBodyStub
+      )
+    })
+    it('returns null when TUS headers are not set for a list call', function (done) {
+      const promise = oc.files.list('')
+      promise.then(entries => {
+        expect(entries[0].getTusSupport()).toEqual(null)
+        expect(entries[1].getTusSupport()).toEqual(null)
+        done()
+      })
+      requests[0].respond(
+        207, {
+          'Content-Type': 'application/xml'
+        },
+        '<dummy></dummy>' // irrelevant parsing skipped with parseBodyStub
+      )
     })
   })
 })

@@ -144,7 +144,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should list the folder contents', function (done) {
-          oc.publicFiles.list(testFolderShare.getToken(), null, data.passwordWhenListing).then(files => {
+          oc.publicFiles.list(testFolderShare.getToken(), data.passwordWhenListing).then(files => {
             if (data.shallGrantAccess) {
               // test length
               expect(files.length).toBe(4)
@@ -352,7 +352,6 @@ describe('oc.publicFiles', function () {
           const sharedFolder = testFolderShare.getToken()
           const folder = await oc.publicFiles.getFileInfo(
             sharedFolder,
-            null,
             data.shareParams.password
           )
 

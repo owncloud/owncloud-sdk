@@ -502,6 +502,12 @@ class helpers {
 
   _parseTusHeaders (xhr) {
     const result = {}
+    // hack to avoid logging the uncatchable "refused to get unsafe header"
+    const allHeaders = xhr.getAllResponseHeaders().toLowerCase()
+    if (allHeaders.indexOf('tus-version:') < 0) {
+      // backend did not expose TUS headers, unsupported
+      return null
+    }
     const version = xhr.getResponseHeader('tus-version')
     if (!version) {
       // TUS not supported

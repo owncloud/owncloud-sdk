@@ -1,3 +1,4 @@
+/* This file is generated code. It comes from https://github.com/owncloud/ocis-settings */
 /* eslint-disable */
 import axios from 'axios'
 import qs from 'qs'

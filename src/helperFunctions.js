@@ -1,3 +1,4 @@
+const axios = require('axios')
 const Promise = require('promise')
 const request = require('browser-request')
 const parser = require('./xmlParser.js')
@@ -51,10 +52,18 @@ class helpers {
 
   /**
    * sets the username
-   * @param   {string}    authHeader    authorization header; either basic or bearer or what ever
+   * @param   {string | null}    authHeader    authorization header; either basic or bearer or what ever
    */
   setAuthorization (authHeader) {
     this._authHeader = authHeader
+    axios.interceptors.request.use(config => {
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        config.headers.Authorization = authHeader
+      } else {
+        config.headers.Authorization = undefined
+      }
+      return config
+    })
   }
 
   getAuthorization () {
@@ -66,7 +75,7 @@ class helpers {
   }
 
   logout () {
-    this._authHeader = null
+    this.setAuthorization(null)
     this._currentUser = null
   }
 

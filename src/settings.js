@@ -41,8 +41,7 @@ class SettingsValues {
       }
     } catch (error) {
       // fail on anything except settings service being unavailable
-      // TODO: if this changes to GET requests in the future, this will be 404 instead of 502
-      if (error.response.status !== 502) {
+      if (error.response.status !== 502 && error.response.status !== 404) {
         return Promise.reject(error)
       }
     }

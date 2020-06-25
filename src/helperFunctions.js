@@ -4,7 +4,7 @@ const request = require('browser-request')
 const parser = require('./xmlParser.js')
 const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const HttpError = require('./httpError.js')
 
 class helpers {

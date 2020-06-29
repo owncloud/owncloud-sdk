@@ -258,10 +258,6 @@ class Shares {
    */
   getShare (shareId) {
     return new Promise((resolve, reject) => {
-      if (isNaN((parseInt(shareId)))) {
-        reject('Please pass a valid share ID (Integer)')
-        return
-      }
       this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, 'shares/' + shareId.toString())
         .then(data => {
           const shareData = data.data.ocs.data.element
@@ -300,11 +296,6 @@ class Shares {
    */
   acceptRemoteShare (shareId) {
     return new Promise((resolve, reject) => {
-      if (isNaN((parseInt(shareId)))) {
-        reject('Please pass a valid share ID (Integer)', null)
-        return
-      }
-
       /* jshint unused: false */
       this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE,
         'remote_shares/pending' + encodeURIComponent(shareId.toString())
@@ -324,11 +315,6 @@ class Shares {
    */
   declineRemoteShare (shareId) {
     return new Promise((resolve, reject) => {
-      if (isNaN((parseInt(shareId)))) {
-        reject('Please pass a valid share ID (Integer)', null)
-        return
-      }
-
       /* jshint unused: false */
       this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_SHARE,
         'remote_shares/pending' + encodeURIComponent(shareId.toString())
@@ -390,11 +376,6 @@ class Shares {
    */
   deleteShare (shareId) {
     return new Promise((resolve, reject) => {
-      if (isNaN((parseInt(shareId)))) {
-        reject('Please pass a valid share ID (Integer)', null)
-        return
-      }
-
       /* jshint unused: false */
       this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_SHARE,
         'shares/' + encodeURIComponent(shareId.toString())

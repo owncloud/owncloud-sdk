@@ -6,6 +6,7 @@ const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
 const { v4: uuidv4 } = require('uuid')
 const HttpError = require('./httpError.js')
+const SignUrl = require('owncloud-sign-url')
 
 class helpers {
   constructor () {
@@ -34,6 +35,7 @@ class helpers {
     this._headers = {}
     this._versionNumber = null
     this._currentUser = null
+    this._signingKey = null
   }
 
   /**
@@ -77,6 +79,7 @@ class helpers {
   logout () {
     this.setAuthorization(null)
     this._currentUser = null
+    this._signingKey = null
   }
 
   /**
@@ -129,6 +132,43 @@ class helpers {
 
         return Promise.resolve(self._currentUser)
       })
+  }
+
+  /**
+   *
+   * @param {string} url
+   * @param {number} ttl
+   * @param {string} httpMethod
+   *
+   * @returns {Promise}
+   */
+  async signUrl (url, ttl = 1200, httpMethod = 'get') {
+    const key = await this.getSignKey()
+    const user = await this.getCurrentUser()
+    const signUrl = new SignUrl({
+      credential: user.id,
+      secretKey: key,
+      ttl: ttl,
+      algorithm: 'sha512'
+    })
+    return signUrl.generateSignedUrl(url, httpMethod)
+  }
+
+  getSignKey () {
+    if (this._signingKey !== null) {
+      return Promise.resolve(this._signingKey)
+    }
+    const self = this
+    return self._makeOCSrequest('GET', self.OCS_SERVICE_CLOUD, 'user/signing-key')
+      .then(data => {
+        self._signingKey = data.data.ocs.data['signing-key']
+
+        return Promise.resolve(self._signingKey)
+      })
+  }
+
+  setSigningKey (signingKey) {
+    this._signingKey = signingKey
   }
 
   buildHeaders (withAuthHeader = true) {

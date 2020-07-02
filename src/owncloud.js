@@ -58,6 +58,9 @@ class ownCloud {
     if (options.userInfo) {
       helpers.setCurrentUser(options.userInfo)
     }
+    if (options.signingKey) {
+      helpers.setSigningKey(options.signingKey)
+    }
     if (options.headers) {
       helpers.setHeaders(options.headers)
     }
@@ -125,6 +128,18 @@ class ownCloud {
    */
   getCurrentUser () {
     return this.helpers.getCurrentUserAsync()
+  }
+
+  /**
+   *
+   * @param {string} url
+   * @param {number} ttl
+   * @param {string} httpMethod
+   *
+   * @returns {Promise}
+   */
+  signUrl (url, ttl = 1200, httpMethod = 'get') {
+    return this.helpers.signUrl(url, ttl, httpMethod)
   }
 }
 

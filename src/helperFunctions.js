@@ -6,7 +6,7 @@ const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
 const { v4: uuidv4 } = require('uuid')
 const HttpError = require('./httpError.js')
-const SignUrl = require('owncloud-sign-url')
+const SignUrl = require('./owncloud-sign-url')
 
 class helpers {
   constructor () {

@@ -78,6 +78,7 @@
     "axios": "^0.19.2",
     "browser-request": "^0.3.3",
     "davclient.js": "https://github.com/owncloud/davclient.js.git",
+    "owncloud-sign-url": "^1.0.0",
     "promise": "^8.0.3",
     "request": "^2.88.0",
     "utf8": "^3.0.0",

@@ -2035,9 +2035,9 @@ co@^4.6.0:
   integrity sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ=
 
 codecov@^3.3.0:
-  version "3.6.5"
-  resolved "https://registry.yarnpkg.com/codecov/-/codecov-3.6.5.tgz#d73ce62e8a021f5249f54b073e6f2d6a513f172a"
-  integrity sha512-v48WuDMUug6JXwmmfsMzhCHRnhUf8O3duqXvltaYJKrO1OekZWpB/eH6iIoaxMl8Qli0+u3OxptdsBOYiD7VAQ==
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/codecov/-/codecov-3.7.0.tgz#4a09939cde24447a43f36d068e8b4e0188dc3f27"
+  integrity sha512-uIixKofG099NbUDyzRk1HdGtaG8O+PBUAg3wfmjwXw2+ek+PZp+puRvbTohqrVfuudaezivJHFgTtSC3M8MXww==
   dependencies:
     argv "0.0.2"
     ignore-walk "3.0.3"
@@ -5073,11 +5073,6 @@ os-tmpdir@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
   integrity sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ=
-
-owncloud-sign-url@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/owncloud-sign-url/-/owncloud-sign-url-1.0.0.tgz#10254817043c2c66d58952f3fd7979538b86fd44"
-  integrity sha512-5sEMnsfTcnlOuhWIu834Z1LK4V4BTdGhtnGk8viiY97zqSLSvlZyfi9oFvWFx6COrJARJqOvlVLoaaKJCSzrgw==
 
 p-defer@^1.0.0:
   version "1.0.0"

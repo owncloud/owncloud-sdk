@@ -39,7 +39,7 @@ steps:
   pull: always
   image: owncloudci/core
   settings:
-    GIT_REFERENCE: "feature/pre-signed-url"
+    GIT_REFERENCE: "master"
     core_path: "/var/www/owncloud"
     db_host: "sqlite"
     db_name: "sqlite"
@@ -191,7 +191,7 @@ steps:
   pull: always
   image: owncloudci/core
   settings:
-    GIT_REFERENCE: "feature/pre-signed-url"
+    GIT_REFERENCE: "master"
     core_path: "/var/www/owncloud/sub/"
     db_host: "sqlite"
     db_name: "sqlite"
@@ -301,5 +301,6 @@ services:
 trigger:
   branch:
   - master
+
 
 ...

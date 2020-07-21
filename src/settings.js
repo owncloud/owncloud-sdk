@@ -31,9 +31,7 @@ class SettingsValues {
       const response = await SettingsClient.ValueService_ListSettingsValues({
         $domain: baseUrl,
         body: {
-          identifier: {
-            account_uuid: accountUuid
-          }
+          account_uuid: accountUuid
         }
       })
       if (response.status === 201) {
@@ -41,7 +39,7 @@ class SettingsValues {
       }
     } catch (error) {
       // fail on anything except settings service being unavailable
-      if (error.response.status !== 502 && error.response.status !== 404) {
+      if (error.response && error.response.status !== 502 && error.response.status !== 404) {
         return Promise.reject(error)
       }
     }

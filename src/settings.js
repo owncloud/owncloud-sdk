@@ -35,7 +35,7 @@ class SettingsValues {
         }
       })
       if (response.status === 201) {
-        return Promise.resolve(response.data.settingsValues || [])
+        return Promise.resolve(response.data.values || [])
       }
     } catch (error) {
       // fail on anything except settings service being unavailable

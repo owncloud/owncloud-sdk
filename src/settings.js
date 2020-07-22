@@ -2,9 +2,9 @@ const SettingsClient = require('../vendor/settingsClient')
 const Promise = require('promise')
 
 /**
- * @class SettingsValues
+ * @class Settings
  * @classdesc
- * <b><i> The SettingsValues class provides access to all settings values of the (most of the time authenticated) user.</i></b>
+ * <b><i> The Settings class provides access to all settings values of the (most of the time authenticated) user.</i></b>
  *
  * @author Benedikt Kulmann
  * @version 1.0.0
@@ -28,7 +28,7 @@ class SettingsValues {
   async getSettingsValues (accountUuid = 'me') {
     try {
       const baseUrl = this.helpers.getInstance().replace(/\/$/, '')
-      const response = await SettingsClient.ValueService_ListSettingsValues({
+      const response = await SettingsClient.ValueService_ListValues({
         $domain: baseUrl,
         body: {
           account_uuid: accountUuid

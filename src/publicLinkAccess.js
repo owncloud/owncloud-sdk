@@ -104,6 +104,7 @@ class PublicFiles {
    * @return {string}              Url of the public file
    */
   getFileUrl (token, path = null) {
+    token = token.replace(/^\//, '')
     if (path) {
       // In case of the path starting with a "/" we remove it
       path = path.replace(/^\//, '')

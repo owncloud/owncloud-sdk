@@ -71,7 +71,7 @@ Full API documentation is available at [![docs](https://img.shields.io/badge/api
 To build the jsdocs, type this command and follow the instructions on the terminal :
 
 ```
-$ yarn run docs
+$ yarn build:docs
 ```
 
 ## Unit tests

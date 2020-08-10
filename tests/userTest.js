@@ -165,6 +165,22 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  it('checking method : createUser with groups', function (done) {
+    oc.users.createUser('newUserWithGroup' + timeRightNow, testUserPassword, [testGroup]).then((data) => {
+      expect(data).toEqual(true)
+      return oc.users.userIsInGroup('newUserWithGroup' + timeRightNow, testGroup)
+    }).then((status) => {
+      expect(status).toBe(true)
+      return oc.users.deleteUser('newUserWithGroup' + timeRightNow)
+    }).then((status) => {
+      expect(status).toBe(true)
+      done()
+    }).catch((error) => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
   it('checking method : searchUsers', function (done) {
     oc.users.searchUsers('').then(data => {
       expect(typeof (data)).toEqual('object')

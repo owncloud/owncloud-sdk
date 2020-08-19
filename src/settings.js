@@ -2,9 +2,9 @@ const SettingsClient = require('../vendor/settingsClient')
 const Promise = require('promise')
 
 /**
- * @class SettingsValues
+ * @class Settings
  * @classdesc
- * <b><i> The SettingsValues class provides access to all settings values of the (most of the time authenticated) user.</i></b>
+ * <b><i> The Settings class provides access to all settings values of the (most of the time authenticated) user.</i></b>
  *
  * @author Benedikt Kulmann
  * @version 1.0.0
@@ -28,20 +28,18 @@ class SettingsValues {
   async getSettingsValues (accountUuid = 'me') {
     try {
       const baseUrl = this.helpers.getInstance().replace(/\/$/, '')
-      const response = await SettingsClient.ValueService_ListSettingsValues({
+      const response = await SettingsClient.ValueService_ListValues({
         $domain: baseUrl,
         body: {
-          identifier: {
-            account_uuid: accountUuid
-          }
+          account_uuid: accountUuid
         }
       })
       if (response.status === 201) {
-        return Promise.resolve(response.data.settingsValues || [])
+        return Promise.resolve(response.data.values || [])
       }
     } catch (error) {
       // fail on anything except settings service being unavailable
-      if (error.response.status !== 502 && error.response.status !== 404) {
+      if (error.response && error.response.status !== 502 && error.response.status !== 404) {
         return Promise.reject(error)
       }
     }

@@ -600,13 +600,15 @@ class helpers {
       method: 'GET',
       service: this.OCS_SERVICE_CLOUD,
       action: 'user',
-      data: null
+      data: null,
+      headers: {}
     }
     options = Object.assign({}, defaults, options)
     const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
     const url = this.instance + this.OCS_BASEPATH_V2 + options.service + '/' + action
-    const headers = this.buildHeaders()
+    var headers = this.buildHeaders()
     headers['OCS-APIREQUEST'] = 'true'
+    headers = Object.assign({}, headers, options.headers)
     const init = {
       method: options.method,
       mode: 'cors',

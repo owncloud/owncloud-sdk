@@ -98,7 +98,7 @@ $ yarn test
         <br>
         <a href="https://github.com/PVince82">Vincent Petry</a>
       </td>
-      <td align="center" width="20%" valign="top">
+      <td align="center" valign="top">
         <img width="150" height="150" src="https://avatars0.githubusercontent.com/u/1005065?s=144&v=4">
         <br>
         <a href="https://github.com/DeepDiver1975">Thomas Müller</a>

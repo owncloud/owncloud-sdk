@@ -52,22 +52,6 @@ steps:
   commands:
   - yarn test-drone
 
-- name: codecov
-  pull: always
-  image: plugins/codecov:latest
-  settings:
-    files:
-      - "*.info"
-    paths:
-      - coverage
-  environment:
-    CODECOV_TOKEN:
-      from_secret: codecov_token
-  when:
-    event:
-    - push
-    - pull_request
-
 - name: publish-docs
   pull: default
   image: plugins/gh-pages:1
@@ -155,22 +139,6 @@ steps:
   image: owncloudci/chromium
   commands:
   - yarn test-drone
-
-- name: codecov
-  pull: always
-  image: plugins/codecov:latest
-  settings:
-    files:
-      - "*.info"
-    paths:
-      - coverage
-  environment:
-    CODECOV_TOKEN:
-      from_secret: codecov_token
-  when:
-    event:
-    - push
-    - pull_request
 
 - name: publish-docs
   pull: default

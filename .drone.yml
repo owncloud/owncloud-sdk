@@ -35,43 +35,6 @@ steps:
   - yarn lint
   - yarn build:system
 
-- name: install-server
-  pull: always
-  image: owncloudci/core
-  settings:
-    GIT_REFERENCE: "master"
-    core_path: "/var/www/owncloud"
-    db_host: "sqlite"
-    db_name: "sqlite"
-    db_password: owncloud
-    db_type: "sqlite"
-    db_username: autotest
-
-- name: configure-server
-  pull: always
-  image: "owncloudci/php:7.3"
-  commands:
-  - "cd /var/www/owncloud"
-  - php occ config:system:set trusted_domains 1 --value=owncloud
-  - php occ config:system:set cors.allowed-domains 0 --value=http://localhost:9876
-  - php occ config:system:set dav.enable.tech_preview --value=true  --type=boolean
-  - php occ log:manage --level 0
-  - php occ config:list
-  - "chown www-data * -R"
-
-- name: owncloud-log
-  pull: always
-  image: owncloud/ubuntu:16.04
-  detach: true
-  commands:
-  - "tail -f /var/www/owncloud/data/owncloud.log"
-
-- name: wait-for-owncloud
-  pull: always
-  image: "owncloudci/php:7.3"
-  commands:
-  - wait-for-it -t 300 owncloud:80
-
 - name: prepare-test-config
   pull: default
   image: owncloud/ubuntu:16.04
@@ -134,17 +97,6 @@ steps:
     - push
 
 services:
-- name: owncloud
-  pull: always
-  image: "owncloudci/php:7.3"
-  command:
-  - /usr/local/bin/apachectl
-  - -e
-  - debug
-  - -D
-  - FOREGROUND
-  environment:
-    APACHE_WEBROOT: /var/www/owncloud/
 
 trigger:
   branch:
@@ -186,43 +138,6 @@ steps:
   - yarn install
   - yarn lint
   - yarn build:system
-
-- name: install-server
-  pull: always
-  image: owncloudci/core
-  settings:
-    GIT_REFERENCE: "master"
-    core_path: "/var/www/owncloud/sub/"
-    db_host: "sqlite"
-    db_name: "sqlite"
-    db_password: owncloud
-    db_type: sqlite
-    db_username: autotest
-
-- name: configure-server
-  pull: always
-  image: "owncloudci/php:7.3"
-  commands:
-  - "cd /var/www/owncloud/sub/"
-  - php occ config:system:set trusted_domains 1 --value=owncloud
-  - php occ config:system:set cors.allowed-domains 0 --value=http://localhost:9876
-  - php occ config:system:set dav.enable.tech_preview --value=true --type=boolean
-  - php occ log:manage --level 0
-  - php occ config:list
-  - "chown www-data * -R"
-
-- name: owncloud-log
-  pull: always
-  image: owncloud/ubuntu:16.04
-  detach: true
-  commands:
-  - "tail -f /var/www/owncloud/sub/data/owncloud.log"
-
-- name: wait-for-owncloud
-  pull: always
-  image: "owncloudci/php:7.3"
-  commands:
-  - wait-for-it -t 300 owncloud:80
 
 - name: prepare-test-config
   pull: default
@@ -286,17 +201,6 @@ steps:
     - push
 
 services:
-- name: owncloud
-  pull: always
-  image: "owncloudci/php:7.3"
-  command:
-  - /usr/local/bin/apachectl
-  - -e
-  - debug
-  - -D
-  - FOREGROUND
-  environment:
-    APACHE_WEBROOT: /var/www/owncloud/
 
 trigger:
   branch:

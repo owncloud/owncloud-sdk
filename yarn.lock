@@ -2042,25 +2042,10 @@ chokidar@^2.1.8:
   optionalDependencies:
     fsevents "^1.2.7"
 
-chokidar@^3.0.0:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.3.1.tgz#c84e5b3d18d9a4d77558fef466b1bf16bbeb3450"
-  integrity sha512-4QYCEWOcK3OJrxwvyyAOxFuhpvOVCYkr33LPfFNBjAD/w3sEzWsp2BUOkI4l9bHvWioAd0rc6NlHUOEaWkTeqg==
-  dependencies:
-    anymatch "~3.1.1"
-    braces "~3.0.2"
-    glob-parent "~5.1.0"
-    is-binary-path "~2.1.0"
-    is-glob "~4.0.1"
-    normalize-path "~3.0.0"
-    readdirp "~3.3.0"
-  optionalDependencies:
-    fsevents "~2.1.2"
-
-chokidar@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.4.0.tgz#b30611423ce376357c765b9b8f904b9fba3c0be8"
-  integrity sha512-aXAaho2VJtisB/1fg1+3nlLJqGOuewTzQpd/Tz0yTg2R0e4IGtshYvtjowyEumcBv2z+y4+kc75Mz7j5xJskcQ==
+chokidar@^3.4.0, chokidar@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.4.2.tgz#38dc8e658dec3809741eb3ef7bb0a47fe424232d"
+  integrity sha512-IZHaDeBeI+sZJRX7lGcXsdzgvZqKv6sECqsbErJA4mHWfpRrD8B97kSFN4cQz6nGBGiuFia1MKR4d6c1o8Cv7A==
   dependencies:
     anymatch "~3.1.1"
     braces "~3.0.2"
@@ -3326,7 +3311,7 @@ flat-cache@^2.0.1:
     rimraf "2.6.3"
     write "1.0.3"
 
-flatted@^2.0.0, flatted@^2.0.1, flatted@^2.0.2:
+flatted@^2.0.0, flatted@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-2.0.2.tgz#4575b21e2bcee7434aa9be662f4b7b5f9c2b5138"
   integrity sha512-r5wGx7YeOwNWNlCA0wQ86zKyDLMQr+/RB8xy74M4hTphfmjlijTSSXGuH8rnvKZnfT9i+75zmd8jcKdMR4O6jA==
@@ -3605,12 +3590,7 @@ globals@^9.18.0:
   resolved "https://registry.yarnpkg.com/globals/-/globals-9.18.0.tgz#aa3896b3e69b487f17e31ed2143d69a8e30c2d8a"
   integrity sha512-S0nG3CLEQiY/ILxqtztTWH/3iRRdyBLw6KMDxnKMchrtbj2OFmehVh0WUCfW3DUrIgx/qFrJPICrq4Z4sTR9UQ==
 
-graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9, graceful-fs@^4.2.0:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
-  integrity sha512-a30VEBm4PEdx1dRB7MFK7BejejvCvBronbLjht+sHuGYj8PHs7M/5Z+rt5lw551vZ7yfTCj4Vuyy3mSJytDWRQ==
-
-graceful-fs@^4.2.2, graceful-fs@^4.2.4:
+graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9, graceful-fs@^4.2.0, graceful-fs@^4.2.2, graceful-fs@^4.2.4:
   version "4.2.4"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.4.tgz#2256bde14d3632958c465ebc96dc467ca07a29fb"
   integrity sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
@@ -4492,23 +4472,22 @@ karma-webpack@^4.0.2:
     webpack-dev-middleware "^3.7.0"
 
 karma@^5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/karma/-/karma-5.1.1.tgz#4e472c1e5352d73edbd2090726afdb01d7869d72"
-  integrity sha512-xAlOr5PMqUbiKXSv5PCniHWV3aiwj6wIZ0gUVcwpTCPVQm/qH2WAMFWxtnpM6KJqhkRWrIpovR4Rb0rn8GtJzQ==
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/karma/-/karma-5.2.1.tgz#c9f50c2e04fc249b598a422deb666e6673406d64"
+  integrity sha512-+/AO2fWL7kC3aWTx/lHjtKXfOqh0O+KLtTy4BLQ/b/eciHR4VTHHdPhdrn9sDBQskgDieaBZ+sAKzlldc4GW/Q==
   dependencies:
     body-parser "^1.19.0"
     braces "^3.0.2"
-    chokidar "^3.0.0"
+    chokidar "^3.4.2"
     colors "^1.4.0"
     connect "^3.7.0"
     di "^0.0.1"
     dom-serialize "^2.2.1"
-    flatted "^2.0.2"
     glob "^7.1.6"
     graceful-fs "^4.2.4"
     http-proxy "^1.18.1"
     isbinaryfile "^4.0.6"
-    lodash "^4.17.15"
+    lodash "^4.17.19"
     log4js "^6.2.1"
     mime "^2.4.5"
     minimatch "^3.0.4"
@@ -4516,7 +4495,7 @@ karma@^5.1.1:
     range-parser "^1.2.1"
     rimraf "^3.0.2"
     socket.io "^2.3.0"
-    source-map "^0.6.1"
+    source-map "^0.7.3"
     tmp "0.2.1"
     ua-parser-js "0.7.21"
     yargs "^15.3.1"
@@ -4717,10 +4696,10 @@ lodash.get@^4.4.2:
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
-lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.4:
-  version "4.17.19"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
-  integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
+lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.4:
+  version "4.17.20"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
+  integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
 log-symbols@^4.0.0:
   version "4.0.0"
@@ -4915,12 +4894,7 @@ mime-types@^2.1.12, mime-types@~2.1.19, mime-types@~2.1.24:
   dependencies:
     mime-db "1.43.0"
 
-mime@^2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-2.4.4.tgz#bd7b91135fc6b01cde3e9bae33d659b63d8857e5"
-  integrity sha512-LRxmNwziLPT828z+4YkNzloCFC2YM4wrB99k+AV5ZbEyfGNWfG8SO1FUXLmLDBSo89NrJZ4DIWeLjy1CHGhMGA==
-
-mime@^2.4.5:
+mime@^2.4.4, mime@^2.4.5:
   version "2.4.6"
   resolved "https://registry.yarnpkg.com/mime/-/mime-2.4.6.tgz#e5b407c90db442f2beb5b162373d07b69affa4d1"
   integrity sha512-RZKhC3EmpBchfTGBVb8fb+RL2cWyw/32lshnsETttkBAyAUXSGHxbEJWWRXc751DrIxG1q04b8QwMbAwkRPpUA==
@@ -5562,7 +5536,7 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.0.7, picomatch@^2.2.1:
+picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.2.tgz#21f333e9b6b8eaff02468f5146ea406d345f4dad"
   integrity sha512-q0M/9eZHzmr0AulXyPwNfZjtwZ/RBZlbN3K3CErVrk50T2ASYI7Bye0EvekFY3IP1Nt2DHu0re+V2ZHIpMkuWg==
@@ -5812,13 +5786,6 @@ readdirp@^2.2.1:
     graceful-fs "^4.1.11"
     micromatch "^3.1.10"
     readable-stream "^2.0.2"
-
-readdirp@~3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/readdirp/-/readdirp-3.3.0.tgz#984458d13a1e42e2e9f5841b129e162f369aff17"
-  integrity sha512-zz0pAkSPOXXm1viEwygWIPSPkcBYjW1xU5j/JBh5t9bGCJwa6f9+BJa6VaB2g+b55yVrmXzqkyLf4xaWYM0IkQ==
-  dependencies:
-    picomatch "^2.0.7"
 
 readdirp@~3.4.0:
   version "3.4.0"

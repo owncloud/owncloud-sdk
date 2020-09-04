@@ -20,7 +20,7 @@ beforeAll(function (done) {
       withRequest: {
         method: 'OPTIONS',
         path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/.*',
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/.*',
           generate: '/ocs/v1.php/cloud/capabilities'
         }),
         headers: {
@@ -176,6 +176,37 @@ beforeAll(function (done) {
               ' </data>\n' +
               '</ocs>'
           })
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a valid config GET request',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/config$',
+            generate: '/ocs/v1.php/config'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <version>1.7</version>\n' +
+            '  <website>ownCloud</website>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
         }
       }))
     .then(() =>

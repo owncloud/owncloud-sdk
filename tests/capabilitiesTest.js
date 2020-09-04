@@ -30,7 +30,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     oc = null
   })
 
-  it('checking method : getConfig', function (done) {
+  fit('checking method : getConfig', function (done) {
     oc.getConfig().then(config => {
       expect(config).not.toBe(null)
       expect(typeof (config)).toBe('object')

@@ -291,6 +291,39 @@ beforeAll(function (done) {
           }
         }
       }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET apps',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/apps$',
+            generate: '/ocs/v1.php/cloud/apps'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <apps>\n' +
+            '   <element>workflow</element>\n' +
+            '   <element>files</element>\n' +
+            '  </apps>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
     .then(done, done.fail)
 })
 afterAll(function (done) {

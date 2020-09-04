@@ -1,4 +1,4 @@
-describe('Main: Currently testing apps management,', function () {
+fdescribe('Main: Currently testing apps management,', function () {
 // CURRENT TIME
   var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
@@ -9,7 +9,7 @@ describe('Main: Currently testing apps management,', function () {
   var oc
 
   // TESTING CONFIGS
-  var testApp = 'someAppName' + timeRightNow
+  var testApp = 'someAppName'
   var nonExistingApp = 'nonExistingApp' + timeRightNow
 
   beforeEach(function (done) {
@@ -37,7 +37,7 @@ describe('Main: Currently testing apps management,', function () {
     oc = null
   })
 
-  fit('checking method : getApps', function (done) {
+  it('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).not.toBe(null)
       expect(typeof (apps)).toBe('object')
@@ -51,43 +51,6 @@ describe('Main: Currently testing apps management,', function () {
 
   // there are cors issues with this api
   describe('App attributes testing,', function () {
-    beforeEach(function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var value = ['value1', 'value+plus space and/slash', '值对1']
-      var count = 0
-
-      for (var i = 0; i < key.length; i++) {
-        oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
-          expect(status).toBe(true)
-          count++
-          if (count === key.length) {
-            done()
-          }
-        }).catch(error => {
-          expect(error).toBe(null)
-          done()
-        })
-      }
-    })
-
-    afterEach(function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var count = 0
-
-      for (var i = 0; i < key.length; i++) {
-        oc.apps.deleteAttribute(testApp, key[i]).then(status => {
-          expect(status).toBe(true)
-          count++
-          if (count === key.length) {
-            done()
-          }
-        }).catch(error => {
-          expect(error).toBe(null)
-          done()
-        })
-      }
-    })
-
     it('checking method : valid getAttribute', function (done) {
       var key = ['attr1', 'attr+plus space', '属性1']
       var value = ['value1', 'value+plus space and/slash', '值对1']
@@ -155,44 +118,8 @@ describe('Main: Currently testing apps management,', function () {
   })
 
   describe('App attributes testing with empty value,', function () {
-    beforeEach(function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var count = 0
-
-      for (var i = 0; i < key.length; i++) {
-        oc.apps.setAttribute(testApp, key[i], '').then(status => {
-          expect(status).toBe(true)
-          count++
-          if (count === key.length) {
-            done()
-          }
-        }).catch(error => {
-          expect(error).toBe(null)
-          done()
-        })
-      }
-    })
-
-    afterEach(function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var count = 0
-
-      for (var i = 0; i < key.length; i++) {
-        oc.apps.deleteAttribute(testApp, key[i]).then(status => {
-          expect(status).toBe(true)
-          count++
-          if (count === key.length) {
-            done()
-          }
-        }).catch(error => {
-          expect(error).toBe(null)
-          done()
-        })
-      }
-    })
-
     it('checking method : valid getAttribute', function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
+      var key = ['attr1-no-value', 'attr+plus space-no-value', '属性1-no-value']
       var count = 0
 
       for (var i = 0; i < key.length; i++) {
@@ -213,7 +140,7 @@ describe('Main: Currently testing apps management,', function () {
       var key = ['attr1', 'attr+plus space', '属性1']
       var count = 0
 
-      oc.apps.getAttribute(testApp).then(allAttributes => {
+      oc.apps.getAttribute(testApp + '-no-value').then(allAttributes => {
         for (var i = 0; i < key.length; i++) {
           expect(typeof (allAttributes)).toBe('object')
           expect(utf8.encode(key[i]) in allAttributes).toBe(true)

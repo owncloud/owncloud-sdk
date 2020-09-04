@@ -25,12 +25,13 @@ module.exports = function (config) {
       'karma-coverage-istanbul-reporter',
       'karma-chrome-launcher',
       'karma-sourcemap-loader',
-      'karma-babel-preprocessor'
+      'karma-babel-preprocessor',
+      '@pact-foundation/karma-pact'
     ],
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'pact'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -40,6 +41,14 @@ module.exports = function (config) {
 
     // list of files / patterns to exclude
     exclude: [],
+
+    pact: [{
+      port: 1234,
+      consumer: 'owncloud-sdk',
+      provider: 'oc-server',
+      dir: 'tests/pact/',
+      log: 'tests/log/pact.log',
+    }],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor

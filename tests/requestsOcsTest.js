@@ -1,4 +1,4 @@
-describe('Main: Currently testing low level OCS', function () {
+fdescribe('Main: Currently testing low level OCS', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
@@ -75,7 +75,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : PUT email', function (done) {
-    const testUser = 'testuser' + new Date().getTime()
+    const testUser = config.testUser
     oc.users.createUser(testUser, testUser).then(() => {
       return oc.requests.ocs({
         method: 'PUT',

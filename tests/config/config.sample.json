@@ -1,5 +1,6 @@
 {
-    "owncloudURL": "http://127.0.0.1:8888/",
+    "owncloudURL": "http://127.0.0.1:1234/${SUBFOLDER}",
     "username": "admin",
-    "password": "admin"
+    "password": "admin",
+    "testUser": "test123"
 }

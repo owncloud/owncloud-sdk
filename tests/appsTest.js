@@ -37,7 +37,7 @@ describe('Main: Currently testing apps management,', function () {
     oc = null
   })
 
-  it('checking method : getApps', function (done) {
+  fit('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).not.toBe(null)
       expect(typeof (apps)).toBe('object')

@@ -1,6 +1,0 @@
-codecov:
-  ci:
-    - drone.owncloud.com
-    - !appveyor
-  ignore:
-    - "vendor/settingsClient.js"

@@ -42,15 +42,22 @@ class Users {
    *
    * @param      {string}  userName     username of the new user to be created
    * @param      {string}  password     password of the new user to be created
+   * @param      {string[]} groups      list of group names for user is to be added to (must already exist)
    * @returns {Promise.<status>}  boolean: true if successful
    * @returns {Promise.<error>}     string: error message, if any.
    */
-  createUser (userName, password) {
+  createUser (userName, password, groups) {
     return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD, 'users', {
+      const params = {
         password: password,
         userid: userName
-      }).then(data => {
+      }
+
+      if (groups && groups.length) {
+        params.groups = groups
+      }
+
+      this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_CLOUD, 'users', params).then(data => {
         this.helpers._OCSuserResponseHandler(data, resolve, reject)
       }).catch(error => {
         reject(error)

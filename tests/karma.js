@@ -11,6 +11,12 @@ const Pact = require('@pact-foundation/pact-web')
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = { authorization: 'Basic ' + validUserPasswordHash, Origin: origin }
+const ocsSuccessMeta = ' <meta>\n' +
+                       '  <status>ok</status>\n' +
+                       '  <statuscode>100</statuscode>\n' +
+                       '  <message/>\n' +
+                       ' </meta>\n'
+const xmlResponseHeaders = { 'Content-Type': 'text/xml; charset=utf-8', 'Access-Control-Allow-Origin': origin }
 
 beforeAll(function (done) {
   provider = new Pact.PactWeb()
@@ -226,8 +232,7 @@ beforeAll(function (done) {
         willRespondWith: {
           status: 200,
           headers: {
-            'Access-Control-Allow-Origin': origin,
-            'Access-Control-Allow-Headers': accessControlAllowHeaders
+            'Access-Control-Allow-Origin': origin
           }
         }
       }))
@@ -250,8 +255,7 @@ beforeAll(function (done) {
         willRespondWith: {
           status: 200,
           headers: {
-            'Access-Control-Allow-Origin': origin,
-            'Access-Control-Allow-Headers': accessControlAllowHeaders
+            'Access-Control-Allow-Origin': origin
           },
           body: {
             ocs: {
@@ -280,8 +284,7 @@ beforeAll(function (done) {
         willRespondWith: {
           status: 401,
           headers: {
-            'Access-Control-Allow-Origin': origin,
-            'Access-Control-Allow-Headers': accessControlAllowHeaders
+            'Access-Control-Allow-Origin': origin
           },
           body: {
             ocs: {
@@ -305,17 +308,10 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: xmlResponseHeaders,
           body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>ok</status>\n' +
-            '  <statuscode>100</statuscode>\n' +
-            '  <message/>\n' +
-            ' </meta>\n' +
+            ocsSuccessMeta +
             ' <data>\n' +
             '  <apps>\n' +
             '   <element>workflow</element>\n' +
@@ -384,17 +380,10 @@ beforeAll(function (done) {
           },
           willRespondWith: {
             status: 200,
-            headers: {
-              'Content-Type': 'text/xml; charset=utf-8',
-              'Access-Control-Allow-Origin': origin
-            },
+            headers: xmlResponseHeaders,
             body: '<?xml version="1.0"?>\n' +
               '<ocs>\n' +
-              ' <meta>\n' +
-              '  <status>ok</status>\n' +
-              '  <statuscode>100</statuscode>\n' +
-              '  <message/>\n' +
-              ' </meta>\n' +
+              ocsSuccessMeta +
               data +
               '</ocs>'
           }
@@ -427,17 +416,10 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: xmlResponseHeaders,
           body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>ok</status>\n' +
-            '  <statuscode>100</statuscode>\n' +
-            '  <message/>\n' +
-            ' </meta>\n' +
+            ocsSuccessMeta +
             data +
             '</ocs>'
         }
@@ -460,17 +442,10 @@ beforeAll(function (done) {
           },
           willRespondWith: {
             status: 200,
-            headers: {
-              'Content-Type': 'text/xml; charset=utf-8',
-              'Access-Control-Allow-Origin': origin
-            },
+            headers: xmlResponseHeaders,
             body: '<?xml version="1.0"?>\n' +
                 '<ocs>\n' +
-                ' <meta>\n' +
-                '  <status>ok</status>\n' +
-                '  <statuscode>100</statuscode>\n' +
-                '  <message/>\n' +
-                ' </meta>\n' +
+                 ocsSuccessMeta +
                 ' <data/>\n' +
                 '</ocs>'
           }
@@ -491,17 +466,10 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: xmlResponseHeaders,
           body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>ok</status>\n' +
-            '  <statuscode>100</statuscode>\n' +
-            '  <message/>\n' +
-            ' </meta>\n' +
+            ocsSuccessMeta +
             ' <data>\n' +
             '  <version>1.7</version>\n' +
             '  <website>ownCloud</website>\n' +
@@ -525,17 +493,10 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: xmlResponseHeaders,
           body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>ok</status>\n' +
-            '  <statuscode>100</statuscode>\n' +
-            '  <message/>\n' +
-            ' </meta>\n' +
+            ocsSuccessMeta +
             ' <data>\n' +
             '  <groups>\n' +
             '   <element>admin</element>\n' +
@@ -558,17 +519,10 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: xmlResponseHeaders,
           body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>ok</status>\n' +
-            '  <statuscode>100</statuscode>\n' +
-            '  <message/>\n' +
-            ' </meta>\n' +
+            ocsSuccessMeta +
             ' <data>\n' +
             '  <users>\n' +
             '   <element>admin</element>\n' +
@@ -590,10 +544,7 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: xmlResponseHeaders,
           body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
             ' <meta>\n' +

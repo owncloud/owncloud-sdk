@@ -2,5 +2,8 @@
     "owncloudURL": "http://127.0.0.1:1234/${SUBFOLDER}",
     "username": "admin",
     "password": "admin",
-    "testUser": "test123"
+    "testUser": "test123",
+    "testGroup": "testGroup",
+    "nonExistingGroup": "thisGroupShouldNotExist",
+    "nonExistingApp": "nonExistingApp"
 }

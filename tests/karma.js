@@ -478,7 +478,6 @@ beforeAll(function (done) {
       }
       return Promise.all(promises)
     })
-
     .then(() =>
       provider.addInteraction({
         uponReceiving: 'GET config request',
@@ -511,6 +510,99 @@ beforeAll(function (done) {
             '  <ssl>false</ssl>\n' +
             ' </data>\n' +
             '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET groups',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
+            generate: '/ocs/v1.php/cloud/groups'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <groups>\n' +
+            '   <element>admin</element>\n' +
+            '   <element>' + config.testGroup + '</element>\n' +
+            '  </groups>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET members of admin group',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/admin$',
+            generate: '/ocs/v1.php/cloud/groups/admin'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <users>\n' +
+            '   <element>admin</element>\n' +
+            '  </users>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'DELETE a not existing group',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + config.nonExistingGroup + '$',
+            generate: '/ocs/v1.php/cloud/groups/' + config.nonExistingGroup
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>101</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
         }
       }))
     .then(done, done.fail)

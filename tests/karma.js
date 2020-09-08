@@ -478,6 +478,41 @@ beforeAll(function (done) {
       }
       return Promise.all(promises)
     })
+
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET config request',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/config',
+            generate: '/ocs/v1.php/config'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <version>1.7</version>\n' +
+            '  <website>ownCloud</website>\n' +
+            '  <host>localhost</host>\n' +
+            '  <contact></contact>\n' +
+            '  <ssl>false</ssl>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      }))
     .then(done, done.fail)
 })
 afterAll(function (done) {

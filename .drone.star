@@ -185,6 +185,7 @@ def publish():
             'branch': 'master'
         },
         'steps':
+            buildDocs() +
             publishDocs() +
             publishSystem(),
         'when': {

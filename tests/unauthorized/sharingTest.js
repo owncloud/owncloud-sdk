@@ -1,27 +1,29 @@
-describe('Unauthorized: Currently testing file/folder sharing,', function () {
-  // CURRENT TIME
-  var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
+fdescribe('Unauthorized: Currently testing file/folder sharing,', function () {
+  const OwnCloud = require('../../src')
+  const config = require('../config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testUser = 'testUser' + timeRightNow
-  var testGroup = 'testGroup' + timeRightNow
-  var testFolder = '/testFolder' + timeRightNow
-  var nonExistingFile = 'nonExistingFile' + timeRightNow
-
-  var testFile = '/文件' + timeRightNow + '.txt'
+  const {
+    testUser,
+    testFile,
+    testFolder,
+    testGroup,
+    nonExistingFile,
+    owncloudURL,
+    username,
+    password
+  } = config
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
+      baseUrl: owncloudURL,
       auth: {
         basic: {
-          username: config.username,
-          password: config.password + timeRightNow
+          username: username,
+          password: password + new Date().getTime()
         }
       }
     })

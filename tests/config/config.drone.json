@@ -8,5 +8,8 @@
     "nonExistingUser": "thisUserShouldNotExist",
     "nonExistingGroup": "thisGroupShouldNotExist",
     "nonExistingApp": "nonExistingApp",
-    "testApp": "testApp"
+    "testApp": "testApp",
+    "testFile": "testFile.txt",
+    "testFolder": "testFolder",
+    "nonExistingFile": "nonExistingFile"
 }

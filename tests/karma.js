@@ -1064,6 +1064,204 @@ beforeAll(function (done) {
           body: unauthorizedXmlResponseBody
         }
       }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'link share POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          },
+          body: 'shareType=3&path=%2F' + config.testFile
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'user share POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          },
+          body: 'shareType=0&shareWith=' + config.testUser + '&path=%2F' + config.testFile
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'group share POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          },
+          body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.testFile + '&permissions=19'
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET non existent file share with invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          query: 'path=%2F' + config.nonExistingFile,
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET share using invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/1$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/1'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET shares using invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          query: 'path=%2F1',
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'folder share POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          },
+          body: 'shareType=3&path=%2F' + config.testFolder
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'DELETE share with invalid auth',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/123$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/123'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
     .then(done, done.fail)
 })
 afterAll(function (done) {

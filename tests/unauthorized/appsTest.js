@@ -1,4 +1,4 @@
-describe('Unauthorized: Currently testing apps management,', function () {
+fdescribe('Unauthorized: Currently testing apps management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var OwnCloud = require('../../src')
@@ -24,7 +24,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     oc.login()
   })
 
-  it('checking method : getApps', function (done) {
+  fit('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).toBe(null)
       done()
@@ -99,7 +99,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     })
   })
 
-  it('checking method : disableApp', function (done) {
+  fit('checking method : disableApp', function (done) {
     oc.apps.disableApp('files').then(status => {
       expect(status).toBe(null)
       done()

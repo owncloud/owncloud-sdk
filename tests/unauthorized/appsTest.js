@@ -89,7 +89,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     }
   })
 
-  it('checking method : enableApp when app exists', function (done) {
+  fit('checking method : enableApp when app exists', function (done) {
     oc.apps.enableApp('files').then(status => {
       expect(status).toBe(null)
       done()

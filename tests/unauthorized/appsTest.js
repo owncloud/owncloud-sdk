@@ -8,7 +8,6 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
   var oc
 
   // TESTING CONFIGS
-  var testApp = 'someAppName' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({
@@ -24,7 +23,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     oc.login()
   })
 
-  fit('checking method : getApps', function (done) {
+  it('checking method : getApps', function (done) {
     oc.apps.getApps().then(apps => {
       expect(apps).toBe(null)
       done()
@@ -40,7 +39,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     var count = 0
 
     for (var i = 0; i < key.length; i++) {
-      oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
+      oc.apps.setAttribute(config.testApp, key[i], value[i]).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
@@ -58,7 +57,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     var count = 0
 
     for (var i = 0; i < key.length; i++) {
-      oc.apps.getAttribute(testApp, key[i]).then(data => {
+      oc.apps.getAttribute(config.testApp, key[i]).then(data => {
         expect(data).toBe(null)
         done()
       }).catch(error => {
@@ -76,7 +75,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     var count = 0
 
     for (var i = 0; i < key.length; i++) {
-      oc.apps.deleteAttribute(testApp, key[i]).then(status => {
+      oc.apps.deleteAttribute(config.testApp, key[i]).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
@@ -89,7 +88,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     }
   })
 
-  fit('checking method : enableApp when app exists', function (done) {
+  it('checking method : enableApp when app exists', function (done) {
     oc.apps.enableApp('files').then(status => {
       expect(status).toBe(null)
       done()
@@ -99,7 +98,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     })
   })
 
-  fit('checking method : disableApp', function (done) {
+  it('checking method : disableApp', function (done) {
     oc.apps.disableApp('files').then(status => {
       expect(status).toBe(null)
       done()

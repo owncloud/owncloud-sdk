@@ -7,5 +7,6 @@
     "testGroup": "testGroup",
     "nonExistingUser": "thisUserShouldNotExist",
     "nonExistingGroup": "thisGroupShouldNotExist",
-    "nonExistingApp": "nonExistingApp"
+    "nonExistingApp": "nonExistingApp",
+    "testApp": "testApp"
 }

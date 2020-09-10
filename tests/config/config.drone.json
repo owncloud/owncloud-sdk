@@ -3,7 +3,9 @@
     "username": "admin",
     "password": "admin",
     "testUser": "test123",
+    "testUserPassword": "test123",
     "testGroup": "testGroup",
+    "nonExistingUser": "thisUserShouldNotExist",
     "nonExistingGroup": "thisGroupShouldNotExist",
     "nonExistingApp": "nonExistingApp"
 }

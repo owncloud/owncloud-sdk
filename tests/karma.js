@@ -238,6 +238,28 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
+        uponReceiving: 'create a user and add to a group in the same request',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users',
+            generate: '/ocs/v1.php/cloud/users'
+          }),
+          headers: validAuthHeaders,
+          body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            '  <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
         uponReceiving: 'update user request',
         given (providerState) {
           return 'my state'
@@ -553,6 +575,237 @@ beforeAll(function (done) {
             '  <message/>\n' +
             ' </meta>\n' +
             ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        // TODO: for provider test, need to add a state to put user in group
+        uponReceiving: 'GET groups of user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            ' <data>\n' +
+            '  <groups>\n' +
+            '   <element>' + config.testGroup + '</element>\n' +
+            '  </groups>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        // TODO: for provider test, need to add a state to make user subadmin of the group
+        uponReceiving: 'GET groups that a user is subadmin of',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            ' <data>\n' +
+            '   <element>' + config.testGroup + '</element>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET user information of an existing user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.username + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.username
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            ' <data>\n' +
+            '  <enabled>true</enabled>\n' +
+            '  <quota>\n' +
+            '   <free>57800708096</free>\n' + // TODO need to be made more flexible for provider tests
+            '   <used>2740027</used>\n' +
+            '   <total>57803448123</total>\n' +
+            '   <relative>0</relative>\n' +
+            '   <definition>default</definition>\n' +
+            '  </quota>\n' +
+            '  <email/>\n' +
+            '  <displayname>' + config.username + '</displayname>\n' +
+            '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET user information of a not existing user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistingUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistingUser
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>998</statuscode>\n' +
+            '  <message>The requested user could not be found</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'delete a user',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            '  <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'delete a not existing user',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistingUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistingUser
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>101</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            '  <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'search all users',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+            generate: '/ocs/v1.php/cloud/users'
+          }),
+          query: '',
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            ' <data>\n' +
+            '  <users>\n' +
+            '   <element>' + config.username + '</element>\n' +
+            '   <element>' + config.testUser + '</element>\n' +
+            '  </users>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'search a user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+            generate: '/ocs/v1.php/cloud/users'
+          }),
+          query: 'search=' + config.username,
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            ' <data>\n' +
+            '  <users>\n' +
+            '   <element>' + config.username + '</element>\n' +
+            '  </users>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'search for a not existing user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+            generate: '/ocs/v1.php/cloud/users'
+          }),
+          query: 'search=' + config.nonExistingUser,
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsSuccessMeta +
+            ' <data>\n' +
+            '  <users/>\n' +
+            ' </data>\n' +
             '</ocs>\n'
         }
       }))

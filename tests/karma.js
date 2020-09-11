@@ -974,7 +974,7 @@ beforeAll(function (done) {
     })
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'unauthorized create group request',
+        uponReceiving: 'group POST request with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -997,7 +997,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'an unauthorized group GET request',
+        uponReceiving: 'group GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1020,7 +1020,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'an unauthorized admin group GET request',
+        uponReceiving: 'group admin GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1043,7 +1043,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'unauthorized group DELETE request',
+        uponReceiving: 'group DELETE request with invalid auth',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({

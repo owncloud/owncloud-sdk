@@ -1,4 +1,4 @@
-describe('Unauthorized: Currently testing group management,', function () {
+fdescribe('Unauthorized: Currently testing group management,', function () {
   var OwnCloud = require('../../src')
   var config = require('../config/config.json')
 
@@ -7,9 +7,6 @@ describe('Unauthorized: Currently testing group management,', function () {
 
   // LIBRARY INSTANCE
   var oc
-
-  // TESTING CONFIGS
-  var testGroup = 'testGroup' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({
@@ -66,7 +63,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   })
 
   it('checking method : deleteGroup', function (done) {
-    oc.groups.deleteGroup(testGroup).then(status => {
+    oc.groups.deleteGroup(config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

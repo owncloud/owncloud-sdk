@@ -1,4 +1,4 @@
-describe('Main: Currently testing url signing,', function () {
+fdescribe('Main: Currently testing url signing,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

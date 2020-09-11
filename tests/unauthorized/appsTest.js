@@ -1,4 +1,4 @@
-describe('Unauthorized: Currently testing apps management,', function () {
+fdescribe('Unauthorized: Currently testing apps management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var OwnCloud = require('../../src')
@@ -8,7 +8,6 @@ describe('Unauthorized: Currently testing apps management,', function () {
   var oc
 
   // TESTING CONFIGS
-  var testApp = 'someAppName' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({
@@ -40,7 +39,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     var count = 0
 
     for (var i = 0; i < key.length; i++) {
-      oc.apps.setAttribute(testApp, key[i], value[i]).then(status => {
+      oc.apps.setAttribute(config.testApp, key[i], value[i]).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
@@ -58,7 +57,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     var count = 0
 
     for (var i = 0; i < key.length; i++) {
-      oc.apps.getAttribute(testApp, key[i]).then(data => {
+      oc.apps.getAttribute(config.testApp, key[i]).then(data => {
         expect(data).toBe(null)
         done()
       }).catch(error => {
@@ -76,7 +75,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     var count = 0
 
     for (var i = 0; i < key.length; i++) {
-      oc.apps.deleteAttribute(testApp, key[i]).then(status => {
+      oc.apps.deleteAttribute(config.testApp, key[i]).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {

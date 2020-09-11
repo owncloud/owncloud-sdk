@@ -809,6 +809,224 @@ beforeAll(function (done) {
             '</ocs>\n'
         }
       }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'get apps GET request with invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps',
+            generate: '/ocs/v1.php/cloud/apps'
+          }),
+          headers: {
+            authorization: Pact.Matchers.term({
+              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+              generate: 'Basic YWRtaW46YWRtaW4xNTk5NjQ3OTM0NzY5'
+            }),
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>997</statuscode>\n' +
+            '  <message>Unauthorised</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'enable apps POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps\\/files',
+            generate: '/ocs/v1.php/cloud/apps/files'
+          }),
+          headers: {
+            authorization: Pact.Matchers.term({
+              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+              generate: 'Basic YWRtaW46YWRtaW4xNTk5NjQ3OTM0NzY5'
+            }),
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>997</statuscode>\n' +
+            '  <message>Unauthorised</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'disable apps DELETE request with invalid auth',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps\\/files',
+            generate: '/ocs/v1.php/cloud/apps/files'
+          }),
+          headers: {
+            authorization: Pact.Matchers.term({
+              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+              generate: 'Basic YWRtaW46YWRtaW4xNTk5NjQ3OTM0NzY5'
+            }),
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>997</statuscode>\n' +
+            '  <message>Unauthorised</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() => {
+      var key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
+      for (var i = 0; i < key.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'get attributes GET apps request with invalid auth',
+          withRequest: {
+            method: 'GET',
+            path: Pact.Matchers.regex({
+              matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/getattribute\\/' + config.testApp + '\\/' + key[i],
+              generate: '/ocs/v1.php/privatedata/getattribute/' + config.testApp + '/' + key[i]
+            }),
+            headers: {
+              authorization: Pact.Matchers.term({
+                matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+                generate: 'Basic YWRtaW46YWRtaW4xNTk5NzM1NzQ3OT'
+              }),
+              Origin: origin
+            }
+          },
+          willRespondWith: {
+            status: 401,
+            headers: {
+              'Content-Type': 'text/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>failure</status>\n' +
+              '  <statuscode>997</statuscode>\n' +
+              '  <message>Unauthorised</message>\n' +
+              ' </meta>\n' +
+              ' <data/>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    })
+    .then(() => {
+      var key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
+      var value = ['value1', 'value%2Bplus+space+and%2Fslash', '%C3%A5%C2%80%C2%BC%C3%A5%C2%AF%C2%B91']
+      for (var i = 0; i < key.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'set attributes POST apps request with invalid auth',
+          withRequest: {
+            method: 'POST',
+            path: Pact.Matchers.regex({
+              matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/setattribute\\/' + config.testApp + '\\/' + key[i],
+              generate: '/ocs/v1.php/privatedata/setattribute/' + config.testApp + '/' + key[i]
+            }),
+            headers: {
+              authorization: Pact.Matchers.term({
+                matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+                generate: 'Basic YWRtaW46YWRtaW4xNTk5NzM1NzQ3OT'
+              }),
+              Origin: origin
+            },
+            body: 'value=' + value[i]
+          },
+          willRespondWith: {
+            status: 401,
+            headers: {
+              'Content-Type': 'text/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>failure</status>\n' +
+              '  <statuscode>997</statuscode>\n' +
+              '  <message>Unauthorised</message>\n' +
+              ' </meta>\n' +
+              ' <data/>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    })
+    .then(() => {
+      var key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
+      for (var i = 0; i < key.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'delete attributes POST apps request with invalid auth',
+          withRequest: {
+            method: 'POST',
+            path: Pact.Matchers.regex({
+              matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/deleteattribute\\/' + config.testApp + '\\/' + key[i],
+              generate: '/ocs/v1.php/privatedata/deleteattribute/' + config.testApp + '/' + key[i]
+            }),
+            headers: {
+              authorization: Pact.Matchers.term({
+                matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+                generate: 'Basic YWRtaW46YWRtaW4xNTk5NzM1NzQ3OT'
+              }),
+              Origin: origin
+            }
+          },
+          willRespondWith: {
+            status: 401,
+            headers: {
+              'Content-Type': 'text/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>failure</status>\n' +
+              '  <statuscode>997</statuscode>\n' +
+              '  <message>Unauthorised</message>\n' +
+              ' </meta>\n' +
+              ' <data/>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    })
     .then(done, done.fail)
 })
 afterAll(function (done) {

@@ -18,6 +18,20 @@ const ocsSuccessMeta = ' <meta>\n' +
                        ' </meta>\n'
 const xmlResponseHeaders = { 'Content-Type': 'text/xml; charset=utf-8', 'Access-Control-Allow-Origin': origin }
 
+const invalidAuthHeader = Pact.Matchers.term({
+  matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
+  generate: 'Basic bm9uRXhpc3RpbmdVc2VycnByeXJxOHg2OmNvbmZpZy5wYXNzd29yZHJwcnlycTh4Ng=='
+})
+const unauthorizedXmlResponseBody = '<?xml version="1.0"?>\n' +
+  '<ocs>\n' +
+  ' <meta>\n' +
+  '  <status>failure</status>\n' +
+  '  <statuscode>997</statuscode>\n' +
+  '  <message>Unauthorised</message>\n' +
+  ' </meta>\n' +
+  ' <data/>\n' +
+  '</ocs>'
+
 beforeAll(function (done) {
   provider = new Pact.PactWeb()
 
@@ -110,10 +124,7 @@ beforeAll(function (done) {
           }),
           query: 'format=json',
           headers: {
-            authorization: Pact.Matchers.term({
-              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-              generate: 'Basic bm9uRXhpc3RpbmdVc2VycnByeXJxOHg2OmNvbmZpZy5wYXNzd29yZHJwcnlycTh4Ng=='
-            }),
+            authorization: invalidAuthHeader,
             Origin: origin
           }
         },
@@ -819,10 +830,7 @@ beforeAll(function (done) {
             generate: '/ocs/v1.php/cloud/apps'
           }),
           headers: {
-            authorization: Pact.Matchers.term({
-              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-              generate: 'Basic YWRtaW46YWRtaW4xNTk5NjQ3OTM0NzY5'
-            }),
+            authorization: invalidAuthHeader,
             Origin: origin
           }
         },
@@ -832,15 +840,7 @@ beforeAll(function (done) {
             'Content-Type': 'text/xml; charset=utf-8',
             'Access-Control-Allow-Origin': origin
           },
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>failure</status>\n' +
-            '  <statuscode>997</statuscode>\n' +
-            '  <message>Unauthorised</message>\n' +
-            ' </meta>\n' +
-            ' <data/>\n' +
-            '</ocs>'
+          body: unauthorizedXmlResponseBody
         }
       }))
     .then(() =>
@@ -853,10 +853,7 @@ beforeAll(function (done) {
             generate: '/ocs/v1.php/cloud/apps/files'
           }),
           headers: {
-            authorization: Pact.Matchers.term({
-              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-              generate: 'Basic YWRtaW46YWRtaW4xNTk5NjQ3OTM0NzY5'
-            }),
+            authorization: invalidAuthHeader,
             Origin: origin
           }
         },
@@ -866,15 +863,7 @@ beforeAll(function (done) {
             'Content-Type': 'text/xml; charset=utf-8',
             'Access-Control-Allow-Origin': origin
           },
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>failure</status>\n' +
-            '  <statuscode>997</statuscode>\n' +
-            '  <message>Unauthorised</message>\n' +
-            ' </meta>\n' +
-            ' <data/>\n' +
-            '</ocs>'
+          body: unauthorizedXmlResponseBody
         }
       }))
     .then(() =>
@@ -887,10 +876,7 @@ beforeAll(function (done) {
             generate: '/ocs/v1.php/cloud/apps/files'
           }),
           headers: {
-            authorization: Pact.Matchers.term({
-              matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-              generate: 'Basic YWRtaW46YWRtaW4xNTk5NjQ3OTM0NzY5'
-            }),
+            authorization: invalidAuthHeader,
             Origin: origin
           }
         },
@@ -900,15 +886,7 @@ beforeAll(function (done) {
             'Content-Type': 'text/xml; charset=utf-8',
             'Access-Control-Allow-Origin': origin
           },
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>failure</status>\n' +
-            '  <statuscode>997</statuscode>\n' +
-            '  <message>Unauthorised</message>\n' +
-            ' </meta>\n' +
-            ' <data/>\n' +
-            '</ocs>'
+          body: unauthorizedXmlResponseBody
         }
       }))
     .then(() => {
@@ -923,10 +901,7 @@ beforeAll(function (done) {
               generate: '/ocs/v1.php/privatedata/getattribute/' + config.testApp + '/' + key[i]
             }),
             headers: {
-              authorization: Pact.Matchers.term({
-                matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-                generate: 'Basic YWRtaW46YWRtaW4xNTk5NzM1NzQ3OT'
-              }),
+              authorization: invalidAuthHeader,
               Origin: origin
             }
           },
@@ -936,15 +911,7 @@ beforeAll(function (done) {
               'Content-Type': 'text/xml; charset=utf-8',
               'Access-Control-Allow-Origin': origin
             },
-            body: '<?xml version="1.0"?>\n' +
-              '<ocs>\n' +
-              ' <meta>\n' +
-              '  <status>failure</status>\n' +
-              '  <statuscode>997</statuscode>\n' +
-              '  <message>Unauthorised</message>\n' +
-              ' </meta>\n' +
-              ' <data/>\n' +
-              '</ocs>'
+            body: unauthorizedXmlResponseBody
           }
         })
       }
@@ -962,10 +929,7 @@ beforeAll(function (done) {
               generate: '/ocs/v1.php/privatedata/setattribute/' + config.testApp + '/' + key[i]
             }),
             headers: {
-              authorization: Pact.Matchers.term({
-                matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-                generate: 'Basic YWRtaW46YWRtaW4xNTk5NzM1NzQ3OT'
-              }),
+              authorization: invalidAuthHeader,
               Origin: origin
             },
             body: 'value=' + value[i]
@@ -976,15 +940,7 @@ beforeAll(function (done) {
               'Content-Type': 'text/xml; charset=utf-8',
               'Access-Control-Allow-Origin': origin
             },
-            body: '<?xml version="1.0"?>\n' +
-              '<ocs>\n' +
-              ' <meta>\n' +
-              '  <status>failure</status>\n' +
-              '  <statuscode>997</statuscode>\n' +
-              '  <message>Unauthorised</message>\n' +
-              ' </meta>\n' +
-              ' <data/>\n' +
-              '</ocs>'
+            body: unauthorizedXmlResponseBody
           }
         })
       }
@@ -1001,10 +957,7 @@ beforeAll(function (done) {
               generate: '/ocs/v1.php/privatedata/deleteattribute/' + config.testApp + '/' + key[i]
             }),
             headers: {
-              authorization: Pact.Matchers.term({
-                matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-                generate: 'Basic YWRtaW46YWRtaW4xNTk5NzM1NzQ3OT'
-              }),
+              authorization: invalidAuthHeader,
               Origin: origin
             }
           },
@@ -1014,19 +967,103 @@ beforeAll(function (done) {
               'Content-Type': 'text/xml; charset=utf-8',
               'Access-Control-Allow-Origin': origin
             },
-            body: '<?xml version="1.0"?>\n' +
-              '<ocs>\n' +
-              ' <meta>\n' +
-              '  <status>failure</status>\n' +
-              '  <statuscode>997</statuscode>\n' +
-              '  <message>Unauthorised</message>\n' +
-              ' </meta>\n' +
-              ' <data/>\n' +
-              '</ocs>'
+            body: unauthorizedXmlResponseBody
           }
         })
       }
     })
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'group POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
+            generate: '/ocs/v1.php/cloud/groups'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'group GET request with invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
+            generate: '/ocs/v1.php/cloud/groups'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'group admin GET request with invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/admin$',
+            generate: '/ocs/v1.php/cloud/groups/admin'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'group DELETE request with invalid auth',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + config.testGroup + '$',
+            generate: '/ocs/v1.php/cloud/groups/' + config.testGroup
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
     .then(done, done.fail)
 })
 afterAll(function (done) {

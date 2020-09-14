@@ -304,6 +304,338 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
+        uponReceiving: 'set user attribute of an existent user, attribute is allowed',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser,
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: validAuthHeaders,
+          body: 'key=email&value=asd%40a.com'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin,
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'get user attribute of an existent user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin,
+            'Content-Type': 'text/xml; charset=utf-8'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <enabled>true</enabled>\n' +
+            '  <quota>\n' +
+            '   <definition>default</definition>\n' +
+            '  </quota>\n' +
+            '  <email>asd@a.com</email>\n' +
+            '  <displayname>test123</displayname>\n' +
+            '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'set user attribute of an existent user, attribute is not allowed',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: validAuthHeaders,
+          body: 'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin,
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>102</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'set user attribute of a non-existent user',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
+          }),
+          headers: validAuthHeaders,
+          body: 'key=email&value=asd%40a.com'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin,
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>997</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'add user to group with an existent user and a non existent group',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+          }),
+          headers: validAuthHeaders,
+          body: 'groupid=' + config.nonExistentGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>102</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'add user to group with a non-existent user and an existent group',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/groups'
+          }),
+          headers: validAuthHeaders,
+          body: 'groupid=' + config.testGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>102</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'get user groups with a non-existent user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/groups'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>998</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Remove user from a group, with existent user and non existent group',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+          }),
+          headers: validAuthHeaders,
+          body: 'groupid=' + config.nonExistentGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>102</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Remove user from a group, with non-existent user and an existent group',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/groups'
+          }),
+          headers: validAuthHeaders,
+          body: 'groupid=' + config.testGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>102</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Add user to subadmin group, with existent user non existent group',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+          }),
+          headers: validAuthHeaders,
+          body: 'groupid=' + config.nonExistentGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>102</statuscode>\n' +
+            '  <message>Group:thisGroupShouldNotExist does not exist</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Add user to subadmin group, with non-existent user and existent group',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/subadmins$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/subadmins'
+          }),
+          headers: validAuthHeaders,
+          body: 'groupid=' + config.testGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>101</statuscode>\n' +
+            '  <message>User does not exist</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Get user subadmin group with a non existent user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/subadmins$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/subadmins'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>101</statuscode>\n' +
+            '  <message>User does not exist</message>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
         uponReceiving: 'update unknown user request',
         withRequest: {
           method: 'PUT',

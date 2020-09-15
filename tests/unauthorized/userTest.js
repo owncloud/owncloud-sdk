@@ -8,10 +8,7 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
   var oc
 
   // TESTING CONFIGS
-  var testUser = 'testUser' + timeRightNow
   var testUserPassword = 'password'
-  var testGroup = 'testGroup' + timeRightNow
-  var nonExistingUser = 'nonExistingUser' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({
@@ -87,8 +84,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : getUserGroups', function (done) {
-    oc.users.getUserGroups(testUser).then(data => {
+  it('checking method : getUserGroups', function (done) {
+    oc.users.getUserGroups(config.testUser).then(data => {
       expect(data).toBe(null)
       done()
     }).catch(error => {
@@ -97,8 +94,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : userIsInGroup', function (done) {
-    oc.users.userIsInGroup(testUser, testGroup).then(status => {
+  it('checking method : userIsInGroup', function (done) {
+    oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -107,8 +104,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : getUser', function (done) {
-    oc.users.getUser(testUser).then(data => {
+  it('checking method : getUser', function (done) {
+    oc.users.getUser(config.testUser).then(data => {
       expect(data).toBe(null)
       done()
     }).catch(error => {
@@ -117,8 +114,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : removeUserFromGroup', function (done) {
-    oc.users.removeUserFromGroup(testUser, testGroup).then(status => {
+  it('checking method : removeUserFromGroup', function (done) {
+    oc.users.removeUserFromGroup(config.testUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -127,8 +124,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : addUserToSubadminGroup', function (done) {
-    oc.users.addUserToSubadminGroup(testUser, testGroup).then(status => {
+  it('checking method : addUserToSubadminGroup', function (done) {
+    oc.users.addUserToSubadminGroup(config.testUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -137,8 +134,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : getUserSubadminGroups', function (done) {
-    oc.users.getUserSubadminGroups(testUser).then(data => {
+  it('checking method : getUserSubadminGroups', function (done) {
+    oc.users.getUserSubadminGroups(config.testUser).then(data => {
       expect(data).toBe(null)
       done()
     }).catch(error => {
@@ -147,8 +144,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : userIsInSubadminGroup', function (done) {
-    oc.users.userIsInSubadminGroup(testUser, testGroup).then(status => {
+  it('checking method : userIsInSubadminGroup', function (done) {
+    oc.users.userIsInSubadminGroup(config.testUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -157,8 +154,8 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  xit('checking method : deleteUser', function (done) {
-    oc.users.deleteUser(nonExistingUser).then(status => {
+  it('checking method : deleteUser', function (done) {
+    oc.users.deleteUser(config.nonExistingUser).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

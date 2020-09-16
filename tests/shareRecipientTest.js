@@ -1,6 +1,5 @@
-describe('Main: Currently testing share recipient,', function () {
+fdescribe('Main: Currently testing share recipient,', function () {
   // CURRENT TIME
-  var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
@@ -8,9 +7,9 @@ describe('Main: Currently testing share recipient,', function () {
   var oc
 
   // TESTING CONFIGS
-  var testUserPassword = 'password'
-  var testUser = 'testUser' + timeRightNow
-  var testGroup = 'testGroup' + timeRightNow
+  const testUserPassword = config.testUserPassword
+  const testUser = config.testUser
+  const testGroup = config.testGroup
 
   beforeEach(function (done) {
     oc = new OwnCloud({

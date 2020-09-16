@@ -570,8 +570,8 @@ beforeAll(function (done) {
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + config.nonExistingGroup + '$',
-            generate: '/ocs/v1.php/cloud/groups/' + config.nonExistingGroup
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + config.nonExistentGroup + '$',
+            generate: '/ocs/v1.php/cloud/groups/' + config.nonExistentGroup
           }),
           headers: validAuthHeaders
         },
@@ -678,8 +678,8 @@ beforeAll(function (done) {
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistingUser + '$',
-            generate: '/ocs/v1.php/cloud/users/' + config.nonExistingUser
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
           }),
           headers: validAuthHeaders
         },
@@ -724,8 +724,8 @@ beforeAll(function (done) {
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistingUser + '$',
-            generate: '/ocs/v1.php/cloud/users/' + config.nonExistingUser
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
           }),
           headers: validAuthHeaders
         },
@@ -805,7 +805,7 @@ beforeAll(function (done) {
             matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
             generate: '/ocs/v1.php/cloud/users'
           }),
-          query: 'search=' + config.nonExistingUser,
+          query: 'search=' + config.nonExistentUser,
           headers: validAuthHeaders
         },
         willRespondWith: {
@@ -1148,7 +1148,7 @@ beforeAll(function (done) {
             matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
             generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
           }),
-          query: 'path=%2F' + config.nonExistingFile,
+          query: 'path=%2F' + config.nonExistentFile,
           headers: {
             authorization: invalidAuthHeader,
             Origin: origin
@@ -1498,8 +1498,8 @@ beforeAll(function (done) {
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistingUser + '$',
-            generate: '/ocs/v1.php/cloud/users/' + config.nonExistingUser
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
           }),
           headers: {
             authorization: invalidAuthHeader,

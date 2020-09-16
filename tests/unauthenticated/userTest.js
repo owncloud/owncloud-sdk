@@ -11,7 +11,7 @@ describe('Unauthenticated: Currently testing user management,', function () {
   var testUser = 'testUser' + timeRightNow
   var testUserPassword = 'password'
   var testGroup = 'testGroup' + timeRightNow
-  var nonExistingUser = 'nonExistingUser' + timeRightNow
+  var nonExistentUser = 'nonExistentUser' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({
@@ -150,7 +150,7 @@ describe('Unauthenticated: Currently testing user management,', function () {
   })
 
   it('checking method : deleteUser', function (done) {
-    oc.users.deleteUser(nonExistingUser).then(status => {
+    oc.users.deleteUser(nonExistentUser).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

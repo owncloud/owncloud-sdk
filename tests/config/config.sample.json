@@ -5,11 +5,11 @@
     "testUser": "test123",
     "testUserPassword": "test123",
     "testGroup": "testGroup",
-    "nonExistingUser": "thisUserShouldNotExist",
-    "nonExistingGroup": "thisGroupShouldNotExist",
-    "nonExistingApp": "nonExistingApp",
+    "nonExistentUser": "thisUserShouldNotExist",
+    "nonExistentGroup": "thisGroupShouldNotExist",
+    "nonExistentApp": "nonExistentApp",
     "testApp": "testApp",
     "testFile": "testFile.txt",
     "testFolder": "testFolder",
-    "nonExistingFile": "nonExistingFile"
+    "nonExistentFile": "nonExistentFile"
 }

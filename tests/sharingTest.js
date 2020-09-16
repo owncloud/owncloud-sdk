@@ -14,7 +14,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   const testUser = 'testUser' + randomID
   const testGroup = 'testGroup' + randomID
   const testFolder = '/testFolder' + randomID
-  const nonExistingFile = 'nonExistingFile' + randomID
+  const nonExistentFile = 'nonExistentFile' + randomID
   let expirationDate = addDays(currentDate, 7).toISOString()
 
   // Remove time from expirationDate
@@ -624,7 +624,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : shareFileWithLink with non-existent file', function (done) {
-      oc.shares.shareFileWithLink(nonExistingFile, { password: 'testPassword' }).then(status => {
+      oc.shares.shareFileWithLink(nonExistentFile, { password: 'testPassword' }).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
@@ -634,7 +634,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : shareFileWithGroup with non existent file', function (done) {
-      oc.shares.shareFileWithGroup(nonExistingFile, testGroup, { permissions: 19 }).then(share => {
+      oc.shares.shareFileWithGroup(nonExistentFile, testGroup, { permissions: 19 }).then(share => {
         expect(share).toBe(null)
         done()
       }).catch(error => {
@@ -644,7 +644,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : isShared with non existent file', function (done) {
-      oc.shares.isShared(nonExistingFile).then(status => {
+      oc.shares.isShared(nonExistentFile).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
@@ -685,7 +685,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     it('checking method : getShares for non existent file', function (done) {
-      oc.shares.getShares(nonExistingFile).then(shares => {
+      oc.shares.getShares(nonExistentFile).then(shares => {
         expect(shares).toBe(null)
         done()
       }).catch(error => {

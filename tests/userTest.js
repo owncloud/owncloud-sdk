@@ -70,7 +70,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   fit('checking method : getUser on a non existent user', function (done) {
-    oc.users.getUser(config.nonExistingUser).then(user => {
+    oc.users.getUser(config.nonExistentUser).then(user => {
       expect(user).toBe(null)
       done()
     }).catch(error => {
@@ -121,7 +121,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   fit('checking method : searchUsers with zero user results', function (done) {
-    oc.users.searchUsers(config.nonExistingUser).then(data => {
+    oc.users.searchUsers(config.nonExistentUser).then(data => {
       expect(typeof (data)).toEqual('object')
       expect(data.length).toEqual(0)
       done()
@@ -142,7 +142,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   fit('checking method : userExists with non existent user', function (done) {
-    oc.users.userExists(config.nonExistingUser).then(status => {
+    oc.users.userExists(config.nonExistentUser).then(status => {
       expect(status).toBe(false)
       done()
     }).catch(error => {
@@ -179,7 +179,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : setUserAttribute of a non existent user', function (done) {
-    oc.users.setUserAttribute(config.nonExistingUser, 'email', 'asd@a.com').then(status => {
+    oc.users.setUserAttribute(config.nonExistentUser, 'email', 'asd@a.com').then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -190,7 +190,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToGroup with existent user, non existent group', function (done) {
-    oc.users.addUserToGroup(config.testUser, config.nonExistingGroup)
+    oc.users.addUserToGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(null)
         done()
@@ -203,7 +203,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToGroup with non existent user, existent group', function (done) {
-    oc.users.addUserToGroup(config.nonExistingUser, config.testGroup).then(status => {
+    oc.users.addUserToGroup(config.nonExistentUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -214,7 +214,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUserGroups with a non existent user', function (done) {
-    oc.users.getUserGroups(config.nonExistingUser).then(data => {
+    oc.users.getUserGroups(config.nonExistentUser).then(data => {
       expect(typeof (data)).toBe('object')
       expect(data.length).toEqual(0)
       done()
@@ -236,7 +236,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInGroup with an existent user, non existent group', function (done) {
-    oc.users.userIsInGroup(config.testUser, config.nonExistingGroup)
+    oc.users.userIsInGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toEqual(false)
         done()
@@ -247,7 +247,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInGroup with a non existent user', function (done) {
-    oc.users.userIsInGroup(config.nonExistingUser, config.testGroup).then(status => {
+    oc.users.userIsInGroup(config.nonExistentUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -269,7 +269,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUser with a non existent user', function (done) {
-    oc.users.getUser(config.nonExistingUser).then(status => {
+    oc.users.getUser(config.nonExistentUser).then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {
@@ -279,7 +279,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : removeUserFromGroup with existent user, non existent group', function (done) {
-    oc.users.removeUserFromGroup(config.testUser, config.nonExistingGroup)
+    oc.users.removeUserFromGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(null)
         done()
@@ -291,7 +291,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : removeUserFromGroup with non existent user, existent group', function (done) {
-    oc.users.removeUserFromGroup(config.nonExistingGroup, config.testGroup)
+    oc.users.removeUserFromGroup(config.nonExistentGroup, config.testGroup)
       .then(status => {
         expect(status).toBe(null)
         done()
@@ -303,18 +303,18 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToSubadminGroup with existent user, non existent group', function (done) {
-    oc.users.addUserToSubadminGroup(config.testUser, config.nonExistingGroup)
+    oc.users.addUserToSubadminGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toBe('Group:' + config.nonExistingGroup + ' does not exist')
+        expect(error).toBe('Group:' + config.nonExistentGroup + ' does not exist')
         done()
       })
   })
 
   it('checking method : addUserToSubadminGroup with non existent user, existent group', function (done) {
-    oc.users.addUserToSubadminGroup(config.nonExistingUser, config.testGroup).then(status => {
+    oc.users.addUserToSubadminGroup(config.nonExistentUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -324,7 +324,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUserSubadminGroups with a non existent user', function (done) {
-    oc.users.getUserSubadminGroups(config.nonExistingUser).then(data => {
+    oc.users.getUserSubadminGroups(config.nonExistentUser).then(data => {
       expect(typeof (data)).toBe('object')
       expect(data.length).toEqual(0)
       done()
@@ -335,7 +335,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInSubadminGroup with existent user, non existent group', function (done) {
-    oc.users.userIsInSubadminGroup(config.testUser, config.nonExistingGroup)
+    oc.users.userIsInSubadminGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(false)
         done()
@@ -346,7 +346,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInSubadminGroup with non existent user, existent group', function (done) {
-    oc.users.userIsInSubadminGroup(config.nonExistingUser, config.testGroup)
+    oc.users.userIsInSubadminGroup(config.nonExistentUser, config.testGroup)
       .then(status => {
         expect(status).toBe(null)
         done()
@@ -357,7 +357,7 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   fit('checking method : deleteUser on a non existent user', function (done) {
-    oc.users.deleteUser(config.nonExistingUser).then(status => {
+    oc.users.deleteUser(config.nonExistentUser).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

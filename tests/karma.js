@@ -1262,6 +1262,259 @@ beforeAll(function (done) {
           body: unauthorizedXmlResponseBody
         }
       }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'admin GET request with invalid auth to check for user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/admin$',
+            generate: '/ocs/v1.php/cloud/users/admin'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'create user POST request with invalid auth',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+            generate: '/ocs/v1.php/cloud/users'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'user GET request with invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+            generate: '/ocs/v1.php/cloud/users'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'user PUT request with invalid auth',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'user POST request with invalid auth to add user to group',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'group user GET request with invalid auth',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET request with invalid auth to check for user',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'DELETE request with invalid auth to remove user for group',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'POST request with invalid auth to add user to subadmin group',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'GET request with invalid auth to check if user is in subadmin group',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'DELETE a not existing user with invalid auth ',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistingUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.nonExistingUser
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
     .then(done, done.fail)
 })
 afterAll(function (done) {

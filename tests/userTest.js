@@ -22,8 +22,8 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fdescribe('added testUser to testGroup,', function () {
-    fit('checking method : getUserGroups with an existent user', function (done) {
+  describe('added testUser to testGroup,', function () {
+    it('checking method : getUserGroups with an existent user', function (done) {
       oc.users.getUserGroups(config.testUser).then(data => {
         expect(typeof (data)).toEqual('object')
         expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1)
@@ -34,7 +34,7 @@ fdescribe('Main: Currently testing user management,', function () {
       })
     })
 
-    fit('checking method : userIsInGroup with an existent user, existent group', function (done) {
+    it('checking method : userIsInGroup with an existent user, existent group', function (done) {
       oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
         expect(status).toBe(true)
         done()
@@ -45,8 +45,8 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fdescribe('made testUser as testGroup subAdmin', function () {
-    fit('checking method : getUserSubadminGroups with an existent user', function (done) {
+  describe('made testUser as testGroup subAdmin', function () {
+    it('checking method : getUserSubadminGroups with an existent user', function (done) {
       oc.users.getUserSubadminGroups(config.testUser).then(data => {
         expect(typeof (data)).toEqual('object')
         expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1)
@@ -58,7 +58,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : getUser on an existent user', function (done) {
+  it('checking method : getUser on an existent user', function (done) {
     oc.users.getUser(config.username).then(data => {
       expect(typeof (data)).toEqual('object')
       expect(data.displayname).toEqual(config.username)
@@ -69,7 +69,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : getUser on a non existent user', function (done) {
+  it('checking method : getUser on a non existent user', function (done) {
     oc.users.getUser(config.nonExistentUser).then(user => {
       expect(user).toBe(null)
       done()
@@ -79,7 +79,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : createUser & deleteUser', function (done) {
+  it('checking method : createUser & deleteUser', function (done) {
     oc.users.createUser(config.testUser, config.testUserPassword).then(data => {
       expect(data).toEqual(true)
       return oc.users.deleteUser(config.testUser)
@@ -92,7 +92,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : createUser with groups', function (done) {
+  it('checking method : createUser with groups', function (done) {
     oc.users.createUser(config.testUser, config.testUserPassword, [config.testGroup]).then((data) => {
       expect(data).toEqual(true)
       return oc.users.userIsInGroup(config.testUser, config.testGroup)
@@ -108,7 +108,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : searchUsers', function (done) {
+  it('checking method : searchUsers', function (done) {
     oc.users.searchUsers('').then(data => {
       expect(typeof (data)).toEqual('object')
       expect(data.indexOf(config.username)).toBeGreaterThan(-1)
@@ -120,7 +120,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : searchUsers with zero user results', function (done) {
+  it('checking method : searchUsers with zero user results', function (done) {
     oc.users.searchUsers(config.nonExistentUser).then(data => {
       expect(typeof (data)).toEqual('object')
       expect(data.length).toEqual(0)
@@ -131,7 +131,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : userExists with existent user', function (done) {
+  it('checking method : userExists with existent user', function (done) {
     oc.users.userExists(config.username).then(status => {
       expect(status).toBe(true)
       done()
@@ -141,7 +141,7 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  fit('checking method : userExists with non existent user', function (done) {
+  it('checking method : userExists with non existent user', function (done) {
     oc.users.userExists(config.nonExistentUser).then(status => {
       expect(status).toBe(false)
       done()
@@ -208,7 +208,7 @@ fdescribe('Main: Currently testing user management,', function () {
       done()
     }).catch(error => {
       expect(typeof (error)).toBe('object')
-      expect(error.ocs.meta.statuscode).toEqual('103')
+      expect(error.ocs.meta.statuscode).toEqual('102')
       done()
     })
   })
@@ -291,13 +291,13 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : removeUserFromGroup with non existent user, existent group', function (done) {
-    oc.users.removeUserFromGroup(config.nonExistentGroup, config.testGroup)
+    oc.users.removeUserFromGroup(config.nonExistentUser, config.testGroup)
       .then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
         expect(typeof (error)).toBe('object')
-        expect(error.ocs.meta.statuscode).toEqual('103')
+        expect(error.ocs.meta.statuscode).toEqual('102')
         done()
       })
   })
@@ -356,7 +356,7 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  fit('checking method : deleteUser on a non existent user', function (done) {
+  it('checking method : deleteUser on a non existent user', function (done) {
     oc.users.deleteUser(config.nonExistentUser).then(status => {
       expect(status).toBe(null)
       done()

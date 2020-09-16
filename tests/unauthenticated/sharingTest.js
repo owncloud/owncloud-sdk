@@ -11,7 +11,7 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
   var testUser = 'testUser' + timeRightNow
   var testGroup = 'testGroup' + timeRightNow
   var testFolder = '/testFolder' + timeRightNow
-  var nonExistingFile = 'nonExistingFile' + timeRightNow
+  var nonExistentFile = 'nonExistentFile' + timeRightNow
 
   var testFile = '/文件' + timeRightNow + '.txt'
 
@@ -54,7 +54,7 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
   })
 
   it('checking method : isShared', function (done) {
-    oc.shares.isShared(nonExistingFile).then(status => {
+    oc.shares.isShared(nonExistentFile).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

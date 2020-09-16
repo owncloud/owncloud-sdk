@@ -11,7 +11,7 @@ fdescribe('Unauthorized: Currently testing file/folder sharing,', function () {
     testFile,
     testFolder,
     testGroup,
-    nonExistingFile,
+    nonExistentFile,
     owncloudURL,
     username,
     password
@@ -64,7 +64,7 @@ fdescribe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : isShared', function (done) {
-    oc.shares.isShared(nonExistingFile).then(status => {
+    oc.shares.isShared(nonExistentFile).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

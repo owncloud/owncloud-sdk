@@ -155,7 +155,7 @@ fdescribe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : deleteUser', function (done) {
-    oc.users.deleteUser(config.nonExistingUser).then(status => {
+    oc.users.deleteUser(config.nonExistentUser).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

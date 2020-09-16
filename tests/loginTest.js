@@ -9,7 +9,7 @@ fdescribe('Main: Currently testing Login and initLibrary,', function () {
   var oc
 
   // TESTING CONFIGS
-  var nonExistingUser = 'nonExistingUser' + timeRightNow
+  var nonExistentUser = 'nonExistentUser' + timeRightNow
 
   beforeEach(function () {
     oc = null
@@ -41,7 +41,7 @@ fdescribe('Main: Currently testing Login and initLibrary,', function () {
       baseUrl: config.owncloudURL,
       auth: {
         basic: {
-          username: nonExistingUser,
+          username: nonExistentUser,
           password: 'config.password' + timeRightNow
         }
       }

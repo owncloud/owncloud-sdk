@@ -13,8 +13,8 @@ describe('Main: Currently testing files management,', function () {
   const testContent = 'testContent'
   const testFolder = '/testFolder' + timeRightNow
   const testSubDir = testFolder + '/' + 'subdir'
-  const nonExistingDir = testFolder + '/' + 'nonExistingDir'
-  const nonExistingFile = 'nonExistingFile' + timeRightNow
+  const nonExistentDir = testFolder + '/' + 'nonExistentDir'
+  const nonExistentFile = 'nonExistentFile' + timeRightNow
   const testSubFiles = [
     testFolder + '/' + 'file one.txt',
     testFolder + '/' + 'zz+z.txt',
@@ -128,11 +128,11 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : list with non existent file', function (done) {
-    oc.files.list(nonExistingFile).then(files => {
+    oc.files.list(nonExistentFile).then(files => {
       expect(files).toBe(null)
       done()
     }).catch(error => {
-      expect(error.message).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
       done()
     })
   })
@@ -157,11 +157,11 @@ describe('Main: Currently testing files management,', function () {
 
   // because called from the browser this is not returning xml but html - needs to be adjusted
   xit('checking method : getFileContents for non existent file', function (done) {
-    oc.files.getFileContents(nonExistingFile).then(content => {
+    oc.files.getFileContents(nonExistentFile).then(content => {
       expect(content).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error).toBe('File with name ' + nonExistentFile + ' could not be located')
       done()
     })
   })
@@ -190,12 +190,12 @@ describe('Main: Currently testing files management,', function () {
       }
     })
 
-    it('fails with error when uploading to a non existing parent path', function (done) {
-      oc.files.putFileContents(nonExistingDir + '/' + 'file.txt', testContent).then(status => {
+    it('fails with error when uploading to a non-existent parent path', function (done) {
+      oc.files.putFileContents(nonExistentDir + '/' + 'file.txt', testContent).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error.message).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
+        expect(error.message).toBe('File with name ' + nonExistentDir.slice(1) + ' could not be located')
         done()
       })
     })
@@ -280,8 +280,8 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  it('checking method : mkdir for a non existing parent path', function (done) {
-    oc.files.mkdir(nonExistingDir + '/' + 'newFolder/').then(status => {
+  it('checking method : mkdir for a non-existent parent path', function (done) {
+    oc.files.mkdir(nonExistentDir + '/' + 'newFolder/').then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -314,12 +314,12 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  it('checking method : delete for a non existing file', function (done) {
-    oc.files.delete(nonExistingDir).then(status => {
+  it('checking method : delete for a non-existent file', function (done) {
+    oc.files.delete(nonExistentDir).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error.message).toBe('File with name ' + nonExistingDir.slice(1) + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistentDir.slice(1) + ' could not be located')
       done()
     })
   })
@@ -378,11 +378,11 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : move non existent file', function (done) {
-    oc.files.move(nonExistingFile, '/abcd.txt').then(status => {
+    oc.files.move(nonExistentFile, '/abcd.txt').then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error.message).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
       done()
     })
   })
@@ -441,11 +441,11 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : copy non existent file', function (done) {
-    oc.files.copy(nonExistingFile, '/abcd.txt').then(status => {
+    oc.files.copy(nonExistentFile, '/abcd.txt').then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error.message).toBe('File with name ' + nonExistingFile + ' could not be located')
+      expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
       done()
     })
   })

@@ -40,8 +40,8 @@ fdescribe('Main: Currently testing group management,', function () {
     })
   })
 
-  it('checking method : groupExists with a non existing group', function (done) {
-    oc.groups.groupExists(config.nonExistingGroup).then(status => {
+  it('checking method : groupExists with a non-existent group', function (done) {
+    oc.groups.groupExists(config.nonExistentGroup).then(status => {
       expect(status).toBe(false)
       done()
     }).catch(error => {
@@ -61,8 +61,8 @@ fdescribe('Main: Currently testing group management,', function () {
     })
   })
 
-  it('checking method : deleteGroup with a non existing group', function (done) {
-    oc.groups.deleteGroup(config.nonExistingGroup).then(status => {
+  it('checking method : deleteGroup with a non-existent group', function (done) {
+    oc.groups.deleteGroup(config.nonExistentGroup).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

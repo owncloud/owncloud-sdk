@@ -10,7 +10,7 @@ fdescribe('Main: Currently testing apps management,', function () {
 
   // TESTING CONFIGS
   var testApp = 'someAppName'
-  var nonExistingApp = 'nonExistingApp' + timeRightNow
+  var nonExistentApp = 'nonExistentApp' + timeRightNow
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -185,17 +185,17 @@ fdescribe('Main: Currently testing apps management,', function () {
   })
 
   xit('checking method : enableApp when app doesn\'t exist', function (done) {
-    oc.apps.enableApp(nonExistingApp).then(status => {
+    oc.apps.enableApp(nonExistentApp).then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {
-      expect(error).toEqual('No app found by the name "' + nonExistingApp + '"')
+      expect(error).toEqual('No app found by the name "' + nonExistentApp + '"')
       done()
     })
   })
 
   it('checking method : disableApp when app doesn\'t exist', function (done) {
-    oc.apps.disableApp(nonExistingApp).then(status => {
+    oc.apps.disableApp(nonExistentApp).then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {

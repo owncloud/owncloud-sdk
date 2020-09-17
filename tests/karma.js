@@ -1154,6 +1154,132 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
+        uponReceiving: 'a create group POST request',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
+            generate: '/ocs/v1.php/cloud/groups'
+          }),
+          headers: {
+            authorization: 'Basic ' + validUserPasswordHash,
+            Origin: origin
+          },
+          body: 'groupid=' + config.testGroup
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a user DELETE request',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users/' + config.testUser + '$',
+            generate: '/ocs/v1.php/cloud/users/' + config.testUser
+          }),
+          headers: {
+            authorization: validAuthHeaders,
+            Origin: origin
+          },
+          body: 'undefined=undefined'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a group DELETE request',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups/' + config.testGroup + '$',
+            generate: '/ocs/v1.php/cloud/groups/' + config.testGroup
+          }),
+          headers: {
+            authorization: 'Basic ' + validUserPasswordHash,
+            Origin: origin
+          },
+          body: 'undefined=undefined'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a request to get share recipients (both users and groups)',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v2\\.php\\/apps\\/files_sharing\\/api\\/v1\\/sharees$',
+            generate: '/ocs/v2.php/apps/files_sharing/api/v1/sharees'
+          }),
+          query: 'search=test&itemType=folder&page=1&perPage=200&format=json',
+          headers: {
+            authorization: 'Basic ' + validUserPasswordHash,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '{"ocs"' +
+            ':{"meta":{"status":"ok","statuscode":200,' +
+            '"message":"OK","totalitems":"","itemsperpage":""},' +
+            '"data":{"exact":{"users":[],"groups":[],"remotes":[]},' +
+            '"users":[{"label":"test123","value":{"shareType":0,"shareWith":"test123"}}],' +
+            '"groups":[{"label":"testGroup","value":{"shareType":1,"shareWith":"testGroup"}}],' +
+            '"remotes":[]}}}'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
         uponReceiving: 'an apps GET request with invalid auth',
         withRequest: {
           method: 'GET',

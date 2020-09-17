@@ -1,6 +1,4 @@
-describe('oc.shares', function () {
-  // CURRENT TIME
-  const timeRightNow = Math.random().toString(36).substr(2, 9)
+fdescribe('oc.shares', function () {
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
@@ -8,23 +6,23 @@ describe('oc.shares', function () {
   let oc
 
   // TESTING CONFIGS
-  const testUserPassword = 'password'
-  const testUser = 'testUser' + timeRightNow
-
-  const testFiles = [
-    '/文件' + timeRightNow + '.txt',
-    '/test' + timeRightNow + '.txt',
-    '/test space and + and #' + timeRightNow + '.txt'
-  ]
+  const {
+    owncloudURL,
+    username,
+    password,
+    testUser,
+    testUserPassword,
+    testFile
+  } = config
 
   describe('when using share attributes', function () {
     beforeEach(function (done) {
       oc = new OwnCloud({
-        baseUrl: config.owncloudURL,
+        baseUrl: owncloudURL,
         auth: {
           basic: {
-            username: config.username,
-            password: config.password
+            username: username,
+            password: password
           }
         }
       })
@@ -46,8 +44,8 @@ describe('oc.shares', function () {
     })
 
     describe('with sharedFilesByUser', function () {
-      it('shall share with permissions in attributes', function (done) {
-        const testFile = testFiles[0]
+      fit('shall share with permissions in attributes', function (done) {
+        // const testFile = testFiles[0]
         return oc.files.putFileContents(testFile, '123456').then(() => {
           return oc.shares.shareFileWithUser(testFile, testUser, {
             attributes: [

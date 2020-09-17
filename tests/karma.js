@@ -1154,7 +1154,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'create group POST request',
+        uponReceiving: 'a create group POST request',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1186,7 +1186,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'user DELETE request',
+        uponReceiving: 'a user DELETE request',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1218,7 +1218,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group DELETE request',
+        uponReceiving: 'a group DELETE request',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1250,7 +1250,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'Get share recepients users and groups',
+        uponReceiving: 'a request to get share recipients (both users and groups)',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({

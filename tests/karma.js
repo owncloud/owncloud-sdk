@@ -1973,6 +1973,106 @@ beforeAll(function (done) {
           body: unauthorizedXmlResponseBody
         }
       }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Share with permissions in attributes',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: validAuthHeaders,
+          body: `shareType=0&shareWith=${config.testUser}&path=%2F${config.testFile}&attributes%5B0%5D%5Bscope%5D=ownCloud&attributes%5B0%5D%5Bkey%5D=read&attributes%5B0%5D%5Bvalue%5D=true&attributes%5B1%5D%5Bscope%5D=ownCloud&attributes%5B1%5D%5Bkey%5D=share&attributes%5B1%5D%5Bvalue%5D=true`
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <id>7</id>\n' +
+            '  <share_type>0</share_type>\n' +
+            '  <uid_owner>admin</uid_owner>\n' +
+            '  <displayname_owner>admin</displayname_owner>\n' +
+            '  <permissions>17</permissions>\n' +
+            '  <stime>1600332102</stime>\n' +
+            '  <parent/>\n' +
+            '  <expiration/>\n' +
+            '  <token/>\n' +
+            '  <uid_file_owner>admin</uid_file_owner>\n' +
+            '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+            '  <additional_info_owner/>\n' +
+            '  <additional_info_file_owner/>\n' +
+            '  <path>/......123.txt</path>\n' +
+            '  <item_type>file</item_type>\n' +
+            '  <mimetype>text/plain</mimetype>\n' +
+            '  <storage_id>home::admin</storage_id>\n' +
+            '  <storage>1</storage>\n' +
+            '  <item_source>2147498361</item_source>\n' +
+            '  <file_source>2147498361</file_source>\n' +
+            '  <file_parent>3</file_parent>\n' +
+            '  <file_target>/......123.txt</file_target>\n' +
+            '  <share_with>test123</share_with>\n' +
+            '  <share_with_displayname>test123</share_with_displayname>\n' +
+            '  <share_with_additional_info/>\n' +
+            '  <mail_send>0</mail_send>\n' +
+            '  <attributes>[{&quot;scope&quot;:&quot;ownCloud&quot;,&quot;key&quot;:&quot;read&quot;,&quot;enabled&quot;:&quot;true&quot;},{&quot;scope&quot;:&quot;ownCloud&quot;,&quot;key&quot;:&quot;share&quot;,&quot;enabled&quot;:&quot;true&quot;}]</attributes>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'remote.php webdav options request',
+        withRequest: {
+          method: 'OPTIONS',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/remote\\.php\\/webdav\\/.*',
+            generate: '/remote.php/webdav/' + config.testFile
+          }),
+          headers: {
+            'Access-Control-Request-Method': 'PUT'
+          }
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE'
+          }
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'Put file contents',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/remote\\.php\\/webdav\\/.*',
+            generate: '/remote.php/webdav/' + config.testFile
+          }),
+          headers: validAuthHeaders,
+          body: '123456'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          }
+        }
+      }))
     .then(done, done.fail)
 })
 afterAll(function (done) {

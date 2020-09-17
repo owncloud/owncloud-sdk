@@ -62,7 +62,7 @@ beforeAll(function (done) {
     }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'a capabilities GET request with valid username',
+        uponReceiving: 'a capabilities GET request with valid authentication',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.regex({
@@ -115,7 +115,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'a capabilities GET request with invalid username',
+        uponReceiving: 'a capabilities GET request with invalid authentication',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -147,7 +147,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'a valid users GET request',
+        uponReceiving: 'a GET request to the cloud user endpoint',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -198,7 +198,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'a single user GET request',
+        uponReceiving: 'a single user GET request to the cloud users endpoint',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -230,7 +230,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'create user request',
+        uponReceiving: 'a create user request',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.regex({
@@ -249,7 +249,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'create a user and add to a group in the same request',
+        uponReceiving: 'a create user request including group membership',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -271,7 +271,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'update user request',
+        uponReceiving: 'an update user request that sets email',
         given (providerState) {
           return 'my state'
         },
@@ -636,7 +636,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'update unknown user request',
+        uponReceiving: 'an update request for an unknown user',
         withRequest: {
           method: 'PUT',
           path: Pact.Matchers.regex({
@@ -662,7 +662,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET apps',
+        uponReceiving: 'a GET request for a list of apps',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -734,7 +734,7 @@ beforeAll(function (done) {
             ' </data>\n'
         }
         promises.push(provider.addInteraction({
-          uponReceiving: 'GET attributes of an app',
+          uponReceiving: 'a request to GET attributes of an app',
           withRequest: {
             method: 'GET',
             path: Pact.Matchers.term({
@@ -770,7 +770,7 @@ beforeAll(function (done) {
       }
       data = data + ' </data>'
       return provider.addInteraction({
-        uponReceiving: 'GET attributes of app when no values are set',
+        uponReceiving: 'a request to GET attributes of an app that has no values set',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -820,7 +820,7 @@ beforeAll(function (done) {
     })
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET config request',
+        uponReceiving: 'a GET config request',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.regex({
@@ -847,7 +847,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET groups',
+        uponReceiving: 'a GET groups request',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -873,7 +873,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET members of admin group',
+        uponReceiving: 'a request to GET members of the admin group',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -898,7 +898,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'DELETE a not existing group',
+        uponReceiving: 'a DELETE request for a non-existent group',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -924,7 +924,7 @@ beforeAll(function (done) {
     .then(() =>
       provider.addInteraction({
         // TODO: for provider test, need to add a state to put user in group
-        uponReceiving: 'GET groups of user',
+        uponReceiving: 'a request to GET the groups that a user is a member of',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -950,7 +950,7 @@ beforeAll(function (done) {
     .then(() =>
       provider.addInteraction({
         // TODO: for provider test, need to add a state to make user subadmin of the group
-        uponReceiving: 'GET groups that a user is subadmin of',
+        uponReceiving: 'a request to GET groups that a user is a subadmin of',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -973,7 +973,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET user information of an existing user',
+        uponReceiving: 'a request to GET user information of an existing user',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1006,7 +1006,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET user information of a not existing user',
+        uponReceiving: 'a request to GET user information of a non-existent user',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1031,7 +1031,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'delete a user',
+        uponReceiving: 'a request to delete a user',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1052,7 +1052,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'delete a not existing user',
+        uponReceiving: 'a request to delete a non-existent user',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1077,7 +1077,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'search all users',
+        uponReceiving: 'a request to list all users',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1104,7 +1104,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'search a user',
+        uponReceiving: 'a request to list a single user',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1130,7 +1130,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'search for a not existing user',
+        uponReceiving: 'a request to list a non-existent user',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1154,7 +1154,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'get apps GET request with invalid auth',
+        uponReceiving: 'an apps GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.regex({
@@ -1177,7 +1177,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'enable apps POST request with invalid auth',
+        uponReceiving: 'an enable app POST request with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.regex({
@@ -1200,7 +1200,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'disable apps DELETE request with invalid auth',
+        uponReceiving: 'a disable app DELETE request with invalid auth',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.regex({
@@ -1306,7 +1306,7 @@ beforeAll(function (done) {
     })
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group POST request with invalid auth',
+        uponReceiving: 'an add group POST request with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1329,7 +1329,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group GET request with invalid auth',
+        uponReceiving: 'a group GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1352,7 +1352,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group admin GET request with invalid auth',
+        uponReceiving: 'an admin group GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1375,7 +1375,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group DELETE request with invalid auth',
+        uponReceiving: 'a group DELETE request with invalid auth',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1398,7 +1398,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'link share POST request with invalid auth',
+        uponReceiving: 'a link share POST request of a file with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1423,7 +1423,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'user share POST request with invalid auth',
+        uponReceiving: 'a user share POST request with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1448,7 +1448,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group share POST request with invalid auth',
+        uponReceiving: 'a group share POST request with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1473,7 +1473,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET non existent file share with invalid auth',
+        uponReceiving: 'a GET request for a non-existent file share with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1498,7 +1498,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET share using invalid auth',
+        uponReceiving: 'a GET request for a share using invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1522,7 +1522,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET shares using invalid auth',
+        uponReceiving: 'a GET request for all shares using invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1547,7 +1547,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'folder share POST request with invalid auth',
+        uponReceiving: 'a link share POST request of a folder with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1572,7 +1572,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'DELETE share with invalid auth',
+        uponReceiving: 'a DELETE share request with invalid auth',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1596,7 +1596,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'admin GET request with invalid auth to check for user',
+        uponReceiving: 'a GET request with invalid auth to check for user admin',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1619,7 +1619,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'create user POST request with invalid auth',
+        uponReceiving: 'a create user POST request with invalid auth',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1642,7 +1642,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'user GET request with invalid auth',
+        uponReceiving: 'a user GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1665,7 +1665,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'user PUT request with invalid auth',
+        uponReceiving: 'a user PUT request with invalid auth',
         withRequest: {
           method: 'PUT',
           path: Pact.Matchers.term({
@@ -1688,7 +1688,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'user POST request with invalid auth to add user to group',
+        uponReceiving: 'a user POST request with invalid auth to add user to group',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1711,7 +1711,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'group user GET request with invalid auth',
+        uponReceiving: 'a group user GET request with invalid auth',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1734,7 +1734,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET request with invalid auth to check for user',
+        uponReceiving: 'a GET request with invalid auth to check for user',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1757,7 +1757,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'DELETE request with invalid auth to remove user for group',
+        uponReceiving: 'a DELETE request with invalid auth to remove user from group',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({
@@ -1780,7 +1780,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'POST request with invalid auth to add user to subadmin group',
+        uponReceiving: 'a POST request with invalid auth to add user to subadmin group',
         withRequest: {
           method: 'POST',
           path: Pact.Matchers.term({
@@ -1803,7 +1803,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'GET request with invalid auth to check if user is in subadmin group',
+        uponReceiving: 'a GET request with invalid auth to check if user is a subadmin of any groups',
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
@@ -1826,7 +1826,7 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'DELETE a not existing user with invalid auth ',
+        uponReceiving: 'a request to DELETE a non-existent user with invalid auth',
         withRequest: {
           method: 'DELETE',
           path: Pact.Matchers.term({

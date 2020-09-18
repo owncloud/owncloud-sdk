@@ -19,5 +19,7 @@
       "test space and + and #.txt",
       "test.txt",
       "文件.txt"
-    ]
+    ],
+    "testContent": "123456",
+    "expirationDate": "2022-10-01"
 }

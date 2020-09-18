@@ -10,6 +10,8 @@ const Promise = require('promise')
  *      <ul>
  *          <li>createUser</li>
  *          <li>deleteUser</li>
+ *          <li>disableUser</li>
+ *          <li>enableUser</li>
  *          <li>searchUsers</li>
  *          <li>userExists</li>
  *          <li>getUsers</li>
@@ -73,7 +75,41 @@ class Users {
    */
   deleteUser (userName) {
     return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_CLOUD, 'users/' + userName)
+      this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(userName))
+        .then(data => {
+          this.helpers._OCSuserResponseHandler(data, resolve, reject)
+        }).catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  /**
+   * Enable a user via provisioning API
+   * @param   {string}  userName    name of user to be enabled
+   * @returns {Promise.<status>}    boolean: true if successful
+   * @returns {Promise.<error>}     string: error message, if any.
+   */
+  enableUser (userName) {
+    return new Promise((resolve, reject) => {
+      this.helpers._makeOCSrequest('PUT', this.helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(userName) + '/enable', {})
+        .then(data => {
+          this.helpers._OCSuserResponseHandler(data, resolve, reject)
+        }).catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  /**
+   * Disable a user via provisioning API
+   * @param   {string}  userName    name of user to be disabled
+   * @returns {Promise.<status>}    boolean: true if successful
+   * @returns {Promise.<error>}     string: error message, if any.
+   */
+  disableUser (userName) {
+    return new Promise((resolve, reject) => {
+      this.helpers._makeOCSrequest('PUT', this.helpers.OCS_SERVICE_CLOUD, 'users/' + encodeURIComponent(userName) + '/disable', {})
         .then(data => {
           this.helpers._OCSuserResponseHandler(data, resolve, reject)
         }).catch(error => {

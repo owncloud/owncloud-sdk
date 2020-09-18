@@ -35,6 +35,11 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
+  afterEach(function () {
+    oc.logout()
+    oc = null
+  })
+
   describe('added testUser to testGroup,', function () {
     it('checking method : getUserGroups with an existent user', function (done) {
       oc.users.getUserGroups(config.testUser).then(data => {
@@ -117,6 +122,39 @@ fdescribe('Main: Currently testing user management,', function () {
       done()
     }).catch((error) => {
       expect(error).toBe(null)
+      done()
+    })
+  })
+
+  it('checking method : disableUser & enableUser', function (done) {
+    var testUserOc = new OwnCloud({
+      baseUrl: config.owncloudURL,
+      auth: {
+        basic: {
+          username: config.testUser,
+          password: config.testUserPassword
+        }
+      }
+    })
+
+    oc.users.disableUser(config.testUser).then(status => {
+      expect(status).toBe(true)
+      return testUserOc.login()
+    }).then(() => {
+      fail()
+      done()
+    }).catch(error => {
+      expect(error).toMatch('Unauthorised')
+      return oc.users.enableUser(config.testUser)
+    }).then((status) => {
+      expect(status).toBe(true)
+      return testUserOc.login()
+    }).then(() => {
+      testUserOc.logout()
+      testUserOc = null
+      done()
+    }).catch(() => {
+      fail()
       done()
     })
   })

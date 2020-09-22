@@ -1,4 +1,4 @@
-describe('Main: Currently testing files management,', function () {
+fdescribe('Main: Currently testing files management,', function () {
   // CURRENT TIME
   const timeRightNow = Math.random().toString(36).substr(2, 9)
   const FileInfo = require('../src/fileInfo')
@@ -11,16 +11,14 @@ describe('Main: Currently testing files management,', function () {
 
   // TESTING CONFIGS
   const testContent = 'testContent'
-  const testFolder = '/testFolder' + timeRightNow
-  const testSubDir = testFolder + '/' + 'subdir'
-  const nonExistentDir = testFolder + '/' + 'nonExistentDir'
+  const testSubDir = config.testFolder + '/' + 'subdir'
   const nonExistentFile = 'nonExistentFile' + timeRightNow
   const testSubFiles = [
-    testFolder + '/' + 'file one.txt',
-    testFolder + '/' + 'zz+z.txt',
-    testFolder + '/' + '中文.txt',
-    testFolder + '/' + 'abc.txt',
-    testFolder + '/' + 'subdir/in dir.txt'
+    config.testFolder + '/' + 'file one.txt',
+    config.testFolder + '/' + 'zz+z.txt',
+    config.testFolder + '/' + '中文.txt',
+    config.testFolder + '/' + 'abc.txt',
+    config.testFolder + '/' + 'subdir/in dir.txt'
   ]
 
   beforeEach(function (done) {
@@ -48,8 +46,8 @@ describe('Main: Currently testing files management,', function () {
     oc = null
   })
 
-  it('creates the testFolder at instance', function (done) {
-    oc.files.createFolder(testFolder).then(status => {
+  fit('creates the testFolder at instance', function (done) {
+    oc.files.createFolder(config.testFolder).then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {
@@ -58,7 +56,7 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  it('creates subfolder at instance', function (done) {
+  fit('creates subfolder at instance', function (done) {
     oc.files.mkdir(testSubDir).then(status => {
       expect(status).toBe(true)
       done()
@@ -86,7 +84,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : list with no depth specified', function (done) {
-    oc.files.list(testFolder).then(files => {
+    oc.files.list(config.testFolder).then(files => {
       expect(typeof (files)).toBe('object')
       expect(files.length).toEqual(6)
       expect(files[1].getName()).toEqual('abc.txt')
@@ -102,11 +100,11 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : list with Infinity depth', function (done) {
-    oc.files.list(testFolder, 'infinity').then(files => {
+    oc.files.list(config.testFolder, 'infinity').then(files => {
       expect(typeof (files)).toBe('object')
       expect(files.length).toEqual(7)
       expect(files[3].getName()).toEqual('subdir')
-      expect(files[4].getPath()).toEqual(testFolder + '/' + 'subdir/')
+      expect(files[4].getPath()).toEqual(config.testFolder + '/' + 'subdir/')
       done()
     }).catch(error => {
       expect(error).toBe(null)
@@ -115,11 +113,11 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : list with 2 depth', function (done) {
-    oc.files.list(testFolder, 2).then(files => {
+    oc.files.list(config.testFolder, 2).then(files => {
       expect(typeof (files)).toBe('object')
       expect(files.length).toEqual(7)
       expect(files[3].getName()).toEqual('subdir')
-      expect(files[4].getPath()).toEqual(testFolder + '/' + 'subdir/')
+      expect(files[4].getPath()).toEqual(config.testFolder + '/' + 'subdir/')
       done()
     }).catch(error => {
       expect(error).toBe(null)
@@ -168,7 +166,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('checking method : putFileContents', function () {
     it('uploads file for an existing parent path', async function () {
-      const newFile = testFolder + '/' + 'file.txt'
+      const newFile = config.testFolder + '/' + 'file.txt'
       let progressCalled = false
 
       const options = {
@@ -191,11 +189,11 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('fails with error when uploading to a non-existent parent path', function (done) {
-      oc.files.putFileContents(nonExistentDir + '/' + 'file.txt', testContent).then(status => {
+      oc.files.putFileContents(config.nonExistentDir + '/' + 'file.txt', testContent).then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error.message).toBe('File with name ' + nonExistentDir.slice(1) + ' could not be located')
+        expect(error.message).toBe('File with name ' + config.nonExistentDir.slice(1) + ' could not be located')
         done()
       })
     })
@@ -212,7 +210,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method: favorite', function (done) {
-    const newFile = testFolder + '/' + 'file.txt'
+    const newFile = config.testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
       expect(typeof status).toBe('object')
@@ -239,7 +237,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method: favorite filter', function (done) {
-    const newFile = testFolder + '/' + 'file.txt'
+    const newFile = config.testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
       expect(typeof status).toBe('object')
@@ -260,8 +258,8 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  it('checking method : mkdir for an existing parent path', function (done) {
-    const newFolder = testFolder + '/' + 'new folder/'
+  fit('checking method : mkdir for an existing parent path', function (done) {
+    const newFolder = config.testFolder + '/' + 'new folder/'
 
     oc.files.mkdir(newFolder).then(status => {
       expect(status).toBe(true)
@@ -280,8 +278,8 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  it('checking method : mkdir for a non-existent parent path', function (done) {
-    oc.files.mkdir(nonExistentDir + '/' + 'newFolder/').then(status => {
+  fit('checking method : mkdir for a non-existent parent path', function (done) {
+    oc.files.mkdir(config.testFolder + '/' + config.nonExistentDir + '/newFolder/').then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
@@ -291,7 +289,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : delete for an existing file', function (done) {
-    const newFolder = testFolder + '/' + 'new folder'
+    const newFolder = config.testFolder + '/' + 'new folder'
 
     oc.files.mkdir(newFolder).then(status => {
       expect(status).toBe(true)
@@ -315,17 +313,17 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : delete for a non-existent file', function (done) {
-    oc.files.delete(nonExistentDir).then(status => {
+    oc.files.delete(config.nonExistentDir).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error.message).toBe('File with name ' + nonExistentDir.slice(1) + ' could not be located')
+      expect(error.message).toBe('File with name ' + config.nonExistentDir.slice(1) + ' could not be located')
       done()
     })
   })
 
   it('checking method : move existent file into same folder, same name', function (done) {
-    oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
+    oc.files.move(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {
@@ -335,9 +333,9 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : move existent file into same folder, different name', function (done) {
-    oc.files.move(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
+    oc.files.move(config.testFolder + '/中文.txt', config.testFolder + '/中文123.txt').then(status => {
       expect(status).toBe(true)
-      return oc.files.list(testFolder)
+      return oc.files.list(config.testFolder)
     }).then(files => {
       const fileNames = []
       for (let i = 0; i < files.length; i++) {
@@ -353,16 +351,16 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : move existent file into different folder', function (done) {
-    oc.files.move(testFolder + '/中文123.txt', testFolder + '/中文.txt').then(status => {
+    oc.files.move(config.testFolder + '/中文123.txt', config.testFolder + '/中文.txt').then(status => {
       expect(status).toBe(true)
-      return oc.files.list(testFolder + '/subdir')
+      return oc.files.list(config.testFolder + '/subdir')
     }).then(files => {
       const fileNames = []
       for (let i = 0; i < files.length; i++) {
         fileNames.push(files[i].getName())
       }
       expect(fileNames.indexOf('中文.txt')).toBe(-1)
-      return oc.files.list(testFolder)
+      return oc.files.list(config.testFolder)
     }).then(files2 => {
       const fileNames = []
       for (let i = 0; i < files2.length; i++) {
@@ -388,7 +386,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : copy existent file into same folder, same name', function (done) {
-    oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
+    oc.files.copy(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {
@@ -398,9 +396,9 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : copy existent file into same folder, different name', function (done) {
-    oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
+    oc.files.copy(config.testFolder + '/中文.txt', config.testFolder + '/中文123.txt').then(status => {
       expect(status).toBe(true)
-      return oc.files.list(testFolder)
+      return oc.files.list(config.testFolder)
     }).then(files => {
       const fileNames = []
       for (let i = 0; i < files.length; i++) {
@@ -416,16 +414,16 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method : copy existent file into different folder', function (done) {
-    oc.files.copy(testFolder + '/中文123.txt', testFolder + '/subdir/中文.txt').then(status => {
+    oc.files.copy(config.testFolder + '/中文123.txt', config.testFolder + '/subdir/中文.txt').then(status => {
       expect(status).toBe(true)
-      return oc.files.list(testFolder + '/subdir')
+      return oc.files.list(config.testFolder + '/subdir')
     }).then(files => {
       const fileNames = []
       for (let i = 0; i < files.length; i++) {
         fileNames.push(files[i].getName())
       }
       expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1)
-      return oc.files.list(testFolder)
+      return oc.files.list(config.testFolder)
     }).then(files2 => {
       const fileNames = []
       for (let i = 0; i < files2.length; i++) {
@@ -463,7 +461,7 @@ describe('Main: Currently testing files management,', function () {
       expect(typeof (files)).toBe('object')
       expect(files.length).toEqual(1)
       expect(files[0].getName()).toEqual('abc.txt')
-      expect(files[0].getPath()).toEqual(testFolder + '/')
+      expect(files[0].getPath()).toEqual(config.testFolder + '/')
       expect(files[0].getSize()).toEqual(11)
       done()
     }).catch(error => {
@@ -473,7 +471,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('checking method: filter by tag', function (done) {
-    const newFile = testFolder + '/' + 'fileToTag.txt'
+    const newFile = config.testFolder + '/' + 'fileToTag.txt'
     const newTagName = 'testSystemTag' + timeRightNow
     let fileId = 0
     let tagId = 0
@@ -500,7 +498,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('resolved the path of a file identified by its fileId', function (done) {
-    const newFile = testFolder + '/' + 'fileToIdentify.txt'
+    const newFile = config.testFolder + '/' + 'fileToIdentify.txt'
 
     oc.files.putFileContents(newFile, '123456').then(() => {
       return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
@@ -517,7 +515,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   it('deletes the test folder at instance', function (done) {
-    oc.files.delete(testFolder).then(status => {
+    oc.files.delete(config.testFolder).then(status => {
       expect(status).toBe(true)
       done()
     }).catch(error => {

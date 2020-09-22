@@ -41,12 +41,12 @@ beforeAll(function (done) {
       withRequest: {
         method: 'OPTIONS',
         path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/.*',
+          matcher: '.*',
           generate: '/ocs/v1.php/cloud/capabilities'
         }),
         headers: {
           'Access-Control-Request-Method': Pact.Matchers.regex({
-            matcher: 'GET|POST|PUT|DELETE',
+            matcher: 'GET|POST|PUT|DELETE|MKCOL',
             generate: 'GET'
           })
         }
@@ -2034,28 +2034,6 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
-        uponReceiving: 'remote.php webdav options request',
-        withRequest: {
-          method: 'OPTIONS',
-          path: Pact.Matchers.regex({
-            matcher: '.*\\/remote\\.php\\/webdav\\/.*',
-            generate: '/remote.php/webdav/' + config.testFile
-          }),
-          headers: {
-            'Access-Control-Request-Method': 'PUT'
-          }
-        },
-        willRespondWith: {
-          status: 200,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': accessControlAllowHeaders,
-            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE'
-          }
-        }
-      }))
-    .then(() =>
-      provider.addInteraction({
         uponReceiving: 'Put file contents',
         withRequest: {
           method: 'PUT',
@@ -2068,6 +2046,106 @@ beforeAll(function (done) {
         },
         willRespondWith: {
           status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          }
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'successfully create a folder',
+        withRequest: {
+          method: 'MKCOL',
+          path: Pact.Matchers.term({
+            // accept any request to testfolder and any subfolders except notExistentDir
+            matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '\\/(?!' + config.nonExistentDir + ').*\\/?',
+            generate: '/remote.php/webdav/' + config.testFolder + '/'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 201,
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          }
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'creating a folder in a not existing root',
+        withRequest: {
+          method: 'MKCOL',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '\\/' + config.nonExistentDir + '\\/.*\\/',
+            generate: '/remote.php/webdav/' + config.testFolder + '/' + config.nonExistentDir + '/newFolder/'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 409,
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0" encoding="utf-8"?>\n' +
+            '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
+            '  <s:exception>Sabre\\DAV\\Exception\\Conflict</s:exception>\n' +
+            '  <s:message>Parent node does not exist</s:message>\n' +
+            '</d:error>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'list content of a folder',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/webdav\\/.*\\/',
+            generate: '/remote.php/webdav/' + config.testFolder + '/'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 207,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body:
+          '<?xml version="1.0"?> ' +
+            ' <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"> ' +
+              ' <d:response> ' +
+                ' <d:href>/owncloud-core/remote.php/webdav/' + config.testFolder + '/new%20folder/</d:href> ' +
+                ' <d:propstat> ' +
+                  ' <d:prop> ' +
+                    ' <d:getlastmodified>Tue, 22 Sep 2020 09:27:57 GMT</d:getlastmodified> ' +
+                    ' <d:resourcetype> ' +
+                    ' <d:collection/> ' +
+                    ' </d:resourcetype> ' +
+                    ' <d:quota-used-bytes>0</d:quota-used-bytes> ' +
+                    ' <d:quota-available-bytes>-3</d:quota-available-bytes> ' +
+                    ' <d:getetag>&quot;5f69c39d0f947&quot;</d:getetag> ' +
+                  ' </d:prop> ' +
+                  ' <d:status>HTTP/1.1 200 OK</d:status> ' +
+                ' </d:propstat> ' +
+              ' </d:response> ' +
+            ' </d:multistatus>'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'successfully delete a file or folder',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/webdav\\/.*\\/',
+            generate: '/remote.php/webdav/' + config.testFolder + '/' + config.testFile
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 204,
           headers: {
             'Access-Control-Allow-Origin': origin
           }

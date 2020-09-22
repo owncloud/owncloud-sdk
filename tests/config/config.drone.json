@@ -11,5 +11,6 @@
     "testApp": "testApp",
     "testFile": "testFile.txt",
     "testFolder": "testFolder",
-    "nonExistentFile": "nonExistentFile"
+    "nonExistentFile": "nonExistentFile",
+    "nonExistentDir": "nonExistentDir"
 }

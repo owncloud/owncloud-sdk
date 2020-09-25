@@ -31,7 +31,7 @@ describe('oc.publicFiles', function () {
     oc = null
   })
 
-  describe('when creating file urls', function () {
+  fdescribe('when creating file urls', function () {
     using({
       'token only': {
         token: 'abcdef',
@@ -57,7 +57,7 @@ describe('oc.publicFiles', function () {
     )
   })
 
-  describe('when listing a shared folder', function () {
+  fdescribe('when listing a shared folder', function () {
     using({
       'without password': {
         shareParams: {},
@@ -77,73 +77,38 @@ describe('oc.publicFiles', function () {
         },
         passwordWhenListing: 'invalid',
         shallGrantAccess: false
-      },
-      'with password but no password when accessing': {
-        shareParams: {
-          password: 'password'
-        },
-        passwordWhenListing: null,
-        shallGrantAccess: false
       }
+      // the following test cannot not be used currently because there is no way
+      // to have an interaction that only matches when a header (in this case authorization) is NOT set
+      // see https://github.com/pact-foundation/pact-js/issues/511
+
+      // 'with password but no password when accessing': {
+      //   shareParams: {
+      //     password: 'password'
+      //   },
+      //   passwordWhenListing: null,
+      //   shallGrantAccess: false
+      // }
     }, function (data, description) {
       describe(description, function () {
         // TESTING CONFIGS
-        const uniqueId = Math.random().toString(36).substr(2, 9)
         const testContent = 'testContent'
-        const testFolder = '/testFolder' + uniqueId
 
         // CREATED SHARES
         let testFolderShare = null
 
-        const testFiles = [
-          '文件' + uniqueId + '.txt',
-          'test' + uniqueId + '.txt',
-          'test space and + and #' + uniqueId + '.txt'
-        ]
-
         beforeEach(function (done) {
-          oc.files.createFolder(testFolder).then(() => {
-            let count = 0
-            for (let i = 0; i < testFiles.length; i++) {
-              // CREATING TEST FILES
-              oc.files.putFileContents(testFolder + '/' + testFiles[i], testContent).then(status => {
-                expect(typeof status).toBe('object')
-                count++
-                if (count === testFiles.length) {
-                  oc.shares.shareFileWithLink(testFolder, data.shareParams).then(share => {
-                    expect(typeof (share)).toBe('object')
-                    testFolderShare = share
-                    done()
-                  }).catch(error => {
-                    fail(error)
-                    done()
-                  })
-                }
-              }).catch(error => {
-                fail(error)
-                done()
-              })
-            }
-          })
-        })
-
-        afterEach(function (done) {
-          oc.shares.deleteShare(testFolderShare.getId()).then(status => {
-            expect(status).toBe(true)
-            oc.files.delete(testFolder).then(status => {
-              expect(status).toBe(true)
-              done()
-            }).catch(error => {
-              fail(error)
-              done()
-            })
+          oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
+            expect(typeof (share)).toBe('object')
+            testFolderShare = share
+            done()
           }).catch(error => {
             fail(error)
             done()
           })
         })
 
-        it('should list the folder contents', function (done) {
+        fit('should list the folder contents', function (done) {
           oc.publicFiles.list(testFolderShare.getToken(), data.passwordWhenListing).then(files => {
             if (data.shallGrantAccess) {
               // test length
@@ -156,13 +121,13 @@ describe('oc.publicFiles', function () {
               expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
 
               // test folder elements
-              expect(files[1].getName()).toBe(testFiles[2])
+              expect(files[1].getName()).toBe(config.testFiles[0])
               expect(files[1].getPath()).toBe('/' + testFolderShare.getToken() + '/')
 
-              expect(files[2].getName()).toBe(testFiles[1])
+              expect(files[2].getName()).toBe(config.testFiles[1])
               expect(files[2].getPath()).toBe('/' + testFolderShare.getToken() + '/')
 
-              expect(files[3].getName()).toBe(testFiles[0])
+              expect(files[3].getName()).toBe(config.testFiles[2])
               expect(files[3].getPath()).toBe('/' + testFolderShare.getToken() + '/')
             } else {
               fail(files)
@@ -179,7 +144,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should download files from a public shared folder', function (done) {
-          return oc.publicFiles.download(testFolderShare.getToken(), testFiles[2], data.passwordWhenListing).then(resp => {
+          return oc.publicFiles.download(testFolderShare.getToken(), config.testFiles[2], data.passwordWhenListing).then(resp => {
             if (data.shallGrantAccess) {
               if (resp.ok) {
                 return resp.text().then(text => {

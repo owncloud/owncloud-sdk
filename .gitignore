@@ -1,6 +1,5 @@
 node_modules/
 tests/config/config.json
-tests/config
 docs-swagger/node_modules
 swagger.config.js
 jsdoc/

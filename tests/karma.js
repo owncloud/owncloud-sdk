@@ -46,7 +46,7 @@ beforeAll(function (done) {
         }),
         headers: {
           'Access-Control-Request-Method': Pact.Matchers.regex({
-            matcher: 'GET|POST|PUT|DELETE|MKCOL',
+            matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND',
             generate: 'GET'
           })
         }
@@ -2034,6 +2034,58 @@ beforeAll(function (done) {
       }))
     .then(() =>
       provider.addInteraction({
+        uponReceiving: 'create a public link share with password protection',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: validAuthHeaders,
+          body: 'shareType=3&path=%2F' + config.testFolder + '&password=password'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <data>\n' +
+            '  <token>' + config.shareTokenOfPasswordProtectedPublicLinkFolder + '</token>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'create a public link share',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: validAuthHeaders,
+          body: 'shareType=3&path=%2F' + config.testFolder
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <data>\n' +
+            '  <token>' + config.shareTokenOfPublicLinkFolder + '</token>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
         uponReceiving: 'Put file contents',
         withRequest: {
           method: 'PUT',
@@ -2133,6 +2185,75 @@ beforeAll(function (done) {
             ' </d:multistatus>'
         }
       }))
+
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'list content of a public link folder',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPublicLinkFolder,
+            generate: '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/'
+          })
+        },
+        willRespondWith: {
+          status: 207,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: propfindBody(config.shareTokenOfPublicLinkFolder)
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'list content of a password protected public link folder using the correct password',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPasswordProtectedPublicLinkFolder,
+            generate: '/remote.php/dav/public-files/' + config.shareTokenOfPasswordProtectedPublicLinkFolder + '/'
+          }),
+          headers: { authorization: 'Basic ' + btoa('public:password'), Origin: origin }
+        },
+        willRespondWith: {
+          status: 207,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: propfindBody(config.shareTokenOfPasswordProtectedPublicLinkFolder)
+        }
+      }))
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'list content of a password protected public link folder using the wrong password',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPasswordProtectedPublicLinkFolder,
+            generate: '/remote.php/dav/public-files/' + config.shareTokenOfPasswordProtectedPublicLinkFolder + '/'
+          }),
+          headers: {
+            authorization: Pact.Matchers.term({
+              matcher: '^(?!Basic ' + btoa('public:password') + ').*', // match anything except a valid auth
+              generate: 'Basic Basic cHVibGljOmludmFsaWQ='
+            }),
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0" encoding="utf-8"?>\n' +
+            '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
+            '  <s:exception>Sabre\\DAV\\Exception\\NotAuthenticated</s:exception>\n' +
+            '</d:error>\n'
+        }
+      }))
     .then(() =>
       provider.addInteraction({
         uponReceiving: 'successfully delete a file or folder',
@@ -2156,3 +2277,50 @@ beforeAll(function (done) {
 afterAll(function (done) {
   provider.finalize().then(done, done.fail)
 })
+
+function buildPropfindFileList (token) {
+  let contentResponse = ''
+  for (let fileNum = 0; fileNum < config.testFiles.length; fileNum++) {
+    contentResponse +=
+      '<d:response>\n' +
+      // TODO add ${SUBFOLDER} in the href
+      '   <d:href>/remote.php/dav/public-files/' + token + '/' +
+                  encodeURIComponent(config.testFiles[fileNum]) + '</d:href>\n' +
+      '   <d:propstat>\n' +
+      '      <d:prop>\n' +
+      '         <d:getcontenttype>text/plain</d:getcontenttype>\n' +
+      '      </d:prop>\n' +
+      '      <d:status>HTTP/1.1 200 OK</d:status>\n' +
+      '   </d:propstat>\n' +
+      '   <d:propstat>\n' +
+      '      <d:prop>\n' +
+      '         <oc:public-link-item-type />\n' +
+      '         <oc:public-link-permission />\n' +
+      '         <oc:public-link-expiration />\n' +
+      '         <oc:public-link-share-datetime />\n' +
+      '         <oc:public-link-share-owner />\n' +
+      '      </d:prop>\n' +
+      '      <d:status>HTTP/1.1 404 Not Found</d:status>\n' +
+      '   </d:propstat>\n' +
+      '</d:response>\n'
+  }
+  return contentResponse
+}
+
+function propfindBody (token) {
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+  '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
+  '   <d:response>\n' +
+  '      <d:href>/owncloud-core/remote.php/dav/public-files/' + token + '/</d:href>\n' +
+  '      <d:propstat>\n' +
+  '         <d:prop>\n' +
+  '            <oc:public-link-item-type>folder</oc:public-link-item-type>\n' +
+  '            <oc:public-link-permission>1</oc:public-link-permission>\n' +
+  '            <oc:public-link-share-owner>' + config.username + '</oc:public-link-share-owner>\n' +
+  '         </d:prop>\n' +
+  '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+  '      </d:propstat>\n' +
+  '   </d:response>\n' +
+  buildPropfindFileList(token) +
+  '</d:multistatus>'
+}

@@ -2014,7 +2014,7 @@ beforeAll(function (done) {
             '  <displayname_file_owner>admin</displayname_file_owner>\n' +
             '  <additional_info_owner/>\n' +
             '  <additional_info_file_owner/>\n' +
-            '  <path>/......123.txt</path>\n' +
+            '  <path>/.......txt</path>\n' +
             '  <item_type>file</item_type>\n' +
             '  <mimetype>text/plain</mimetype>\n' +
             '  <storage_id>home::admin</storage_id>\n' +
@@ -2022,7 +2022,7 @@ beforeAll(function (done) {
             '  <item_source>2147498361</item_source>\n' +
             '  <file_source>2147498361</file_source>\n' +
             '  <file_parent>3</file_parent>\n' +
-            '  <file_target>/......123.txt</file_target>\n' +
+            '  <file_target>/.......txt</file_target>\n' +
             '  <share_with>test123</share_with>\n' +
             '  <share_with_displayname>test123</share_with_displayname>\n' +
             '  <share_with_additional_info/>\n' +
@@ -2090,15 +2090,19 @@ beforeAll(function (done) {
         withRequest: {
           method: 'PUT',
           path: Pact.Matchers.regex({
-            matcher: '.*\\/remote\\.php\\/webdav\\/.*',
+            matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFile,
             generate: '/remote.php/webdav/' + config.testFile
           }),
           headers: validAuthHeaders,
-          body: '123456'
+          body: config.testContent
         },
         willRespondWith: {
           status: 200,
           headers: {
+            'Access-Control-Request-Method': Pact.Matchers.regex({
+              matcher: 'GET|POST|PUT|DELETE',
+              generate: 'GET'
+            }),
             'Access-Control-Allow-Origin': origin
           }
         }
@@ -2272,6 +2276,998 @@ beforeAll(function (done) {
           }
         }
       }))
+    .then(() => {
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      var path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
+      var id = [14, 18, 19]
+      var token = ['yrkoLeS33y1aTya', 'eGAWIbKUImVbtu4', 'JbdgMGkt3Cq6B0u']
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a request to share file as link share',
+          withRequest: {
+            method: 'POST',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            }),
+            headers: validAuthHeaders,
+            body: 'shareType=3&path=' + path[i]
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <id>' + id[i] + '</id>\n' +
+              '  <share_type>3</share_type>\n' +
+              '  <uid_owner>admin</uid_owner>\n' +
+              '  <displayname_owner>admin</displayname_owner>\n' +
+              '  <permissions>1</permissions>\n' +
+              '  <parent/>\n' +
+              '  <expiration/>\n' +
+              '  <token>' + token[i] + '</token>\n' +
+              '  <uid_file_owner>admin</uid_file_owner>\n' +
+              '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '  <additional_info_owner/>\n' +
+              '  <additional_info_file_owner/>\n' +
+              '  <path>' + file[i] + '</path>\n' +
+              '  <item_type>file</item_type>\n' +
+              '  <file_target>' + file[i] + '</file_target>\n' +
+              '  <name/>\n' +
+              '  <url>http://localhost/oc/s/yrkoLeS33y1aTya</url>\n' +
+              '  <mail_send>0</mail_send>\n' +
+              '  <attributes/>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      var path = ['%2Ftest.txt', '%2Ftest%20space%20and%20%2B%20and%20%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
+      var id = [14, 18, 19]
+      var token = ['yrkoLeS33y1aTya', 'eGAWIbKUImVbtu4', 'JbdgMGkt3Cq6B0u']
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a GET request for a share',
+          withRequest: {
+            method: 'GET',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            }),
+            query: 'path=' + path[i],
+            headers: {
+              authorization: 'Basic YWRtaW46YWRtaW4=',
+              Origin: origin
+            }
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': accessControlAllowHeaders,
+              'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <element>\n' +
+              '   <id>' + id[i] + '</id>\n' +
+              '   <share_type>3</share_type>\n' +
+              '   <uid_owner>admin</uid_owner>\n' +
+              '   <displayname_owner>admin</displayname_owner>\n' +
+              '   <permissions>1</permissions>\n' +
+              '   <parent/>\n' +
+              '   <expiration/>\n' +
+              '   <token>' + token[i] + '</token>\n' +
+              '   <uid_file_owner>admin</uid_file_owner>\n' +
+              '   <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '   <additional_info_owner/>\n' +
+              '   <additional_info_file_owner/>\n' +
+              '   <path>/' + file[i] + '</path>\n' +
+              '   <item_type>file</item_type>\n' +
+              '   <file_target>/' + file[i] + '</file_target>\n' +
+              '   <name/>\n' +
+              '   <url>http://localhost/oc/s/P4sVlWUvQXwro6z</url>\n' +
+              '   <mail_send>0</mail_send>\n' +
+              '   <attributes/>\n' +
+              '  </element>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      const shareids = [14, 18, 19, 9]
+      for (const shareid of shareids) {
+        provider.addInteraction({
+          uponReceiving: 'a DELETE request for a share',
+          withRequest: {
+            method: 'DELETE',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + shareid + '$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + shareid
+            }),
+            headers: validAuthHeaders,
+            body: 'undefined=undefined'
+          },
+          willRespondWith: {
+            status: 200,
+            headers: xmlResponseHeaders,
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data/>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      const shareids = [14, 18, 19]
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a GET request for an existent share',
+          withRequest: {
+            method: 'GET',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + shareids[i] + '$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + shareids[i]
+            }),
+            headers: validAuthHeaders
+          },
+          willRespondWith: {
+            status: 200,
+            headers: xmlResponseHeaders,
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <element>\n' +
+              '   <id>' + shareids[i] + '</id>\n' +
+              '   <share_type>0</share_type>\n' +
+              '   <uid_owner>admin</uid_owner>\n' +
+              '   <displayname_owner>admin</displayname_owner>\n' +
+              '   <permissions>19</permissions>\n' +
+              '   <parent/>\n' +
+              '   <expiration/>\n' +
+              '   <token/>\n' +
+              '   <uid_file_owner>admin</uid_file_owner>\n' +
+              '   <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '   <additional_info_owner/>\n' +
+              '   <additional_info_file_owner/>\n' +
+              '   <path>' + file[i] + '</path>\n' +
+              '   <item_type>file</item_type>\n' +
+              '   <file_target>' + file[i] + '</file_target>\n' +
+              '   <share_with>test123</share_with>\n' +
+              '   <share_with_displayname>test123</share_with_displayname>\n' +
+              '   <share_with_additional_info/>\n' +
+              '   <attributes/>\n' +
+              '  </element>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      const files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123']
+      for (const file of files) {
+        provider.addInteraction({
+          uponReceiving: 'a DELETE request for a file',
+          withRequest: {
+            method: 'DELETE',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/remote\\.php\\/webdav\\/' + file + '$',
+              generate: '/remote.php/webdav/' + file
+            }),
+            headers: validAuthHeaders
+          },
+          willRespondWith: {
+            status: 200,
+            headers: xmlResponseHeaders,
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              ' </meta>\n' +
+              ' <data/>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      const files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt']
+      for (const file of files) {
+        provider.addInteraction({
+          uponReceiving: 'Put file contents in files specified',
+          withRequest: {
+            method: 'PUT',
+            path: Pact.Matchers.regex({
+              matcher: '.*\\/remote\\.php\\/webdav\\/' + file,
+              generate: '/remote.php/webdav/' + file
+            }),
+            headers: validAuthHeaders,
+            body: config.testContent
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Access-Control-Allow-Origin': origin
+            }
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'Put file contents as empty content in files specified',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/remote\\.php\\/webdav\\/newFileCreated123$',
+            generate: '/remote.php/webdav/newFileCreated123'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          }
+        }
+      })
+    }
+    )
+    .then(() => {
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      var path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
+      var id = [14, 18, 19]
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a user share POST request with valid auth',
+          withRequest: {
+            method: 'POST',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            }),
+            headers: {
+              authorization: 'Basic YWRtaW46YWRtaW4=',
+              Origin: origin
+            },
+            body: 'shareType=0&shareWith=' + config.testUser + '&path=' + path[i]
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <id>' + id[i] + '</id>\n' +
+              '  <share_type>0</share_type>\n' +
+              '  <uid_owner>admin</uid_owner>\n' +
+              '  <displayname_owner>admin</displayname_owner>\n' +
+              '  <permissions>19</permissions>\n' +
+              '  <parent/>\n' +
+              '  <expiration/>\n' +
+              '  <token/>\n' +
+              '  <uid_file_owner>admin</uid_file_owner>\n' +
+              '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '  <additional_info_owner/>\n' +
+              '  <additional_info_file_owner/>\n' +
+              '  <path>' + file[i] + '</path>\n' +
+              '  <item_type>file</item_type>\n' +
+              '  <file_target>' + file[i] + '</file_target>\n' +
+              '  <share_with>test123</share_with>\n' +
+              '  <share_with_displayname>test123</share_with_displayname>\n' +
+              '  <share_with_additional_info/>\n' +
+              '  <attributes/>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    })
+    .then(() => {
+      const shareids = [14, 18, 19]
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a PUT request to update user share permissions',
+          withRequest: {
+            method: 'PUT',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + shareids[i] + '$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + shareids[i]
+            }),
+            headers: {
+              authorization: 'Basic YWRtaW46YWRtaW4=',
+              Origin: origin
+            },
+            body: 'permissions=19'
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <id>' + shareids[i] + '</id>\n' +
+              '  <share_type>0</share_type>\n' +
+              '  <uid_owner>admin</uid_owner>\n' +
+              '  <displayname_owner>admin</displayname_owner>\n' +
+              '  <permissions>19</permissions>\n' +
+              '  <parent/>\n' +
+              '  <expiration/>\n' +
+              '  <token/>\n' +
+              '  <uid_file_owner>admin</uid_file_owner>\n' +
+              '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '  <additional_info_owner/>\n' +
+              '  <additional_info_file_owner/>\n' +
+              '  <path>' + file[i] + '</path>\n' +
+              '  <item_type>file</item_type>\n' +
+              '  <mimetype>text/plain</mimetype>\n' +
+              '  <file_target>' + file[i] + '</file_target>\n' +
+              '  <share_with>test123</share_with>\n' +
+              '  <share_with_displayname>test123</share_with_displayname>\n' +
+              '  <share_with_additional_info/>\n' +
+              '  <attributes/>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    }
+    )
+    .then(() => {
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      var path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
+      var id = [14, 18, 19]
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a group share POST request with valid auth',
+          withRequest: {
+            method: 'POST',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            }),
+            headers: {
+              authorization: 'Basic YWRtaW46YWRtaW4=',
+              Origin: origin
+            },
+            body: 'shareType=1&shareWith=' + config.testGroup + '&path=' + path[i] + '&permissions=19'
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <id>' + id[i] + '</id>\n' +
+              '  <share_type>1</share_type>\n' +
+              '  <uid_owner>admin</uid_owner>\n' +
+              '  <displayname_owner>admin</displayname_owner>\n' +
+              '  <permissions>19</permissions>\n' +
+              '  <parent/>\n' +
+              '  <expiration/>\n' +
+              '  <token/>\n' +
+              '  <uid_file_owner>admin</uid_file_owner>\n' +
+              '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '  <additional_info_owner/>\n' +
+              '  <additional_info_file_owner/>\n' +
+              '  <path>' + file[i] + '</path>\n' +
+              '  <item_type>file</item_type>\n' +
+              '  <file_target>' + file[i] + '</file_target>\n' +
+              '  <share_with>testGroup</share_with>\n' +
+              '  <share_with_displayname>testGroup</share_with_displayname>\n' +
+              '  <attributes/>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    })
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a link share POST request with a non-existent file',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: 'Basic YWRtaW46YWRtaW4=',
+            Origin: origin
+          },
+          body: 'shareType=3' + '&path=%2F' + config.nonExistentFile + '&password=' + config.testUserPassword
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>404</statuscode>\n' +
+            '  <message>Wrong path, file/folder doesn\'t exist</message>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a group share POST request with valid auth but non-existent file',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: 'Basic YWRtaW46YWRtaW4=',
+            Origin: origin
+          },
+          body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.nonExistentFile + '&permissions=19'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>404</statuscode>\n' +
+            '  <message>Wrong path, file/folder doesn\'t exist</message>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      })
+    })
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a GET request for a share with non-existent file',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          query: 'path=%2F' + config.nonExistentFile,
+          headers: {
+            authorization: 'Basic YWRtaW46YWRtaW4=',
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>failure</status>\n' +
+              '  <statuscode>404</statuscode>\n' +
+              '  <message>Wrong path, file/folder doesn\'t exist</message>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data/>\n' +
+              '</ocs>'
+        }
+      })
+    }
+    )
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a GET request for an existent but non-shared file',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          query: 'path=%2FnewFileCreated123',
+          headers: {
+            authorization: 'Basic YWRtaW46YWRtaW4=',
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      })
+    }
+    )
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a GET request for a non-existent share',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>404</statuscode>\n' +
+            '  <message>Wrong share ID, share doesn\'t exist</message>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      })
+    }
+    )
+    .then(() => {
+      const requests = ['PUT', 'DELETE']
+      for (let i = 0; i < requests.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a request to update/delete a non-existent share',
+          withRequest: {
+            method: requests[i],
+            path: Pact.Matchers.regex({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
+            }),
+            headers: validAuthHeaders
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>404</statuscode>\n' +
+            '  <message>Wrong share ID, share doesn\'t exist</message>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+          }
+        })
+      }
+    })
+    .then(() => {
+      var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
+      var path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
+      var id = [14, 18, 19]
+      for (var i = 0; i < file.length; i++) {
+        provider.addInteraction({
+          uponReceiving: 'a user share POST request with valid auth and expiration date set',
+          withRequest: {
+            method: 'POST',
+            path: Pact.Matchers.term({
+              matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+              generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            }),
+            headers: {
+              authorization: 'Basic YWRtaW46YWRtaW4=',
+              Origin: origin
+            },
+            body: 'shareType=0&shareWith=' + config.testUser + '&path=' + path[i] + '&expireDate=' + config.expirationDate
+          },
+          willRespondWith: {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=utf-8',
+              'Access-Control-Allow-Origin': origin
+            },
+            body: '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ' <meta>\n' +
+              '  <status>ok</status>\n' +
+              '  <statuscode>100</statuscode>\n' +
+              '  <message/>\n' +
+              '  <totalitems></totalitems>\n' +
+              '  <itemsperpage></itemsperpage>\n' +
+              ' </meta>\n' +
+              ' <data>\n' +
+              '  <id>' + id[i] + '</id>\n' +
+              '  <share_type>0</share_type>\n' +
+              '  <uid_owner>admin</uid_owner>\n' +
+              '  <displayname_owner>admin</displayname_owner>\n' +
+              '  <permissions>19</permissions>\n' +
+              '  <parent/>\n' +
+              '  <expiration>2022-10-01 00:00:00</expiration>\n' +
+              '  <token/>\n' +
+              '  <uid_file_owner>admin</uid_file_owner>\n' +
+              '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+              '  <additional_info_owner/>\n' +
+              '  <additional_info_file_owner/>\n' +
+              '  <path>' + file[i] + '</path>\n' +
+              '  <item_type>file</item_type>\n' +
+              '  <file_target>' + file[i] + '</file_target>\n' +
+              '  <share_with>test123</share_with>\n' +
+              '  <share_with_displayname>test123</share_with_displayname>\n' +
+              '  <share_with_additional_info/>\n' +
+              '  <attributes/>\n' +
+              ' </data>\n' +
+              '</ocs>'
+          }
+        })
+      }
+    })
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a link share POST request with link name',
+        withRequest: {
+          method: 'POST',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+          }),
+          headers: {
+            authorization: 'Basic YWRtaW46YWRtaW4=',
+            Origin: origin
+          },
+          body: 'shareType=3' + '&path=%2F' + config.testFolder + '&name=%C3%96ffentlicher+Link'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <id>9</id>\n' +
+            '  <share_type>3</share_type>\n' +
+            '  <uid_owner>admin</uid_owner>\n' +
+            '  <displayname_owner>admin</displayname_owner>\n' +
+            '  <permissions>1</permissions>\n' +
+            '  <parent/>\n' +
+            '  <expiration/>\n' +
+            '  <uid_file_owner>admin</uid_file_owner>\n' +
+            '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+            '  <additional_info_owner/>\n' +
+            '  <additional_info_file_owner/>\n' +
+            '  <path>/testFolder</path>\n' +
+            '  <item_type>folder</item_type>\n' +
+            '  <file_target>/testFolder</file_target>\n' +
+            '  <name>Öffentlicher Link</name>\n' +
+            '  <url>http://localhost/oc/s/H1wiMY2oDYmnWdC</url>\n' +
+            '  <attributes/>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      }))
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'an invalid request to update the permissions of a public link share',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/\\d+$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
+          }),
+          headers: validAuthHeaders,
+          body: 'permissions=31'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>failure</status>\n' +
+            '  <statuscode>400</statuscode>\n' +
+            '  <message>Can\'t change permissions for public share links</message>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      })
+    })
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a request to update a public link share to public upload',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/\\d+$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
+          }),
+          headers: validAuthHeaders,
+          body: 'publicUpload=true'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <id>9</id>\n' +
+            '  <share_type>3</share_type>\n' +
+            '  <uid_owner>admin</uid_owner>\n' +
+            '  <displayname_owner>admin</displayname_owner>\n' +
+            '  <permissions>15</permissions>\n' +
+            '  <parent/>\n' +
+            '  <expiration/>\n' +
+            '  <uid_file_owner>admin</uid_file_owner>\n' +
+            '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+            '  <additional_info_owner/>\n' +
+            '  <additional_info_file_owner/>\n' +
+            '  <path>/testFolder</path>\n' +
+            '  <item_type>folder</item_type>\n' +
+            '  <file_target>/testFolder</file_target>\n' +
+            '  <name>..ffentlicher Link</name>\n' +
+            '  <url>http://localhost/oc/s/sXFMLABsGZ8Sirp</url>\n' +
+            '  <attributes/>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      })
+    })
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a GET request for a public link share',
+        withRequest: {
+          method: 'GET',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/9$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
+          }),
+          headers: {
+            authorization: 'Basic YWRtaW46YWRtaW4=',
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <element>\n' +
+            '   <id>17</id>\n' +
+            '   <share_type>3</share_type>\n' +
+            '   <uid_owner>admin</uid_owner>\n' +
+            '   <displayname_owner>admin</displayname_owner>\n' +
+            '   <permissions>1</permissions>\n' +
+            '   <parent/>\n' +
+            '   <expiration/>\n' +
+            '   <uid_file_owner>admin</uid_file_owner>\n' +
+            '   <displayname_file_owner>admin</displayname_file_owner>\n' +
+            '   <additional_info_owner/>\n' +
+            '   <additional_info_file_owner/>\n' +
+            '   <path>/testFolder</path>\n' +
+            '   <item_type>folder</item_type>\n' +
+            '   <file_target>/testFolder</file_target>\n' +
+            '   <share_with>***redacted***</share_with>\n' +
+            '   <share_with_displayname>***redacted***</share_with_displayname>\n' +
+            '   <name>..ffentlicher Link</name>\n' +
+            '   <url>http://localhost/oc/s/0RygKBQRgM7QNuo</url>\n' +
+            '   <attributes/>\n' +
+            '  </element>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      })
+    }
+    )
+    .then(() =>
+      provider.addInteraction({
+        uponReceiving: 'a request to delete a folder',
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '$',
+            generate: '/remote.php/webdav/' + config.testFolder
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 204,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          }
+        }
+      }))
+    .then(() => {
+      provider.addInteraction({
+        uponReceiving: 'a request to update a public link share',
+        withRequest: {
+          method: 'PUT',
+          path: Pact.Matchers.regex({
+            matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/9$',
+            generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
+          }),
+          headers: validAuthHeaders,
+          body: 'password=test123'
+        },
+        willRespondWith: {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          },
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ' <meta>\n' +
+            '  <status>ok</status>\n' +
+            '  <statuscode>100</statuscode>\n' +
+            '  <message/>\n' +
+            '  <totalitems></totalitems>\n' +
+            '  <itemsperpage></itemsperpage>\n' +
+            ' </meta>\n' +
+            ' <data>\n' +
+            '  <id>9</id>\n' +
+            '  <share_type>3</share_type>\n' +
+            '  <uid_owner>admin</uid_owner>\n' +
+            '  <displayname_owner>admin</displayname_owner>\n' +
+            '  <permissions>1</permissions>\n' +
+            '  <parent/>\n' +
+            '  <expiration/>\n' +
+            '  <uid_file_owner>admin</uid_file_owner>\n' +
+            '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+            '  <additional_info_owner/>\n' +
+            '  <additional_info_file_owner/>\n' +
+            '  <path>/testFolder</path>\n' +
+            '  <item_type>folder</item_type>\n' +
+            '  <file_target>/testFolder</file_target>\n' +
+            '  <share_with>***redacted***</share_with>\n' +
+            '  <share_with_displayname>***redacted***</share_with_displayname>\n' +
+            '  <name>..ffentlicher Link</name>\n' +
+            '  <url>http://localhost/oc/s/3yxtgg2BhD2q2xq</url>\n' +
+            '  <attributes/>\n' +
+            ' </data>\n' +
+            '</ocs>'
+        }
+      })
+    })
     .then(done, done.fail)
 })
 afterAll(function (done) {

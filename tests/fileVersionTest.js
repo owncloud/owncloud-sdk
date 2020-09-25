@@ -7,6 +7,19 @@ describe('Main: Currently testing file versions management,', function () {
   // LIBRARY INSTANCE
   var oc
 
+  // PACT setup
+  const Pact = require('@pact-foundation/pact-web')
+  const provider = new Pact.PactWeb()
+  const { setGeneralInteractions } = require('./pactHelper.js')
+
+  beforeAll(function (done) {
+    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+  })
+
+  afterAll(function (done) {
+    provider.removeInteractions().then(done, done.fail)
+  })
+
   // TESTING CONFIGS
   var testFolder = '/testFolder' + timeRightNow
 

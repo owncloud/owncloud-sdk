@@ -12,5 +12,12 @@
     "testFile": "testFile.txt",
     "testFolder": "testFolder",
     "nonExistentFile": "nonExistentFile",
-    "nonExistentDir": "nonExistentDir"
+    "nonExistentDir": "nonExistentDir",
+    "shareTokenOfPasswordProtectedPublicLinkFolder": "7PGbQApejJDgmZL",
+    "shareTokenOfPublicLinkFolder": "St6nrQx74PWDuEF",
+    "testFiles": [
+      "test space and + and #.txt",
+      "test.txt",
+      "文件.txt"
+    ]
 }

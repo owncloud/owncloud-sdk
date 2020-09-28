@@ -1,6 +1,5 @@
 var config = require('./config/config.json')
 const utf8 = require('utf8')
-const { util } = require('util')
 
 var validUserPasswordHash = btoa(config.username + ':' + config.password)
 const Pact = require('@pact-foundation/pact-web')
@@ -10,9 +9,9 @@ const defaultAccessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROP
 const origin = 'http://localhost:9876'
 const ocsCapabilitiesPathMatcher = '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities'
 const applicationOrJson = 'application/json; charset=utf-8'
-const textOrXml = 'text/xml; charset=utf-8'
-const applicationOrXml = 'application/xml; charset=utf-8'
-const textOrHtml = 'text/html; charset=utf-8'
+const textWithXml = 'text/xml; charset=utf-8'
+const applicationWithXml = 'application/xml; charset=utf-8'
+const textWithHtml = 'text/html; charset=utf-8'
 
 const validAuthHeaders = {
   authorization: 'Basic ' + validUserPasswordHash,
@@ -24,7 +23,7 @@ const ocsSuccessMeta = ' <meta>\n' +
   '  <message/>\n' +
   ' </meta>\n'
 const xmlResponseHeaders = {
-  'Content-Type': textOrXml,
+  'Content-Type': textWithXml,
   'Access-Control-Allow-Origin': origin
 }
 
@@ -32,84 +31,75 @@ const invalidAuthHeader = Pact.Matchers.term({
   matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
   generate: 'Basic bm9uRXhpc3RpbmdVc2VycnByeXJxOHg2OmNvbmZpZy5wYXNzd29yZHJwcnlycTh4Ng=='
 })
-const unauthorizedOcsXmlResponseBody = '<?xml version="1.0"?>\n' +
-  '<ocs>\n' +
-  ' <meta>\n' +
-  '  <status>failure</status>\n' +
-  '  <statuscode>997</statuscode>\n' +
-  '  <message>Unauthorised</message>\n' +
-  ' </meta>\n' +
-  ' <data/>\n' +
-  '</ocs>'
-const failureOcsResponseXmlBody = '<?xml version="1.0"?>\n' +
-  '<ocs>\n' +
-  ' <meta>\n' +
-  '  <status>failure</status>\n' +
-  '  <statuscode>%s</statuscode>\n' +
-  '  <message/>\n' +
-  ' </meta>\n' +
-  ' <data/>\n' +
-  '</ocs>'
 
-const failureOcsResponseXmlBodyWithMessage = '<?xml version="1.0"?>\n' +
-'<ocs>\n' +
-' <meta>\n' +
-'  <status>failure</status>\n' +
-'  <statuscode>%s</statuscode>\n' +
-'  <message>%s</message>\n' +
-' </meta>\n' +
-' <data/>\n' +
-'</ocs>\n'
-const failureOcsResponseXmlBodyWithPagination = '<?xml version="1.0"?>\n' +
-  '<ocs>\n' +
-  ' <meta>\n' +
-  '  <status>failure</status>\n' +
-  '  <statuscode>%s</statuscode>\n' +
-  '  <message>%s</message>\n' +
-  '  <totalitems></totalitems>\n' +
-  '  <itemsperpage></itemsperpage>\n' +
-  ' </meta>\n' +
-  ' <data/>\n' +
-  '</ocs>'
-const successOcsResponseXmlBody = '<?xml version="1.0"?>\n' +
-  '<ocs>\n' +
-  ' <meta>\n' +
-  '  <status>ok</status>\n' +
-  '  <statuscode>%s</statuscode>\n' +
-  '  <message/>\n' +
-  ' </meta>\n' +
-  ' <data/>\n' +
-  '</ocs>'
-const successOcsResponseXmlBodyWithPagination = '<?xml version="1.0"?>\n' +
-  '<ocs>\n' +
-  ' <meta>\n' +
-  '  <status>ok</status>\n' +
-  '  <statuscode>%s</statuscode>\n' +
-  '  <message/>\n' +
-  '  <totalitems></totalitems>\n' +
-  '  <itemsperpage></itemsperpage>\n' +
-  ' </meta>\n' +
-  ' <data/>\n' +
-  '</ocs>'
+function getOcsResponseXmlBody (
+  status,
+  code,
+  message = null,
+  data = null,
+  pagination = false
+) {
+  let responseBody = '<?xml version="1.0"?>\n' +
+    '<ocs>\n' +
+    ' <meta>\n' +
+    `  <status>${status}</status>\n` +
+    `  <statuscode>${code}</statuscode>\n`
+  if (message) responseBody += `  <message>${message}</message>\n`
+  else responseBody += '  <message/>\n'
+  if (pagination) {
+    responseBody += '  <totalitems></totalitems>\n' +
+    '  <itemsperpage></itemsperpage>\n'
+  }
+  responseBody += ' </meta>\n'
+  if (data) responseBody += ` <data>\n${data}</data>\n`
+  else responseBody += ' <data/>\n'
+  responseBody += '</ocs>'
+  return responseBody
+}
+
+const unauthorizedOcsXmlResponseBody = getOcsResponseXmlBody(
+  'failure',
+  '997',
+  'Unauthorized'
+)
 
 function getSuccessOcsResponseXmlBodyWithPagination (code) {
-  return util.format(successOcsResponseXmlBodyWithPagination, code)
+  return getOcsResponseXmlBody(
+    'ok',
+    code
+  )
 }
 
 function getFailureXmlResponseWithCode (code) {
-  return util.format(failureOcsResponseXmlBody, code)
+  return getOcsResponseXmlBody(
+    'failure',
+    code
+  )
 }
 
 function getFailureXmlPaginatedResponseWithCodeAndMessage (code, message) {
-  return util.format(failureOcsResponseXmlBodyWithPagination, code, message)
+  return getOcsResponseXmlBody(
+    'failure',
+    code,
+    message,
+    null,
+    true
+  )
 }
 
-function getFailureResponseXmlWithMessageAndCode (number, message) {
-  return util.format(failureOcsResponseXmlBodyWithMessage, number, message)
+function getFailureResponseXmlWithMessageAndCode (code, message) {
+  return getOcsResponseXmlBody(
+    'failure',
+    code,
+    message
+  )
 }
 
 function getSuccessXmlResponseWithCode (code) {
-  return util.format(successOcsResponseXmlBody, code)
+  return getOcsResponseXmlBody(
+    'ok',
+    code
+  )
 }
 
 function setGeneralInteractions (provider) {
@@ -236,7 +226,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: {
-        'Content-Type': applicationOrXml,
+        'Content-Type': applicationWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: Pact.Matchers.term({
@@ -255,21 +245,15 @@ function setGeneralInteractions (provider) {
           '  <email><\\/email>\\s.*' +
           ' <\\/data>\\s' +
           '<\\/ocs>',
-        generate: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message>OK</message>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
-          ' <data>\n' +
+        generate: getOcsResponseXmlBody(
+          'ok',
+          '100',
+          'OK',
           '  <id>admin</id>\n' +
           '  <display-name>admin</display-name>\n' +
-          '  <email></email>\n' +
-          ' </data>\n' +
-          '</ocs>'
+          '  <email></email>\n',
+          true
+        )
       })
     }
   }))
@@ -389,7 +373,7 @@ function setGeneralInteractions (provider) {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': origin,
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Methods': defaultAccessControlAllowMethods
       },
       body: getSuccessXmlResponseWithCode(100)
@@ -409,25 +393,20 @@ function setGeneralInteractions (provider) {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': origin,
-        'Content-Type': textOrXml
+        'Content-Type': textWithXml
       },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <enabled>true</enabled>\n' +
         '  <quota>\n' +
         '   <definition>default</definition>\n' +
         '  </quota>\n' +
         '  <email>asd@a.com</email>\n' +
         '  <displayname>test123</displayname>\n' +
-        '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
-        ' </data>\n' +
-        '</ocs>'
+        '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -445,7 +424,7 @@ function setGeneralInteractions (provider) {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': origin,
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Methods': defaultAccessControlAllowMethods
       },
       body: getFailureXmlResponseWithCode(102)
@@ -466,7 +445,7 @@ function setGeneralInteractions (provider) {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': origin,
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Methods': defaultAccessControlAllowMethods
       },
       body: getFailureXmlResponseWithCode(997)
@@ -644,16 +623,15 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <apps>\n' +
         '   <element>workflow</element>\n' +
         '   <element>files</element>\n' +
-        '  </apps>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  </apps>\n'
+      )
     }
   }))
 
@@ -823,17 +801,16 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <version>1.7</version>\n' +
         '  <website>ownCloud</website>\n' +
         '  <host>localhost</host>\n' +
         '  <contact></contact>\n' +
-        '  <ssl>false</ssl>\n' +
-        ' </data>\n' +
-        '</ocs>'
+        '  <ssl>false</ssl>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -849,16 +826,15 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <groups>\n' +
         '   <element>admin</element>\n' +
         '   <element>' + config.testGroup + '</element>\n' +
-        '  </groups>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  </groups>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -874,15 +850,14 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <users>\n' +
         '   <element>admin</element>\n' +
-        '  </users>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  </users>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -915,15 +890,14 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <groups>\n' +
         '   <element>' + config.testGroup + '</element>\n' +
-        '  </groups>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  </groups>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -940,13 +914,12 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
-        '   <element>' + config.testGroup + '</element>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
+        '   <element>' + config.testGroup + '</element>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -962,10 +935,10 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <enabled>true</enabled>\n' +
         '  <quota>\n' +
         '   <free>57800708096</free>\n' + // TODO need to be made more flexible for provider tests
@@ -976,9 +949,8 @@ function setGeneralInteractions (provider) {
         '  </quota>\n' +
         '  <email/>\n' +
         '  <displayname>' + config.username + '</displayname>\n' +
-        '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -1043,16 +1015,15 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <users>\n' +
         '   <element>' + config.username + '</element>\n' +
         '   <element>' + config.testUser + '</element>\n' +
-        '  </users>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  </users>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -1069,15 +1040,14 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
         '  <users>\n' +
         '   <element>' + config.username + '</element>\n' +
-        '  </users>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+        '  </users>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -1094,13 +1064,12 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsSuccessMeta +
-        ' <data>\n' +
-        '  <users/>\n' +
-        ' </data>\n' +
-        '</ocs>\n'
+      body: getOcsResponseXmlBody(
+        'ok',
+        '100',
+        null,
+        '  <users/>\n'
+      )
     }
   }))
   promises.push(provider.addInteraction({
@@ -1120,7 +1089,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: getSuccessXmlResponseWithCode(100)
@@ -1143,7 +1112,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: getSuccessXmlResponseWithCode(100)
@@ -1166,7 +1135,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: getSuccessXmlResponseWithCode(100)
@@ -1217,7 +1186,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1239,7 +1208,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1261,7 +1230,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1285,7 +1254,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 401,
         headers: {
-          'Content-Type': textOrXml,
+          'Content-Type': textWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: unauthorizedOcsXmlResponseBody
@@ -1314,7 +1283,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 401,
         headers: {
-          'Content-Type': textOrXml,
+          'Content-Type': textWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: unauthorizedOcsXmlResponseBody
@@ -1341,7 +1310,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 401,
         headers: {
-          'Content-Type': textOrXml,
+          'Content-Type': textWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: unauthorizedOcsXmlResponseBody
@@ -1365,7 +1334,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1387,7 +1356,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1409,7 +1378,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1431,7 +1400,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1643,7 +1612,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1665,7 +1634,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1687,7 +1656,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1709,7 +1678,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1731,7 +1700,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1753,7 +1722,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1775,7 +1744,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1797,7 +1766,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1819,7 +1788,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1841,7 +1810,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1863,7 +1832,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 401,
       headers: {
-        'Content-Type': textOrXml,
+        'Content-Type': textWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: unauthorizedOcsXmlResponseBody
@@ -1883,7 +1852,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: {
-        'Content-Type': applicationOrXml,
+        'Content-Type': applicationWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: '<?xml version="1.0"?>\n' +
@@ -1963,7 +1932,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 201,
       headers: {
-        'Content-Type': textOrHtml,
+        'Content-Type': textWithHtml,
         'Access-Control-Allow-Origin': origin
       }
     }
@@ -1981,7 +1950,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 409,
       headers: {
-        'Content-Type': textOrHtml,
+        'Content-Type': textWithHtml,
         'Access-Control-Allow-Origin': origin
       },
       body: '<?xml version="1.0" encoding="utf-8"?>\n' +
@@ -2004,7 +1973,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 207,
       headers: {
-        'Content-Type': applicationOrXml,
+        'Content-Type': applicationWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body:
@@ -2065,7 +2034,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 200,
         headers: {
-          'Content-Type': applicationOrXml,
+          'Content-Type': applicationWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: '<?xml version="1.0"?>\n' +
@@ -2335,7 +2304,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 200,
         headers: {
-          'Content-Type': applicationOrXml,
+          'Content-Type': applicationWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: '<?xml version="1.0"?>\n' +
@@ -2393,7 +2362,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 200,
         headers: {
-          'Content-Type': applicationOrXml,
+          'Content-Type': applicationWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: '<?xml version="1.0"?>\n' +
@@ -2453,7 +2422,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 200,
         headers: {
-          'Content-Type': applicationOrXml,
+          'Content-Type': applicationWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: '<?xml version="1.0"?>\n' +
@@ -2531,7 +2500,7 @@ function setGeneralInteractions (provider) {
     willRespondWith: {
       status: 200,
       headers: {
-        'Content-Type': applicationOrXml,
+        'Content-Type': applicationWithXml,
         'Access-Control-Allow-Origin': origin
       },
       body: getFailureXmlPaginatedResponseWithCodeAndMessage(404, 'Wrong path, file/folder doesn\'t exist')
@@ -2649,7 +2618,7 @@ function setGeneralInteractions (provider) {
       willRespondWith: {
         status: 200,
         headers: {
-          'Content-Type': applicationOrXml,
+          'Content-Type': applicationWithXml,
           'Access-Control-Allow-Origin': origin
         },
         body: '<?xml version="1.0"?>\n' +

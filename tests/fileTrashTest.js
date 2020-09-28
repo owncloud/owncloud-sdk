@@ -7,6 +7,19 @@ describe('oc.fileTrash', function () {
   let trashEnabled = false
   const userId = config.username
 
+  // PACT setup
+  const Pact = require('@pact-foundation/pact-web')
+  const provider = new Pact.PactWeb()
+  const { setGeneralInteractions } = require('./pactHelper.js')
+
+  beforeAll(function (done) {
+    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+  })
+
+  afterAll(function (done) {
+    provider.removeInteractions().then(done, done.fail)
+  })
+
   beforeEach(function (done) {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,

@@ -4,14 +4,13 @@ fdescribe('oc.fileTrash', function () {
 
   // LIBRARY INSTANCE
   let oc
-  let trashEnabled = false
+  const trashEnabled = true
   const userId = config.username
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('./pactHelper.js')
-
+  const { validAuthHeaders, accessControlAllowHeaders, accessControlAllowMethods, setGeneralInteractions } = require('./pactHelper.js')
   beforeAll(function (done) {
     Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
   })
@@ -33,23 +32,7 @@ fdescribe('oc.fileTrash', function () {
 
     oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-
-      oc.getCapabilities().then(cap => {
-        trashEnabled = (cap.capabilities.dav.trashbin !== undefined)
-        if (trashEnabled) {
-          oc.fileTrash.clearTrashBin().then(() => {
-            done()
-          }).catch(error => {
-            fail(error)
-            done()
-          })
-        } else {
-          done()
-        }
-      }).catch(error => {
-        fail(error)
-        done()
-      })
+      done()
     }).catch(error => {
       fail(error)
       done()
@@ -74,8 +57,70 @@ fdescribe('oc.fileTrash', function () {
     })
   })
 
-  describe('when empty', function () {
-    it('should list no items ', function (done) {
+  fdescribe('when empty', function () {
+    beforeEach(async function (done) {
+      const promises = []
+      promises.push(setGeneralInteractions(provider))
+      promises.push(provider.addInteraction({
+        uponReceiving: 'PROPFIND to list trash items',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/\\/$',
+            generate: '/remote.php/dav/trash-bin/admin//'
+          }),
+          headers: validAuthHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
+            '  <d:prop>\n' +
+            '    <oc:trashbin-original-filename />\n' +
+            '    <oc:trashbin-original-location />\n' +
+            '    <oc:trashbin-delete-timestamp />\n' +
+            '    <d:getcontentlength />\n' +
+            '    <d:resourcetype />\n' +
+            '  </d:prop>\n' +
+            '</d:propfind>'
+        },
+        willRespondWith: {
+          status: 207,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': accessControlAllowMethods
+          },
+          body: '<?xml version="1.0" encoding="UTF-8"?>\n' +
+            '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
+            '   <d:response>\n' +
+            '      <d:href>/core/remote.php/dav/trash-bin/admin/</d:href>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <d:resourcetype>\n' +
+            '               <d:collection />\n' +
+            '            </d:resourcetype>\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+            '      </d:propstat>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <oc:trashbin-original-filename />\n' +
+            '            <oc:trashbin-original-location />\n' +
+            '            <oc:trashbin-delete-timestamp />\n' +
+            '            <d:getcontentlength />\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 404 Not Found</d:status>\n' +
+            '      </d:propstat>\n' +
+            '   </d:response>\n' +
+            '</d:multistatus>'
+        }
+      }))
+      Promise.all(promises).then(done, done.fail)
+    })
+
+    afterEach(function (done) {
+      provider.removeInteractions().then(done, done.fail)
+    })
+
+    fit('should list no items ', function (done) {
       if (!trashEnabled) {
         pending()
       }
@@ -95,9 +140,8 @@ fdescribe('oc.fileTrash', function () {
         pending()
       }
 
-      const suffix = Math.random().toString(36).substr(2, 9)
-      testFolder = 'testFolder' + suffix
-      testFile = testFolder + '/file.txt'
+      testFolder = config.testFolder
+      testFile = testFolder + '/' + config.testFile
       oc.files.createFolder(testFolder).then(() => {
         oc.files.putFileContents(testFile, '*').then(() => {
           oc.files.delete(testFolder).then(() => {
@@ -122,6 +166,9 @@ fdescribe('oc.fileTrash', function () {
         pending()
       }
       oc.fileTrash.list('/').then(trashItems => {
+        console.log(trashItems)
+        console.log(trashItems.length)
+        console.log(trashItems[1])
         expect(trashItems.length).toEqual(2)
         expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFolder)
         done()
@@ -140,7 +187,7 @@ fdescribe('oc.fileTrash', function () {
           expect(trashItems.length).toEqual(2)
           expect(trashItems[0].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFolder)
           expect(trashItems[0].getProperty('{http://owncloud.org/ns}trashbin-original-location')).toEqual(testFolder)
-          expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual('file.txt')
+          expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(config.testFile)
           expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-location')).toEqual(testFile)
           done()
         })

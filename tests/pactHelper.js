@@ -5,6 +5,7 @@ var validUserPasswordHash = btoa(config.username + ':' + config.password)
 const Pact = require('@pact-foundation/pact-web')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
+const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = {
   authorization: 'Basic ' + validUserPasswordHash,
@@ -39,7 +40,7 @@ const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {
 
   if (shareType === 3) {
     return data +
-      '  <url>' + config.owncloudURL + '/yrkoLeS33y1aTya</url>\n'
+      '  <url>' + config.owncloudURL + '/s/yrkoLeS33y1aTya</url>\n'
   }
   return data
 }
@@ -88,7 +89,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       }
     }
   }))
@@ -334,7 +335,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': origin,
         'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
@@ -390,7 +391,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': origin,
         'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
@@ -415,7 +416,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': origin,
         'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
@@ -1459,7 +1460,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1483,7 +1484,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1507,7 +1508,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1531,7 +1532,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1554,7 +1555,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1578,7 +1579,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1602,7 +1603,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1625,7 +1626,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -2065,7 +2066,7 @@ function setGeneralInteractions (provider) {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': accessControlAllowHeaders,
-          'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          'Access-Control-Allow-Methods': accessControlAllowMethods
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
@@ -2304,7 +2305,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
@@ -2354,7 +2355,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
@@ -2380,7 +2381,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
@@ -2484,7 +2485,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
@@ -2563,7 +2564,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +

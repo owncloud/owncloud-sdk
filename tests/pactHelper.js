@@ -79,7 +79,7 @@ function setGeneralInteractions (provider) {
       }),
       headers: {
         'Access-Control-Request-Method': Pact.Matchers.regex({
-          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND',
+          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY',
           generate: 'GET'
         })
       }

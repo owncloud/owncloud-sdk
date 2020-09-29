@@ -20,6 +20,21 @@
       "test.txt",
       "文件.txt"
     ],
+    "testFilesPath": [
+      "%2Ftest+space+and+%2B+and+%23.txt",
+      "%2Ftest.txt",
+      "%2F%E6%96%87%E4%BB%B6.txt"
+    ],
+    "testFilesId": [
+      18,
+      14,
+      19
+    ],
+    "testFilesToken": [
+      "eGAWIbKUImVbtu4",
+      "yrkoLeS33y1aTya",
+      "JbdgMGkt3Cq6B0u"
+    ],
     "testContent": "123456",
     "expirationDate": "2022-10-01"
 }

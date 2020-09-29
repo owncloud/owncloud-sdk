@@ -5,16 +5,46 @@ var validUserPasswordHash = btoa(config.username + ':' + config.password)
 const Pact = require('@pact-foundation/pact-web')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
+const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = {
   authorization: 'Basic ' + validUserPasswordHash,
   Origin: origin
 }
-const ocsSuccessMeta = ' <meta>\n' +
-  '  <status>ok</status>\n' +
-  '  <statuscode>100</statuscode>\n' +
-  '  <message/>\n' +
-  ' </meta>\n'
+
+const ocsMeta = function (status, statusCode, Message = null) {
+  if (Message == null) {
+    return ' <meta>\n' +
+      '  <status>' + status + '</status>\n' +
+      '  <statuscode>' + statusCode + '</statuscode>\n' +
+      '  <message/>\n' +
+      ' </meta>\n'
+  }
+  return ' <meta>\n' +
+    '  <status>' + status + '</status>\n' +
+    '  <statuscode>' + statusCode + '</statuscode>\n' +
+    '  <message>' + Message + '</message>\n' +
+    ' </meta>\n'
+}
+
+const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {
+  const data = '  <id>' + id + '</id>\n' +
+    '  <share_type>' + shareType + '</share_type>\n' +
+    '  <uid_owner>admin</uid_owner>\n' +
+    '  <displayname_owner>admin</displayname_owner>\n' +
+    '  <permissions>' + permissions + '</permissions>\n' +
+    '  <uid_file_owner>admin</uid_file_owner>\n' +
+    '  <displayname_file_owner>admin</displayname_file_owner>\n' +
+    '  <path>' + fileTarget + '</path>\n' +
+    '  <file_target>' + fileTarget + '</file_target>\n'
+
+  if (shareType === 3) {
+    return data +
+      '  <url>' + config.owncloudURL + '/s/yrkoLeS33y1aTya</url>\n'
+  }
+  return data
+}
+
 const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8',
   'Access-Control-Allow-Origin': origin
@@ -24,6 +54,7 @@ const invalidAuthHeader = Pact.Matchers.term({
   matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
   generate: 'Basic bm9uRXhpc3RpbmdVc2VycnByeXJxOHg2OmNvbmZpZy5wYXNzd29yZHJwcnlycTh4Ng=='
 })
+
 const unauthorizedXmlResponseBody = '<?xml version="1.0"?>\n' +
   '<ocs>\n' +
   ' <meta>\n' +
@@ -58,7 +89,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       }
     }
   }))
@@ -164,13 +195,7 @@ function setGeneralInteractions (provider) {
       body: Pact.Matchers.term({
         matcher: '<\\?xml version="1\\.0"\\?>\\s' +
           '<ocs>\\s' +
-          ' <meta>\\s' +
-          '  <status>ok<\\/status>\\s' +
-          '  <statuscode>100<\\/statuscode>\\s' +
-          '  <message>OK<\\/message>\\s' +
-          '  <totalitems><\\/totalitems>\\s' +
-          '  <itemsperpage><\\/itemsperpage>\\s' +
-          ' <\\/meta>\\s' +
+          ocsMeta('ok', 100, 'OK') +
           ' <data>\\s' +
           '  <id>admin<\\/id>\\s' +
           '  <display-name>admin<\\/display-name>\\s' +
@@ -179,13 +204,7 @@ function setGeneralInteractions (provider) {
           '<\\/ocs>',
         generate: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message>OK</message>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', 100, 'OK') +
           ' <data>\n' +
           '  <id>admin</id>\n' +
           '  <display-name>admin</display-name>\n' +
@@ -260,7 +279,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         '  <data/>\n' +
         '</ocs>\n'
     }
@@ -316,15 +335,11 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': origin,
         'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('ok', '100') +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -347,11 +362,7 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <enabled>true</enabled>\n' +
         '  <quota>\n' +
@@ -380,15 +391,11 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': origin,
         'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>102</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 102) +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -409,15 +416,11 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': origin,
         'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>997</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 997) +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -438,11 +441,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>102</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 102) +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -463,11 +462,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>102</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 102) +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -487,11 +482,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>998</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 998) +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -512,11 +503,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>102</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 102) +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -537,11 +524,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>102</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 102) +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -562,11 +545,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>102</statuscode>\n' +
-        '  <message>Group:thisGroupShouldNotExist does not exist</message>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 102, 'Group:thisGroupShouldNotExist does not exist') +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -587,11 +566,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>101</statuscode>\n' +
-        '  <message>User does not exist</message>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 101, 'User does not exist') +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -611,11 +586,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>101</statuscode>\n' +
-        '  <message>User does not exist</message>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 101, 'User does not exist') +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -660,7 +631,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <apps>\n' +
         '   <element>workflow</element>\n' +
@@ -759,7 +730,7 @@ function setGeneralInteractions (provider) {
         headers: xmlResponseHeaders,
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ocsSuccessMeta +
+          ocsMeta('ok', '100') +
           data +
           '</ocs>'
       }
@@ -793,7 +764,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         data +
         '</ocs>'
     }
@@ -817,7 +788,7 @@ function setGeneralInteractions (provider) {
         headers: xmlResponseHeaders,
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ocsSuccessMeta +
+          ocsMeta('ok', '100') +
           ' <data/>\n' +
           '</ocs>'
       }
@@ -839,7 +810,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <version>1.7</version>\n' +
         '  <website>ownCloud</website>\n' +
@@ -865,7 +836,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <groups>\n' +
         '   <element>admin</element>\n' +
@@ -890,7 +861,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <users>\n' +
         '   <element>admin</element>\n' +
@@ -914,11 +885,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>101</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 101) +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -939,7 +906,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <groups>\n' +
         '   <element>' + config.testGroup + '</element>\n' +
@@ -964,7 +931,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '   <element>' + config.testGroup + '</element>\n' +
         ' </data>\n' +
@@ -986,7 +953,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <enabled>true</enabled>\n' +
         '  <quota>\n' +
@@ -1018,11 +985,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>998</statuscode>\n' +
-        '  <message>The requested user could not be found</message>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 998, 'The requested user could not be found') +
         ' <data/>\n' +
         '</ocs>\n'
     }
@@ -1042,7 +1005,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         '  <data/>\n' +
         '</ocs>\n'
     }
@@ -1062,11 +1025,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>101</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 101) +
         '  <data/>\n' +
         '</ocs>\n'
     }
@@ -1087,7 +1046,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <users>\n' +
         '   <element>' + config.username + '</element>\n' +
@@ -1113,7 +1072,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <users>\n' +
         '   <element>' + config.username + '</element>\n' +
@@ -1138,7 +1097,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ocsSuccessMeta +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
         '  <users/>\n' +
         ' </data>\n' +
@@ -1153,10 +1112,7 @@ function setGeneralInteractions (provider) {
         matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
         generate: '/ocs/v1.php/cloud/groups'
       }),
-      headers: {
-        authorization: 'Basic ' + validUserPasswordHash,
-        Origin: origin
-      },
+      headers: validAuthHeaders,
       body: 'groupid=' + config.testGroup
     },
     willRespondWith: {
@@ -1167,11 +1123,7 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('ok', '100') +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -1198,11 +1150,7 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('ok', '100') +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -1215,10 +1163,7 @@ function setGeneralInteractions (provider) {
         matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups/' + config.testGroup + '$',
         generate: '/ocs/v1.php/cloud/groups/' + config.testGroup
       }),
-      headers: {
-        authorization: 'Basic ' + validUserPasswordHash,
-        Origin: origin
-      },
+      headers: validAuthHeaders,
       body: 'undefined=undefined'
     },
     willRespondWith: {
@@ -1229,11 +1174,7 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        ' </meta>\n' +
+        ocsMeta('ok', '100') +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -1247,10 +1188,7 @@ function setGeneralInteractions (provider) {
         generate: '/ocs/v2.php/apps/files_sharing/api/v1/sharees'
       }),
       query: 'search=test&itemType=folder&page=1&perPage=200&format=json',
-      headers: {
-        authorization: 'Basic ' + validUserPasswordHash,
-        Origin: origin
-      }
+      headers: validAuthHeaders
     },
     willRespondWith: {
       status: 200,
@@ -1522,7 +1460,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1546,7 +1484,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1570,7 +1508,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1594,7 +1532,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1617,7 +1555,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1641,7 +1579,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1665,7 +1603,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1688,7 +1626,7 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: unauthorizedXmlResponseBody
     }
@@ -1954,41 +1892,9 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>ok</status>\n' +
-        '  <statuscode>100</statuscode>\n' +
-        '  <message/>\n' +
-        '  <totalitems></totalitems>\n' +
-        '  <itemsperpage></itemsperpage>\n' +
-        ' </meta>\n' +
+        ocsMeta('ok', '100') +
         ' <data>\n' +
-        '  <id>7</id>\n' +
-        '  <share_type>0</share_type>\n' +
-        '  <uid_owner>admin</uid_owner>\n' +
-        '  <displayname_owner>admin</displayname_owner>\n' +
-        '  <permissions>17</permissions>\n' +
-        '  <stime>1600332102</stime>\n' +
-        '  <parent/>\n' +
-        '  <expiration/>\n' +
-        '  <token/>\n' +
-        '  <uid_file_owner>admin</uid_file_owner>\n' +
-        '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-        '  <additional_info_owner/>\n' +
-        '  <additional_info_file_owner/>\n' +
-        '  <path>/.......txt</path>\n' +
-        '  <item_type>file</item_type>\n' +
-        '  <mimetype>text/plain</mimetype>\n' +
-        '  <storage_id>home::admin</storage_id>\n' +
-        '  <storage>1</storage>\n' +
-        '  <item_source>2147498361</item_source>\n' +
-        '  <file_source>2147498361</file_source>\n' +
-        '  <file_parent>3</file_parent>\n' +
-        '  <file_target>/.......txt</file_target>\n' +
-        '  <share_with>test123</share_with>\n' +
-        '  <share_with_displayname>test123</share_with_displayname>\n' +
-        '  <share_with_additional_info/>\n' +
-        '  <mail_send>0</mail_send>\n' +
-        '  <attributes>[{&quot;scope&quot;:&quot;ownCloud&quot;,&quot;key&quot;:&quot;read&quot;,&quot;enabled&quot;:&quot;true&quot;},{&quot;scope&quot;:&quot;ownCloud&quot;,&quot;key&quot;:&quot;share&quot;,&quot;enabled&quot;:&quot;true&quot;}]</attributes>\n' +
+        shareResponseOcsData(0, 7, 17, '/.......txt') +
         ' </data>\n' +
         '</ocs>'
     }
@@ -2112,13 +2018,9 @@ function setGeneralInteractions (provider) {
     }
   }))
 
-  var file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  var path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
-  var id = [14, 18, 19]
-  var token = ['yrkoLeS33y1aTya', 'eGAWIbKUImVbtu4', 'JbdgMGkt3Cq6B0u']
-  for (i = 0; i < file.length; i++) {
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
-      uponReceiving: 'a request to share file ' + path[i] + ' as link share',
+      uponReceiving: 'a request to share file ' + config.testFilesPath[i] + ' as link share',
       withRequest: {
         method: 'POST',
         path: Pact.Matchers.term({
@@ -2126,7 +2028,7 @@ function setGeneralInteractions (provider) {
           generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         }),
         headers: validAuthHeaders,
-        body: 'shareType=3&path=' + path[i]
+        body: 'shareType=3&path=' + config.testFilesPath[i]
       },
       willRespondWith: {
         status: 200,
@@ -2136,46 +2038,18 @@ function setGeneralInteractions (provider) {
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data>\n' +
-          '  <id>' + id[i] + '</id>\n' +
-          '  <share_type>3</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>1</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <token>' + token[i] + '</token>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>' + file[i] + '</path>\n' +
-          '  <item_type>file</item_type>\n' +
-          '  <file_target>' + file[i] + '</file_target>\n' +
-          '  <name/>\n' +
-          '  <url>http://localhost/oc/s/yrkoLeS33y1aTya</url>\n' +
-          '  <mail_send>0</mail_send>\n' +
-          '  <attributes/>\n' +
+          shareResponseOcsData(3, config.testFilesId[i], 1, config.testFiles[i]) +
+          '  <token>' + config.testFilesToken[i] + '</token>\n' +
           ' </data>\n' +
           '</ocs>'
       }
     }))
   }
 
-  file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  path = ['%2Ftest.txt', '%2Ftest%20space%20and%20%2B%20and%20%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
-  id = [14, 18, 19]
-  token = ['yrkoLeS33y1aTya', 'eGAWIbKUImVbtu4', 'JbdgMGkt3Cq6B0u']
-  let shareids
-  let files
-  for (i = 0; i < file.length; i++) {
+  const path = ['%2Ftest.txt', '%2Ftest%20space%20and%20%2B%20and%20%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
       uponReceiving: 'a GET request for a share ' + path[i],
       withRequest: {
@@ -2185,48 +2059,22 @@ function setGeneralInteractions (provider) {
           generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         }),
         query: 'path=' + path[i],
-        headers: {
-          authorization: 'Basic YWRtaW46YWRtaW4=',
-          Origin: origin
-        }
+        headers: validAuthHeaders
       },
       willRespondWith: {
         status: 200,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Headers': accessControlAllowHeaders,
-          'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          'Access-Control-Allow-Methods': accessControlAllowMethods
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data>\n' +
           '  <element>\n' +
-          '   <id>' + id[i] + '</id>\n' +
-          '   <share_type>3</share_type>\n' +
-          '   <uid_owner>admin</uid_owner>\n' +
-          '   <displayname_owner>admin</displayname_owner>\n' +
-          '   <permissions>1</permissions>\n' +
-          '   <parent/>\n' +
-          '   <expiration/>\n' +
-          '   <token>' + token[i] + '</token>\n' +
-          '   <uid_file_owner>admin</uid_file_owner>\n' +
-          '   <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '   <additional_info_owner/>\n' +
-          '   <additional_info_file_owner/>\n' +
-          '   <path>/' + file[i] + '</path>\n' +
-          '   <item_type>file</item_type>\n' +
-          '   <file_target>/' + file[i] + '</file_target>\n' +
-          '   <name/>\n' +
-          '   <url>http://localhost/oc/s/P4sVlWUvQXwro6z</url>\n' +
-          '   <mail_send>0</mail_send>\n' +
-          '   <attributes/>\n' +
+          shareResponseOcsData(3, config.testFilesId[i], 1, config.testFiles[i]) +
+          '   <token>' + config.testFilesToken[i] + '</token>\n' +
           '  </element>\n' +
           ' </data>\n' +
           '</ocs>'
@@ -2234,7 +2082,7 @@ function setGeneralInteractions (provider) {
     }))
   }
 
-  shareids = [14, 18, 19, 9]
+  const shareids = [14, 18, 19, 9]
   for (const shareid of shareids) {
     promises.push(provider.addInteraction({
       uponReceiving: 'a DELETE request for a share with id ' + shareid,
@@ -2253,29 +2101,21 @@ function setGeneralInteractions (provider) {
         headers: xmlResponseHeaders,
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data/>\n' +
           '</ocs>'
       }
     }))
   }
 
-  shareids = [14, 18, 19]
-  file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  for (i = 0; i < file.length; i++) {
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
-      uponReceiving: 'a GET request for an existent share with id ' + shareids[i],
+      uponReceiving: 'a GET request for an existent share with id ' + config.testFilesId[i],
       withRequest: {
         method: 'GET',
         path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + shareids[i] + '$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + shareids[i]
+          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + config.testFilesId[i] + '$',
+          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + config.testFilesId[i]
         }),
         headers: validAuthHeaders
       },
@@ -2284,34 +2124,10 @@ function setGeneralInteractions (provider) {
         headers: xmlResponseHeaders,
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data>\n' +
           '  <element>\n' +
-          '   <id>' + shareids[i] + '</id>\n' +
-          '   <share_type>0</share_type>\n' +
-          '   <uid_owner>admin</uid_owner>\n' +
-          '   <displayname_owner>admin</displayname_owner>\n' +
-          '   <permissions>19</permissions>\n' +
-          '   <parent/>\n' +
-          '   <expiration/>\n' +
-          '   <token/>\n' +
-          '   <uid_file_owner>admin</uid_file_owner>\n' +
-          '   <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '   <additional_info_owner/>\n' +
-          '   <additional_info_file_owner/>\n' +
-          '   <path>' + file[i] + '</path>\n' +
-          '   <item_type>file</item_type>\n' +
-          '   <file_target>' + file[i] + '</file_target>\n' +
-          '   <share_with>test123</share_with>\n' +
-          '   <share_with_displayname>test123</share_with_displayname>\n' +
-          '   <share_with_additional_info/>\n' +
-          '   <attributes/>\n' +
+          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
           '  </element>\n' +
           ' </data>\n' +
           '</ocs>'
@@ -2319,7 +2135,7 @@ function setGeneralInteractions (provider) {
     }))
   }
 
-  files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123']
+  let files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123']
   for (const file of files) {
     promises.push(provider.addInteraction({
       uponReceiving: 'a DELETE request for a file ' + file,
@@ -2336,11 +2152,7 @@ function setGeneralInteractions (provider) {
         headers: xmlResponseHeaders,
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data/>\n' +
           '</ocs>'
       }
@@ -2388,23 +2200,17 @@ function setGeneralInteractions (provider) {
   })
   )
 
-  file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
-  id = [14, 18, 19]
-  for (i = 0; i < file.length; i++) {
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
-      uponReceiving: 'a user share POST request with valid auth of path ' + path[i],
+      uponReceiving: 'a user share POST request with valid auth of path ' + config.testFilesPath[i],
       withRequest: {
         method: 'POST',
         path: Pact.Matchers.term({
           matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
           generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         }),
-        headers: {
-          authorization: 'Basic YWRtaW46YWRtaW4=',
-          Origin: origin
-        },
-        body: 'shareType=0&shareWith=' + config.testUser + '&path=' + path[i]
+        headers: validAuthHeaders,
+        body: 'shareType=0&shareWith=' + config.testUser + '&path=' + config.testFilesPath[i]
       },
       willRespondWith: {
         status: 200,
@@ -2414,54 +2220,25 @@ function setGeneralInteractions (provider) {
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data>\n' +
-          '  <id>' + id[i] + '</id>\n' +
-          '  <share_type>0</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>19</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <token/>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>' + file[i] + '</path>\n' +
-          '  <item_type>file</item_type>\n' +
-          '  <file_target>' + file[i] + '</file_target>\n' +
-          '  <share_with>test123</share_with>\n' +
-          '  <share_with_displayname>test123</share_with_displayname>\n' +
-          '  <share_with_additional_info/>\n' +
-          '  <attributes/>\n' +
+          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
           ' </data>\n' +
           '</ocs>'
       }
     }))
   }
 
-  shareids = [14, 18, 19]
-  file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  for (i = 0; i < file.length; i++) {
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
-      uponReceiving: 'a PUT request to update user share permissions of share with id ' + shareids[i],
+      uponReceiving: 'a PUT request to update user share permissions of share with id ' + config.testFilesId[i],
       withRequest: {
         method: 'PUT',
         path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + shareids[i] + '$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + shareids[i]
+          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + config.testFilesId[i] + '$',
+          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + config.testFilesId[i]
         }),
-        headers: {
-          authorization: 'Basic YWRtaW46YWRtaW4=',
-          Origin: origin
-        },
+        headers: validAuthHeaders,
         body: 'permissions=19'
       },
       willRespondWith: {
@@ -2472,57 +2249,26 @@ function setGeneralInteractions (provider) {
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data>\n' +
-          '  <id>' + shareids[i] + '</id>\n' +
-          '  <share_type>0</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>19</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <token/>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>' + file[i] + '</path>\n' +
-          '  <item_type>file</item_type>\n' +
-          '  <mimetype>text/plain</mimetype>\n' +
-          '  <file_target>' + file[i] + '</file_target>\n' +
-          '  <share_with>test123</share_with>\n' +
-          '  <share_with_displayname>test123</share_with_displayname>\n' +
-          '  <share_with_additional_info/>\n' +
-          '  <attributes/>\n' +
+          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
           ' </data>\n' +
           '</ocs>'
       }
     }))
   }
 
-  file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
-  id = [14, 18, 19]
-  for (i = 0; i < file.length; i++) {
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
-      uponReceiving: 'a group share POST request with valid auth to path ' + path[i],
+      uponReceiving: 'a group share POST request with valid auth to path ' + config.testFilesPath[i],
       withRequest: {
         method: 'POST',
         path: Pact.Matchers.term({
           matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
           generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         }),
-        headers: {
-          authorization: 'Basic YWRtaW46YWRtaW4=',
-          Origin: origin
-        },
-        body: 'shareType=1&shareWith=' + config.testGroup + '&path=' + path[i] + '&permissions=19'
+        headers: validAuthHeaders,
+        body: 'shareType=1&shareWith=' + config.testGroup + '&path=' + config.testFilesPath[i] + '&permissions=19'
       },
       willRespondWith: {
         status: 200,
@@ -2532,32 +2278,11 @@ function setGeneralInteractions (provider) {
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('ok', '100') +
           ' <data>\n' +
-          '  <id>' + id[i] + '</id>\n' +
-          '  <share_type>1</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>19</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <token/>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>' + file[i] + '</path>\n' +
-          '  <item_type>file</item_type>\n' +
-          '  <file_target>' + file[i] + '</file_target>\n' +
-          '  <share_with>testGroup</share_with>\n' +
-          '  <share_with_displayname>testGroup</share_with_displayname>\n' +
-          '  <attributes/>\n' +
+          shareResponseOcsData(1, config.testFilesId[i], 19, config.testFiles[i]) +
+          '  <share_with>' + config.testGroup + '</share_with>\n' +
+          '  <share_with_displayname>' + config.testGroup + '</share_with_displayname>\n' +
           ' </data>\n' +
           '</ocs>'
       }
@@ -2572,10 +2297,7 @@ function setGeneralInteractions (provider) {
         matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
         generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
       }),
-      headers: {
-        authorization: 'Basic YWRtaW46YWRtaW4=',
-        Origin: origin
-      },
+      headers: validAuthHeaders,
       body: 'shareType=3' + '&path=%2F' + config.nonExistentFile + '&password=' + config.testUserPassword
     },
     willRespondWith: {
@@ -2583,17 +2305,11 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>404</statuscode>\n' +
-        '  <message>Wrong path, file/folder doesn\'t exist</message>\n' +
-        '  <totalitems></totalitems>\n' +
-        '  <itemsperpage></itemsperpage>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 404, 'Wrong path, file/folder doesn\'t exist') +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -2606,10 +2322,7 @@ function setGeneralInteractions (provider) {
         matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
         generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
       }),
-      headers: {
-        authorization: 'Basic YWRtaW46YWRtaW4=',
-        Origin: origin
-      },
+      headers: validAuthHeaders,
       body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.nonExistentFile + '&permissions=19'
     },
     willRespondWith: {
@@ -2620,13 +2333,7 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
-        ' <meta>\n' +
-        '  <status>failure</status>\n' +
-        '  <statuscode>404</statuscode>\n' +
-        '  <message>Wrong path, file/folder doesn\'t exist</message>\n' +
-        '  <totalitems></totalitems>\n' +
-        '  <itemsperpage></itemsperpage>\n' +
-        ' </meta>\n' +
+        ocsMeta('failure', 404, 'Wrong path, file/folder doesn\'t exist') +
         ' <data/>\n' +
         '</ocs>'
     }
@@ -2641,27 +2348,18 @@ function setGeneralInteractions (provider) {
         generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
       }),
       query: 'path=%2F' + config.nonExistentFile,
-      headers: {
-        authorization: 'Basic YWRtaW46YWRtaW4=',
-        Origin: origin
-      }
+      headers: validAuthHeaders
     },
     willRespondWith: {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>failure</status>\n' +
-          '  <statuscode>404</statuscode>\n' +
-          '  <message>Wrong path, file/folder doesn\'t exist</message>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('failure', 404, 'Wrong path, file/folder doesn\'t exist') +
           ' <data/>\n' +
           '</ocs>'
     }
@@ -2676,27 +2374,18 @@ function setGeneralInteractions (provider) {
         generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
       }),
       query: 'path=%2FnewFileCreated123',
-      headers: {
-        authorization: 'Basic YWRtaW46YWRtaW4=',
-        Origin: origin
-      }
+      headers: validAuthHeaders
     },
     willRespondWith: {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('ok', '100') +
           ' <data/>\n' +
           '</ocs>'
     }
@@ -2717,13 +2406,7 @@ function setGeneralInteractions (provider) {
       headers: xmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>failure</status>\n' +
-          '  <statuscode>404</statuscode>\n' +
-          '  <message>Wrong share ID, share doesn\'t exist</message>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('failure', 404, 'Wrong share ID, share doesn\'t exist') +
           ' <data/>\n' +
           '</ocs>'
     }
@@ -2749,36 +2432,24 @@ function setGeneralInteractions (provider) {
         },
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>failure</status>\n' +
-          '  <statuscode>404</statuscode>\n' +
-          '  <message>Wrong share ID, share doesn\'t exist</message>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+          ocsMeta('failure', 404, 'Wrong share ID, share doesn\'t exist') +
           ' <data/>\n' +
           '</ocs>'
       }
     }))
   }
 
-  file = ['test.txt', 'test space and + and #.txt', '文件.txt']
-  path = ['%2Ftest.txt', '%2Ftest+space+and+%2B+and+%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
-  id = [14, 18, 19]
-  for (i = 0; i < file.length; i++) {
+  for (i = 0; i < config.testFiles.length; i++) {
     promises.push(provider.addInteraction({
-      uponReceiving: 'a user share POST request with valid auth and expiration date set to path ' + path[i],
+      uponReceiving: 'a user share POST request with valid auth and expiration date set to path ' + config.testFilesPath[i],
       withRequest: {
         method: 'POST',
         path: Pact.Matchers.term({
           matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
           generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         }),
-        headers: {
-          authorization: 'Basic YWRtaW46YWRtaW4=',
-          Origin: origin
-        },
-        body: 'shareType=0&shareWith=' + config.testUser + '&path=' + path[i] + '&expireDate=' + config.expirationDate
+        headers: validAuthHeaders,
+        body: 'shareType=0&shareWith=' + config.testUser + '&path=' + config.testFilesPath[i] + '&expireDate=' + config.expirationDate
       },
       willRespondWith: {
         status: 200,
@@ -2788,33 +2459,10 @@ function setGeneralInteractions (provider) {
         },
         body: '<?xml version="1.0"?>\n' +
             '<ocs>\n' +
-            ' <meta>\n' +
-            '  <status>ok</status>\n' +
-            '  <statuscode>100</statuscode>\n' +
-            '  <message/>\n' +
-            '  <totalitems></totalitems>\n' +
-            '  <itemsperpage></itemsperpage>\n' +
-            ' </meta>\n' +
+          ocsMeta('ok', '100') +
             ' <data>\n' +
-            '  <id>' + id[i] + '</id>\n' +
-            '  <share_type>0</share_type>\n' +
-            '  <uid_owner>admin</uid_owner>\n' +
-            '  <displayname_owner>admin</displayname_owner>\n' +
-            '  <permissions>19</permissions>\n' +
-            '  <parent/>\n' +
-            '  <expiration>2022-10-01 00:00:00</expiration>\n' +
-            '  <token/>\n' +
-            '  <uid_file_owner>admin</uid_file_owner>\n' +
-            '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-            '  <additional_info_owner/>\n' +
-            '  <additional_info_file_owner/>\n' +
-            '  <path>' + file[i] + '</path>\n' +
-            '  <item_type>file</item_type>\n' +
-            '  <file_target>' + file[i] + '</file_target>\n' +
-            '  <share_with>test123</share_with>\n' +
-            '  <share_with_displayname>test123</share_with_displayname>\n' +
-            '  <share_with_additional_info/>\n' +
-            '  <attributes/>\n' +
+          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
+            '  <expiration>' + config.expirationDate + '</expiration>\n' +
             ' </data>\n' +
             '</ocs>'
       }
@@ -2829,10 +2477,7 @@ function setGeneralInteractions (provider) {
         matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
         generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
       }),
-      headers: {
-        authorization: 'Basic YWRtaW46YWRtaW4=',
-        Origin: origin
-      },
+      headers: validAuthHeaders,
       body: 'shareType=3' + '&path=%2F' + config.testFolder + '&name=%C3%96ffentlicher+Link'
     },
     willRespondWith: {
@@ -2840,37 +2485,16 @@ function setGeneralInteractions (provider) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
-          ' <data>\n' +
-          '  <id>9</id>\n' +
-          '  <share_type>3</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>1</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>/testFolder</path>\n' +
-          '  <item_type>folder</item_type>\n' +
-          '  <file_target>/testFolder</file_target>\n' +
-          '  <name>Öffentlicher Link</name>\n' +
-          '  <url>http://localhost/oc/s/H1wiMY2oDYmnWdC</url>\n' +
-          '  <attributes/>\n' +
-          ' </data>\n' +
-          '</ocs>'
+        '<ocs>\n' +
+        ocsMeta('ok', '100') +
+        ' <data>\n' +
+        shareResponseOcsData(3, 9, 1, '/testFolder') +
+        '  <name>Öffentlicher Link</name>\n' +
+        ' </data>\n' +
+        '</ocs>'
     }
   }))
   promises.push(provider.addInteraction({
@@ -2891,13 +2515,7 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>failure</status>\n' +
-          '  <statuscode>400</statuscode>\n' +
-          '  <message>Can\'t change permissions for public share links</message>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('failure', 400, 'Can\'t change permissions for public share links') +
           ' <data/>\n' +
           '</ocs>'
     }
@@ -2921,31 +2539,10 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('ok', '100') +
           ' <data>\n' +
-          '  <id>9</id>\n' +
-          '  <share_type>3</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>15</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>/testFolder</path>\n' +
-          '  <item_type>folder</item_type>\n' +
-          '  <file_target>/testFolder</file_target>\n' +
+         shareResponseOcsData(3, 9, 15, '/testFolder') +
           '  <name>..ffentlicher Link</name>\n' +
-          '  <url>http://localhost/oc/s/sXFMLABsGZ8Sirp</url>\n' +
-          '  <attributes/>\n' +
           ' </data>\n' +
           '</ocs>'
     }
@@ -2960,48 +2557,24 @@ function setGeneralInteractions (provider) {
         matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/9$',
         generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
       }),
-      headers: {
-        authorization: 'Basic YWRtaW46YWRtaW4=',
-        Origin: origin
-      }
+      headers: validAuthHeaders
     },
     willRespondWith: {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('ok', '100') +
           ' <data>\n' +
           '  <element>\n' +
-          '   <id>17</id>\n' +
-          '   <share_type>3</share_type>\n' +
-          '   <uid_owner>admin</uid_owner>\n' +
-          '   <displayname_owner>admin</displayname_owner>\n' +
-          '   <permissions>1</permissions>\n' +
-          '   <parent/>\n' +
-          '   <expiration/>\n' +
-          '   <uid_file_owner>admin</uid_file_owner>\n' +
-          '   <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '   <additional_info_owner/>\n' +
-          '   <additional_info_file_owner/>\n' +
-          '   <path>/testFolder</path>\n' +
-          '   <item_type>folder</item_type>\n' +
-          '   <file_target>/testFolder</file_target>\n' +
+           shareResponseOcsData(3, 17, 1, '/testFolder') +
           '   <share_with>***redacted***</share_with>\n' +
           '   <share_with_displayname>***redacted***</share_with_displayname>\n' +
           '   <name>..ffentlicher Link</name>\n' +
-          '   <url>http://localhost/oc/s/0RygKBQRgM7QNuo</url>\n' +
-          '   <attributes/>\n' +
           '  </element>\n' +
           ' </data>\n' +
           '</ocs>'
@@ -3043,33 +2616,12 @@ function setGeneralInteractions (provider) {
       },
       body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ' <meta>\n' +
-          '  <status>ok</status>\n' +
-          '  <statuscode>100</statuscode>\n' +
-          '  <message/>\n' +
-          '  <totalitems></totalitems>\n' +
-          '  <itemsperpage></itemsperpage>\n' +
-          ' </meta>\n' +
+        ocsMeta('ok', '100') +
           ' <data>\n' +
-          '  <id>9</id>\n' +
-          '  <share_type>3</share_type>\n' +
-          '  <uid_owner>admin</uid_owner>\n' +
-          '  <displayname_owner>admin</displayname_owner>\n' +
-          '  <permissions>1</permissions>\n' +
-          '  <parent/>\n' +
-          '  <expiration/>\n' +
-          '  <uid_file_owner>admin</uid_file_owner>\n' +
-          '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-          '  <additional_info_owner/>\n' +
-          '  <additional_info_file_owner/>\n' +
-          '  <path>/testFolder</path>\n' +
-          '  <item_type>folder</item_type>\n' +
-          '  <file_target>/testFolder</file_target>\n' +
+           shareResponseOcsData(3, 9, 1, '/testFolder') +
           '  <share_with>***redacted***</share_with>\n' +
           '  <share_with_displayname>***redacted***</share_with_displayname>\n' +
           '  <name>..ffentlicher Link</name>\n' +
-          '  <url>http://localhost/oc/s/3yxtgg2BhD2q2xq</url>\n' +
-          '  <attributes/>\n' +
           ' </data>\n' +
           '</ocs>'
     }

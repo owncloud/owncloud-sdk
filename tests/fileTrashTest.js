@@ -10,7 +10,8 @@ fdescribe('oc.fileTrash', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { validAuthHeaders, accessControlAllowHeaders, accessControlAllowMethods, setGeneralInteractions } = require('./pactHelper.js')
+  const { origin, validAuthHeaders, accessControlAllowHeaders, setGeneralInteractions } = require('./pactHelper.js')
+  const accessControlAllowMethod = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE,LOCK,UNLOCK'
   beforeAll(function (done) {
     Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
   })
@@ -57,12 +58,12 @@ fdescribe('oc.fileTrash', function () {
     })
   })
 
-  fdescribe('when empty', function () {
-    beforeEach(async function (done) {
+  describe('and when empty', function () {
+    beforeAll(function (done) {
       const promises = []
       promises.push(setGeneralInteractions(provider))
       promises.push(provider.addInteraction({
-        uponReceiving: 'PROPFIND to list trash items',
+        uponReceiving: 'PROPFIND empty trash',
         withRequest: {
           method: 'PROPFIND',
           path: Pact.Matchers.term({
@@ -86,7 +87,7 @@ fdescribe('oc.fileTrash', function () {
           headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': accessControlAllowHeaders,
-            'Access-Control-Allow-Methods': accessControlAllowMethods
+            'Access-Control-Allow-Methods': accessControlAllowMethod
           },
           body: '<?xml version="1.0" encoding="UTF-8"?>\n' +
             '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
@@ -116,11 +117,11 @@ fdescribe('oc.fileTrash', function () {
       Promise.all(promises).then(done, done.fail)
     })
 
-    afterEach(function (done) {
+    afterAll(function (done) {
       provider.removeInteractions().then(done, done.fail)
     })
 
-    fit('should list no items ', function (done) {
+    it('should list no items ', function (done) {
       if (!trashEnabled) {
         pending()
       }
@@ -134,6 +135,125 @@ fdescribe('oc.fileTrash', function () {
 
   describe('when a folder is deleted', function () {
     let testFolder, testFile
+
+    beforeAll(function (done) {
+      const promises = []
+      promises.push(provider.addInteraction({
+        uponReceiving: 'PROPFIND trash items before deleting folder',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/\\/$',
+            generate: '/remote.php/dav/trash-bin/admin//'
+          }),
+          headers: validAuthHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
+            '  <d:prop>\n' +
+            '    <oc:trashbin-original-filename />\n' +
+            '    <oc:trashbin-original-location />\n' +
+            '    <oc:trashbin-delete-timestamp />\n' +
+            '    <d:getcontentlength />\n' +
+            '    <d:resourcetype />\n' +
+            '  </d:prop>\n' +
+            '</d:propfind>'
+        },
+        willRespondWith: {
+          status: 207,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': accessControlAllowHeaders,
+            'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+          },
+          body: '<?xml version="1.0" encoding="UTF-8"?>\n' +
+            '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
+            '   <d:response>\n' +
+            '      <d:href>/core/remote.php/dav/trash-bin/admin/</d:href>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <d:resourcetype>\n' +
+            '               <d:collection />\n' +
+            '            </d:resourcetype>\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+            '      </d:propstat>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <oc:trashbin-original-filename />\n' +
+            '            <oc:trashbin-original-location />\n' +
+            '            <oc:trashbin-delete-timestamp />\n' +
+            '            <d:getcontentlength />\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 404 Not Found</d:status>\n' +
+            '      </d:propstat>\n' +
+            '   </d:response>\n' +
+            '   <d:response>\n' +
+            '      <d:href>/core/remote.php/dav/trash-bin/admin/' + config.deletedFolderId + '/</d:href>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <oc:trashbin-original-filename>testFolder</oc:trashbin-original-filename>\n' +
+            '            <oc:trashbin-original-location>testFolder</oc:trashbin-original-location>\n' +
+            '            <oc:trashbin-delete-timestamp>1601293684</oc:trashbin-delete-timestamp>\n' +
+            '            <d:resourcetype>\n' +
+            '               <d:collection />\n' +
+            '            </d:resourcetype>\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+            '      </d:propstat>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <d:getcontentlength />\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 404 Not Found</d:status>\n' +
+            '      </d:propstat>\n' +
+            '   </d:response>\n' +
+            '</d:multistatus>'
+        }
+      }))
+      promises.push(provider.addInteraction({
+        uponReceiving: 'list content of a folder',
+        withRequest: {
+          method: 'PROPFIND',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder,
+            generate: '/remote.php/webdav/' + config.testFolder + '/'
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 207,
+          headers: {
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin,
+            'Access-Control-Allow-Method': accessControlAllowMethod
+          },
+          body:
+            '<?xml version="1.0" encoding="UTF-8"?>\n' +
+            '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
+            '   <d:response>\n' +
+            '      <d:href>/core/remote.php/webdav/testFolder/</d:href>\n' +
+            '      <d:propstat>\n' +
+            '         <d:prop>\n' +
+            '            <d:getlastmodified>Thu, 01 Oct 2020 03:25:49 GMT</d:getlastmodified>\n' +
+            '            <d:resourcetype>\n' +
+            '               <d:collection />\n' +
+            '            </d:resourcetype>\n' +
+            '            <d:quota-used-bytes>1</d:quota-used-bytes>\n' +
+            '            <d:quota-available-bytes>-3</d:quota-available-bytes>\n' +
+            '            <d:getetag>"5f754c3de732a"</d:getetag>\n' +
+            '         </d:prop>\n' +
+            '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+            '      </d:propstat>\n' +
+            '   </d:response>\n' +
+            '</d:multistatus>'
+        }
+      }))
+      Promise.all(promises).then(done, done.fail)
+    })
+
+    afterAll(function (done) {
+      provider.removeInteractions().then(done, done.fail)
+    })
 
     beforeEach(function (done) {
       if (!trashEnabled) {
@@ -194,7 +314,7 @@ fdescribe('oc.fileTrash', function () {
       })
     })
 
-    describe('and when this deleted folder is restored to its original location', function () {
+    xdescribe('and when this deleted folder is restored to its original location', function () {
       let deletedFolderId, originalLocation
       beforeEach(function (done) {
         if (!trashEnabled) {
@@ -206,7 +326,7 @@ fdescribe('oc.fileTrash', function () {
           done()
         })
       })
-      it('should list the folder in the original location and no longer in trash-bin', function (done) {
+      xit('should list the folder in the original location and no longer in trash-bin', function (done) {
         oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
           oc.fileTrash.list('/').then(trashItems => {
             expect(trashItems.length).toEqual(1)
@@ -223,7 +343,7 @@ fdescribe('oc.fileTrash', function () {
       })
     })
 
-    describe('and when this deleted folder is restored to a different location', function () {
+    xdescribe('and when this deleted folder is restored to a different location', function () {
       let deletedFolderId
       let originalLocation
       beforeEach(function (done) {
@@ -236,7 +356,7 @@ fdescribe('oc.fileTrash', function () {
           done()
         })
       })
-      it('should list the folder in the different location and no longer in trash-bin', function (done) {
+      xit('should list the folder in the different location and no longer in trash-bin', function (done) {
         oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
           oc.fileTrash.list('/').then(trashItems => {
             expect(trashItems.length).toEqual(1)
@@ -254,7 +374,7 @@ fdescribe('oc.fileTrash', function () {
     })
   })
 
-  describe('when a file is deleted', function () {
+  xdescribe('when a file is deleted', function () {
     let testFolder, testFile, suffix
 
     beforeEach(function (done) {
@@ -284,7 +404,7 @@ fdescribe('oc.fileTrash', function () {
       }
     })
 
-    it('should list the deleted file', function (done) {
+    xit('should list the deleted file', function (done) {
       if (!trashEnabled) {
         pending()
       }
@@ -296,7 +416,7 @@ fdescribe('oc.fileTrash', function () {
       })
     })
 
-    describe('and when this deleted file is restored to its original location', function () {
+    xdescribe('and when this deleted file is restored to its original location', function () {
       let deletedFolderId, originalLocation
       beforeEach(function (done) {
         if (!trashEnabled) {
@@ -308,7 +428,7 @@ fdescribe('oc.fileTrash', function () {
           done()
         })
       })
-      it('should list the folder in the original location and no longer in trash-bin', function (done) {
+      xit('should list the folder in the original location and no longer in trash-bin', function (done) {
         oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
           oc.fileTrash.list('/').then(trashItems => {
             expect(trashItems.length).toEqual(1)
@@ -325,7 +445,7 @@ fdescribe('oc.fileTrash', function () {
       })
     })
 
-    describe('and when this deleted file is restored to a different location', function () {
+    xdescribe('and when this deleted file is restored to a different location', function () {
       let deletedFolderId
       let originalLocation
       beforeEach(function (done) {
@@ -338,7 +458,7 @@ fdescribe('oc.fileTrash', function () {
           done()
         })
       })
-      it('should list the folder in the different location and no longer in trash-bin', function (done) {
+      xit('should list the folder in the different location and no longer in trash-bin', function (done) {
         oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
           oc.fileTrash.list('/').then(trashItems => {
             expect(trashItems.length).toEqual(1)

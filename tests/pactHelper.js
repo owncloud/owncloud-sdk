@@ -5,7 +5,7 @@ var validUserPasswordHash = btoa(config.username + ':' + config.password)
 const Pact = require('@pact-foundation/pact-web')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
-const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE,LOCK,UNLOCK'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = {
   authorization: 'Basic ' + validUserPasswordHash,
@@ -79,7 +79,7 @@ function setGeneralInteractions (provider) {
       }),
       headers: {
         'Access-Control-Request-Method': Pact.Matchers.regex({
-          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND',
+          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE',
           generate: 'GET'
         })
       }
@@ -138,6 +138,9 @@ function setGeneralInteractions (provider) {
                 file_locking_enable_file_action: false,
                 undelete: true,
                 versioning: true
+              },
+              dav: {
+                trashbin: '1.0'
               }
             }
           }
@@ -2627,6 +2630,134 @@ function setGeneralInteractions (provider) {
     }
   })
   )
+  promises.push(provider.addInteraction({
+    uponReceiving: 'Put file contents inside of a folder',
+    withRequest: {
+      method: 'PUT',
+      path: Pact.Matchers.regex({
+        matcher: '.*\\/remote\\.php\\/webdav\\/.*\\/',
+        generate: '/remote.php/webdav/' + config.testFolder + '/' + config.testFile
+      }),
+      headers: validAuthHeaders
+    },
+    willRespondWith: {
+      status: 201,
+      headers: {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Headers': accessControlAllowHeaders,
+        'Access-Control-Allow-Methods': accessControlAllowMethods
+      }
+    }
+  }))
+  promises.push(provider.addInteraction({
+    uponReceiving: 'delete folder in trashbin',
+    withRequest: {
+      method: 'DELETE',
+      path: Pact.Matchers.term({
+        matcher: '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/$',
+        generate: '/remote.php/dav/trash-bin/admin/'
+      }),
+      headers: validAuthHeaders
+    },
+    willRespondWith: {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Methods': accessControlAllowMethods,
+        'Access-Control-Allow-Headers': accessControlAllowHeaders
+      }
+    }
+  }))
+  promises.push(provider.addInteraction({
+    uponReceiving: 'PROPFIND list item in deleted folder',
+    withRequest: {
+      method: 'PROPFIND',
+      path: Pact.Matchers.term({
+        matcher: '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/' + config.deletedFolderId + '$',
+        generate: '/remote.php/dav/trash-bin/admin/' + config.deletedFolderId
+      }),
+      headers: validAuthHeaders,
+      body: '<?xml version="1.0"?>\n' +
+        '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
+        '  <d:prop>\n' +
+        '    <oc:trashbin-original-filename />\n' +
+        '    <oc:trashbin-original-location />\n' +
+        '    <oc:trashbin-delete-timestamp />\n' +
+        '    <d:getcontentlength />\n' +
+        '    <d:resourcetype />\n' +
+        '  </d:prop>\n' +
+        '</d:propfind>'
+    },
+    willRespondWith: {
+      status: 207,
+      headers: {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Headers': accessControlAllowHeaders,
+        'Access-Control-Allow-Methods': accessControlAllowMethods,
+        'Content-Type': 'application/xml; charset=utf-8'
+      },
+      body: '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
+        '   <d:response>\n' +
+        '      <d:href>/core/remote.php/dav/trash-bin/admin/' + config.deletedFolderId + '/</d:href>\n' +
+        '      <d:propstat>\n' +
+        '         <d:prop>\n' +
+        '            <oc:trashbin-original-filename>testFolder</oc:trashbin-original-filename>\n' +
+        '            <oc:trashbin-original-location>testFolder</oc:trashbin-original-location>\n' +
+        '            <oc:trashbin-delete-timestamp>1601462026</oc:trashbin-delete-timestamp>\n' +
+        '            <d:resourcetype>\n' +
+        '               <d:collection />\n' +
+        '            </d:resourcetype>\n' +
+        '         </d:prop>\n' +
+        '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+        '      </d:propstat>\n' +
+        '      <d:propstat>\n' +
+        '         <d:prop>\n' +
+        '            <d:getcontentlength />\n' +
+        '         </d:prop>\n' +
+        '         <d:status>HTTP/1.1 404 Not Found</d:status>\n' +
+        '      </d:propstat>\n' +
+        '   </d:response>\n' +
+        '   <d:response>\n' +
+        '      <d:href>/core/remote.php/dav/trash-bin/admin/' + config.deletedFolderId + '/' + config.deletedFileID + '</d:href>\n' +
+        '      <d:propstat>\n' +
+        '         <d:prop>\n' +
+        '            <oc:trashbin-original-filename>testFile.txt</oc:trashbin-original-filename>\n' +
+        '            <oc:trashbin-original-location>testFolder/testFile.txt</oc:trashbin-original-location>\n' +
+        '            <oc:trashbin-delete-timestamp>1601462026</oc:trashbin-delete-timestamp>\n' +
+        '            <d:getcontentlength>1</d:getcontentlength>\n' +
+        '            <d:resourcetype />\n' +
+        '         </d:prop>\n' +
+        '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+        '      </d:propstat>\n' +
+        '   </d:response>\n' +
+        '</d:multistatus>'
+    }
+  }))
+
+  promises.push(provider.addInteraction({
+    uponReceiving: 'MOVE folder from trashbin to fileslist',
+    withRequest: {
+      method: 'MOVE',
+      path: Pact.Matchers.term({
+        matcher: '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/' + config.deletedFolderId,
+        generate: '/remote.php/dav/trash-bin/admin/' + config.deletedFolderId
+      }),
+      headers: {
+        // validAuthHeaders,
+        Destination: config.owncloudURL + 'remote.php/dav/files/admin/' + config.testFolder
+      }
+    },
+    willRespondWith: {
+      status: 201,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Headers': accessControlAllowHeaders,
+        'Access-Control-Allow-Method': accessControlAllowMethods
+      }
+    }
+  }))
   return promises
 }
 

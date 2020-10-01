@@ -142,6 +142,9 @@ function setGeneralInteractions (provider) {
                 file_locking_enable_file_action: false,
                 undelete: true,
                 versioning: true
+              },
+              dav: {
+                trashbin: '1.0'
               }
             }
           }

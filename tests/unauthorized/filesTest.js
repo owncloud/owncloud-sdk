@@ -7,16 +7,13 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
-  const { setGeneralInteractions, invalidAuthHeader, origin, accessControlAllowHeaders } = require('../pactHelper.js')
+  const { setGeneralInteractions, invalidAuthHeader, origin } = require('../pactHelper.js')
   const provider = new Pact.PactWeb()
-  const requestHeaderWithDestination = {
+  const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader,
-    Origin: origin,
-    Destination: Pact.Matchers.regex({
-      matcher: '.*\\/remote\\.php\\/webdav\\/.*',
-      generate: `/remote.php/webdav/${config.testFolder}`
-    })
+    Origin: origin
   }
+  const expectedUnAuthorizedMessage = 'Username or password was incorrect, Username or password was incorrect'
   const incorrectAuthorizationXmlResponseBody = '<?xml version="1.0" encoding="utf-8"?>\n' +
     '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
     '  <s:exception>Sabre\\DAV\\Exception\\NotAuthenticated</s:exception>\n' +
@@ -27,19 +24,14 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     'Content-Type': 'application/xml; charset=utf-8',
     'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE'
   }
-  const responseHeaderForMoveAndCOPYRequest = {
-    'Access-Control-Allow-Headers': accessControlAllowHeaders,
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE',
-    'Content-Type': 'application/xml; charset=utf-8'
+  const unauthorizedResponse = {
+    status: 401,
+    headers: webdavFilesResponseHeader,
+    body: incorrectAuthorizationXmlResponseBody
   }
-  const webdavUrlForFolder = Pact.Matchers.regex({
+  const webdavUrl = Pact.Matchers.regex({
     matcher: '.*\\/remote\\.php\\/webdav\\/.*',
     generate: `/remote.php/webdav/${config.testFolder}`
-  })
-  const webDavUrlForFileInAFolder = Pact.Matchers.regex({
-    matcher: '.*\\/remote\\.php\\/webdav\\/.*',
-    generate: `/remote.php/webdav/${config.testFolder}/${config.testFile}`
   })
 
   beforeAll(function (done) {
@@ -49,58 +41,34 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
       uponReceiving: 'a request to get file contents with invalid authentication',
       withRequest: {
         method: 'GET',
-        path: webDavUrlForFileInAFolder,
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        path: webdavUrl,
+        headers: requestHeaderWithInvalidAuth
       },
-      willRespondWith: {
-        status: 401,
-        headers: webdavFilesResponseHeader,
-        body: incorrectAuthorizationXmlResponseBody
-      }
+      willRespondWith: unauthorizedResponse
     }))
     promises.push(provider.addInteraction({
       uponReceiving: 'a request to put file contents with invalid authentication',
       withRequest: {
         method: 'PUT',
-        path: webDavUrlForFileInAFolder,
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin,
-          'Content-Type': 'text/plain;charset=UTF-8'
-        },
-        body: config.testContent
+        path: webdavUrl,
+        headers: requestHeaderWithInvalidAuth
       },
-      willRespondWith: {
-        status: 401,
-        headers: webdavFilesResponseHeader,
-        body: incorrectAuthorizationXmlResponseBody
-      }
+      willRespondWith: unauthorizedResponse
     }))
     promises.push(provider.addInteraction({
-      uponReceiving: 'add a request to delete file contents with invalid authentication',
+      uponReceiving: 'a request to delete file contents with invalid authentication',
       withRequest: {
         method: 'DELETE',
-        path: webDavUrlForFileInAFolder,
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin
-        }
+        path: webdavUrl,
+        headers: requestHeaderWithInvalidAuth
       },
-      willRespondWith: {
-        status: 401,
-        headers: webdavFilesResponseHeader,
-        body: incorrectAuthorizationXmlResponseBody
-      }
+      willRespondWith: unauthorizedResponse
     }))
     promises.push(provider.addInteraction({
       uponReceiving: 'a request to create a directory with invalid authentication',
       withRequest: {
         method: 'MKCOL',
-        path: webdavUrlForFolder,
+        path: webdavUrl,
         headers: {
           authorization: invalidAuthHeader,
           Origin: origin
@@ -112,19 +80,32 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
         body: incorrectAuthorizationXmlResponseBody
       }
     }))
-
     promises.push(provider.addInteraction({
-      uponReceiving: 'COPY files with invalid authentication',
+      uponReceiving: 'a request to list files with invalid authentication',
+      withRequest: {
+        method: 'PROPFIND',
+        path: webdavUrl,
+        headers: requestHeaderWithInvalidAuth
+      },
+      willRespondWith: unauthorizedResponse
+    }))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a request to move file with invalid authentication',
+      withRequest: {
+        method: 'MOVE',
+        path: webdavUrl,
+        headers: requestHeaderWithInvalidAuth
+      },
+      willRespondWith: unauthorizedResponse
+    }))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a request to copy a file with invalid authentication',
       withRequest: {
         method: 'COPY',
-        path: webDavUrlForFileInAFolder,
-        headers: requestHeaderWithDestination
+        path: webdavUrl,
+        headers: requestHeaderWithInvalidAuth
       },
-      willRespondWith: {
-        status: 401,
-        headers: responseHeaderForMoveAndCOPYRequest,
-        body: incorrectAuthorizationXmlResponseBody
-      }
+      willRespondWith: unauthorizedResponse
     }))
 
     Promise.all(promises).then(done, done.fail)
@@ -159,17 +140,17 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     oc.login()
   })
 
-  it('checking method : list', function (done) {
+  fit('checking method : list', function (done) {
     oc.files.list(testFolder, 1).then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })
 
-  it('checking method : getFileContents', function (done) {
+  fit('checking method : getFileContents', function (done) {
     let count = 0
 
     for (let i = 0; i < testSubFiles.length; i++) {
@@ -177,7 +158,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
         fail()
         done()
       }).catch(error => {
-        expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+        expect(error).toMatch(expectedUnAuthorizedMessage)
         count++
         if (count === testSubFiles.length) {
           done()
@@ -186,70 +167,70 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     }
   })
 
-  it('checking method : putFileContents', function (done) {
+  fit('checking method : putFileContents', function (done) {
     const newFile = testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })
 
-  it('checking method : mkdir', function (done) {
+  fit('checking method : mkdir', function (done) {
     const newFolder = testFolder + '/' + 'new folder/'
 
     oc.files.mkdir(newFolder).then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })
 
-  it('checking method : delete', function (done) {
+  fit('checking method : delete', function (done) {
     const newFolder = testFolder + '/' + 'new folder'
 
     oc.files.mkdir(newFolder).then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })
 
-  it('checking method : getFile', function (done) {
+  fit('checking method : getFile', function (done) {
     const file = 'tempFile'
 
     oc.files.putFileContents(file, testContent).then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })
 
-  xit('checking method : move', function (done) {
+  fit('checking method : move', function (done) {
     oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })
 
-  xit('checking method : copy', function (done) {
+  fit('checking method : copy', function (done) {
     oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文.txt').then(() => {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Username or password was incorrect, Username or password was incorrect')
+      expect(error).toMatch(expectedUnAuthorizedMessage)
       done()
     })
   })

@@ -5,7 +5,7 @@ var validUserPasswordHash = btoa(config.username + ':' + config.password)
 const Pact = require('@pact-foundation/pact-web')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
-const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT'
+const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = {
   authorization: 'Basic ' + validUserPasswordHash,
@@ -2630,4 +2630,4 @@ function setGeneralInteractions (provider) {
   return promises
 }
 
-module.exports = { setGeneralInteractions }
+module.exports = { setGeneralInteractions, origin, invalidAuthHeader }

@@ -7,7 +7,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
-  const { setGeneralInteractions, invalidAuthHeader, origin } = require('../pactHelper.js')
+  const { setGeneralInteractions, accessControlAllowMethods, invalidAuthHeader, origin } = require('../pactHelper.js')
   const provider = new Pact.PactWeb()
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader,
@@ -22,7 +22,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   const webdavFilesResponseHeader = {
     'Access-Control-Allow-Origin': origin,
     'Content-Type': 'application/xml; charset=utf-8',
-    'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,HEAD,COPY,MOVE'
+    'Access-Control-Allow-Methods': accessControlAllowMethods
   }
   const unauthorizedResponse = {
     status: 401,
@@ -36,77 +36,19 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
 
   beforeAll(function (done) {
     const promises = []
+    const requiredMethodsForUnauthorizedTest = ['GET', 'PUT', 'MKCOL', 'DELETE', 'COPY', 'MOVE', 'PROPFIND']
     promises.push(setGeneralInteractions(provider))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to get file contents with invalid authentication',
-      withRequest: {
-        method: 'GET',
-        path: webdavUrl,
-        headers: requestHeaderWithInvalidAuth
-      },
-      willRespondWith: unauthorizedResponse
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to put file contents with invalid authentication',
-      withRequest: {
-        method: 'PUT',
-        path: webdavUrl,
-        headers: requestHeaderWithInvalidAuth
-      },
-      willRespondWith: unauthorizedResponse
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to delete file contents with invalid authentication',
-      withRequest: {
-        method: 'DELETE',
-        path: webdavUrl,
-        headers: requestHeaderWithInvalidAuth
-      },
-      willRespondWith: unauthorizedResponse
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to create a directory with invalid authentication',
-      withRequest: {
-        method: 'MKCOL',
-        path: webdavUrl,
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin
-        }
-      },
-      willRespondWith: {
-        status: 401,
-        headers: webdavFilesResponseHeader,
-        body: incorrectAuthorizationXmlResponseBody
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to list files with invalid authentication',
-      withRequest: {
-        method: 'PROPFIND',
-        path: webdavUrl,
-        headers: requestHeaderWithInvalidAuth
-      },
-      willRespondWith: unauthorizedResponse
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to move file with invalid authentication',
-      withRequest: {
-        method: 'MOVE',
-        path: webdavUrl,
-        headers: requestHeaderWithInvalidAuth
-      },
-      willRespondWith: unauthorizedResponse
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to copy a file with invalid authentication',
-      withRequest: {
-        method: 'COPY',
-        path: webdavUrl,
-        headers: requestHeaderWithInvalidAuth
-      },
-      willRespondWith: unauthorizedResponse
-    }))
+    requiredMethodsForUnauthorizedTest.forEach((method) => {
+      promises.push(provider.addInteraction({
+        uponReceiving: `a ${method} request on file contents with invalid authentication`,
+        withRequest: {
+          method: method,
+          path: webdavUrl,
+          headers: requestHeaderWithInvalidAuth
+        },
+        willRespondWith: unauthorizedResponse
+      }))
+    })
 
     Promise.all(promises).then(done, done.fail)
   })
@@ -116,14 +58,12 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   // TESTING CONFIGS
-  const testContent = config.testContent
-  const testFolder = config.testFolder
   const testSubFiles = [
-    testFolder + '/file one.txt',
-    testFolder + '/zz+z.txt',
-    testFolder + '/中文.txt',
-    testFolder + '/abc.txt',
-    testFolder + '/subdir/in dir.txt'
+    config.testFolder + '/file one.txt',
+    config.testFolder + '/zz+z.txt',
+    config.testFolder + '/中文.txt',
+    config.testFolder + '/abc.txt',
+    config.testFolder + '/subdir/in dir.txt'
   ]
 
   beforeEach(function () {
@@ -141,7 +81,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   fit('checking method : list', function (done) {
-    oc.files.list(testFolder, 1).then(() => {
+    oc.files.list(config.testFolder, 1).then(() => {
       fail()
       done()
     }).catch(error => {
@@ -168,9 +108,9 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   fit('checking method : putFileContents', function (done) {
-    const newFile = testFolder + '/' + 'file.txt'
+    const newFile = config.testFolder + '/' + 'file.txt'
 
-    oc.files.putFileContents(newFile, testContent).then(() => {
+    oc.files.putFileContents(newFile, config.testContent).then(() => {
       fail()
       done()
     }).catch(error => {
@@ -180,7 +120,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   fit('checking method : mkdir', function (done) {
-    const newFolder = testFolder + '/' + 'new folder/'
+    const newFolder = config.testFolder + '/' + 'new folder/'
 
     oc.files.mkdir(newFolder).then(() => {
       fail()
@@ -192,7 +132,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   fit('checking method : delete', function (done) {
-    const newFolder = testFolder + '/' + 'new folder'
+    const newFolder = config.testFolder + '/' + 'new folder'
 
     oc.files.mkdir(newFolder).then(() => {
       fail()
@@ -206,7 +146,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   fit('checking method : getFile', function (done) {
     const file = 'tempFile'
 
-    oc.files.putFileContents(file, testContent).then(() => {
+    oc.files.putFileContents(file, config.testContent).then(() => {
       fail()
       done()
     }).catch(error => {
@@ -216,7 +156,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   fit('checking method : move', function (done) {
-    oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(() => {
+    oc.files.move(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(() => {
       fail()
       done()
     }).catch(error => {
@@ -226,7 +166,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
   })
 
   fit('checking method : copy', function (done) {
-    oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文.txt').then(() => {
+    oc.files.copy(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(() => {
       fail()
       done()
     }).catch(error => {

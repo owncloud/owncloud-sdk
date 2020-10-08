@@ -45,6 +45,11 @@ const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {
   return data
 }
 
+const applicationXmlResponseHeaders = {
+  'Content-Type': 'application/xml; charset=utf-8',
+  'Access-Control-Allow-Origin': origin
+}
+
 const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8',
   'Access-Control-Allow-Origin': origin
@@ -188,10 +193,7 @@ function setGeneralInteractions (provider) {
     },
     willRespondWith: {
       status: 200,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
+      headers: applicationXmlResponseHeaders,
       body: Pact.Matchers.term({
         matcher: '<\\?xml version="1\\.0"\\?>\\s' +
           '<ocs>\\s' +
@@ -770,7 +772,7 @@ function setGeneralInteractions (provider) {
     }
   }))
 
-  let requests = ['POST', 'DELETE']
+  const requests = ['POST', 'DELETE']
   for (let i = 0; i < requests.length; i++) {
     const action = (requests[i] === 'POST') ? 'enable' : 'disable'
     promises.push(provider.addInteraction({
@@ -1886,15 +1888,12 @@ function setGeneralInteractions (provider) {
     },
     willRespondWith: {
       status: 200,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
+      headers: applicationXmlResponseHeaders,
       body: '<?xml version="1.0"?>\n' +
         '<ocs>\n' +
         ocsMeta('ok', '100') +
         ' <data>\n' +
-        shareResponseOcsData(0, 7, 17, '/.......txt') +
+        shareResponseOcsData(0, 7, 17, config.testFile) +
         ' </data>\n' +
         '</ocs>'
     }
@@ -1975,10 +1974,7 @@ function setGeneralInteractions (provider) {
     },
     willRespondWith: {
       status: 207,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
+      headers: applicationXmlResponseHeaders,
       body:
         '<?xml version="1.0"?> ' +
         ' <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"> ' +
@@ -2017,123 +2013,6 @@ function setGeneralInteractions (provider) {
       }
     }
   }))
-
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to share file ' + config.testFilesPath[i] + ' as link share',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
-        headers: validAuthHeaders,
-        body: 'shareType=3&path=' + config.testFilesPath[i]
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          shareResponseOcsData(3, config.testFilesId[i], 1, config.testFiles[i]) +
-          '  <token>' + config.testFilesToken[i] + '</token>\n' +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  const path = ['%2Ftest.txt', '%2Ftest%20space%20and%20%2B%20and%20%23.txt', '%2F%E6%96%87%E4%BB%B6.txt']
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a GET request for a share ' + path[i],
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
-        query: 'path=' + path[i],
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': accessControlAllowHeaders,
-          'Access-Control-Allow-Methods': accessControlAllowMethods
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <element>\n' +
-          shareResponseOcsData(3, config.testFilesId[i], 1, config.testFiles[i]) +
-          '   <token>' + config.testFilesToken[i] + '</token>\n' +
-          '  </element>\n' +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  const shareids = [14, 18, 19, 9]
-  for (const shareid of shareids) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a DELETE request for a share with id ' + shareid,
-      withRequest: {
-        method: 'DELETE',
-        path: Pact.Matchers.term({
-
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + shareid + '$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + shareid
-        }),
-        headers: validAuthHeaders,
-        body: 'undefined=undefined'
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a GET request for an existent share with id ' + config.testFilesId[i],
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + config.testFilesId[i] + '$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + config.testFilesId[i]
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <element>\n' +
-          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
-          '  </element>\n' +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-  }
 
   let files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123']
   for (const file of files) {
@@ -2182,406 +2061,6 @@ function setGeneralInteractions (provider) {
   }
 
   promises.push(provider.addInteraction({
-    uponReceiving: 'Put file contents as empty content in files specified',
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/remote\\.php\\/webdav\\/newFileCreated123$',
-        generate: '/remote.php/webdav/newFileCreated123'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      }
-    }
-  })
-  )
-
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a user share POST request with valid auth of path ' + config.testFilesPath[i],
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
-        headers: validAuthHeaders,
-        body: 'shareType=0&shareWith=' + config.testUser + '&path=' + config.testFilesPath[i]
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a PUT request to update user share permissions of share with id ' + config.testFilesId[i],
-      withRequest: {
-        method: 'PUT',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + config.testFilesId[i] + '$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + config.testFilesId[i]
-        }),
-        headers: validAuthHeaders,
-        body: 'permissions=19'
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a group share POST request with valid auth to path ' + config.testFilesPath[i],
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
-        headers: validAuthHeaders,
-        body: 'shareType=1&shareWith=' + config.testGroup + '&path=' + config.testFilesPath[i] + '&permissions=19'
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          shareResponseOcsData(1, config.testFilesId[i], 19, config.testFiles[i]) +
-          '  <share_with>' + config.testGroup + '</share_with>\n' +
-          '  <share_with_displayname>' + config.testGroup + '</share_with_displayname>\n' +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a link share POST request with a non-existent file',
-    withRequest: {
-      method: 'POST',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-      }),
-      headers: validAuthHeaders,
-      body: 'shareType=3' + '&path=%2F' + config.nonExistentFile + '&password=' + config.testUserPassword
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('failure', 404, 'Wrong path, file/folder doesn\'t exist') +
-        ' <data/>\n' +
-        '</ocs>'
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a group share POST request with valid auth but non-existent file',
-    withRequest: {
-      method: 'POST',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-      }),
-      headers: validAuthHeaders,
-      body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.nonExistentFile + '&permissions=19'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('failure', 404, 'Wrong path, file/folder doesn\'t exist') +
-        ' <data/>\n' +
-        '</ocs>'
-    }
-  }))
-
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a GET request for a share with non-existent file',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-      }),
-      query: 'path=%2F' + config.nonExistentFile,
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      },
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('failure', 404, 'Wrong path, file/folder doesn\'t exist') +
-          ' <data/>\n' +
-          '</ocs>'
-    }
-  })
-  )
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a GET request for an existent but non-shared file',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-      }),
-      query: 'path=%2FnewFileCreated123',
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      },
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('ok', '100') +
-          ' <data/>\n' +
-          '</ocs>'
-    }
-  })
-  )
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a GET request for a non-existent share',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('failure', 404, 'Wrong share ID, share doesn\'t exist') +
-          ' <data/>\n' +
-          '</ocs>'
-    }
-  })
-  )
-
-  requests = ['PUT', 'DELETE']
-  for (let i = 0; i < requests.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a ' + requests[i] + ' request to update/delete a non-existent share',
-      withRequest: {
-        method: requests[i],
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 404, 'Wrong share ID, share doesn\'t exist') +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-  }
-
-  for (i = 0; i < config.testFiles.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a user share POST request with valid auth and expiration date set to path ' + config.testFilesPath[i],
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
-        headers: validAuthHeaders,
-        body: 'shareType=0&shareWith=' + config.testUser + '&path=' + config.testFilesPath[i] + '&expireDate=' + config.expirationDate
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-          ocsMeta('ok', '100') +
-            ' <data>\n' +
-          shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
-            '  <expiration>' + config.expirationDate + '</expiration>\n' +
-            ' </data>\n' +
-            '</ocs>'
-      }
-    })
-    )
-  }
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a link share POST request with link name',
-    withRequest: {
-      method: 'POST',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-      }),
-      headers: validAuthHeaders,
-      body: 'shareType=3' + '&path=%2F' + config.testFolder + '&name=%C3%96ffentlicher+Link'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        ' <data>\n' +
-        shareResponseOcsData(3, 9, 1, '/testFolder') +
-        '  <name>Öffentlicher Link</name>\n' +
-        ' </data>\n' +
-        '</ocs>'
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'an invalid request to update the permissions of a public link share',
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/\\d+$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
-      }),
-      headers: validAuthHeaders,
-      body: 'permissions=31'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('failure', 400, 'Can\'t change permissions for public share links') +
-          ' <data/>\n' +
-          '</ocs>'
-    }
-  })
-  )
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a request to update a public link share to public upload',
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/\\d+$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
-      }),
-      headers: validAuthHeaders,
-      body: 'publicUpload=true'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('ok', '100') +
-          ' <data>\n' +
-         shareResponseOcsData(3, 9, 15, '/testFolder') +
-          '  <name>..ffentlicher Link</name>\n' +
-          ' </data>\n' +
-          '</ocs>'
-    }
-  })
-  )
-
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a GET request for a public link share',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/9$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      },
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <element>\n' +
-           shareResponseOcsData(3, 17, 1, '/testFolder') +
-          '   <share_with>***redacted***</share_with>\n' +
-          '   <share_with_displayname>***redacted***</share_with_displayname>\n' +
-          '   <name>..ffentlicher Link</name>\n' +
-          '  </element>\n' +
-          ' </data>\n' +
-          '</ocs>'
-    }
-  })
-  )
-  promises.push(provider.addInteraction({
     uponReceiving: 'a request to delete a folder',
     withRequest: {
       method: 'DELETE',
@@ -2598,36 +2077,18 @@ function setGeneralInteractions (provider) {
       }
     }
   }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a request to update a public link share',
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/9$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
-      }),
-      headers: validAuthHeaders,
-      body: 'password=test123'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-        ocsMeta('ok', '100') +
-          ' <data>\n' +
-           shareResponseOcsData(3, 9, 1, '/testFolder') +
-          '  <share_with>***redacted***</share_with>\n' +
-          '  <share_with_displayname>***redacted***</share_with_displayname>\n' +
-          '  <name>..ffentlicher Link</name>\n' +
-          ' </data>\n' +
-          '</ocs>'
-    }
-  })
-  )
   return promises
 }
 
-module.exports = { setGeneralInteractions, accessControlAllowMethods, origin, invalidAuthHeader }
+module.exports = {
+  setGeneralInteractions,
+  ocsMeta,
+  shareResponseOcsData,
+  origin,
+  validAuthHeaders,
+  invalidAuthHeader,
+  xmlResponseHeaders,
+  applicationXmlResponseHeaders,
+  accessControlAllowHeaders,
+  accessControlAllowMethods
+}

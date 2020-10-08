@@ -1890,7 +1890,7 @@ function setGeneralInteractions (provider) {
     }))
   }
 
-  files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt']
+  files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', config.testFolder + '/' + config.testFile]
   for (const file of files) {
     promises.push(provider.addInteraction({
       uponReceiving: 'Put file contents to file ' + file,

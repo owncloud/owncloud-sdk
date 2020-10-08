@@ -8,7 +8,7 @@ fdescribe('Main: Currently testing user management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('./pactHelper.js')
+  const { xmlResponseHeaders, ocsMeta, setGeneralInteractions } = require('./pactHelper.js')
 
   beforeAll(function (done) {
     Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
@@ -126,36 +126,50 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  it('checking method : disableUser & enableUser', function (done) {
-    var testUserOc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.testUser,
-          password: config.testUserPassword
-        }
+  it('should disable & enable existing users', function (done) {
+    const promises = []
+    promises.push(provider.addInteraction({
+      uponReceiving: 'disable an existing user',
+      withRequest: {
+        method: 'PUT',
+        path: Pact.Matchers.regex({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '\\/disable',
+          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/disable'
+        })
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: ocsMeta('ok', 100)
       }
-    })
-
-    oc.users.disableUser(config.testUser).then(status => {
-      expect(status).toBe(true)
-      return testUserOc.login()
-    }).then(() => {
-      fail()
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorised')
-      return oc.users.enableUser(config.testUser)
-    }).then((status) => {
-      expect(status).toBe(true)
-      return testUserOc.login()
-    }).then(() => {
-      testUserOc.logout()
-      testUserOc = null
-      done()
-    }).catch(() => {
-      fail()
-      done()
+    }))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'enable an existing user',
+      withRequest: {
+        method: 'PUT',
+        path: Pact.Matchers.regex({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '\\/enable',
+          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/enable'
+        })
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: ocsMeta('ok', 100)
+      }
+    }))
+    Promise.all(promises).then(() => {
+      oc.users.disableUser(config.testUser).then(status => {
+        expect(status).toBe(true)
+      }).then(() => {
+        return oc.users.enableUser(config.testUser)
+      }).then((status) => {
+        expect(status).toBe(true)
+        done()
+      }).catch(() => {
+        fail()
+        done()
+      })
     })
   })
 

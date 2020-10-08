@@ -2630,4 +2630,11 @@ function setGeneralInteractions (provider) {
   return promises
 }
 
-module.exports = { setGeneralInteractions, accessControlAllowMethods, origin, invalidAuthHeader }
+module.exports = {
+  xmlResponseHeaders,
+  ocsMeta,
+  setGeneralInteractions,
+  accessControlAllowMethods,
+  origin,
+  invalidAuthHeader
+}

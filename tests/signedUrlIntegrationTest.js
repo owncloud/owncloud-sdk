@@ -1,9 +1,15 @@
-describe('Signed urls', function () {
+fdescribe('Signed urls', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
   var oc
+
+  // PACT setup
+  const Pact = require('@pact-foundation/pact-web')
+  const provider = new Pact.PactWeb()
+  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
+  const { accessControlAllowHeaders, accessControlAllowMethods, validAuthHeaders, origin } = require('./pactHelper.js')
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -30,17 +36,78 @@ describe('Signed urls', function () {
     oc = null
   })
 
+  beforeAll(async function (done) {
+    const promises = []
+    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a GET request for a signing key',
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/user\\/signing-key',
+          generate: '/ocs/v1.php/cloud/user/signing-key'
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Headers': accessControlAllowHeaders,
+          'Access-Control-Allow-Methods': accessControlAllowMethods,
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Access-Control-Allow-Origin': origin
+        },
+        body: '\n' +
+          '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('ok', 100, 'OK') +
+          ' <data>\n' +
+          '  <user>admin</user>\n' +
+          '  <signing-key>YONNpClEO2GVtTDqIwaVsgLBIuDSe03wFhdwcG1WmorRK/iE8xGs7HyHNseftgb3</signing-key>\n' +
+          ' </data>\n' +
+          '</ocs>'
+      }
+    })
+    )
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a GET request for a file download using signed url',
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/' + config.testFolder + '\\/' + config.testFile + '?.+$',
+          generate: '/remote.php/dav/files/admin/' + config.testFolder + '/' + config.testFile + '?'
+        })
+      },
+      willRespondWith: {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Headers': accessControlAllowHeaders,
+          'Access-Control-Allow-Methods': accessControlAllowMethods,
+          'Content-Type': 'text/xml; charset=utf-8',
+          'Access-Control-Allow-Origin': origin
+        },
+        body: config.testContent
+      }
+    })
+    )
+    Promise.all(promises).then(done, done.fail)
+  }
+  )
+
+  afterAll(function (done) {
+    provider.removeInteractions().then(done, done.fail)
+  })
+
   it('should allow file download with a signUrl', async function (done) {
-    const newFolder = 'test-folder-' + Math.random().toString(36).substr(2, 9)
+    const newFolder = config.testFolder
     await oc.files.createFolder(newFolder)
-    await oc.files.putFileContents(newFolder + '/file.txt', '123456')
-    const url = oc.files.getFileUrlV2(newFolder + '/file.txt')
+    await oc.files.putFileContents(newFolder + '/' + config.testFile, config.testContent)
+    const url = oc.files.getFileUrlV2(newFolder + '/' + config.testFile)
     const signedUrl = await oc.signUrl(url)
     const response = await fetch(signedUrl)
     expect(response.ok).toEqual(true)
     const txt = await response.text()
-    expect(txt).toEqual('123456')
-
+    expect(txt).toEqual(config.testContent)
     done()
   })
 })

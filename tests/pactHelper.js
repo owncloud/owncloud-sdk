@@ -71,7 +71,6 @@ const unauthorizedXmlResponseBody = '<?xml version="1.0"?>\n' +
   '</ocs>'
 
 function setGeneralInteractions (provider) {
-  let i
   const promises = []
 
   promises.push(provider.addInteraction({
@@ -1207,153 +1206,6 @@ function setGeneralInteractions (provider) {
         '"remotes":[]}}}'
     }
   }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'an apps GET request with invalid auth',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps',
-        generate: '/ocs/v1.php/cloud/apps'
-      }),
-      headers: {
-        authorization: invalidAuthHeader,
-        Origin: origin
-      }
-    },
-    willRespondWith: {
-      status: 401,
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: unauthorizedXmlResponseBody
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'an enable app POST request with invalid auth',
-    withRequest: {
-      method: 'POST',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps\\/files',
-        generate: '/ocs/v1.php/cloud/apps/files'
-      }),
-      headers: {
-        authorization: invalidAuthHeader,
-        Origin: origin
-      }
-    },
-    willRespondWith: {
-      status: 401,
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: unauthorizedXmlResponseBody
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a disable app DELETE request with invalid auth',
-    withRequest: {
-      method: 'DELETE',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps\\/files',
-        generate: '/ocs/v1.php/cloud/apps/files'
-      }),
-      headers: {
-        authorization: invalidAuthHeader,
-        Origin: origin
-      }
-    },
-    willRespondWith: {
-      status: 401,
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: unauthorizedXmlResponseBody
-    }
-  }))
-  let key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
-  for (i = 0; i < key.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'get attributes GET ' + key[i] + ' apps request with invalid auth',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/getattribute\\/' + config.testApp + '\\/' + key[i],
-          generate: '/ocs/v1.php/privatedata/getattribute/' + config.testApp + '/' + key[i]
-        }),
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin
-        }
-      },
-      willRespondWith: {
-        status: 401,
-        headers: {
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: unauthorizedXmlResponseBody
-      }
-    }))
-  }
-
-  key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
-  const value = ['value1', 'value%2Bplus+space+and%2Fslash', '%C3%A5%C2%80%C2%BC%C3%A5%C2%AF%C2%B91']
-
-  for (i = 0; i < key.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'set ' + key[i] + '-attribute POST apps request with invalid auth',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/setattribute\\/' + config.testApp + '\\/' + key[i],
-          generate: '/ocs/v1.php/privatedata/setattribute/' + config.testApp + '/' + key[i]
-        }),
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin
-        },
-        body: 'value=' + value[i]
-      },
-      willRespondWith: {
-        status: 401,
-        headers: {
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: unauthorizedXmlResponseBody
-      }
-    }))
-  }
-
-  key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
-
-  for (i = 0; i < key.length; i++) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'delete ' + key[i] + '-attribute POST apps request with invalid auth',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/deleteattribute\\/' + config.testApp + '\\/' + key[i],
-          generate: '/ocs/v1.php/privatedata/deleteattribute/' + config.testApp + '/' + key[i]
-        }),
-        headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin
-        }
-      },
-      willRespondWith: {
-        status: 401,
-        headers: {
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
-        },
-        body: unauthorizedXmlResponseBody
-      }
-    }))
-  }
 
   promises.push(provider.addInteraction({
     uponReceiving: 'an add group POST request with invalid auth',
@@ -2090,5 +1942,6 @@ module.exports = {
   xmlResponseHeaders,
   applicationXmlResponseHeaders,
   accessControlAllowHeaders,
-  accessControlAllowMethods
+  accessControlAllowMethods,
+  unauthorizedXmlResponseBody
 }

@@ -8,47 +8,12 @@ fdescribe('Main: Currently testing user management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, ocsMeta, applicationXmlResponseHeaders } = require('./pactHelper.js')
+  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
   const { accessControlAllowMethods, validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
   beforeAll(function (done) {
     const promises = []
     promises.push(setGeneralInteractions(provider))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a GET request to the cloud user endpoint',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/user$',
-          generate: '/ocs/v1.php/cloud/user'
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: applicationXmlResponseHeaders,
-        body: Pact.Matchers.term({
-          matcher: '<\\?xml version="1\\.0"\\?>\\s' +
-              '<ocs>\\s' +
-              ocsMeta('ok', 100, 'OK') +
-              ' <data>\\s' +
-              '  <id>admin<\\/id>\\s' +
-              '  <display-name>admin<\\/display-name>\\s' +
-              '  <email><\\/email>\\s.*' +
-              ' <\\/data>\\s' +
-              '<\\/ocs>',
-          generate: '<?xml version="1.0"?>\n' +
-              '<ocs>\n' +
-              ocsMeta('ok', 100, 'OK') +
-              ' <data>\n' +
-              '  <id>admin</id>\n' +
-              '  <display-name>admin</display-name>\n' +
-              '  <email></email>\n' +
-              ' </data>\n' +
-              '</ocs>'
-        })
-      }
-    }))
     promises.push(provider.addInteraction({
       uponReceiving: 'a request to GET user information of an existing user',
       withRequest: {
@@ -98,26 +63,6 @@ fdescribe('Main: Currently testing user management,', function () {
           '<ocs>\n' +
           ocsMeta('failure', 998, 'The requested user could not be found') +
           ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to delete a user',
-      withRequest: {
-        method: 'DELETE',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          '  <data/>\n' +
           '</ocs>\n'
       }
     }))

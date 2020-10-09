@@ -8,10 +8,47 @@ fdescribe('Unauthorized: Currently testing file/folder sharing,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('../pactHelper.js')
+  const {
+    setGeneralInteractions,
+    invalidAuthHeader,
+    accessControlAllowHeaders,
+    accessControlAllowMethods,
+    unauthorizedXmlResponseBody
+  } = require('../pactHelper.js')
+
+  const unauthorizedResponseXml = {
+    status: 401,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': accessControlAllowHeaders,
+      'Access-Control-Allow-Methods': accessControlAllowMethods
+    },
+    body: unauthorizedXmlResponseBody
+  }
 
   beforeAll(function (done) {
-    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+    const url = Pact.Matchers.term({
+      matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares.*',
+      generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+    })
+    const promises = []
+    promises.push(setGeneralInteractions(provider))
+    const requiredMethodsArray = ['POST', 'GET', 'DELETE']
+    requiredMethodsArray.forEach(method => {
+      promises.push(provider.addInteraction({
+        uponReceiving: `a share ${method} request of a file with invalid auth`,
+        withRequest: {
+          method: method,
+          path: url,
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: unauthorizedResponseXml
+      }))
+    })
+    Promise.all(promises).then(done, done.fail)
   })
 
   afterAll(function (done) {

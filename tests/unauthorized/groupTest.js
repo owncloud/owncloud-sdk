@@ -11,10 +11,37 @@ fdescribe('Unauthorized: Currently testing group management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('../pactHelper.js')
+  const { setGeneralInteractions, invalidAuthHeader, unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
 
   beforeAll(function (done) {
-    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+    const promises = []
+    const requiredAttributesForGroupInteractions = ['GET', 'POST', 'DELETE']
+    promises.push(setGeneralInteractions(provider))
+    requiredAttributesForGroupInteractions.forEach(method => {
+      promises.push(provider.addInteraction({
+        uponReceiving: `a group ${method} request with invalid auth`,
+        withRequest: {
+          method: method,
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups.*',
+            generate: '/ocs/v1.php/cloud/groups/' + config.testGroup
+          }),
+          headers: {
+            authorization: invalidAuthHeader,
+            Origin: origin
+          }
+        },
+        willRespondWith: {
+          status: 401,
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'Access-Control-Allow-Origin': origin
+          },
+          body: unauthorizedXmlResponseBody
+        }
+      }))
+    })
+    Promise.all(promises).then(done, done.fail)
   })
 
   afterAll(function (done) {

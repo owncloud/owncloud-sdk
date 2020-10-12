@@ -11,455 +11,356 @@ fdescribe('Main: Currently testing user management,', function () {
   const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
   const { accessControlAllowMethods, validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
+  const aRequestToGetUserInformation = function (requestName, username, responseBody) {
+    return {
+      uponReceiving: 'a request to GET user information ' + requestName,
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '$',
+          generate: '/ocs/v1.php/cloud/users/' + username
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: responseBody
+      }
+    }
+  }
+
+  const aGETRequestToListUsers = function (requestName, query, bodyData) {
+    return {
+      uponReceiving: 'a request to list all users ' + requestName,
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+          generate: '/ocs/v1.php/cloud/users'
+        }),
+        query: query,
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('ok', '100') +
+          ' <data>\n' +
+          bodyData +
+          ' </data>\n' +
+          '</ocs>\n'
+      }
+    }
+  }
+
+  const aPUTRequestToSetUserAttribute = function (requestName, username, requestBody, response) {
+    return {
+      uponReceiving: 'set user attribute of an ' + requestName,
+      withRequest: {
+        method: 'PUT',
+        path: Pact.Matchers.regex({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username,
+          generate: '/ocs/v1.php/cloud/users/' + username
+        }),
+        headers: validAuthHeaders,
+        body: requestBody
+      },
+      willRespondWith: {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': origin,
+          'Content-Type': 'text/xml; charset=utf-8',
+          'Access-Control-Allow-Methods': accessControlAllowMethods
+        },
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          response +
+          ' <data/>\n' +
+          '</ocs>\n'
+      }
+    }
+  }
+
+  const aPOSTRequestToAddUsersToGroup = function (requestName, username, group) {
+    return {
+      uponReceiving: 'add user to group with an existent user and a non existent group' + requestName,
+      withRequest: {
+        method: 'POST',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
+          generate: '/ocs/v1.php/cloud/users/' + username + '/groups'
+        }),
+        headers: validAuthHeaders,
+        body: 'groupid=' + group
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('failure', 102) +
+          ' <data/>\n' +
+          '</ocs>'
+      }
+    }
+  }
+
+  const aRequestToGetGroupOfAUser = function (requestName, username, responseBody) {
+    return {
+      // TODO: for provider test, need to add a state to put user in group
+      uponReceiving: 'a request to GET the groups that a user is a member of ',
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
+          generate: '/ocs/v1.php/cloud/users/' + username + '/groups'
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: responseBody
+      }
+    }
+  }
+
+  const aDELETERequestToRemoveUserFromAGroup = function (requestName, username, group) {
+    return {
+      uponReceiving: 'Remove user from a group ' + requestName,
+      withRequest: {
+        method: 'DELETE',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
+          generate: '/ocs/v1.php/cloud/users/' + username + '/groups'
+        }),
+        headers: validAuthHeaders,
+        body: 'groupid=' + group
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('failure', 102) +
+          ' <data/>\n' +
+          '</ocs>\n'
+      }
+    }
+  }
+
+  const aPOSTRequestToAddUserToSubAdminGroup = function (request, username, group, responseOcsMeta) {
+    return {
+      uponReceiving: 'Add user to subadmin group ' + request,
+      withRequest: {
+        method: 'POST',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username + '\\/subadmins$',
+          generate: '/ocs/v1.php/cloud/users/' + username + '/subadmins'
+        }),
+        headers: validAuthHeaders,
+        body: 'groupid=' + group
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          responseOcsMeta +
+          ' <data/>\n' +
+          '</ocs>\n'
+      }
+    }
+  }
+
+  const aRequestToGetUserSubAdminGroup = function (requestName, username, responseBody) {
+    return {
+      // TODO: for provider test, need to add a state to make user subadmin of the group
+      uponReceiving: 'a request to GET groups that a user is a subadmin of ' + requestName,
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/subadmins$',
+          generate: '/ocs/v1.php/cloud/users/' + username + '/subadmins'
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: responseBody
+      }
+    }
+  }
+
   beforeAll(function (done) {
     const promises = []
     promises.push(setGeneralInteractions(provider))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to GET user information of an existing user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.username + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.username
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <enabled>true</enabled>\n' +
-          '  <quota>\n' +
-          '   <free>57800708096</free>\n' + // TODO need to be made more flexible for provider tests
-          '   <used>2740027</used>\n' +
-          '   <total>57803448123</total>\n' +
-          '   <relative>0</relative>\n' +
-          '   <definition>default</definition>\n' +
-          '  </quota>\n' +
-          '  <email/>\n' +
-          '  <displayname>' + config.username + '</displayname>\n' +
-          '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to GET user information of a non-existent user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 998, 'The requested user could not be found') +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      // TODO: for provider test, need to add a state to put user in group
-      uponReceiving: 'a request to GET the groups that a user is a member of',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <groups>\n' +
-          '   <element>' + config.testGroup + '</element>\n' +
-          '  </groups>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to list all users',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
-          generate: '/ocs/v1.php/cloud/users'
-        }),
-        query: '',
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <users>\n' +
-          '   <element>' + config.username + '</element>\n' +
-          '   <element>' + config.testUser + '</element>\n' +
-          '  </users>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to list a non-existent user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
-          generate: '/ocs/v1.php/cloud/users'
-        }),
-        query: 'search=' + config.nonExistentUser,
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <users/>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to list a single user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
-          generate: '/ocs/v1.php/cloud/users'
-        }),
-        query: 'search=' + config.username,
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <users>\n' +
-          '   <element>' + config.username + '</element>\n' +
-          '  </users>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'set user attribute of an existent user, attribute is allowed',
-      withRequest: {
-        method: 'PUT',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser,
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser
-        }),
-        headers: validAuthHeaders,
-        body: 'key=email&value=asd%40a.com'
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin,
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Methods': accessControlAllowMethods
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'get user attribute of an existent user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin,
-          'Content-Type': 'text/xml; charset=utf-8'
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '  <enabled>true</enabled>\n' +
-          '  <quota>\n' +
-          '   <definition>default</definition>\n' +
-          '  </quota>\n' +
-          '  <email>asd@a.com</email>\n' +
-          '  <displayname>test123</displayname>\n' +
-          '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
-          ' </data>\n' +
-          '</ocs>'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'set user attribute of an existent user, attribute is not allowed',
-      withRequest: {
-        method: 'PUT',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser
-        }),
-        headers: validAuthHeaders,
-        body: 'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D'
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin,
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Methods': accessControlAllowMethods
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 102) +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'set user attribute of a non-existent user',
-      withRequest: {
-        method: 'PUT',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
-        }),
-        headers: validAuthHeaders,
-        body: 'key=email&value=asd%40a.com'
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin,
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Methods': accessControlAllowMethods
-        },
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 997) +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'add user to group with an existent user and a non existent group',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
-        }),
-        headers: validAuthHeaders,
-        body: 'groupid=' + config.nonExistentGroup
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 102) +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'add user to group with a non-existent user and an existent group',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/groups$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/groups'
-        }),
-        headers: validAuthHeaders,
-        body: 'groupid=' + config.testGroup
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 102) +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'get user groups with a non-existent user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/groups$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/groups'
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 998) +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Remove user from a group, with existent user and non existent group',
-      withRequest: {
-        method: 'DELETE',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
-        }),
-        headers: validAuthHeaders,
-        body: 'groupid=' + config.nonExistentGroup
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 102) +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Remove user from a group, with non-existent user and an existent group',
-      withRequest: {
-        method: 'DELETE',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/groups$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/groups'
-        }),
-        headers: validAuthHeaders,
-        body: 'groupid=' + config.testGroup
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 102) +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Add user to subadmin group, with existent user non existent group',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
-        }),
-        headers: validAuthHeaders,
-        body: 'groupid=' + config.nonExistentGroup
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 102, 'Group:thisGroupShouldNotExist does not exist') +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Add user to subadmin group, with non-existent user and existent group',
-      withRequest: {
-        method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/subadmins$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/subadmins'
-        }),
-        headers: validAuthHeaders,
-        body: 'groupid=' + config.testGroup
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 101, 'User does not exist') +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Get user subadmin group with a non existent user',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/subadmins$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/subadmins'
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 101, 'User does not exist') +
-          ' <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
-    promises.push(provider.addInteraction({
-      // TODO: for provider test, need to add a state to make user subadmin of the group
-      uponReceiving: 'a request to GET groups that a user is a subadmin of',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          '   <element>' + config.testGroup + '</element>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
-      }
-    }))
+    promises.push(provider.addInteraction(aRequestToGetUserInformation(
+      'of an existing user',
+      config.username,
+      '<?xml version="1.0"?>\n' +
+      '<ocs>\n' +
+      ocsMeta('ok', '100') +
+      ' <data>\n' +
+      '  <enabled>true</enabled>\n' +
+      '  <quota>\n' +
+      '   <free>57800708096</free>\n' + // TODO need to be made more flexible for provider tests
+      '   <used>2740027</used>\n' +
+      '   <total>57803448123</total>\n' +
+      '   <relative>0</relative>\n' +
+      '   <definition>default</definition>\n' +
+      '  </quota>\n' +
+      '  <email/>\n' +
+      '  <displayname>' + config.username + '</displayname>\n' +
+      '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
+      ' </data>\n' +
+      '</ocs>\n'
+    )))
+    promises.push(provider.addInteraction(aRequestToGetUserInformation(
+      'of a non-existent user',
+      config.nonExistentUser,
+      '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsMeta('failure', 998, 'The requested user could not be found') +
+            ' <data/>\n' +
+            '</ocs>\n'
+    )))
+    promises.push(provider.addInteraction(aGETRequestToListUsers(
+      'to get all users',
+      '',
+      '  <users>\n' +
+      '   <element>' + config.username + '</element>\n' +
+      '   <element>' + config.testUser + '</element>\n' +
+      '  </users>\n'
+    )
+    ))
+    promises.push(provider.addInteraction(aGETRequestToListUsers(
+      'to list a non-existent user',
+      'search=' + config.nonExistentUser,
+      '  <users/>\n'
+    )
+    ))
+    promises.push(provider.addInteraction(aGETRequestToListUsers(
+      'to list a single existent user',
+      'search=' + config.username,
+      '  <users>\n' +
+            '   <element>' + config.username + '</element>\n' +
+            '  </users>\n'
+    )
+    ))
+    promises.push(provider.addInteraction(aRequestToGetUserInformation(
+      ' to get user attribute of an existent user',
+      config.testUser,
+      '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsMeta('ok', '100') +
+            ' <data>\n' +
+            '  <enabled>true</enabled>\n' +
+            '  <quota>\n' +
+            '   <definition>default</definition>\n' +
+            '  </quota>\n' +
+            '  <email>asd@a.com</email>\n' +
+            '  <displayname>test123</displayname>\n' +
+            '  <two_factor_auth_enabled>false</two_factor_auth_enabled>\n' +
+            ' </data>\n' +
+            '</ocs>'
+    )))
+    promises.push(provider.addInteraction(aPUTRequestToSetUserAttribute(
+      ' an existent user, attribute is allowed',
+      config.testUser,
+      'key=email&value=asd%40a.com',
+      ocsMeta('ok', '100')
+    )))
+    promises.push(provider.addInteraction(aPUTRequestToSetUserAttribute(
+      ' an existent user, attribute is not allowed',
+      config.testUser,
+      'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D',
+      ocsMeta('failure', 102)
+    )))
+    promises.push(provider.addInteraction(aPUTRequestToSetUserAttribute(
+      ' a non existent user',
+      config.nonExistentUser,
+      'key=email&value=asd%40a.com',
+      ocsMeta('failure', 997)
+    )))
+    promises.push(provider.addInteraction(aPOSTRequestToAddUsersToGroup(
+      'with an existent user and a non existent group',
+      config.testUser,
+      config.nonExistentGroup
+    )))
+    promises.push(provider.addInteraction(aPOSTRequestToAddUsersToGroup(
+      'with a non-existent user and an existent group',
+      config.nonExistentUser,
+      config.testGroup
+    )))
+    promises.push(provider.addInteraction(aRequestToGetGroupOfAUser(
+      ' with existent user',
+      config.testUser,
+      '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsMeta('ok', '100') +
+            ' <data>\n' +
+            '  <groups>\n' +
+            '   <element>' + config.testGroup + '</element>\n' +
+            '  </groups>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+    )))
+    promises.push(provider.addInteraction(aRequestToGetGroupOfAUser(
+      ' with a non-existent user',
+      config.nonExistentUser,
+      '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsMeta('failure', 998) +
+            ' <data/>\n' +
+            '</ocs>'
+    )))
+    promises.push(provider.addInteraction(aDELETERequestToRemoveUserFromAGroup(
+      'with existent user and non-existent group',
+      config.testUser,
+      config.nonExistentGroup
+    )))
+    promises.push(provider.addInteraction(aDELETERequestToRemoveUserFromAGroup(
+      'with a non-existent user and an existent group',
+      config.nonExistentUser,
+      config.testGroup
+    )))
+    promises.push(provider.addInteraction(aPOSTRequestToAddUserToSubAdminGroup(
+      'with existent user non existent group',
+      config.testUser,
+      config.nonExistentGroup,
+      ocsMeta('failure', 102, 'Group:thisGroupShouldNotExist does not exist')
+    )))
+    promises.push(provider.addInteraction(aPOSTRequestToAddUserToSubAdminGroup(
+      'with a non-existent user and an existent group',
+      config.nonExistentUser,
+      config.testGroup,
+      ocsMeta('failure', 101, 'User does not exist')
+    )))
+    promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
+      ' with a non-existent user',
+      config.nonExistentUser,
+      '<?xml version="1.0"?>\n' +
+      '<ocs>\n' +
+      ocsMeta('failure', 101, 'User does not exist') +
+      ' <data/>\n' +
+      '</ocs>\n'
+    )))
+    promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
+      ' with an existent user',
+      config.testUser,
+      '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsMeta('ok', '100') +
+            ' <data>\n' +
+            '   <element>' + config.testGroup + '</element>\n' +
+            ' </data>\n' +
+            '</ocs>\n'
+    )))
     promises.push(provider.addInteraction({
       uponReceiving: 'a request to delete a non-existent user',
       withRequest: {

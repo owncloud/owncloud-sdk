@@ -230,15 +230,6 @@ fdescribe('Main: Currently testing user management,', function () {
             '</ocs>\n'
     )))
     promises.push(provider.addInteraction(aGETRequestToListUsers(
-      'to get all users',
-      '',
-      '  <users>\n' +
-      '   <element>' + config.username + '</element>\n' +
-      '   <element>' + config.testUser + '</element>\n' +
-      '  </users>\n'
-    )
-    ))
-    promises.push(provider.addInteraction(aGETRequestToListUsers(
       'to list a non-existent user',
       'search=' + config.nonExistentUser,
       '  <users/>\n'
@@ -269,34 +260,6 @@ fdescribe('Main: Currently testing user management,', function () {
             ' </data>\n' +
             '</ocs>'
     )))
-    promises.push(provider.addInteraction(aPUTRequestToSetUserAttribute(
-      ' an existent user, attribute is allowed',
-      config.testUser,
-      'key=email&value=asd%40a.com',
-      ocsMeta('ok', '100')
-    )))
-    promises.push(provider.addInteraction(aPUTRequestToSetUserAttribute(
-      ' an existent user, attribute is not allowed',
-      config.testUser,
-      'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D',
-      ocsMeta('failure', 102)
-    )))
-    promises.push(provider.addInteraction(aPUTRequestToSetUserAttribute(
-      ' a non existent user',
-      config.nonExistentUser,
-      'key=email&value=asd%40a.com',
-      ocsMeta('failure', 997)
-    )))
-    promises.push(provider.addInteraction(aPOSTRequestToAddUsersToGroup(
-      'with an existent user and a non existent group',
-      config.testUser,
-      config.nonExistentGroup
-    )))
-    promises.push(provider.addInteraction(aPOSTRequestToAddUsersToGroup(
-      'with a non-existent user and an existent group',
-      config.nonExistentUser,
-      config.testGroup
-    )))
     promises.push(provider.addInteraction(aRequestToGetGroupOfAUser(
       ' with existent user',
       config.testUser,
@@ -319,27 +282,16 @@ fdescribe('Main: Currently testing user management,', function () {
             ' <data/>\n' +
             '</ocs>'
     )))
-    promises.push(provider.addInteraction(aDELETERequestToRemoveUserFromAGroup(
-      'with existent user and non-existent group',
+    promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
+      ' with an existent user',
       config.testUser,
-      config.nonExistentGroup
-    )))
-    promises.push(provider.addInteraction(aDELETERequestToRemoveUserFromAGroup(
-      'with a non-existent user and an existent group',
-      config.nonExistentUser,
-      config.testGroup
-    )))
-    promises.push(provider.addInteraction(aPOSTRequestToAddUserToSubAdminGroup(
-      'with existent user non existent group',
-      config.testUser,
-      config.nonExistentGroup,
-      ocsMeta('failure', 102, 'Group:thisGroupShouldNotExist does not exist')
-    )))
-    promises.push(provider.addInteraction(aPOSTRequestToAddUserToSubAdminGroup(
-      'with a non-existent user and an existent group',
-      config.nonExistentUser,
-      config.testGroup,
-      ocsMeta('failure', 101, 'User does not exist')
+      '<?xml version="1.0"?>\n' +
+      '<ocs>\n' +
+      ocsMeta('ok', '100') +
+      ' <data>\n' +
+      '   <element>' + config.testGroup + '</element>\n' +
+      ' </data>\n' +
+      '</ocs>\n'
     )))
     promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
       ' with a non-existent user',
@@ -350,31 +302,11 @@ fdescribe('Main: Currently testing user management,', function () {
       ' <data/>\n' +
       '</ocs>\n'
     )))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a request to delete a non-existent user',
-      withRequest: {
-        method: 'DELETE',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
-          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('failure', 101) +
-          '  <data/>\n' +
-          '</ocs>\n'
-      }
-    }))
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(async function (done) {
+    await provider.removeInteractions().then(done, done.fail)
   })
 
   beforeEach(function (done) {
@@ -418,22 +350,6 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   describe('made testUser as testGroup subAdmin', function () {
-    beforeEach(function (done) {
-      const promises = []
-      promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
-        ' with an existent user',
-        config.testUser,
-        '<?xml version="1.0"?>\n' +
-              '<ocs>\n' +
-              ocsMeta('ok', '100') +
-              ' <data>\n' +
-              '   <element>' + config.testGroup + '</element>\n' +
-              ' </data>\n' +
-              '</ocs>\n'
-      )))
-      Promise.all(promises).then(done, done.fail)
-    })
-
     it('checking method : getUserSubadminGroups with an existent user', function (done) {
       oc.users.getUserSubadminGroups(config.testUser).then(data => {
         expect(typeof (data)).toEqual('object')
@@ -496,7 +412,15 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  it('checking method : searchUsers', function (done) {
+  it('checking method : searchUsers', async function (done) {
+    await provider.addInteraction(aGETRequestToListUsers(
+      'to get all users',
+      '',
+      '  <users>\n' +
+      '   <element>' + config.username + '</element>\n' +
+      '   <element>' + config.testUser + '</element>\n' +
+      '  </users>\n'
+    ))
     oc.users.searchUsers('').then(data => {
       expect(typeof (data)).toEqual('object')
       expect(data.indexOf(config.username)).toBeGreaterThan(-1)
@@ -539,7 +463,13 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  it('checking method : setUserAttribute of an existent user, allowed attribute', function (done) {
+  it('checking method : setUserAttribute of an existent user, allowed attribute', async function (done) {
+    await provider.addInteraction(aPUTRequestToSetUserAttribute(
+      ' an existent user, attribute is allowed',
+      config.testUser,
+      'key=email&value=asd%40a.com',
+      ocsMeta('ok', '100')
+    ))
     oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
       expect(data).toEqual(true)
       return oc.users.getUser(config.testUser)
@@ -553,7 +483,14 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  it('checking method : setUserAttribute of an existent user, not allowed attribute', function (done) {
+  it('checking method : setUserAttribute of an existent user, not allowed attribute', async function (done) {
+    await provider.addInteraction(aPUTRequestToSetUserAttribute(
+      ' an existent user, attribute is not allowed',
+      config.testUser,
+      'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D',
+      ocsMeta('failure', 102)
+    ))
+
     oc.users.setUserAttribute(config.testUser, 'email', 'äöüää_sfsdf+$%/)%&=')
       .then(status => {
         expect(status).toBe(null)
@@ -566,7 +503,14 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  it('checking method : setUserAttribute of a non existent user', function (done) {
+  it('checking method : setUserAttribute of a non existent user', async function (done) {
+    await provider.addInteraction(aPUTRequestToSetUserAttribute(
+      ' a non existent user',
+      config.nonExistentUser,
+      'key=email&value=asd%40a.com',
+      ocsMeta('failure', 997)
+    ))
+
     oc.users.setUserAttribute(config.nonExistentUser, 'email', 'asd@a.com').then(status => {
       expect(status).toBe(null)
       done()
@@ -577,7 +521,13 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  it('checking method : addUserToGroup with existent user, non existent group', function (done) {
+  it('checking method : addUserToGroup with existent user, non existent group', async function (done) {
+    await provider.addInteraction(aPOSTRequestToAddUsersToGroup(
+      'with an existent user and a non existent group',
+      config.testUser,
+      config.nonExistentGroup
+    ))
+
     oc.users.addUserToGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(null)
@@ -590,7 +540,13 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  it('checking method : addUserToGroup with non existent user, existent group', function (done) {
+  it('checking method : addUserToGroup with non existent user, existent group', async function (done) {
+    await provider.addInteraction(aPOSTRequestToAddUsersToGroup(
+      'with a non-existent user and an existent group',
+      config.nonExistentUser,
+      config.testGroup
+    ))
+
     oc.users.addUserToGroup(config.nonExistentUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
@@ -666,7 +622,12 @@ fdescribe('Main: Currently testing user management,', function () {
     })
   })
 
-  it('checking method : removeUserFromGroup with existent user, non existent group', function (done) {
+  it('checking method : removeUserFromGroup with existent user, non existent group', async function (done) {
+    await provider.addInteraction(aDELETERequestToRemoveUserFromAGroup(
+      'with existent user and non-existent group',
+      config.testUser,
+      config.nonExistentGroup
+    ))
     oc.users.removeUserFromGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(null)
@@ -678,7 +639,12 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  it('checking method : removeUserFromGroup with non existent user, existent group', function (done) {
+  it('checking method : removeUserFromGroup with non existent user, existent group', async function (done) {
+    await provider.addInteraction(aDELETERequestToRemoveUserFromAGroup(
+      'with a non-existent user and an existent group',
+      config.nonExistentUser,
+      config.testGroup
+    ))
     oc.users.removeUserFromGroup(config.nonExistentUser, config.testGroup)
       .then(status => {
         expect(status).toBe(null)
@@ -690,7 +656,13 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  it('checking method : addUserToSubadminGroup with existent user, non existent group', function (done) {
+  it('checking method : addUserToSubadminGroup with existent user, non existent group', async function (done) {
+    await provider.addInteraction(aPOSTRequestToAddUserToSubAdminGroup(
+      'with existent user non existent group',
+      config.testUser,
+      config.nonExistentGroup,
+      ocsMeta('failure', 102, 'Group:thisGroupShouldNotExist does not exist')
+    ))
     oc.users.addUserToSubadminGroup(config.testUser, config.nonExistentGroup)
       .then(status => {
         expect(status).toBe(null)
@@ -701,7 +673,13 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  it('checking method : addUserToSubadminGroup with non existent user, existent group', function (done) {
+  it('checking method : addUserToSubadminGroup with non existent user, existent group', async function (done) {
+    await provider.addInteraction(aPOSTRequestToAddUserToSubAdminGroup(
+      'with a non-existent user and an existent group',
+      config.nonExistentUser,
+      config.testGroup,
+      ocsMeta('failure', 101, 'User does not exist')
+    ))
     oc.users.addUserToSubadminGroup(config.nonExistentUser, config.testGroup).then(status => {
       expect(status).toBe(null)
       done()
@@ -744,7 +722,27 @@ fdescribe('Main: Currently testing user management,', function () {
       })
   })
 
-  it('checking method : deleteUser on a non existent user', function (done) {
+  it('checking method : deleteUser on a non existent user', async function (done) {
+    await provider.addInteraction({
+      uponReceiving: 'a request to delete a non-existent user',
+      withRequest: {
+        method: 'DELETE',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+          generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('failure', 101) +
+          '  <data/>\n' +
+          '</ocs>\n'
+      }
+    })
     oc.users.deleteUser(config.nonExistentUser).then(status => {
       expect(status).toBe(null)
       done()

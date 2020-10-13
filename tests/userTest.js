@@ -86,7 +86,7 @@ fdescribe('Main: Currently testing user management,', function () {
 
   const aPOSTRequestToAddUsersToGroup = function (requestName, username, group) {
     return {
-      uponReceiving: 'add user to group with an existent user and a non existent group' + requestName,
+      uponReceiving: 'add user to group with an existent user and a non existent group ' + requestName,
       withRequest: {
         method: 'POST',
         path: Pact.Matchers.term({
@@ -350,17 +350,6 @@ fdescribe('Main: Currently testing user management,', function () {
       ' <data/>\n' +
       '</ocs>\n'
     )))
-    promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
-      ' with an existent user',
-      config.testUser,
-      '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ocsMeta('ok', '100') +
-            ' <data>\n' +
-            '   <element>' + config.testGroup + '</element>\n' +
-            ' </data>\n' +
-            '</ocs>\n'
-    )))
     promises.push(provider.addInteraction({
       uponReceiving: 'a request to delete a non-existent user',
       withRequest: {
@@ -429,6 +418,22 @@ fdescribe('Main: Currently testing user management,', function () {
   })
 
   describe('made testUser as testGroup subAdmin', function () {
+    beforeEach(function (done) {
+      const promises = []
+      promises.push(provider.addInteraction(aRequestToGetUserSubAdminGroup(
+        ' with an existent user',
+        config.testUser,
+        '<?xml version="1.0"?>\n' +
+              '<ocs>\n' +
+              ocsMeta('ok', '100') +
+              ' <data>\n' +
+              '   <element>' + config.testGroup + '</element>\n' +
+              ' </data>\n' +
+              '</ocs>\n'
+      )))
+      Promise.all(promises).then(done, done.fail)
+    })
+
     it('checking method : getUserSubadminGroups with an existent user', function (done) {
       oc.users.getUserSubadminGroups(config.testUser).then(data => {
         expect(typeof (data)).toEqual('object')

@@ -8,15 +8,7 @@ fdescribe('Main: Currently testing group management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('./pactHelper.js')
-
-  beforeAll(function (done) {
-    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
-  })
-
-  afterAll(function (done) {
-    provider.removeInteractions().then(done, done.fail)
-  })
+  const { setGeneralInteractions, validAuthHeaders, xmlResponseHeaders, ocsMeta } = require('./pactHelper.js')
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -29,6 +21,85 @@ fdescribe('Main: Currently testing group management,', function () {
       }
     })
     done()
+  })
+
+  beforeAll(function (done) {
+    const promises = []
+    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a GET groups request',
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
+          generate: '/ocs/v1.php/cloud/groups'
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('ok', '100') +
+          ' <data>\n' +
+          '  <groups>\n' +
+          '   <element>admin</element>\n' +
+          '   <element>' + config.testGroup + '</element>\n' +
+          '  </groups>\n' +
+          ' </data>\n' +
+          '</ocs>\n'
+      }
+    }))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a request to GET members of the admin group',
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/admin$',
+          generate: '/ocs/v1.php/cloud/groups/admin'
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('ok', '100') +
+          ' <data>\n' +
+          '  <users>\n' +
+          '   <element>admin</element>\n' +
+          '  </users>\n' +
+          ' </data>\n' +
+          '</ocs>\n'
+      }
+    }))
+    promises.push(provider.addInteraction({
+      uponReceiving: 'a DELETE request for a non-existent group',
+      withRequest: {
+        method: 'DELETE',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + config.nonExistentGroup + '$',
+          generate: '/ocs/v1.php/cloud/groups/' + config.nonExistentGroup
+        }),
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<ocs>\n' +
+          ocsMeta('failure', 101) +
+          ' <data/>\n' +
+          '</ocs>\n'
+      }
+    }))
+    Promise.all(promises).then(done, done.fail)
+  })
+
+  afterAll(function (done) {
+    provider.removeInteractions().then(done, done.fail)
   })
 
   it('checking method : getGroups', function (done) {
@@ -52,7 +123,6 @@ fdescribe('Main: Currently testing group management,', function () {
       done()
     })
   })
-
   it('checking method : groupExists with a non-existent group', function (done) {
     oc.groups.groupExists(config.nonExistentGroup).then(status => {
       expect(status).toBe(false)

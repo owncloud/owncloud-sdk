@@ -1,6 +1,4 @@
 fdescribe('Main: Currently testing apps management,', function () {
-// CURRENT TIME
-  var timeRightNow = Math.random().toString(36).substr(2, 9)
   var OwnCloud = require('../src/owncloud')
   var utf8 = require('utf8')
   var config = require('./config/config.json')
@@ -9,14 +7,20 @@ fdescribe('Main: Currently testing apps management,', function () {
   var oc
 
   // TESTING CONFIGS
-  var testApp = 'someAppName'
-  var nonExistentApp = 'nonExistentApp' + timeRightNow
+  var nonExistentApp = 'nonExistentApp123'
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
-  const { validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
+  const { validAuthHeaders, xmlResponseHeaders, setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
+
+  const responseBody = function (data) {
+    return '<?xml version="1.0"?>\n' +
+    '<ocs>\n' +
+    ocsMeta('ok', '100') +
+    data +
+    '</ocs>'
+  }
 
   beforeAll(function (done) {
     const promises = []
@@ -73,23 +77,23 @@ fdescribe('Main: Currently testing apps management,', function () {
       let data = ' <data/>\n'
 
       // no attributes specified, return all attributes
-      if (attribute === '') {
+      if (!attribute) {
         data = ' <data>\n'
         for (const [key, value] of Object.entries(attributes[attribute].value)) {
           data = data +
             '  <element>\n' +
             '   <key>' + utf8.encode(key) + '</key>\n' +
-            '   <app>someAppName</app>\n' +
+            '   <app>' + config.testApp + '</app>\n' +
             '   <value>' + utf8.encode(value) + '</value>\n' +
             '  </element>\n'
         }
         data = data + ' </data>'
-      } else if (attributes[attribute].attrExists === true) {
+      } else if (attributes[attribute].attrExists) {
         // attribute exists
         data = ' <data>\n' +
           '  <element>\n' +
           '   <key>' + utf8.encode(attribute) + '</key>\n' +
-          '   <app>someAppName</app>\n' +
+          '   <app>' + config.testApp + '</app>\n' +
           '   <value>' + utf8.encode(attributes[attribute].value) + '</value>\n' +
           '  </element>\n' +
           ' </data>\n'
@@ -99,19 +103,15 @@ fdescribe('Main: Currently testing apps management,', function () {
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/privatedata\\/getattribute\\/someAppName\\/?' + encodeURIComponent(utf8.encode(attribute)) + '$',
-            generate: '/ocs/v1.php/privatedata/getattribute/someAppName/' + encodeURIComponent(utf8.encode(attribute))
+            matcher: '.*\\/ocs\\/v1\\.php\\/privatedata\\/getattribute\\/' + config.testApp + '\\/?' + encodeURIComponent(utf8.encode(attribute)) + '$',
+            generate: '/ocs/v1.php/privatedata/getattribute/' + config.testApp + '/' + encodeURIComponent(utf8.encode(attribute))
           }),
           headers: validAuthHeaders
         },
         willRespondWith: {
           status: 200,
           headers: xmlResponseHeaders,
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ocsMeta('ok', '100') +
-            data +
-            '</ocs>'
+          body: responseBody(data)
         }
       }))
     }
@@ -132,11 +132,7 @@ fdescribe('Main: Currently testing apps management,', function () {
         willRespondWith: {
           status: 200,
           headers: xmlResponseHeaders,
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ocsMeta('ok', '100') +
-            ' <data/>\n' +
-            '</ocs>'
+          body: responseBody(' <data/>\n')
         }
       }))
     }
@@ -187,16 +183,12 @@ fdescribe('Main: Currently testing apps management,', function () {
       willRespondWith: {
         status: 200,
         headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
+        body: responseBody(' <data>\n' +
           '  <apps>\n' +
           '   <element>workflow</element>\n' +
           '   <element>files</element>\n' +
           '  </apps>\n' +
-          ' </data>\n' +
-          '</ocs>\n'
+          ' </data>\n')
       }
     })
     oc.apps.getApps().then(apps => {
@@ -218,7 +210,7 @@ fdescribe('Main: Currently testing apps management,', function () {
       var count = 0
 
       for (var i = 0; i < key.length; i++) {
-        oc.apps.getAttribute(testApp, key[i]).then(data => {
+        oc.apps.getAttribute(config.testApp, key[i]).then(data => {
           expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1)
           count++
           if (count === key.length) {
@@ -236,13 +228,13 @@ fdescribe('Main: Currently testing apps management,', function () {
       var count = 0
 
       for (var i = 0; i < key.length; i++) {
-        oc.apps.getAttribute(testApp, key[i]).then(data => {
+        oc.apps.getAttribute(config.testApp, key[i]).then(data => {
           expect(data).toEqual(null)
           done()
         }).catch(error => {
           var fl = 0
           for (var j = 0; j < key.length; j++) {
-            if (error === testApp + ' has no key named "' + key[j] + '"') {
+            if (error === config.testApp + ' has no key named "' + key[j] + '"') {
               fl = 1
             }
           }
@@ -260,7 +252,7 @@ fdescribe('Main: Currently testing apps management,', function () {
       var value = ['value1', 'value+plus space and/slash', '值对1']
       var count = 0
 
-      oc.apps.getAttribute(testApp).then(allAttributes => {
+      oc.apps.getAttribute(config.testApp).then(allAttributes => {
         for (var i = 0; i < key.length; i++) {
           expect(typeof (allAttributes)).toBe('object')
           expect(utf8.encode(key[i]) in allAttributes).toBe(true)
@@ -287,7 +279,7 @@ fdescribe('Main: Currently testing apps management,', function () {
         data = data +
           '  <element>\n' +
           '   <key>' + utf8.encode(values[i]) + '</key>\n' +
-          '   <app>someAppName-no-value</app>\n' +
+          '   <app>' + config.testApp + '-no-value</app>\n' +
           '   <value></value>\n' +
           '  </element>\n'
       }
@@ -297,19 +289,15 @@ fdescribe('Main: Currently testing apps management,', function () {
         withRequest: {
           method: 'GET',
           path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/privatedata\\/getattribute\\/someAppName-no-value$',
-            generate: '/ocs/v1.php/privatedata/getattribute/someAppName-no-value'
+            matcher: '.*\\/ocs\\/v1\\.php\\/privatedata\\/getattribute\\/' + config.testApp + '-no-value$',
+            generate: '/ocs/v1.php/privatedata/getattribute/' + config.testApp + '-no-value'
           }),
           headers: validAuthHeaders
         },
         willRespondWith: {
           status: 200,
           headers: xmlResponseHeaders,
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ocsMeta('ok', '100') +
-            data +
-            '</ocs>'
+          body: responseBody(data)
         }
       }))
       Promise.all(promises).then(done, done.fail)
@@ -320,7 +308,7 @@ fdescribe('Main: Currently testing apps management,', function () {
       var count = 0
 
       for (var i = 0; i < key.length; i++) {
-        oc.apps.getAttribute(testApp, key[i]).then(data => {
+        oc.apps.getAttribute(config.testApp, key[i]).then(data => {
           expect(utf8.decode(data)).toBe('')
           count++
           if (count === key.length) {
@@ -337,7 +325,7 @@ fdescribe('Main: Currently testing apps management,', function () {
       var key = ['attr1', 'attr+plus space', '属性1']
       var count = 0
 
-      oc.apps.getAttribute(testApp + '-no-value').then(allAttributes => {
+      oc.apps.getAttribute(config.testApp + '-no-value').then(allAttributes => {
         for (var i = 0; i < key.length; i++) {
           expect(typeof (allAttributes)).toBe('object')
           expect(utf8.encode(key[i]) in allAttributes).toBe(true)

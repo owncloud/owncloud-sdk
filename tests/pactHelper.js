@@ -528,32 +528,6 @@ function setGeneralInteractions (provider) {
   }
 
   promises.push(provider.addInteraction({
-    uponReceiving: 'a GET config request',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/config',
-        generate: '/ocs/v1.php/config'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        ' <data>\n' +
-        '  <version>1.7</version>\n' +
-        '  <website>ownCloud</website>\n' +
-        '  <host>localhost</host>\n' +
-        '  <contact></contact>\n' +
-        '  <ssl>false</ssl>\n' +
-        ' </data>\n' +
-        '</ocs>'
-    }
-  }))
-  promises.push(provider.addInteraction({
     uponReceiving: 'a request to delete a user',
     withRequest: {
       method: 'DELETE',

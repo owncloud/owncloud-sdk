@@ -1,18 +1,19 @@
 fdescribe('Main: Currently testing apps management,', function () {
-  var OwnCloud = require('../src/owncloud')
-  var utf8 = require('utf8')
-  var config = require('./config/config.json')
+  const OwnCloud = require('../src/owncloud')
+  const utf8 = require('utf8')
+  const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var nonExistentApp = 'nonExistentApp123'
+  const nonExistentApp = 'nonExistentApp123'
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { validAuthHeaders, xmlResponseHeaders, setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
+  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
+  const { validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
   const responseBody = function (data) {
     return '<?xml version="1.0"?>\n' +
@@ -205,11 +206,11 @@ fdescribe('Main: Currently testing apps management,', function () {
   // there are cors issues with this api
   describe('App attributes testing,', function () {
     it('checking method : valid getAttribute', function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var value = ['value1', 'value+plus space and/slash', '值对1']
-      var count = 0
+      const key = ['attr1', 'attr+plus space', '属性1']
+      const value = ['value1', 'value+plus space and/slash', '值对1']
+      let count = 0
 
-      for (var i = 0; i < key.length; i++) {
+      for (let i = 0; i < key.length; i++) {
         oc.apps.getAttribute(config.testApp, key[i]).then(data => {
           expect(value.indexOf(utf8.decode(data))).toBeGreaterThan(-1)
           count++
@@ -224,16 +225,16 @@ fdescribe('Main: Currently testing apps management,', function () {
     })
 
     it('checking method : non existent getAttribute', function (done) {
-      var key = ['attr ', 'attr+plus space ', '属性1 ']
-      var count = 0
+      const key = ['attr ', 'attr+plus space ', '属性1 ']
+      let count = 0
 
-      for (var i = 0; i < key.length; i++) {
+      for (let i = 0; i < key.length; i++) {
         oc.apps.getAttribute(config.testApp, key[i]).then(data => {
           expect(data).toEqual(null)
           done()
         }).catch(error => {
-          var fl = 0
-          for (var j = 0; j < key.length; j++) {
+          let fl = 0
+          for (let j = 0; j < key.length; j++) {
             if (error === config.testApp + ' has no key named "' + key[j] + '"') {
               fl = 1
             }
@@ -248,15 +249,15 @@ fdescribe('Main: Currently testing apps management,', function () {
     })
 
     it('checking method : getAttribute without key', function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var value = ['value1', 'value+plus space and/slash', '值对1']
-      var count = 0
+      const key = ['attr1', 'attr+plus space', '属性1']
+      const value = ['value1', 'value+plus space and/slash', '值对1']
+      let count = 0
 
       oc.apps.getAttribute(config.testApp).then(allAttributes => {
-        for (var i = 0; i < key.length; i++) {
+        for (let i = 0; i < key.length; i++) {
           expect(typeof (allAttributes)).toBe('object')
           expect(utf8.encode(key[i]) in allAttributes).toBe(true)
-          var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])])
+          const ocValue = utf8.decode(allAttributes[utf8.encode(key[i])])
           expect(value.indexOf(ocValue)).toBeGreaterThan(-1)
           count++
           if (count === key.length) {
@@ -304,10 +305,10 @@ fdescribe('Main: Currently testing apps management,', function () {
     })
 
     it('checking method : valid getAttribute', function (done) {
-      var key = ['attr1-no-value', 'attr+plus space-no-value', '属性1-no-value']
-      var count = 0
+      const key = ['attr1-no-value', 'attr+plus space-no-value', '属性1-no-value']
+      let count = 0
 
-      for (var i = 0; i < key.length; i++) {
+      for (let i = 0; i < key.length; i++) {
         oc.apps.getAttribute(config.testApp, key[i]).then(data => {
           expect(utf8.decode(data)).toBe('')
           count++
@@ -322,14 +323,14 @@ fdescribe('Main: Currently testing apps management,', function () {
     })
 
     it('checking method : getAttribute without key', function (done) {
-      var key = ['attr1', 'attr+plus space', '属性1']
-      var count = 0
+      const key = ['attr1', 'attr+plus space', '属性1']
+      let count = 0
 
       oc.apps.getAttribute(config.testApp + '-no-value').then(allAttributes => {
-        for (var i = 0; i < key.length; i++) {
+        for (let i = 0; i < key.length; i++) {
           expect(typeof (allAttributes)).toBe('object')
           expect(utf8.encode(key[i]) in allAttributes).toBe(true)
-          var ocValue = utf8.decode(allAttributes[utf8.encode(key[i])])
+          const ocValue = utf8.decode(allAttributes[utf8.encode(key[i])])
           expect(ocValue).toBe('')
           count++
           if (count === key.length) {

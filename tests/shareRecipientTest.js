@@ -18,10 +18,6 @@ fdescribe('Main: Currently testing share recipient,', function () {
     provider.removeInteractions().then(done, done.fail)
   })
 
-  // TESTING CONFIGS
-  const testUser = config.testUser
-  const testGroup = config.testGroup
-
   beforeEach(function (done) {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
@@ -34,7 +30,6 @@ fdescribe('Main: Currently testing share recipient,', function () {
     })
 
     oc.login().then(() => {
-      // CREATING TEST USER
       done()
     })
   })
@@ -91,17 +86,17 @@ fdescribe('Main: Currently testing share recipient,', function () {
           ':{"meta":{"status":"ok","statuscode":200,' +
           '"message":"OK","totalitems":"","itemsperpage":""},' +
           '"data":{"exact":{"users":[],"groups":[],"remotes":[]},' +
-          '"users":[{"label":"test123","value":{"shareType":0,"shareWith":"test123"}}],' +
-          '"groups":[{"label":"testGroup","value":{"shareType":1,"shareWith":"testGroup"}}],' +
+          `"users":[{"label":"${config.testUser}","value":{"shareType":0,"shareWith":"${config.testUser}"}}],` +
+          `"groups":[{"label":"${config.testGroup}","value":{"shareType":1,"shareWith":"${config.testGroup}"}}],` +
           '"remotes":[]}}}'
       }
     })
     oc.shares.getRecipients('test', 'folder', 1, 200).then(resp => {
       expect(resp.users).toContain(jasmine.objectContaining({
-        label: testUser
+        label: config.testUser
       }))
       expect(resp.groups).toContain(jasmine.objectContaining({
-        label: testGroup
+        label: config.testGroup
       }))
       done()
     }).catch(error => {

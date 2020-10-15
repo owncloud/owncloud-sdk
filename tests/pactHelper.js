@@ -917,29 +917,6 @@ function setGeneralInteractions (provider) {
     }
   }))
   promises.push(provider.addInteraction({
-    uponReceiving: 'Share with permissions in attributes',
-    withRequest: {
-      method: 'POST',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-        generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-      }),
-      headers: validAuthHeaders,
-      body: `shareType=0&shareWith=${config.testUser}&path=%2F${config.testFile}&attributes%5B0%5D%5Bscope%5D=ownCloud&attributes%5B0%5D%5Bkey%5D=read&attributes%5B0%5D%5Bvalue%5D=true&attributes%5B1%5D%5Bscope%5D=ownCloud&attributes%5B1%5D%5Bkey%5D=share&attributes%5B1%5D%5Bvalue%5D=true`
-    },
-    willRespondWith: {
-      status: 200,
-      headers: applicationXmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        ' <data>\n' +
-        shareResponseOcsData(0, 7, 17, config.testFile) +
-        ' </data>\n' +
-        '</ocs>'
-    }
-  }))
-  promises.push(provider.addInteraction({
     uponReceiving: 'Put file contents',
     withRequest: {
       method: 'PUT',

@@ -623,32 +623,6 @@ function setGeneralInteractions (provider) {
     }
   }))
   promises.push(provider.addInteraction({
-    uponReceiving: 'a request to get share recipients (both users and groups)',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v2\\.php\\/apps\\/files_sharing\\/api\\/v1\\/sharees$',
-        generate: '/ocs/v2.php/apps/files_sharing/api/v1/sharees'
-      }),
-      query: 'search=test&itemType=folder&page=1&perPage=200&format=json',
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '{"ocs"' +
-        ':{"meta":{"status":"ok","statuscode":200,' +
-        '"message":"OK","totalitems":"","itemsperpage":""},' +
-        '"data":{"exact":{"users":[],"groups":[],"remotes":[]},' +
-        '"users":[{"label":"test123","value":{"shareType":0,"shareWith":"test123"}}],' +
-        '"groups":[{"label":"testGroup","value":{"shareType":1,"shareWith":"testGroup"}}],' +
-        '"remotes":[]}}}'
-    }
-  }))
-  promises.push(provider.addInteraction({
     uponReceiving: 'a GET request with invalid auth to check for user admin',
     withRequest: {
       method: 'GET',

@@ -8,7 +8,7 @@ fdescribe('Main: Currently testing share recipient,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('./pactHelper.js')
+  const { setGeneralInteractions, validAuthHeaders, origin } = require('./pactHelper.js')
 
   beforeAll(function (done) {
     Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
@@ -17,11 +17,6 @@ fdescribe('Main: Currently testing share recipient,', function () {
   afterAll(function (done) {
     provider.removeInteractions().then(done, done.fail)
   })
-
-  // TESTING CONFIGS
-  const testUserPassword = config.testUserPassword
-  const testUser = config.testUser
-  const testGroup = config.testGroup
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -35,30 +30,6 @@ fdescribe('Main: Currently testing share recipient,', function () {
     })
 
     oc.login().then(() => {
-      // CREATING TEST USER
-      oc.users.createUser(testUser, testUserPassword).then(status => {
-        expect(status).toBe(true)
-        // CREATING TEST GROUP
-        return oc.groups.createGroup(testGroup)
-      }).then(status => {
-        expect(status).toBe(true)
-        done()
-      }).catch(error => {
-        expect(error).toBe(null)
-        done()
-      })
-    })
-  })
-
-  afterEach(function (done) {
-    oc.users.deleteUser(testUser).then(status => {
-      expect(status).toBe(true)
-      return oc.groups.deleteGroup(testGroup)
-    }).then(status2 => {
-      expect(status2).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
       done()
     })
   })
@@ -93,13 +64,39 @@ fdescribe('Main: Currently testing share recipient,', function () {
     })
   })
 
-  it('testing behavior : searching for users and groups', function (done) {
+  it('testing behavior : searching for users and groups', async function (done) {
+    await provider.addInteraction({
+      uponReceiving: 'a request to get share recipients (both users and groups)',
+      withRequest: {
+        method: 'GET',
+        path: Pact.Matchers.term({
+          matcher: '.*\\/ocs\\/v2\\.php\\/apps\\/files_sharing\\/api\\/v1\\/sharees$',
+          generate: '/ocs/v2.php/apps/files_sharing/api/v1/sharees'
+        }),
+        query: 'search=test&itemType=folder&page=1&perPage=200&format=json',
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Access-Control-Allow-Origin': origin
+        },
+        body: '{"ocs"' +
+          ':{"meta":{"status":"ok","statuscode":200,' +
+          '"message":"OK","totalitems":"","itemsperpage":""},' +
+          '"data":{"exact":{"users":[],"groups":[],"remotes":[]},' +
+          `"users":[{"label":"${config.testUser}","value":{"shareType":0,"shareWith":"${config.testUser}"}}],` +
+          `"groups":[{"label":"${config.testGroup}","value":{"shareType":1,"shareWith":"${config.testGroup}"}}],` +
+          '"remotes":[]}}}'
+      }
+    })
     oc.shares.getRecipients('test', 'folder', 1, 200).then(resp => {
       expect(resp.users).toContain(jasmine.objectContaining({
-        label: testUser
+        label: config.testUser
       }))
       expect(resp.groups).toContain(jasmine.objectContaining({
-        label: testGroup
+        label: config.testGroup
       }))
       done()
     }).catch(error => {

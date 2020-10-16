@@ -9,71 +9,8 @@ fdescribe('Main: Currently testing low level OCS', function () {
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
   const { setGeneralInteractions, validAuthHeaders } = require('./pactHelper.js')
-
   beforeAll(function (done) {
-    const promises = []
-    promises.push(setGeneralInteractions(provider))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'an update request for an unknown user',
-      withRequest: {
-        method: 'PUT',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/unknown-user$',
-          generate: '/ocs/v2.php/cloud/users/unknown-user'
-        }),
-        query: 'format=json',
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 401,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        },
-        body: {
-          ocs: {
-            meta: {
-              statuscode: 997
-            }
-          }
-        }
-      }
-    }))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'an update user request that sets email',
-      given (providerState) {
-        return 'my state'
-      },
-      withRequest: {
-        method: 'PUT',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/.+',
-          generate: '/ocs/v1.php/cloud/users/' + config.testUser
-        }),
-        query: 'format=json',
-        headers: validAuthHeaders,
-        body: {
-          key: 'email',
-          value: 'foo@bar.net'
-        }
-      },
-      willRespondWith: {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        },
-        body: {
-          ocs: {
-            meta: {
-              status: 'ok',
-              statuscode: 200,
-              message: null
-            },
-            data: []
-          }
-        }
-      }
-    }))
-    Promise.all(promises).then(done, done.fail)
+    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
   })
 
   afterAll(function (done) {
@@ -130,7 +67,33 @@ fdescribe('Main: Currently testing low level OCS', function () {
       })
   })
 
-  it('checking : error behavior', function (done) {
+  it('checking : error behavior', async function (done) {
+    await provider.addInteraction({
+      uponReceiving: 'an update request for an unknown user',
+      withRequest: {
+        method: 'PUT',
+        path: Pact.Matchers.regex({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/unknown-user$',
+          generate: '/ocs/v2.php/cloud/users/unknown-user'
+        }),
+        query: 'format=json',
+        headers: validAuthHeaders
+      },
+      willRespondWith: {
+        status: 401,
+        headers: {
+          'Access-Control-Allow-Origin': origin
+        },
+        body: {
+          ocs: {
+            meta: {
+              statuscode: 997
+            }
+          }
+        }
+      }
+    })
+
     oc.requests.ocs({
       method: 'PUT',
       service: 'cloud',
@@ -149,7 +112,43 @@ fdescribe('Main: Currently testing low level OCS', function () {
     })
   })
 
-  it('checking : PUT email', function (done) {
+  it('checking : PUT email', async function (done) {
+    await provider.addInteraction({
+      uponReceiving: 'an update user request that sets email',
+      given (providerState) {
+        return 'my state'
+      },
+      withRequest: {
+        method: 'PUT',
+        path: Pact.Matchers.regex({
+          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/.+',
+          generate: '/ocs/v1.php/cloud/users/' + config.testUser
+        }),
+        query: 'format=json',
+        headers: validAuthHeaders,
+        body: {
+          key: 'email',
+          value: 'foo@bar.net'
+        }
+      },
+      willRespondWith: {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': origin
+        },
+        body: {
+          ocs: {
+            meta: {
+              status: 'ok',
+              statuscode: 200,
+              message: null
+            },
+            data: []
+          }
+        }
+      }
+    })
+
     const testUser = config.testUser
     oc.users.createUser(testUser, testUser).then(() => {
       return oc.requests.ocs({

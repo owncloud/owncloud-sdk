@@ -286,66 +286,6 @@ function setGeneralInteractions (provider) {
         '</ocs>\n'
     }
   }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'an update user request that sets email',
-    given (providerState) {
-      return 'my state'
-    },
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/.+',
-        generate: '/ocs/v1.php/cloud/users/' + config.testUser
-      }),
-      query: 'format=json',
-      headers: validAuthHeaders,
-      body: {
-        key: 'email',
-        value: 'foo@bar.net'
-      }
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      },
-      body: {
-        ocs: {
-          meta: {
-            status: 'ok',
-            statuscode: 200,
-            message: null
-          },
-          data: []
-        }
-      }
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'an update request for an unknown user',
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/unknown-user$',
-        generate: '/ocs/v2.php/cloud/users/unknown-user'
-      }),
-      query: 'format=json',
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 401,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      },
-      body: {
-        ocs: {
-          meta: {
-            statuscode: 997
-          }
-        }
-      }
-    }
-  }))
 
   promises.push(provider.addInteraction({
     uponReceiving: 'a request to delete a user',

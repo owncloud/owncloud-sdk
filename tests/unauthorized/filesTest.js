@@ -7,18 +7,14 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
-  const { setGeneralInteractions, accessControlAllowMethods, invalidAuthHeader, origin } = require('../pactHelper.js')
+  const { setGeneralInteractions, accessControlAllowMethods, invalidAuthHeader, origin, webdavExceptionResponseBody } = require('../pactHelper.js')
   const provider = new Pact.PactWeb()
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader,
     Origin: origin
   }
   const expectedUnAuthorizedMessage = 'Username or password was incorrect, Username or password was incorrect'
-  const incorrectAuthorizationXmlResponseBody = '<?xml version="1.0" encoding="utf-8"?>\n' +
-    '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
-    '  <s:exception>Sabre\\DAV\\Exception\\NotAuthenticated</s:exception>\n' +
-    '  <s:message>Username or password was incorrect, Username or password was incorrect</s:message>\n' +
-    '</d:error>'
+  const incorrectAuthorizationXmlResponseBody = webdavExceptionResponseBody('NotAuthenticated', expectedUnAuthorizedMessage)
   const webdavFilesResponseHeader = {
     'Access-Control-Allow-Origin': origin,
     'Content-Type': 'application/xml; charset=utf-8',

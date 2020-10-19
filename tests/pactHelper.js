@@ -10,6 +10,16 @@ const validAuthHeaders = {
   Origin: origin
 }
 
+const testSubFiles = [
+  `${config.testFolder}/abc.txt`,
+  `${config.testFolder}/file one.txt`,
+  `${config.testFolder}/subdir/in dir.txt`,
+  `${config.testFolder}/zz+z.txt`,
+  `${config.testFolder}/中文.txt`
+]
+
+const uriEncodedTestSubFiles = testSubFiles.map(item => encodeURIComponent(item).split('%2F').join('/'))
+
 const ocsMeta = function (status, statusCode, Message = null) {
   if (Message == null) {
     return ' <meta>\n' +
@@ -68,6 +78,88 @@ const unauthorizedXmlResponseBody = '<?xml version="1.0"?>\n' +
   ' <data/>\n' +
   '</ocs>'
 
+const xmlResponseAndAccessControlCombinedHeader = {
+  ...applicationXmlResponseHeaders,
+  'Access-Control-Allow-Headers': accessControlAllowHeaders,
+  'Access-Control-Allow-Methods': accessControlAllowMethods
+}
+
+const resourceNotFoundExceptionMessage = resource => `File with name ${resource} could not be located`
+
+const webdavMatcherForResource = resource => {
+  if (resource.includes('/')) {
+    return resource.split('/').join('\\/') + '$'
+  } else {
+    return resource + '$'
+  }
+}
+
+const webdavExceptionResponseBody = (exception, message) => '<?xml version="1.0" encoding="utf-8"?>\n' +
+  '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
+  `  <s:exception>Sabre\\DAV\\Exception\\${exception}</s:exception>\n` +
+  `  <s:message>${message}</s:message>\n` +
+  '</d:error>'
+
+const webdavPath = resource => Pact.Matchers.regex({
+  matcher: '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
+  generate: `/remote.php/webdav/${resource}`
+})
+
+const getContentsOfFile = file => {
+  return {
+    uponReceiving: 'GET contents of file ' + file,
+    withRequest: {
+      method: 'GET',
+      path: webdavPath(file),
+      headers: validAuthHeaders
+    },
+    willRespondWith: file !== config.nonExistentFile ? {
+      status: 200,
+      headers: xmlResponseAndAccessControlCombinedHeader,
+      body: config.testContent
+    } : {
+      status: 404,
+      headers: xmlResponseAndAccessControlCombinedHeader,
+      body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
+    }
+  }
+}
+
+const deleteResource = (resource, type = 'folder') => {
+  return {
+    uponReceiving: `a request to delete a ${type},  ${resource}`,
+    withRequest: {
+      method: 'DELETE',
+      path: webdavPath(resource),
+      headers: validAuthHeaders
+    },
+    willRespondWith: resource.includes('nonExistent') ? {
+      status: 404,
+      headers: xmlResponseAndAccessControlCombinedHeader,
+      body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
+    } : (function (type) {
+      if (type === 'file') {
+        return {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            ocsMeta('ok', '100') +
+            ' <data/>\n' +
+            '</ocs>'
+        }
+      } else {
+        return {
+          status: 204,
+          headers: {
+            'Access-Control-Allow-Origin': origin
+          }
+        }
+      }
+    }())
+  }
+}
+
 function setGeneralInteractions (provider) {
   const promises = []
 
@@ -81,7 +173,7 @@ function setGeneralInteractions (provider) {
       }),
       headers: {
         'Access-Control-Request-Method': Pact.Matchers.regex({
-          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY',
+          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY|REPORT',
           generate: 'GET'
         })
       }
@@ -336,28 +428,6 @@ function setGeneralInteractions (provider) {
   }))
 
   promises.push(provider.addInteraction({
-    uponReceiving: 'Put file contents',
-    withRequest: {
-      method: 'PUT',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFile,
-        generate: '/remote.php/webdav/' + config.testFile
-      }),
-      headers: validAuthHeaders,
-      body: config.testContent
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Request-Method': Pact.Matchers.regex({
-          matcher: 'GET|POST|PUT|DELETE',
-          generate: 'GET'
-        }),
-        'Access-Control-Allow-Origin': origin
-      }
-    }
-  }))
-  promises.push(provider.addInteraction({
     uponReceiving: 'successfully create a folder',
     withRequest: {
       method: 'MKCOL',
@@ -372,123 +442,39 @@ function setGeneralInteractions (provider) {
       status: 201,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      }
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'creating a folder in a not existing root',
-    withRequest: {
-      method: 'MKCOL',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '\\/' + config.nonExistentDir + '\\/.*\\/',
-        generate: '/remote.php/webdav/' + config.testFolder + '/' + config.nonExistentDir + '/newFolder/'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 409,
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0" encoding="utf-8"?>\n' +
-        '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
-        '  <s:exception>Sabre\\DAV\\Exception\\Conflict</s:exception>\n' +
-        '  <s:message>Parent node does not exist</s:message>\n' +
-        '</d:error>\n'
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'list content of a folder',
-    withRequest: {
-      method: 'PROPFIND',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/remote\\.php\\/webdav\\/.*\\/',
-        generate: '/remote.php/webdav/' + config.testFolder + '/'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 207,
-      headers: applicationXmlResponseHeaders,
-      body:
-        '<?xml version="1.0"?> ' +
-        ' <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:oc="http://owncloud.org/ns"> ' +
-        ' <d:response> ' +
-        ' <d:href>/owncloud-core/remote.php/webdav/' + config.testFolder + '/new%20folder/</d:href> ' +
-        ' <d:propstat> ' +
-        ' <d:prop> ' +
-        ' <d:getlastmodified>Tue, 22 Sep 2020 09:27:57 GMT</d:getlastmodified> ' +
-        ' <d:resourcetype> ' +
-        ' <d:collection/> ' +
-        ' </d:resourcetype> ' +
-        ' <d:quota-used-bytes>0</d:quota-used-bytes> ' +
-        ' <d:quota-available-bytes>-3</d:quota-available-bytes> ' +
-        ' <d:getetag>&quot;5f69c39d0f947&quot;</d:getetag> ' +
-        ' </d:prop> ' +
-        ' <d:status>HTTP/1.1 200 OK</d:status> ' +
-        ' </d:propstat> ' +
-        ' </d:response> ' +
-        ' </d:multistatus>'
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'successfully delete a file or folder',
-    withRequest: {
-      method: 'DELETE',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/remote\\.php\\/webdav\\/.*\\/',
-        generate: '/remote.php/webdav/' + config.testFolder + '/' + config.testFile
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': origin
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Headers': accessControlAllowHeaders,
+        'Access-Control-Allow-Methods': accessControlAllowMethods
       }
     }
   }))
 
-  let files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123']
+  let files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123', config.testFile]
   for (const file of files) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'a DELETE request for a file ' + file,
-      withRequest: {
-        method: 'DELETE',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/remote\\.php\\/webdav\\/' + file + '$',
-          generate: '/remote.php/webdav/' + file
-        }),
-        headers: validAuthHeaders
-      },
-      willRespondWith: {
-        status: 200,
-        headers: xmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data/>\n' +
-          '</ocs>'
-      }
-    }))
+    promises.push(provider.addInteraction(deleteResource(file, 'file')))
   }
 
-  files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', config.testFolder + '/' + config.testFile]
+  files = [
+    'test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt',
+    config.testFile, config.testFolder + '/' + config.testFile,
+    ...uriEncodedTestSubFiles, config.nonExistentDir + '/file.txt'
+  ]
   for (const file of files) {
     promises.push(provider.addInteraction({
       uponReceiving: 'Put file contents to file ' + file,
       withRequest: {
         method: 'PUT',
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/remote\\.php\\/webdav\\/' + file,
-          generate: '/remote.php/webdav/' + file
-        }),
+        path: webdavPath(file),
         headers: validAuthHeaders,
         body: config.testContent
       },
-      willRespondWith: {
+      willRespondWith: file.includes('nonExistent') ? {
+        status: 404,
+        headers: {
+          'Access-Control-Allow-Origin': origin
+        },
+        body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
+      } : {
         status: 200,
         headers: {
           'Access-Control-Allow-Origin': origin
@@ -496,31 +482,19 @@ function setGeneralInteractions (provider) {
       }
     }))
   }
-
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a request to delete a folder',
-    withRequest: {
-      method: 'DELETE',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '$',
-        generate: '/remote.php/webdav/' + config.testFolder
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      }
-    }
-  }))
   return promises
 }
 
 module.exports = {
   setGeneralInteractions,
+  getContentsOfFile,
+  deleteResource,
   ocsMeta,
   shareResponseOcsData,
+  webdavMatcherForResource,
+  webdavExceptionResponseBody,
+  resourceNotFoundExceptionMessage,
+  webdavPath,
   origin,
   validAuthHeaders,
   invalidAuthHeader,
@@ -528,5 +502,8 @@ module.exports = {
   applicationXmlResponseHeaders,
   accessControlAllowHeaders,
   accessControlAllowMethods,
-  unauthorizedXmlResponseBody
+  unauthorizedXmlResponseBody,
+  xmlResponseAndAccessControlCombinedHeader,
+  testSubFiles,
+  uriEncodedTestSubFiles
 }

@@ -28,6 +28,7 @@ module.exports = class SignUrl {
     this.credential = options.credential
     this.ttl = options.ttl || defaultValues.DEFAULT_TTL
     this.algorithm = options.algorithm || defaultValues.DEFAULT_ALGORITHM
+    this.iterations = options.iterations || defaultValues.ITERATION_COUNT
 
     this.generateSignedUrl = this.generateSignedUrl.bind(this)
     this.verifySignedUrl = this.verifySignedUrl.bind(this)
@@ -39,7 +40,7 @@ module.exports = class SignUrl {
    * @param {string} httpMethod - The http method.
    * @returns {string} Signed url.
    */
-  generateSignedUrl (url, httpMethod) {
+  async generateSignedUrl (url, httpMethod) {
     if (url === undefined) {
       throw new Error(errorMessages.URL_PARAM_UNDEFINED)
     }
@@ -61,9 +62,11 @@ module.exports = class SignUrl {
     const hashedKey = utils.createHashedKey(
       url.toString(),
       this.algorithm,
-      this.secretKey
+      this.secretKey,
+      this.iterations
     )
 
+    url.searchParams.set('OC-Algo', `PBKDF2/${this.iterations}-SHA512`)
     url.searchParams.set('OC-Signature', hashedKey)
     return url.toString()
   }

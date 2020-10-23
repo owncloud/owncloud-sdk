@@ -10,11 +10,11 @@ exports.createHashedKey = createHashedKey
  * @param {string} secretKey - Secret string.
  * @returns {string} Ready hashed key.
  */
-function createHashedKey (stringToHash, algorithm, secretKey) {
+function createHashedKey (stringToHash, algorithm, secretKey, iterations) {
   const hashedKey = crypto.pbkdf2Sync(
     stringToHash,
     secretKey,
-    defaultValues.ITERATION_COUNT,
+    iterations,
     defaultValues.HASH_LENGTH,
     algorithm
   )

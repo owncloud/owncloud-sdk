@@ -7,9 +7,6 @@ describe('Unauthorized: Currently testing apps management,', function () {
   // LIBRARY INSTANCE
   let oc
 
-  // TEST setup
-  const key = ['attr1', 'attr%2Bplus%20space', '%C3%A5%C2%B1%C2%9E%C3%A6%C2%80%C2%A71']
-  const value = ['value1', 'value%2Bplus+space+and%2Fslash', '%C3%A5%C2%80%C2%BC%C3%A5%C2%AF%C2%B91']
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
@@ -88,57 +85,6 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(error).toMatch('Unauthorized')
       done()
     })
-  })
-
-  it('checking method : setAttribute', function (done) {
-    let count = 0
-
-    for (let i = 0; i < key.length; i++) {
-      oc.apps.setAttribute(config.testApp, key[i], value[i]).then(status => {
-        expect(status).toBe(null)
-        done()
-      }).catch(error => {
-        expect(error).toMatch('Unauthorized')
-        count++
-        if (count === key.length) {
-          done()
-        }
-      })
-    }
-  })
-
-  it('checking method : getAttribute', function (done) {
-    let count = 0
-
-    for (let i = 0; i < key.length; i++) {
-      oc.apps.getAttribute(config.testApp, key[i]).then(data => {
-        expect(data).toBe(null)
-        done()
-      }).catch(error => {
-        expect(error).toMatch('Unauthorized')
-        count++
-        if (count === key.length) {
-          done()
-        }
-      })
-    }
-  })
-
-  it('checking method : deleteAttribute', function (done) {
-    let count = 0
-
-    for (let i = 0; i < key.length; i++) {
-      oc.apps.deleteAttribute(config.testApp, key[i]).then(status => {
-        expect(status).toBe(null)
-        done()
-      }).catch(error => {
-        expect(error).toMatch('Unauthorized')
-        count++
-        if (count === key.length) {
-          done()
-        }
-      })
-    }
   })
 
   it('checking method : enableApp when app exists', function (done) {

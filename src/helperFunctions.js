@@ -13,7 +13,6 @@ class helpers {
     this.OCS_BASEPATH = 'ocs/v1.php/'
     this.OCS_BASEPATH_V2 = 'ocs/v2.php/'
     this.OCS_SERVICE_SHARE = 'apps/files_sharing/api/v1'
-    this.OCS_SERVICE_PRIVATEDATA = 'privatedata'
     this.OCS_SERVICE_CLOUD = 'cloud'
 
     // constants from lib/public/constants.php

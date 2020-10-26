@@ -138,7 +138,6 @@ def fullBuild():
             'branch': 'master'
         },
         'steps':
-            incrementVersion() +
             buildDocs() +
             buildSystem() +
             prepareTestConfig() +
@@ -161,7 +160,6 @@ def testWithinSubFolder():
             'branch': 'master'
         },
         'steps':
-            incrementVersion() +
             buildDocs() +
             buildSystem() +
             prepareTestConfig('/sub/') +
@@ -185,7 +183,9 @@ def publish():
             'branch': 'master'
         },
         'steps':
+            incrementVersion() +
             buildDocs() +
+            buildSystem() +
             publishDocs() +
             publishSystem(),
         'when': {

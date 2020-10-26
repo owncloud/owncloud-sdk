@@ -47,7 +47,7 @@ def buildSystem():
     		'commands': [
     			'yarn install',
     			'yarn lint',
-    			'yarn build:docs'
+    			'yarn build:system'
     		],
     }]
 

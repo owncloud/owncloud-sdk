@@ -80,7 +80,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     oc.login()
   })
 
-  fit('checking method : list', function (done) {
+  it('checking method : list', function (done) {
     oc.files.list(config.testFolder, 1).then(() => {
       fail()
       done()
@@ -90,7 +90,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     })
   })
 
-  fit('checking method : getFileContents', function (done) {
+  it('checking method : getFileContents', function (done) {
     let count = 0
 
     for (let i = 0; i < testSubFiles.length; i++) {
@@ -107,7 +107,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     }
   })
 
-  fit('checking method : putFileContents', function (done) {
+  it('checking method : putFileContents', function (done) {
     const newFile = config.testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, config.testContent).then(() => {
@@ -119,7 +119,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     })
   })
 
-  fit('checking method : mkdir', function (done) {
+  it('checking method : mkdir', function (done) {
     const newFolder = config.testFolder + '/' + 'new folder/'
 
     oc.files.mkdir(newFolder).then(() => {
@@ -131,7 +131,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     })
   })
 
-  fit('checking method : delete', function (done) {
+  it('checking method : delete', function (done) {
     const newFolder = config.testFolder + '/' + 'new folder'
 
     oc.files.mkdir(newFolder).then(() => {
@@ -143,7 +143,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     })
   })
 
-  fit('checking method : getFile', function (done) {
+  it('checking method : getFile', function (done) {
     const file = 'tempFile'
 
     oc.files.putFileContents(file, config.testContent).then(() => {
@@ -155,7 +155,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     })
   })
 
-  fit('checking method : move', function (done) {
+  it('checking method : move', function (done) {
     oc.files.move(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(() => {
       fail()
       done()
@@ -165,7 +165,7 @@ fdescribe('Unauthorized: Currently testing files management,', function () {
     })
   })
 
-  fit('checking method : copy', function (done) {
+  it('checking method : copy', function (done) {
     oc.files.copy(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(() => {
       fail()
       done()

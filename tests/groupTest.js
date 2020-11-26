@@ -8,7 +8,7 @@ fdescribe('Main: Currently testing group management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, validAuthHeaders, xmlResponseHeaders, ocsMeta } = require('./pactHelper.js')
+  const { setGeneralInteractions, validAuthHeaders, xmlResponseHeaders, ocsMeta, applicationXmlResponseHeaders } = require('./pactHelper.js')
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -75,24 +75,48 @@ fdescribe('Main: Currently testing group management,', function () {
           '</ocs>\n'
       }
     }))
+    const groups = [config.nonExistentGroup, config.testGroup]
+    for (const group of groups) {
+      promises.push(provider.addInteraction({
+        uponReceiving: 'a DELETE request for group, ' + group,
+        withRequest: {
+          method: 'DELETE',
+          path: Pact.Matchers.term({
+            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + group + '$',
+            generate: '/ocs/v1.php/cloud/groups/' + group
+          }),
+          headers: validAuthHeaders
+        },
+        willRespondWith: {
+          status: 200,
+          headers: xmlResponseHeaders,
+          body: '<?xml version="1.0"?>\n' +
+            '<ocs>\n' +
+            (() => (group === config.nonExistentGroup) ? ocsMeta('failure', 101) : ocsMeta('ok', 100))() +
+            ' <data/>\n' +
+            '</ocs>\n'
+        }
+      }))
+    }
     promises.push(provider.addInteraction({
-      uponReceiving: 'a DELETE request for a non-existent group',
+      uponReceiving: 'a create group POST request',
       withRequest: {
-        method: 'DELETE',
+        method: 'POST',
         path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + config.nonExistentGroup + '$',
-          generate: '/ocs/v1.php/cloud/groups/' + config.nonExistentGroup
+          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
+          generate: '/ocs/v1.php/cloud/groups'
         }),
-        headers: validAuthHeaders
+        headers: validAuthHeaders,
+        body: 'groupid=' + config.testGroup
       },
       willRespondWith: {
         status: 200,
-        headers: xmlResponseHeaders,
+        headers: applicationXmlResponseHeaders,
         body: '<?xml version="1.0"?>\n' +
           '<ocs>\n' +
-          ocsMeta('failure', 101) +
+          ocsMeta('ok', '100') +
           ' <data/>\n' +
-          '</ocs>\n'
+          '</ocs>'
       }
     }))
     Promise.all(promises).then(done, done.fail)
@@ -151,6 +175,26 @@ fdescribe('Main: Currently testing group management,', function () {
     }).catch(error => {
       expect(typeof (error)).toBe('object')
       expect(error.ocs.meta.statuscode).toEqual('101')
+      done()
+    })
+  })
+
+  it('checking method : createGroup', function (done) {
+    oc.groups.createGroup(config.testGroup).then(status => {
+      expect(status).toBe(true)
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
+      done()
+    })
+  })
+
+  it('checking method : delete a group', function (done) {
+    oc.groups.deleteGroup(config.testGroup).then(status => {
+      expect(status).toBe(true)
+      done()
+    }).catch(error => {
+      expect(error).toBe(null)
       done()
     })
   })

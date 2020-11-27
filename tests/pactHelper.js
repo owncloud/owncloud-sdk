@@ -308,30 +308,6 @@ function setGeneralInteractions (provider) {
     }
   }))
   promises.push(provider.addInteraction({
-    uponReceiving: 'a create group POST request',
-    withRequest: {
-      method: 'POST',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
-        generate: '/ocs/v1.php/cloud/groups'
-      }),
-      headers: validAuthHeaders,
-      body: 'groupid=' + config.testGroup
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        ' <data/>\n' +
-        '</ocs>'
-    }
-  }))
-  promises.push(provider.addInteraction({
     uponReceiving: 'a user DELETE request',
     withRequest: {
       method: 'DELETE',
@@ -343,30 +319,6 @@ function setGeneralInteractions (provider) {
         authorization: validAuthHeaders,
         Origin: origin
       },
-      body: 'undefined=undefined'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        ' <data/>\n' +
-        '</ocs>'
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a group DELETE request',
-    withRequest: {
-      method: 'DELETE',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups/' + config.testGroup + '$',
-        generate: '/ocs/v1.php/cloud/groups/' + config.testGroup
-      }),
-      headers: validAuthHeaders,
       body: 'undefined=undefined'
     },
     willRespondWith: {

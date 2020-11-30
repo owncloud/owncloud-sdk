@@ -114,6 +114,80 @@ fdescribe('Main: Currently testing files management,', function () {
     return response
   }
 
+  const favoriteFile = value => {
+    return {
+      uponReceiving: value === true ? 'favorite' : 'unfavorite',
+      withRequest: {
+        method: 'PROPPATCH',
+        path: webdavPath(`${testFolder}/${testFile}`),
+        headers: validAuthHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<d:propertyupdate  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
+          '  <d:set>\n' +
+          '   <d:prop>\n' +
+          `      <oc:favorite>${value}</oc:favorite>\n` +
+          '    </d:prop>\n' +
+          '  </d:set>\n' +
+          '</d:propertyupdate>'
+      },
+      willRespondWith: {
+        status: 207,
+        headers: {
+          ...xmlResponseAndAccessControlCombinedHeader,
+          'Access-Control-Expose-Headers': 'Content-Location,DAV,ETag,Link,Lock-Token,OC-ETag,OC-Checksum,OC-FileId,OC-JobStatus-Location,Vary,Webdav-Location,X-Sabre-Status'
+        },
+        body: '<?xml version="1.0"?>\n' +
+          '<d:multistatus\n' +
+          '    xmlns:d="DAV:"\n' +
+          '    xmlns:s="http://sabredav.org/ns"\n' +
+          '    xmlns:oc="http://owncloud.org/ns">\n' +
+          '    <d:response>\n' +
+          `        <d:href>/remote.php/webdav/${testFolder}/${testFile}</d:href>\n` +
+          '        <d:propstat>\n' +
+          '            <d:prop>\n' +
+          '                <oc:favorite/>\n' +
+          '            </d:prop>\n' +
+          '            <d:status>HTTP/1.1 200 OK</d:status>\n' +
+          '        </d:propstat>\n' +
+          '    </d:response>\n' +
+          '</d:multistatus>'
+      }
+    }
+  }
+
+  const propfindFavoriteFileInfo = value => {
+    return {
+      uponReceiving: 'propfind file info, favorite ' + value,
+      withRequest: {
+        method: 'PROPFIND',
+        path: webdavPath(`${testFolder}/${testFile}`),
+        headers: validAuthHeaders,
+        body: '<?xml version="1.0"?>\n' +
+          '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
+          '  <d:prop>\n' +
+          '    <oc:favorite />\n' +
+          '  </d:prop>\n' +
+          '</d:propfind>'
+      },
+      willRespondWith: {
+        status: 207,
+        headers: xmlResponseAndAccessControlCombinedHeader,
+        body: '<?xml version="1.0" encoding="UTF-8"?>\n' +
+          '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
+          '   <d:response>\n' +
+          `      <d:href>/remote.php/webdav/${testFolder}/${testFile}</d:href>\n` +
+          '      <d:propstat>\n' +
+          '         <d:prop>\n' +
+          `            <oc:favorite>${value}</oc:favorite>\n` +
+          '         </d:prop>\n' +
+          '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
+          '      </d:propstat>\n' +
+          '   </d:response>\n' +
+          '</d:multistatus>'
+      }
+    }
+  }
+
   beforeEach(function (done) {
     oc = new OwnCloud({
       baseUrl: owncloudURL,
@@ -213,10 +287,6 @@ fdescribe('Main: Currently testing files management,', function () {
         testFolder,
         ['abc.txt', 'file one.txt', 'subdir', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], '2')))
       promises.push(provider.addInteraction(aPropfindRequestToListContentOfFolder(
-        'new folder',
-        'testFolder/new%20folder',
-        [], '0')))
-      promises.push(provider.addInteraction(aPropfindRequestToListContentOfFolder(
         'non existing file',
         nonExistentFile,
         [], '1')))
@@ -299,7 +369,6 @@ fdescribe('Main: Currently testing files management,', function () {
       }
     })
 
-    // because called from the browser this is not returning xml but html - needs to be adjusted
     it('checking method : getFileContents for non existent file', async function (done) {
       await provider.addInteraction(getContentsOfFile(nonExistentFile))
       oc.files.getFileContents(nonExistentFile).then(content => {
@@ -314,7 +383,6 @@ fdescribe('Main: Currently testing files management,', function () {
     it('uploads file for an existing parent path', async function () {
       const newFile = testFolder + '/' + testFile
       await provider.addInteraction(getContentsOfFile(newFile))
-      await provider.addInteraction(deleteResource(newFile))
       let progressCalled = false
 
       const options = {
@@ -324,13 +392,9 @@ fdescribe('Main: Currently testing files management,', function () {
       }
 
       try {
-        let status = await oc.files.putFileContents(newFile, testContent, options)
+        const status = await oc.files.putFileContents(newFile, testContent, options)
         expect(typeof status).toBe('object')
         expect(progressCalled).toEqual(true)
-        const content = await oc.files.getFileContents(newFile)
-        expect(content).toEqual(testContent)
-        status = await oc.files.delete(newFile)
-        expect(status).toEqual(true)
       } catch (error) {
         fail(error)
       }
@@ -357,18 +421,9 @@ fdescribe('Main: Currently testing files management,', function () {
     })
     it('checking method : mkdir for an existing parent path', async function (done) {
       const newFolder = testFolder + '/' + 'new folder'
-      await provider.addInteraction(deleteResource(encodeURI(newFolder)))
 
       oc.files.mkdir(newFolder).then(status => {
         expect(status).toBe(true)
-        return oc.files.list(newFolder, 0)
-      }).then(folder => {
-        folder = folder[0]
-        expect(folder.isDir()).toBe(true)
-        expect(folder.getName()).toEqual('new folder')
-        return oc.files.delete(newFolder)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
         done()
       }).catch(error => {
         expect(error).toBe(null)
@@ -404,30 +459,16 @@ fdescribe('Main: Currently testing files management,', function () {
 
     it('checking method : delete for an existing file', async function (done) {
       const newFolder = testSubDir
-      await provider.addInteraction(aPropfindRequestToListContentOfFolder(
-        'non existing subdir',
-        testFolder + '/subdir',
-        [], '0'))
       await provider.addInteraction(deleteResource(encodeURI(newFolder)))
 
-      oc.files.mkdir(newFolder).then(status => {
-        expect(status).toBe(true)
-        return oc.files.list(newFolder, 0)
-      }).then(folder => {
-        folder = folder[0]
-        expect(folder.isDir()).toBe(true)
-        expect(folder.getName()).toEqual('subdir')
-        return oc.files.delete(newFolder)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
-        return oc.files.list(newFolder, 0)
-      }).then(folder2 => {
-        fail(folder2)
-        done()
-      }).catch(error => {
-        expect(error.message).toBe('File with name ' + newFolder + ' could not be located')
-        done()
-      })
+      oc.files.delete(newFolder)
+        .then(status2 => {
+          expect(status2).toEqual(true)
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
     })
 
     it('checking method : delete for a non-existent file', async function (done) {
@@ -479,30 +520,8 @@ fdescribe('Main: Currently testing files management,', function () {
         }
       })
 
-      await provider.addInteraction(aPropfindRequestToListContentOfFolder(
-        'subdir',
-        testFolder + '/subdir',
-        [
-          'subdir/in%20dir.txt'
-        ], '1'))
-
       oc.files.move(testFolder + '/中文123.txt', testFolder + '/中文.txt').then(status => {
         expect(status).toBe(true)
-        return oc.files.list(testFolder + '/subdir')
-      }).then(files => {
-        const fileNames = []
-        for (let i = 0; i < files.length; i++) {
-          fileNames.push(files[i].getName())
-        }
-        expect(fileNames.indexOf('中文.txt')).toBe(-1)
-        return oc.files.list(testFolder)
-      }).then(files2 => {
-        const fileNames = []
-        for (let i = 0; i < files2.length; i++) {
-          fileNames.push(files2[i].getName())
-        }
-        expect(fileNames.indexOf('中文123.txt')).toBe(-1)
-        expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1)
         done()
       }).catch(error => {
         expect(error).toBe(null)
@@ -663,19 +682,17 @@ fdescribe('Main: Currently testing files management,', function () {
       })
 
       const newFile = testFolder + '/' + testFile
-
-      oc.files.putFileContents(newFile, testContent).then(() => {
-        return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
-      }).then(fileInfo => {
-        const fileId = fileInfo.getFileId()
-        return oc.files.getPathForFileId(fileId)
-      }).then(path => {
-        expect(path).toEqual('/' + newFile)
-        done()
-      }).catch(error => {
-        expect(error).toBe(null)
-        done()
-      })
+      oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
+        .then(fileInfo => {
+          const fileId = fileInfo.getFileId()
+          return oc.files.getPathForFileId(fileId)
+        }).then(path => {
+          expect(path).toEqual('/' + newFile)
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
     })
   })
 
@@ -773,18 +790,7 @@ fdescribe('Main: Currently testing files management,', function () {
   describe('move existent file into same folder, different name', function () {
     beforeAll(async function (done) {
       const promises = []
-      // provider.removeInteractions().then(done, done.fail)
       promises.push(setGeneralInteractions(provider))
-      promises.push(provider.addInteraction(aPropfindRequestToListContentOfFolder(
-        'test folder, after moving existent file into same folder, different name',
-        testFolder,
-        [
-          'abc.txt',
-          'file one.txt',
-          'subdir',
-          'zz+z.txt',
-          '中文123.txt'
-        ], '1')))
       Promise.all(promises).then(done, done.fail)
     })
 
@@ -805,14 +811,6 @@ fdescribe('Main: Currently testing files management,', function () {
         }))
       oc.files.move(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
         expect(status).toBe(true)
-        return oc.files.list(testFolder)
-      }).then(files => {
-        const fileNames = []
-        for (let i = 0; i < files.length; i++) {
-          fileNames.push(files[i].getName())
-        }
-        expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1)
-        expect(fileNames.indexOf('中文.txt')).toBe(-1)
         done()
       }).catch(error => {
         expect(error).toBe(null)
@@ -825,17 +823,6 @@ fdescribe('Main: Currently testing files management,', function () {
     beforeAll(async function (done) {
       const promises = []
       promises.push(setGeneralInteractions(provider))
-      promises.push(provider.addInteraction(aPropfindRequestToListContentOfFolder(
-        'test folder, after copying existent file into different name',
-        testFolder,
-        [
-          'abc.txt',
-          'file one.txt',
-          'subdir',
-          'zz+z.txt',
-          '中文.txt',
-          '中文123.txt'
-        ], '1')))
       Promise.all(promises).then(done, done.fail)
     })
 
@@ -862,14 +849,6 @@ fdescribe('Main: Currently testing files management,', function () {
 
       oc.files.copy(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
         expect(status).toBe(true)
-        return oc.files.list(testFolder)
-      }).then(files => {
-        const fileNames = []
-        for (let i = 0; i < files.length; i++) {
-          fileNames.push(files[i].getName())
-        }
-        expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1)
-        expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1)
         done()
       }).catch(error => {
         expect(error).toBe(null)
@@ -878,14 +857,6 @@ fdescribe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : copy existent file into different folder', async function (done) {
-      await provider.addInteraction(aPropfindRequestToListContentOfFolder(
-        'subdir1',
-        testFolder + '/subdir',
-        [
-          'subdir/in%20dir.txt',
-          'subdir/%e4%b8%ad%e6%96%87.txt'
-        ], '1'))
-
       await provider.addInteraction({
         uponReceiving: 'copy existent file into different folder',
         withRequest: {
@@ -904,21 +875,6 @@ fdescribe('Main: Currently testing files management,', function () {
 
       oc.files.copy(testFolder + '/中文123.txt', testFolder + '/subdir/中文.txt').then(status => {
         expect(status).toBe(true)
-        return oc.files.list(testFolder + '/subdir')
-      }).then(files => {
-        const fileNames = []
-        for (let i = 0; i < files.length; i++) {
-          fileNames.push(files[i].getName())
-        }
-        expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1)
-        return oc.files.list(testFolder)
-      }).then(files2 => {
-        const fileNames = []
-        for (let i = 0; i < files2.length; i++) {
-          fileNames.push(files2[i].getName())
-        }
-        expect(fileNames.indexOf('中文123.txt')).toBeGreaterThan(-1)
-        expect(fileNames.indexOf('中文.txt')).toBeGreaterThan(-1)
         done()
       }).catch(error => {
         expect(error).toBe(null)
@@ -927,85 +883,40 @@ fdescribe('Main: Currently testing files management,', function () {
     })
   })
 
-  describe('favorite, search and file', function () {
+  describe('unfavorite a file', function () {
+    beforeAll(function (done) {
+      Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+    })
+    afterAll(function (done) {
+      provider.removeInteractions().then(done, done.fail)
+    })
+
+    it('checking method: unfavorite', async function (done) {
+      await provider.addInteraction(favoriteFile(false))
+      await provider.addInteraction(propfindFavoriteFileInfo(0))
+      oc.files.favorite(`${testFolder}/${testFile}`, false)
+        .then(status => {
+          expect(status).toEqual(true)
+          return oc.files.fileInfo(`${testFolder}/${testFile}`, ['{http://owncloud.org/ns}favorite'])
+        }).then(fileInfo => {
+          expect(fileInfo.getProperty('{http://owncloud.org/ns}favorite')).toEqual('0')
+          done()
+        }).catch(error => {
+          fail(error)
+          done()
+        })
+    })
+  })
+
+  describe('favorite, search file', function () {
     let fileId = 123456789
     let tagId = 6789
+
     beforeAll(async function (done) {
       const promises = []
       promises.push(setGeneralInteractions(provider))
-
-      let favoriteValues = [true, false]
-      for (const value of favoriteValues) {
-        promises.push(provider.addInteraction({
-          uponReceiving: 'Favorite a file',
-          withRequest: {
-            method: 'PROPPATCH',
-            path: webdavPath(testFile),
-            headers: validAuthHeaders,
-            body: '<?xml version="1.0"?>\n' +
-              '<d:propertyupdate  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
-              '  <d:set>\n' +
-              '   <d:prop>\n' +
-              `      <oc:favorite>${value}</oc:favorite>\n` +
-              '    </d:prop>\n' +
-              '  </d:set>\n' +
-              '</d:propertyupdate>'
-          },
-          willRespondWith: {
-            status: 207,
-            headers: xmlResponseAndAccessControlCombinedHeader,
-            body: '<?xml version="1.0"?>\n' +
-              '<d:multistatus\n' +
-              '    xmlns:d="DAV:"\n' +
-              '    xmlns:s="http://sabredav.org/ns"\n' +
-              '    xmlns:oc="http://owncloud.org/ns">\n' +
-              '    <d:response>\n' +
-              '        <d:href>/remote.php/webdav/testFile.txt</d:href>\n' +
-              '        <d:propstat>\n' +
-              '            <d:prop>\n' +
-              '                <oc:favorite/>\n' +
-              '            </d:prop>\n' +
-              '            <d:status>HTTP/1.1 200 OK</d:status>\n' +
-              '        </d:propstat>\n' +
-              '    </d:response>\n' +
-              '</d:multistatus>'
-          }
-        }))
-      }
-
-      favoriteValues = [1]
-      for (const value of favoriteValues) {
-        promises.push(provider.addInteraction({
-          uponReceiving: 'propfind file info, favorite ' + value,
-          withRequest: {
-            method: 'PROPFIND',
-            path: webdavPath(testFile),
-            headers: validAuthHeaders,
-            body: '<?xml version="1.0"?>\n' +
-              '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
-              '  <d:prop>\n' +
-              '    <oc:favorite />\n' +
-              '  </d:prop>\n' +
-              '</d:propfind>'
-          },
-          willRespondWith: {
-            status: 207,
-            headers: xmlResponseAndAccessControlCombinedHeader,
-            body: '<?xml version="1.0" encoding="UTF-8"?>\n' +
-              '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
-              '   <d:response>\n' +
-              '      <d:href>/core/remote.php/webdav/testFile.txt</d:href>\n' +
-              '      <d:propstat>\n' +
-              '         <d:prop>\n' +
-              `            <oc:favorite>${value}</oc:favorite>\n` +
-              '         </d:prop>\n' +
-              '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
-              '      </d:propstat>\n' +
-              '   </d:response>\n' +
-              '</d:multistatus>'
-          }
-        }))
-      }
+      promises.push(provider.addInteraction(favoriteFile(true)))
+      promises.push(provider.addInteraction(propfindFavoriteFileInfo(1)))
       Promise.all(promises).then(done, done.fail)
     })
 
@@ -1014,32 +925,20 @@ fdescribe('Main: Currently testing files management,', function () {
     })
 
     it('checking method: favorite', function (done) {
-      oc.files.putFileContents(testFile, testContent).then(status => {
-        expect(typeof status).toBe('object')
-        return oc.files.favorite(testFile)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
-        return oc.files.fileInfo(testFile, ['{http://owncloud.org/ns}favorite'])
-      }).then(fileInfo => {
-        expect(fileInfo.getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
-        return oc.files.favorite(testFile, false)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
-        return oc.files.fileInfo(testFile, ['{http://owncloud.org/ns}favorite'])
-      }).then(fileInfo => {
-        expect(fileInfo.getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
-        return oc.files.delete(testFile)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
-        done()
-      }).catch(error => {
-        fail(error)
-        done()
-      })
+      oc.files.favorite(`${testFolder}/${testFile}`)
+        .then(status => {
+          expect(status).toEqual(true)
+          return oc.files.fileInfo(`${testFolder}/${testFile}`, ['{http://owncloud.org/ns}favorite'])
+        }).then(fileInfo => {
+          expect(fileInfo.getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
+          done()
+        }).catch(error => {
+          fail(error)
+          done()
+        })
     })
 
     it('checking method: favorite filter', async function (done) {
-      // report method is not supported
       await provider.addInteraction({
         uponReceiving: 'get favorite file',
         withRequest: {
@@ -1080,23 +979,18 @@ fdescribe('Main: Currently testing files management,', function () {
         }
       })
 
-      oc.files.putFileContents(testFile, testContent).then(status => {
-        expect(typeof status).toBe('object')
-        return oc.files.favorite(testFile)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
-        return oc.files.getFavoriteFiles(['{http://owncloud.org/ns}favorite'])
-      }).then(files => {
-        expect(files.length).toEqual(1)
-        expect(files[0].getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
-        return oc.files.delete(testFile)
-      }).then(status2 => {
-        expect(status2).toEqual(true)
-        done()
-      }).catch(error => {
-        expect(error).toBe(null)
-        done()
-      })
+      oc.files.favorite(`${testFolder}/${testFile}`)
+        .then(status => {
+          expect(status).toEqual(true)
+          return oc.files.getFavoriteFiles(['{http://owncloud.org/ns}favorite'])
+        }).then(files => {
+          expect(files.length).toEqual(1)
+          expect(files[0].getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
     })
 
     it('searches in the instance', async function (done) {
@@ -1270,25 +1164,23 @@ fdescribe('Main: Currently testing files management,', function () {
         willRespondWith: getFileInfoBy('tag')
       })
 
-      oc.files.putFileContents(newFile, testContent).then(status => {
-        expect(typeof status).toBe('object')
-        return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
-      }).then(fileInfo => {
-        fileId = fileInfo.getFileId()
-        return oc.systemTags.createTag({ name: newTagName })
-      }).then(resp => {
-        tagId = resp
-        return oc.systemTags.tagFile(fileId, tagId)
-      }).then(() => {
-        return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
-      }).then(files => {
-        expect(files.length).toEqual(1)
-        expect(files[0].getName()).toEqual(testFile)
-        done()
-      }).catch(error => {
-        expect(error).toBe(null)
-        done()
-      })
+      oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
+        .then(fileInfo => {
+          fileId = fileInfo.getFileId()
+          return oc.systemTags.createTag({ name: newTagName })
+        }).then(resp => {
+          tagId = resp
+          return oc.systemTags.tagFile(fileId, tagId)
+        }).then(() => {
+          return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
+        }).then(files => {
+          expect(files.length).toEqual(1)
+          expect(files[0].getName()).toEqual(testFile)
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
     })
   })
 })

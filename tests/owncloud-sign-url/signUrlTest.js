@@ -6,7 +6,7 @@ const HTTP_GET_METHOD = 'get'
 const HTTP_POST_METHOD = 'post'
 const TEST_PORT = 33001
 
-describe('SignUrl tests', () => {
+fdescribe('SignUrl tests', () => {
   let signUrl
 
   beforeAll(async () => {

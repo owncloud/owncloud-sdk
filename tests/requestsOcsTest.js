@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing low level OCS', function () {
+describe('Main: Currently testing low level OCS', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

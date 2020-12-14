@@ -1,4 +1,4 @@
-fdescribe('Signed urls', function () {
+describe('Signed urls', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

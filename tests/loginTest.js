@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing Login and initLibrary,', function () {
+describe('Main: Currently testing Login and initLibrary,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing file versions management,', function () {
+describe('Main: Currently testing file versions management,', function () {
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 

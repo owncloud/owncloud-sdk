@@ -1,4 +1,4 @@
-fdescribe('Unauthorized: Currently testing user management,', function () {
+describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var OwnCloud = require('../../src')

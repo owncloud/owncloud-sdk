@@ -84,6 +84,13 @@ const xmlResponseAndAccessControlCombinedHeader = {
   'Access-Control-Allow-Methods': accessControlAllowMethods
 }
 
+const htmlResponseAndAccessControlCombinedHeader = {
+  'Content-Type': 'text/html; charset=utf-8',
+  'Access-Control-Allow-Origin': origin,
+  'Access-Control-Allow-Headers': accessControlAllowHeaders,
+  'Access-Control-Allow-Methods': accessControlAllowMethods
+}
+
 const resourceNotFoundExceptionMessage = resource => `File with name ${resource} could not be located`
 
 const webdavMatcherForResource = resource => {
@@ -440,12 +447,7 @@ function setGeneralInteractions (provider) {
     },
     willRespondWith: {
       status: 201,
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Access-Control-Allow-Origin': origin,
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      }
+      headers: htmlResponseAndAccessControlCombinedHeader
     }
   }))
 
@@ -505,5 +507,6 @@ module.exports = {
   unauthorizedXmlResponseBody,
   xmlResponseAndAccessControlCombinedHeader,
   testSubFiles,
-  uriEncodedTestSubFiles
+  uriEncodedTestSubFiles,
+  htmlResponseAndAccessControlCombinedHeader
 }

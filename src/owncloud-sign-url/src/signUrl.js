@@ -40,7 +40,7 @@ module.exports = class SignUrl {
    * @param {string} httpMethod - The http method.
    * @returns {string} Signed url.
    */
-  async generateSignedUrl (url, httpMethod) {
+  generateSignedUrl (url, httpMethod) {
     if (url === undefined) {
       throw new Error(errorMessages.URL_PARAM_UNDEFINED)
     }
@@ -82,11 +82,13 @@ module.exports = class SignUrl {
       return httpCodes.BAD_REQUEST
     }
     url.searchParams.delete('OC-Signature')
+    url.searchParams.delete('OC-Algo')
 
     const hashedKey = utils.createHashedKey(
       url.toString(),
       this.algorithm,
-      this.secretKey
+      this.secretKey,
+      this.iterations
     )
 
     if (hashedKey !== urlSignature) {

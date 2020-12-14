@@ -8,6 +8,7 @@ exports.createHashedKey = createHashedKey
  * @param {string} stringToHash - The string that will be hashed.
  * @param {string} algorithm - Hashing algorithm.
  * @param {string} secretKey - Secret string.
+ * @param {number} iterations - Number of iterations.
  * @returns {string} Ready hashed key.
  */
 function createHashedKey (stringToHash, algorithm, secretKey, iterations) {

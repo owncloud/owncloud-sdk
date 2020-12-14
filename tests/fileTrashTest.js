@@ -1,4 +1,4 @@
-fdescribe('oc.fileTrash', function () {
+describe('oc.fileTrash', function () {
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 

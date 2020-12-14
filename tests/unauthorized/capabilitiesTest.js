@@ -1,4 +1,4 @@
-fdescribe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
+describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
   const OwnCloud = require('../../src')
   const config = require('../config/config.json')
   // LIBRARY INSTANCE

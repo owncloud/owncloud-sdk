@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing group management,', function () {
+describe('Main: Currently testing group management,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

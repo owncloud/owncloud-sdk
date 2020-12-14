@@ -1,4 +1,4 @@
-fdescribe('oc.publicFiles', function () {
+describe('oc.publicFiles', function () {
   // CURRENT TIME
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')

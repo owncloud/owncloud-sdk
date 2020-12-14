@@ -1,4 +1,4 @@
-fdescribe('Unauthorized: Currently testing file/folder sharing,', function () {
+describe('Unauthorized: Currently testing file/folder sharing,', function () {
   const OwnCloud = require('../../src')
   const config = require('../config/config.json')
 

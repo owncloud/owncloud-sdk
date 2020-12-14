@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing file/folder sharing,', function () {
+describe('Main: Currently testing file/folder sharing,', function () {
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 

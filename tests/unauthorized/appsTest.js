@@ -1,4 +1,4 @@
-fdescribe('Unauthorized: Currently testing apps management,', function () {
+describe('Unauthorized: Currently testing apps management,', function () {
   // CURRENT TIME
   const timeRightNow = new Date().getTime()
   const OwnCloud = require('../../src')

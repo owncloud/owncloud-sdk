@@ -1,4 +1,4 @@
-fdescribe('Unauthorized: Currently testing group management,', function () {
+describe('Unauthorized: Currently testing group management,', function () {
   var OwnCloud = require('../../src')
   var config = require('../config/config.json')
 

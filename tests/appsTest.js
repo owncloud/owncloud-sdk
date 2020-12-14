@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing apps management,', function () {
+describe('Main: Currently testing apps management,', function () {
   const OwnCloud = require('../src/owncloud')
   const utf8 = require('utf8')
   const config = require('./config/config.json')

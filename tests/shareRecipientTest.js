@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing share recipient,', function () {
+describe('Main: Currently testing share recipient,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 

@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing files management,', function () {
+describe('Main: Currently testing files management,', function () {
   const FileInfo = require('../src/fileInfo')
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')

@@ -1,4 +1,4 @@
-fdescribe('Unauthorized: Currently testing files management,', function () {
+describe('Unauthorized: Currently testing files management,', function () {
   const OwnCloud = require('../../src')
   const config = require('../config/config.json')
 

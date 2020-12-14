@@ -1,4 +1,4 @@
-fdescribe('oc.shares', function () {
+describe('oc.shares', function () {
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 

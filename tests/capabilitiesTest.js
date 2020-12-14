@@ -1,4 +1,4 @@
-fdescribe('Main: Currently testing getConfig, getVersion and getCapabilities', function () {
+describe('Main: Currently testing getConfig, getVersion and getCapabilities', function () {
   const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 

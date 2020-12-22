@@ -1,6 +1,7 @@
 const axios = require('axios')
 const Promise = require('promise')
-const request = require('browser-request')
+// const request = require('browser-request')
+const fetch = require('cross-fetch')
 const parser = require('./xmlParser.js')
 const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
@@ -236,49 +237,86 @@ class helpers {
     }
 
     options.headers['content-type'] = 'application/x-www-form-urlencoded'
-    options.body = serialize(data).replace(/%20/g, '+')
+    if (method !== 'GET' && method !== 'HEAD') {
+      options.body = serialize(data).replace(/%20/g, '+')
+    } else {
+      options.body = null
+    }
 
-    return new Promise((resolve, reject) => {
-      // Start the request
-      request(options, function (error, response, body) {
-        if (error) {
-          reject(error)
-          return
+    return fetch(this.instance + path, {
+      method: method,
+      body: options.body,
+      headers: headers
+    })
+      .then(res => {
+        if (res.status >= 400) {
+          throw new Error('Bad response from server')
         }
-
+        return res
+      })
+      .then(async res => {
         let tree = null
+        const body = await res.text()
         try {
           tree = parser.xml2js(body)
-          error = self._checkOCSstatus(tree)
-          if (error) {
-            reject(error)
-            return
-          }
         } catch (e) {
-          try {
-            tree = JSON.parse(body)
-            if ('message' in tree) {
-              reject(tree.message)
-              return
-            }
-            error = self._checkOCSstatus(tree)
-            if (error) {
-              reject(error)
-              return
-            }
-          } catch (e) {
-            reject('Invalid response body: ' + body)
-            return
-          }
+          tree = JSON.parse(body)
         }
-
-        resolve({
-          response: response,
+        if ('message' in tree) {
+          throw new Error(tree.message)
+        }
+        const error = self._checkOCSstatus(tree)
+        if (error) {
+          throw new Error(error)
+        }
+        return {
+          response: res,
           body: body,
           data: tree
-        })
+        }
       })
-    })
+
+    // return new Promise((resolve, reject) => {
+    //   // Start the request
+    //   request(options, function (error, response, body) {
+    //     if (error) {
+    //       reject(error)
+    //       return
+    //     }
+    //
+    //     let tree = null
+    //     try {
+    //       tree = parser.xml2js(body)
+    //       error = self._checkOCSstatus(tree)
+    //       if (error) {
+    //         reject(error)
+    //         return
+    //       }
+    //     } catch (e) {
+    //       try {
+    //         tree = JSON.parse(body)
+    //         if ('message' in tree) {
+    //           reject(tree.message)
+    //           return
+    //         }
+    //         error = self._checkOCSstatus(tree)
+    //         if (error) {
+    //           reject(error)
+    //           return
+    //         }
+    //       } catch (e) {
+    //         reject('Invalid response body: ' + body)
+    //         return
+    //       }
+    //     }
+    //
+    //     resolve({
+    //       response: response,
+    //       body: body,
+    //       data: tree
+    //     })
+    //   })
+    // })
   }
 
   /**
@@ -310,24 +348,32 @@ class helpers {
       headers: headers
     }
 
-    return new Promise((resolve, reject) => {
-      if (err) {
-        reject(err)
-        return
-      }
-
-      // Start the request
-      request(options, function (error, response, body) {
-        if (error) {
-          reject(error)
-        } else {
-          resolve({
-            response: response,
-            body: body
-          })
+    return fetch(url, { method: 'GET', headers: headers })
+      .then(async res => {
+        return {
+          response: res,
+          body: await res.text()
         }
       })
-    })
+    // return new Promise((resolve, reject) => {
+    //   if (err) {
+    //     reject(err)
+    //     return
+    //   }
+    //
+    //   // Start the request
+    //
+    //   request(options, function (error, response, body) {
+    //     if (error) {
+    //       reject(error)
+    //     } else {
+    //       resolve({
+    //         response: response,
+    //         body: body
+    //       })
+    //     }
+    //   })
+    // })
   }
 
   buildHttpErrorFromDavResponse (status, body) {

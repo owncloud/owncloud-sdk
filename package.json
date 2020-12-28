@@ -79,7 +79,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "browser-request": "^0.3.3",
+    "cross-fetch": "^3.0.6",
     "davclient.js": "https://github.com/owncloud/davclient.js.git",
     "promise": "^8.0.3",
     "request": "^2.88.0",

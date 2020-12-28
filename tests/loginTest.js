@@ -64,7 +64,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -84,7 +84,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       fail()
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })

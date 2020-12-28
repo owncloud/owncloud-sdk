@@ -87,8 +87,8 @@ class Files {
         return Promise.resolve({
           body: body,
           headers: {
-            ETag: response.getResponseHeader('etag'),
-            'OC-FileId': response.getResponseHeader('oc-fileid')
+            ETag: response.headers.get('etag'),
+            'OC-FileId': response.headers.get('oc-fileid')
           }
         })
       }

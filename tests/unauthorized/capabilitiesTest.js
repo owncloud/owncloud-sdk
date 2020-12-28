@@ -36,7 +36,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
       expect(capabilities).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })

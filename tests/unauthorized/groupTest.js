@@ -67,7 +67,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -77,7 +77,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -87,7 +87,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -97,7 +97,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       expect(data).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -107,7 +107,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })

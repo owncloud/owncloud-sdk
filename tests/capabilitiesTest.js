@@ -1,4 +1,4 @@
-import { pactWith } from './jestPact'
+import { pactWith } from 'jest-pact'
 import { Matchers } from '@pact-foundation/pact'
 
 pactWith({
@@ -15,15 +15,18 @@ pactWith({
     let oc
 
     const {
-      setGeneralInteractions,
+      // setGeneralInteractions,
       validAuthHeaders,
       xmlResponseHeaders,
-      ocsMeta
+      ocsMeta,
+      capabilitiesGETReqValidAuth,
+      GETRequestToCloudUserEndpoint
     } = require('./pactHelper.js')
 
     beforeEach(async () => {
       const promises = []
-      promises.push(setGeneralInteractions(provider))
+      promises.push(provider.addInteraction(capabilitiesGETReqValidAuth()))
+      // promises.push(setGeneralInteractions(provider))
       promises.push(provider.addInteraction({
         uponReceiving: 'GET config request',
         withRequest: {
@@ -68,7 +71,6 @@ pactWith({
           //   })
           // })
 
-
           //   new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           //   ocs.appendElement('meta', '', (meta) => {
           //     meta.appendElement('status', '', 'ok')
@@ -78,8 +80,6 @@ pactWith({
           //     data.appendElement('version', '1.7')
           //   })
           // })
-
-
 
           // matcher: '<?xml version="1.0"?>\n' +
           //   '<ocs>\n' +
@@ -105,6 +105,8 @@ pactWith({
           // })
         }
       }))
+      promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+
       await Promise.all(promises)
     })
 

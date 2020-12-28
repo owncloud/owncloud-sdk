@@ -1,14 +1,13 @@
-var config = require('./config/config.json')
-var validUserPasswordHash = Buffer.from(config.username + ':' + config.password, 'binary').toString('base64')
 // const Pact = require('@pact-foundation/pact-web')
 import { Matchers } from '@pact-foundation/pact'
-
+var config = require('./config/config.json')
+var validUserPasswordHash = Buffer.from(config.username + ':' + config.password, 'binary').toString('base64')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE,HEAD,LOCK,UNLOCK'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = {
-  authorization: 'Basic ' + validUserPasswordHash,
+  authorization: 'Basic ' + validUserPasswordHash
 }
 
 const testSubFiles = [
@@ -113,6 +112,10 @@ const webdavPath = resource => Matchers.regex({
   generate: `/remote.php/webdav/${resource}`
 })
 
+/*
+* Interactions start from here
+*/
+
 const getContentsOfFile = file => {
   return {
     uponReceiving: 'GET contents of file ' + file,
@@ -168,34 +171,8 @@ const deleteResource = (resource, type = 'folder') => {
   }
 }
 
-function setGeneralInteractions (provider) {
-  const promises = []
-
-  // promises.push(provider.addInteraction({
-  //   uponReceiving: 'any CORS preflight request',
-  //   withRequest: {
-  //     method: 'OPTIONS',
-  //     path: Matchers.regex({
-  //       matcher: '.*',
-  //       generate: '/ocs/v1.php/cloud/capabilities'
-  //     }),
-  //     headers: {
-  //       'Access-Control-Request-Method': Matchers.regex({
-  //         matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY|REPORT|PROPPATCH',
-  //         generate: 'GET'
-  //       })
-  //     }
-  //   },
-  //   willRespondWith: {
-  //     status: 200,
-  //     headers: {
-  //       'Access-Control-Allow-Origin': '*',
-  //       'Access-Control-Allow-Headers': accessControlAllowHeaders,
-  //       'Access-Control-Allow-Methods': accessControlAllowMethods
-  //     }
-  //   }
-  // }))
-  promises.push(provider.addInteraction({
+const capabilitiesGETReqValidAuth = function () {
+  return {
     uponReceiving: 'a capabilities GET request with valid authentication',
     withRequest: {
       method: 'GET',
@@ -249,39 +226,11 @@ function setGeneralInteractions (provider) {
         }
       }
     }
-  }))
-  // promises.push(provider.addInteraction({
-  //   uponReceiving: 'a capabilities GET request with invalid authentication',
-  //   withRequest: {
-  //     method: 'GET',
-  //     path: Matchers.term({
-  //       matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
-  //       generate: '/ocs/v1.php/cloud/capabilities'
-  //     }),
-  //     query: 'format=json',
-  //     headers: {
-  //       authorization: invalidAuthHeader,
-  //       Origin: origin
-  //     }
-  //   },
-  //   willRespondWith: {
-  //     status: 401,
-  //     headers: {
-  //       'Content-Type': 'application/json; charset=utf-8',
-  //       'Access-Control-Allow-Origin': origin
-  //     },
-  //     body: {
-  //       ocs: {
-  //         meta: {
-  //           status: 'failure',
-  //           statuscode: 997,
-  //           message: 'Unauthorised'
-  //         }
-  //       }
-  //     }
-  //   }
-  // }))
-  promises.push(provider.addInteraction({
+  }
+}
+
+const GETRequestToCloudUserEndpoint = function () {
+  return {
     uponReceiving: 'a GET request to the cloud user endpoint',
     withRequest: {
       method: 'GET',
@@ -315,7 +264,158 @@ function setGeneralInteractions (provider) {
           '</ocs>'
       })
     }
-  }))
+  }
+}
+
+function setGeneralInteractions (provider) {
+  const promises = []
+
+  // promises.push(provider.addInteraction({
+  //   uponReceiving: 'any CORS preflight request',
+  //   withRequest: {
+  //     method: 'OPTIONS',
+  //     path: Matchers.regex({
+  //       matcher: '.*',
+  //       generate: '/ocs/v1.php/cloud/capabilities'
+  //     }),
+  //     headers: {
+  //       'Access-Control-Request-Method': Matchers.regex({
+  //         matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY|REPORT|PROPPATCH',
+  //         generate: 'GET'
+  //       })
+  //     }
+  //   },
+  //   willRespondWith: {
+  //     status: 200,
+  //     headers: {
+  //       'Access-Control-Allow-Origin': '*',
+  //       'Access-Control-Allow-Headers': accessControlAllowHeaders,
+  //       'Access-Control-Allow-Methods': accessControlAllowMethods
+  //     }
+  //   }
+  // }))
+
+  // promises.push(provider.addInteraction({
+  //   uponReceiving: 'a capabilities GET request with valid authentication',
+  //   withRequest: {
+  //     method: 'GET',
+  //     path: Matchers.regex({
+  //       matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
+  //       generate: '/ocs/v1.php/cloud/capabilities'
+  //     }),
+  //     query: 'format=json',
+  //     headers: validAuthHeaders
+  //   },
+  //   willRespondWith: {
+  //     status: 200,
+  //     headers: {
+  //       'Content-Type': 'application/json; charset=utf-8',
+  //       'Access-Control-Allow-Origin': origin
+  //     },
+  //     body: {
+  //       ocs: {
+  //         meta: {
+  //           status: 'ok',
+  //           statuscode: 100,
+  //           message: 'OK'
+  //         },
+  //         data: {
+  //           version: Matchers.like({
+  //             major: 10,
+  //             minor: 5,
+  //             micro: 1,
+  //             string: '10.5.1alpha1',
+  //             edition: 'Enterprise'
+  //           }),
+  //           capabilities: {
+  //             files: {
+  //               privateLinks: true,
+  //               privateLinksDetailsParam: true,
+  //               bigfilechunking: true,
+  //               blacklisted_files: [
+  //                 '.htaccess'
+  //               ],
+  //               favorites: true,
+  //               file_locking_support: true,
+  //               file_locking_enable_file_action: false,
+  //               undelete: true,
+  //               versioning: true
+  //             },
+  //             dav: {
+  //               trashbin: '1.0'
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }))
+  // promises.push(provider.addInteraction({
+  //   uponReceiving: 'a capabilities GET request with invalid authentication',
+  //   withRequest: {
+  //     method: 'GET',
+  //     path: Matchers.term({
+  //       matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
+  //       generate: '/ocs/v1.php/cloud/capabilities'
+  //     }),
+  //     query: 'format=json',
+  //     headers: {
+  //       authorization: invalidAuthHeader,
+  //       Origin: origin
+  //     }
+  //   },
+  //   willRespondWith: {
+  //     status: 401,
+  //     headers: {
+  //       'Content-Type': 'application/json; charset=utf-8',
+  //       'Access-Control-Allow-Origin': origin
+  //     },
+  //     body: {
+  //       ocs: {
+  //         meta: {
+  //           status: 'failure',
+  //           statuscode: 997,
+  //           message: 'Unauthorised'
+  //         }
+  //       }
+  //     }
+  //   }
+  // }))
+  // promises.push(provider.addInteraction({
+  //   uponReceiving: 'a GET request to the cloud user endpoint',
+  //   withRequest: {
+  //     method: 'GET',
+  //     path: Matchers.term({
+  //       matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/user$',
+  //       generate: '/ocs/v1.php/cloud/user'
+  //     }),
+  //     headers: validAuthHeaders
+  //   },
+  //   willRespondWith: {
+  //     status: 200,
+  //     headers: applicationXmlResponseHeaders,
+  //     body: Matchers.term({
+  //       matcher: '<\\?xml version="1\\.0"\\?>\\s' +
+  //         '<ocs>\\s' +
+  //         ocsMeta('ok', 100, 'OK') +
+  //         ' <data>\\s' +
+  //         '  <id>admin<\\/id>\\s' +
+  //         '  <display-name>admin<\\/display-name>\\s' +
+  //         '  <email><\\/email>\\s.*' +
+  //         ' <\\/data>\\s' +
+  //         '<\\/ocs>',
+  //       generate: '<?xml version="1.0"?>\n' +
+  //         '<ocs>\n' +
+  //         ocsMeta('ok', 100, 'OK') +
+  //         ' <data>\n' +
+  //         '  <id>admin</id>\n' +
+  //         '  <display-name>admin</display-name>\n' +
+  //         '  <email></email>\n' +
+  //         ' </data>\n' +
+  //         '</ocs>'
+  //     })
+  //   }
+  // }))
   // promises.push(provider.addInteraction({
   //   uponReceiving: 'a single user GET request to the cloud users endpoint',
   //   withRequest: {
@@ -434,7 +534,7 @@ function setGeneralInteractions (provider) {
   //       '</ocs>'
   //   }
   // }))
-  //
+
   // promises.push(provider.addInteraction({
   //   uponReceiving: 'successfully create a folder',
   //   withRequest: {
@@ -509,5 +609,7 @@ module.exports = {
   xmlResponseAndAccessControlCombinedHeader,
   testSubFiles,
   uriEncodedTestSubFiles,
-  htmlResponseAndAccessControlCombinedHeader
+  htmlResponseAndAccessControlCombinedHeader,
+  capabilitiesGETReqValidAuth,
+  GETRequestToCloudUserEndpoint
 }

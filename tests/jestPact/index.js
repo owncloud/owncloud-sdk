@@ -23,7 +23,7 @@ var setupProvider = function (options) {
     var pactMock = new pact.Pact(options);
     beforeAll(function () { return pactMock.setup(); });
     afterAll(function () { return pactMock.finalize(); });
-    // afterEach(function () { return pactMock.verify(); });
+    afterEach(function () { return pactMock.verify(); });
     return pactMock;
 };
 // This should be moved to pact-js, probably

@@ -85,7 +85,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(apps).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -98,7 +98,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('Unauthorised')
+        expect(error).toMatch('Unauthorized')
         count++
         if (count === key.length) {
           done()
@@ -115,7 +115,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
         expect(data).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('Unauthorised')
+        expect(error).toMatch('Unauthorized')
         count++
         if (count === key.length) {
           done()
@@ -132,7 +132,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('Unauthorised')
+        expect(error).toMatch('Unauthorized')
         count++
         if (count === key.length) {
           done()
@@ -146,7 +146,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })
@@ -156,7 +156,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       expect(status).toBe(null)
       done()
     }).catch(error => {
-      expect(error).toMatch('Unauthorised')
+      expect(error).toMatch('Unauthorized')
       done()
     })
   })

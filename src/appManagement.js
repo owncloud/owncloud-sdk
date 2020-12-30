@@ -9,9 +9,6 @@ const Promise = require('promise')
  *     <li><b>Apps Management</b>
  *       <ul>
  *           <li>getApps</li>
- *           <li>getAttribute</li>
- *           <li>setAttribute</li>
- *           <li>deleteAttribute</li>
  *           <li>enableApp</li>
  *           <li>disableApp</li>
  *       </ul>
@@ -59,86 +56,6 @@ class Apps {
         }
 
         return Promise.resolve(send)
-      })
-  }
-
-  /**
-   * Returns an application attribute
-   * @param    {string}    app     application ID (Generally app-name)
-   * @param    {string}    key     attribute key or None to retrieve all values for the given application
-   * @returns  {Promise.<string>}  string: value of application's key
-   * @returns  {Promise.<error>}   string: error message, if any.
-   */
-  getAttribute (app, key) {
-    let send = 'getattribute'
-    if (app) {
-      send += '/' + encodeURIComponent(app)
-
-      if (key) {
-        send += '/' + encodeURIComponent(this.helpers._encodeString(key))
-      }
-    }
-
-    return this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_PRIVATEDATA, send)
-      .then(data => {
-        let elements = data.data.ocs.data.element
-
-        if (key) {
-          if (!elements) {
-            return Promise.reject(app + ' has no key named "' + key + '"')
-          } else {
-            const value = elements.value
-            elements.value = Object.keys(value).length === 0 && value.constructor === Object ? '' : value
-            return Promise.resolve(elements.value)
-          }
-        } else {
-          if (!elements) {
-            return Promise.resolve({})
-          }
-          if (elements.constructor !== Array) {
-            elements = [elements]
-          }
-          const allAttributes = {}
-          for (let i = 0; i < elements.length; i++) {
-            allAttributes[elements[i].key] = elements[i].value
-          }
-          return Promise.resolve(allAttributes)
-        }
-      })
-  }
-
-  /**
-   * Sets an application attribute
-   * @param       {string}   app      application ID (Generally app-name)
-   * @param       {string}   key      attribute key or None to retrieve all values for the given application
-   * @param       {string}   value    value to set of given attribute
-   * @returns     {Promise.<status>}  boolean: true if successful
-   * @returns     {Promise.<error>}   string: error message, if any.
-   */
-  setAttribute (app, key, value) {
-    const path = 'setattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(this.helpers._encodeString(key))
-
-    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_PRIVATEDATA, path, {
-      value: this.helpers._encodeString(value)
-    })
-      .then(() => {
-        return Promise.resolve(true)
-      })
-  }
-
-  /**
-   * Deletes an application attribute
-   * @param       {string}    app      application ID (generally app-name)
-   * @param       {string}    key      attribute key to delete for the given application
-   * @returns     {Promise.<status>}   boolean: true if successful
-   * @returns     {Promise.<error>}    string: error message, if any.
-   */
-  deleteAttribute (app, key) {
-    const path = 'deleteattribute/' + encodeURIComponent(app) + '/' + encodeURIComponent(this.helpers._encodeString(key))
-
-    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_PRIVATEDATA, path)
-      .then(() => {
-        return Promise.resolve(true)
       })
   }
 

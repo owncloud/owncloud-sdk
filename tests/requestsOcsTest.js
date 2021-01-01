@@ -8,16 +8,15 @@ describe('Main: Currently testing low level OCS', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, validAuthHeaders } = require('./pactHelper.js')
-  beforeAll(function (done) {
-    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
-  })
+  const {
+    capabilitiesGETRequestValidAuth,
+    CORSPreflightRequest,
+    GETRequestToCloudUserEndpoint,
+    validAuthHeaders,
+    GETSingleUserEndpoint
+  } = require('./pactHelper.js')
 
-  afterAll(function (done) {
-    provider.removeInteractions().then(done, done.fail)
-  })
-
-  beforeEach(function (done) {
+  const createOwncloud = async function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -27,22 +26,27 @@ describe('Main: Currently testing low level OCS', function () {
         }
       }
     })
+    await oc.login()
+    return oc
+  }
 
-    oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
-    })
+  beforeEach(function (done) {
+    const promises = []
+    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    Promise.all(promises).then(done, done.fail)
   })
 
-  afterEach(function () {
+  afterEach(async function (done) {
     oc.logout()
     oc = null
+    await provider.verify()
+    provider.removeInteractions().then(done, done.fail)
   })
 
-  it('checking : capabilities', function (done) {
+  it('checking : capabilities', async function (done) {
+    const oc = await createOwncloud()
     oc.requests.ocs({
       service: 'cloud',
       action: 'capabilities'
@@ -68,6 +72,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : error behavior', async function (done) {
+    const oc = await createOwncloud()
     await provider.addInteraction({
       uponReceiving: 'an update request for an unknown user',
       withRequest: {
@@ -113,6 +118,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : PUT email', async function (done) {
+    const oc = await createOwncloud()
     await provider.addInteraction({
       uponReceiving: 'an update user request that sets email',
       given (providerState) {
@@ -148,15 +154,14 @@ describe('Main: Currently testing low level OCS', function () {
         }
       }
     })
+    await provider.addInteraction(GETSingleUserEndpoint())
 
     const testUser = config.testUser
-    oc.users.createUser(testUser, testUser).then(() => {
-      return oc.requests.ocs({
-        method: 'PUT',
-        service: 'cloud',
-        action: 'users/' + testUser,
-        data: { key: 'email', value: 'foo@bar.net' }
-      })
+    return oc.requests.ocs({
+      method: 'PUT',
+      service: 'cloud',
+      action: 'users/' + testUser,
+      data: { key: 'email', value: 'foo@bar.net' }
     }).then(response => {
       expect(response.ok).toBe(true)
       expect(response.status).toBe(200)

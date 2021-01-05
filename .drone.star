@@ -1,13 +1,13 @@
 config = {
-	'app': 'owncloud-sdk',
+    'app': 'owncloud-sdk',
 
-	'branches': [
-		'master'
-	],
+    'branches': [
+        'master'
+    ],
 
-	'yarnlint': True,
+    'yarnlint': True,
 
-	'build': True
+    'build': True
 }
 
 def main(ctx):
@@ -15,12 +15,12 @@ def main(ctx):
 
 def incrementVersion():
     return [{
-    		'name': 'increment-version',
-    		'image': 'node:11',
-    		'pull': 'always',
-    		'commands': [
-    			'yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}'
-    		],
+            'name': 'increment-version',
+            'image': 'node:11',
+            'pull': 'always',
+            'commands': [
+                'yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}'
+            ],
             'when': {
                 'event': [
                     'push'
@@ -28,39 +28,39 @@ def incrementVersion():
             }
     }]
 
-def buildDocs()	:
+def buildDocs():
     return [{
-    		'name': 'build-docs',
-    		'image': 'node:11',
-    		'pull': 'always',
-    		'commands': [
-    			'yarn install',
-    			'yarn build:docs'
-    		],
+            'name': 'build-docs',
+            'image': 'node:11',
+            'pull': 'always',
+            'commands': [
+                'yarn install',
+                'yarn build:docs'
+            ],
     }]
 
 def buildSystem():
     return [{
-    		'name': 'build-system',
-    		'image': 'node:11',
-    		'pull': 'always',
-    		'commands': [
-    			'yarn install',
-    			'yarn lint',
-    			'yarn build:system'
-    		],
+            'name': 'build-system',
+            'image': 'node:11',
+            'pull': 'always',
+            'commands': [
+                'yarn install',
+                'yarn lint',
+                'yarn build:system'
+            ],
     }]
 
 def prepareTestConfig(subFolderPath = '/'):
     return [{
         'name': 'prepare-test-config',
         'image': 'owncloud/ubuntu:16.04',
-		'commands': [
-			'apt update',
-			'apt install gettext -y',
-			'envsubst < tests/config/config.drone.json > tests/config/config.json',
-			'cat tests/config/config.json'
-		],
+        'commands': [
+            'apt update',
+            'apt install gettext -y',
+            'envsubst < tests/config/config.drone.json > tests/config/config.json',
+            'cat tests/config/config.json'
+        ],
         'environment' : {
             'SUBFOLDER': subFolderPath
         }

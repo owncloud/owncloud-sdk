@@ -1,9 +1,8 @@
 describe('Main: Currently testing low level OCS', function () {
-  var OwnCloud = require('../src/owncloud')
-  var config = require('./config/config.json')
+  const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
@@ -13,22 +12,9 @@ describe('Main: Currently testing low level OCS', function () {
     CORSPreflightRequest,
     GETRequestToCloudUserEndpoint,
     validAuthHeaders,
-    GETSingleUserEndpoint
+    GETSingleUserEndpoint,
+    createOwncloud
   } = require('./pactHelper.js')
-
-  const createOwncloud = async function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
-    await oc.login()
-    return oc
-  }
 
   beforeEach(function (done) {
     const promises = []
@@ -46,7 +32,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : capabilities', async function (done) {
-    const oc = await createOwncloud()
+    oc = await createOwncloud()
     oc.requests.ocs({
       service: 'cloud',
       action: 'capabilities'
@@ -72,7 +58,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : error behavior', async function (done) {
-    const oc = await createOwncloud()
+    oc = await createOwncloud()
     await provider.addInteraction({
       uponReceiving: 'an update request for an unknown user',
       withRequest: {
@@ -118,7 +104,7 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : PUT email', async function (done) {
-    const oc = await createOwncloud()
+    oc = await createOwncloud()
     await provider.addInteraction({
       uponReceiving: 'an update user request that sets email',
       given (providerState) {

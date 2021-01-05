@@ -1,19 +1,41 @@
 describe('Main: Currently testing getConfig, getVersion and getCapabilities', function () {
-  const OwnCloud = require('../src/owncloud')
-  const config = require('./config/config.json')
-
-  // LIBRARY INSTANCE
   let oc
-
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, validAuthHeaders, xmlResponseHeaders, ocsMeta } = require('./pactHelper.js')
+  const {
+    capabilitiesGETRequestValidAuth,
+    CORSPreflightRequest,
+    GETRequestToCloudUserEndpoint,
+    validAuthHeaders,
+    xmlResponseHeaders,
+    ocsMeta,
+    createOwncloud
+  } = require('./pactHelper.js')
 
   beforeAll(function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
-    promises.push(provider.addInteraction({
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    Promise.all(promises).then(done, done.fail)
+  })
+
+  beforeEach(function (done) {
+    const promises = []
+    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+    Promise.all(promises).then(done, done.fail)
+  })
+
+  afterEach(async function (done) {
+    oc.logout()
+    oc = null
+    await provider.verify()
+    provider.removeInteractions().then(done, done.fail)
+  })
+
+  it('checking method : getConfig', async function (done) {
+    oc = await createOwncloud()
+    await provider.addInteraction({
       uponReceiving: 'GET config request',
       withRequest: {
         method: 'GET',
@@ -38,40 +60,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
           ' </data>\n' +
           '</ocs>'
       }
-    }))
-    Promise.all(promises).then(done, done.fail)
-  })
-
-  afterAll(function (done) {
-    provider.removeInteractions().then(done, done.fail)
-  })
-
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
     })
-
-    oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
-    }).catch(error => {
-      fail(error)
-      done()
-    })
-  })
-
-  afterEach(function () {
-    oc.logout()
-    oc = null
-  })
-
-  it('checking method : getConfig', function (done) {
     oc.getConfig().then(config => {
       expect(config).not.toBe(null)
       expect(typeof (config)).toBe('object')
@@ -82,7 +71,8 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     })
   })
 
-  it('checking method : getCapabilities', function (done) {
+  it('checking method : getCapabilities', async function (done) {
+    oc = await createOwncloud()
     oc.getCapabilities().then(capabilities => {
       expect(capabilities).not.toBe(null)
       expect(typeof (capabilities)).toBe('object')

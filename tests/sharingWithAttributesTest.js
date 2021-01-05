@@ -8,7 +8,14 @@ describe('oc.shares', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, validAuthHeaders, applicationXmlResponseHeaders, ocsMeta, shareResponseOcsData } = require('./pactHelper.js')
+  const {
+    validAuthHeaders,
+    applicationXmlResponseHeaders,
+    ocsMeta,
+    shareResponseOcsData,
+    capabilitiesGETRequestValidAuth,
+    GETRequestToCloudUserEndpoint
+  } = require('./pactHelper.js')
 
   // TESTING CONFIGS
   const { testUser, testFile, owncloudURL, username, password } = config
@@ -33,7 +40,8 @@ describe('oc.shares', function () {
 
   beforeAll(function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
     promises.push(provider.addInteraction({
       uponReceiving: 'Share with permissions in attributes',
       withRequest: {
@@ -63,7 +71,8 @@ describe('oc.shares', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 
@@ -83,11 +92,9 @@ describe('oc.shares', function () {
   })
 
   it('shall share with permissions in attributes', function (done) {
-    return oc.files.putFileContents(testFile, '123456').then(() => {
-      return oc.shares.shareFileWithUser(testFile, testUser, shareAttributes).then(share => {
-        expect(share.getPermissions()).toBe(17)
-        done()
-      })
+    return oc.shares.shareFileWithUser(testFile, testUser, shareAttributes).then(share => {
+      expect(share.getPermissions()).toBe(17)
+      done()
     })
   })
 })

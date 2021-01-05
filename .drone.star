@@ -16,7 +16,7 @@ def main(ctx):
 def incrementVersion():
     return [{
             'name': 'increment-version',
-            'image': 'node:11',
+            'image': 'owncloudci/nodejs:12',
             'pull': 'always',
             'commands': [
                 'yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}'
@@ -31,7 +31,7 @@ def incrementVersion():
 def buildDocs():
     return [{
             'name': 'build-docs',
-            'image': 'node:11',
+            'image': 'owncloudci/nodejs:12',
             'pull': 'always',
             'commands': [
                 'yarn install',
@@ -42,7 +42,7 @@ def buildDocs():
 def buildSystem():
     return [{
             'name': 'build-system',
-            'image': 'node:11',
+            'image': 'owncloudci/nodejs:12',
             'pull': 'always',
             'commands': [
                 'yarn install',

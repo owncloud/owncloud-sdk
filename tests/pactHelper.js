@@ -339,89 +339,8 @@ const GETSingleUserEndpoint = function () {
   }
 }
 
-function setGeneralInteractions (provider) {
-  const promises = []
-
-  promises.push(provider.addInteraction({
-    uponReceiving: 'any CORS preflight request',
-    withRequest: {
-      method: 'OPTIONS',
-      path: Pact.Matchers.regex({
-        matcher: '.*',
-        generate: '/ocs/v1.php/cloud/capabilities'
-      }),
-      headers: {
-        'Access-Control-Request-Method': Pact.Matchers.regex({
-          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY|REPORT|PROPPATCH',
-          generate: 'GET'
-        })
-      }
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      }
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a capabilities GET request with valid authentication',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
-        generate: '/ocs/v1.php/cloud/capabilities'
-      }),
-      query: 'format=json',
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: {
-        ocs: {
-          meta: {
-            status: 'ok',
-            statuscode: 100,
-            message: 'OK'
-          },
-          data: {
-            version: Pact.Matchers.like({
-              major: 10,
-              minor: 5,
-              micro: 1,
-              string: '10.5.1alpha1',
-              edition: 'Enterprise'
-            }),
-            capabilities: {
-              files: {
-                privateLinks: true,
-                privateLinksDetailsParam: true,
-                bigfilechunking: true,
-                blacklisted_files: [
-                  '.htaccess'
-                ],
-                favorites: true,
-                file_locking_support: true,
-                file_locking_enable_file_action: false,
-                undelete: true,
-                versioning: true
-              },
-              dav: {
-                trashbin: '1.0'
-              }
-            }
-          }
-        }
-      }
-    }
-  }))
-  promises.push(provider.addInteraction({
+const capabilitiesGETRequestInvalidAuth = function () {
+  return {
     uponReceiving: 'a capabilities GET request with invalid authentication',
     withRequest: {
       method: 'GET',
@@ -451,74 +370,11 @@ function setGeneralInteractions (provider) {
         }
       }
     }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a GET request to the cloud user endpoint',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/user$',
-        generate: '/ocs/v1.php/cloud/user'
-      }),
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: applicationXmlResponseHeaders,
-      body: Pact.Matchers.term({
-        matcher: '<\\?xml version="1\\.0"\\?>\\s' +
-          '<ocs>\\s' +
-          ocsMeta('ok', 100, 'OK') +
-          ' <data>\\s' +
-          '  <id>admin<\\/id>\\s' +
-          '  <display-name>admin<\\/display-name>\\s' +
-          '  <email><\\/email>\\s.*' +
-          ' <\\/data>\\s' +
-          '<\\/ocs>',
-        generate: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', 100, 'OK') +
-          ' <data>\n' +
-          '  <id>admin</id>\n' +
-          '  <display-name>admin</display-name>\n' +
-          '  <email></email>\n' +
-          ' </data>\n' +
-          '</ocs>'
-      })
-    }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a single user GET request to the cloud users endpoint',
-    withRequest: {
-      method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-        generate: '/ocs/v2.php/cloud/users/' + config.testUser
-      }),
-      query: 'format=json',
-      headers: validAuthHeaders
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: {
-        ocs: {
-          meta: {
-            status: 'ok',
-            statuscode: 200,
-            message: null
-          },
-          data: {
-            email: 'foo@bar.net'
-          }
-        }
-      }
-    }
-  }))
-  promises.push(provider.addInteraction({
+  }
+}
+
+const createAUser = function () {
+  return {
     uponReceiving: 'a create user request',
     withRequest: {
       method: 'POST',
@@ -535,8 +391,11 @@ function setGeneralInteractions (provider) {
         'Access-Control-Allow-Origin': origin
       }
     }
-  }))
-  promises.push(provider.addInteraction({
+  }
+}
+
+const createAUserWithGroupMembership = function () {
+  return {
     uponReceiving: 'a create user request including group membership',
     withRequest: {
       method: 'POST',
@@ -556,9 +415,11 @@ function setGeneralInteractions (provider) {
         '  <data/>\n' +
         '</ocs>\n'
     }
-  }))
+  }
+}
 
-  promises.push(provider.addInteraction({
+const deleteAUser = function () {
+  return {
     uponReceiving: 'a request to delete a user',
     withRequest: {
       method: 'DELETE',
@@ -577,36 +438,11 @@ function setGeneralInteractions (provider) {
         '  <data/>\n' +
         '</ocs>\n'
     }
-  }))
-  promises.push(provider.addInteraction({
-    uponReceiving: 'a user DELETE request',
-    withRequest: {
-      method: 'DELETE',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users/' + config.testUser + '$',
-        generate: '/ocs/v1.php/cloud/users/' + config.testUser
-      }),
-      headers: {
-        authorization: validAuthHeaders,
-        Origin: origin
-      },
-      body: 'undefined=undefined'
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/xml; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
-      },
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        ' <data/>\n' +
-        '</ocs>'
-    }
-  }))
+  }
+}
 
-  promises.push(provider.addInteraction({
+const createAFolder = function () {
+  return {
     uponReceiving: 'successfully create a folder',
     withRequest: {
       method: 'MKCOL',
@@ -621,7 +457,45 @@ function setGeneralInteractions (provider) {
       status: 201,
       headers: htmlResponseAndAccessControlCombinedHeader
     }
-  }))
+  }
+}
+
+const updateFile = function (file) {
+  return {
+    uponReceiving: 'Put file contents to file ' + file,
+    withRequest: {
+      method: 'PUT',
+      path: webdavPath(file),
+      headers: validAuthHeaders,
+      body: config.testContent
+    },
+    willRespondWith: file.includes('nonExistent') ? {
+      status: 404,
+      headers: {
+        'Access-Control-Allow-Origin': origin
+      },
+      body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
+    } : {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': origin
+      }
+    }
+  }
+}
+
+function setGeneralInteractions (provider) {
+  const promises = []
+
+  promises.push(provider.addInteraction(CORSPreflightRequest()))
+  promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+  promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
+  promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+  promises.push(provider.addInteraction(GETSingleUserEndpoint()))
+  promises.push(provider.addInteraction(createAUser()))
+  promises.push(provider.addInteraction(createAUserWithGroupMembership()))
+  promises.push(provider.addInteraction(deleteAUser()))
+  promises.push(provider.addInteraction(createAFolder()))
 
   let files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123', config.testFile]
   for (const file of files) {
@@ -634,27 +508,7 @@ function setGeneralInteractions (provider) {
     ...uriEncodedTestSubFiles, config.nonExistentDir + '/file.txt'
   ]
   for (const file of files) {
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Put file contents to file ' + file,
-      withRequest: {
-        method: 'PUT',
-        path: webdavPath(file),
-        headers: validAuthHeaders,
-        body: config.testContent
-      },
-      willRespondWith: file.includes('nonExistent') ? {
-        status: 404,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        },
-        body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
-      } : {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        }
-      }
-    }))
+    promises.push(provider.addInteraction(updateFile(file)))
   }
   return promises
 }

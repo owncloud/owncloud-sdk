@@ -1,5 +1,6 @@
-var config = require('./config/config.json')
-var validUserPasswordHash = btoa(config.username + ':' + config.password)
+const config = require('./config/config.json')
+const validUserPasswordHash = btoa(config.username + ':' + config.password)
+const OwnCloud = require('../src/owncloud')
 const Pact = require('@pact-foundation/pact-web')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
@@ -111,6 +112,20 @@ const webdavPath = resource => Pact.Matchers.regex({
   matcher: '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
   generate: `/remote.php/webdav/${resource}`
 })
+
+const createOwncloud = async function () {
+  const oc = new OwnCloud({
+    baseUrl: config.owncloudURL,
+    auth: {
+      basic: {
+        username: config.username,
+        password: config.password
+      }
+    }
+  })
+  await oc.login()
+  return oc
+}
 
 const getContentsOfFile = file => {
   return {
@@ -669,5 +684,6 @@ module.exports = {
   capabilitiesGETRequestValidAuth,
   GETRequestToCloudUserEndpoint,
   CORSPreflightRequest,
-  GETSingleUserEndpoint
+  GETSingleUserEndpoint,
+  createOwncloud
 }

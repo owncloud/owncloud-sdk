@@ -13,10 +13,11 @@ describe('Main: Currently testing low level OCS', function () {
     GETRequestToCloudUserEndpoint,
     validAuthHeaders,
     GETSingleUserEndpoint,
-    createOwncloud
+    createOwncloud,
+    pactCleanup
   } = require('./pactHelper.js')
 
-  beforeEach(function (done) {
+  beforeAll(function (done) {
     const promises = []
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
@@ -27,8 +28,12 @@ describe('Main: Currently testing low level OCS', function () {
   afterEach(async function (done) {
     oc.logout()
     oc = null
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+    done()
+  })
+
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   it('checking : capabilities', async function (done) {

@@ -13,7 +13,8 @@ describe('Unauthorized: Currently testing user management,', function () {
   const {
     invalidAuthHeader,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup
   } = require('../pactHelper.js')
   const { unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
 
@@ -81,9 +82,9 @@ describe('Unauthorized: Currently testing user management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   // TESTING CONFIGS

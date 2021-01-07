@@ -10,17 +10,13 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     validAuthHeaders,
     xmlResponseHeaders,
     ocsMeta,
-    createOwncloud
+    createOwncloud,
+    pactCleanup
   } = require('./pactHelper.js')
 
   beforeAll(function (done) {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
-    Promise.all(promises).then(done, done.fail)
-  })
-
-  beforeEach(function (done) {
-    const promises = []
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
     Promise.all(promises).then(done, done.fail)
@@ -29,8 +25,12 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
   afterEach(async function (done) {
     oc.logout()
     oc = null
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+    done()
+  })
+
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   it('checking method : getConfig', async function (done) {

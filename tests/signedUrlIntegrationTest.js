@@ -16,7 +16,8 @@ describe('Signed urls', function () {
     origin,
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    pactCleanup
   } = require('./pactHelper.js')
 
   beforeEach(function (done) {
@@ -104,9 +105,9 @@ describe('Signed urls', function () {
   }
   )
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   it('should allow file download with a signUrl', async function (done) {

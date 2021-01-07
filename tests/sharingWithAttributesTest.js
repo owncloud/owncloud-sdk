@@ -14,7 +14,8 @@ describe('oc.shares', function () {
     ocsMeta,
     shareResponseOcsData,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    pactCleanup
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -71,9 +72,9 @@ describe('oc.shares', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   beforeEach(function (done) {

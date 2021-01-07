@@ -513,6 +513,11 @@ function setGeneralInteractions (provider) {
   return promises
 }
 
+function pactCleanup (provider) {
+  return provider.verify()
+    .then(() => provider.removeInteractions())
+}
+
 module.exports = {
   setGeneralInteractions,
   getContentsOfFile,
@@ -545,5 +550,6 @@ module.exports = {
   createAUserWithGroupMembership,
   deleteAUser,
   createAFolder,
-  updateFile
+  updateFile,
+  pactCleanup
 }

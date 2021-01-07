@@ -13,8 +13,10 @@ describe('Unauthorized: Currently testing files management,', function () {
     origin,
     webdavExceptionResponseBody,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup
   } = require('../pactHelper.js')
+
   const provider = new Pact.PactWeb()
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader,
@@ -57,9 +59,9 @@ describe('Unauthorized: Currently testing files management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   // TESTING CONFIGS

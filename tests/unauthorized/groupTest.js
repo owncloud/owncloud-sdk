@@ -16,7 +16,8 @@ describe('Unauthorized: Currently testing group management,', function () {
     unauthorizedXmlResponseBody,
     origin,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup
   } = require('../pactHelper.js')
 
   beforeAll(function (done) {
@@ -51,9 +52,9 @@ describe('Unauthorized: Currently testing group management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   beforeEach(function () {

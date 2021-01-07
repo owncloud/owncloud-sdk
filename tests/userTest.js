@@ -15,7 +15,8 @@ describe('Main: Currently testing user management,', function () {
     GETRequestToCloudUserEndpoint,
     createAUser,
     deleteAUser,
-    createAUserWithGroupMembership
+    createAUserWithGroupMembership,
+    pactCleanup
   } = require('./pactHelper.js')
   const { accessControlAllowMethods, validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
@@ -318,9 +319,9 @@ describe('Main: Currently testing user management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    await provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   beforeEach(function (done) {

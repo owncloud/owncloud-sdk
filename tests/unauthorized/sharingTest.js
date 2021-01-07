@@ -14,7 +14,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     accessControlAllowMethods,
     unauthorizedXmlResponseBody,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup
   } = require('../pactHelper.js')
 
   const unauthorizedResponseXml = {
@@ -53,9 +54,9 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function (done) {
+    pactCleanup(provider)
+      .then(done, done.fail)
   })
 
   // TESTING CONFIGS

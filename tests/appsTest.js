@@ -12,8 +12,14 @@ describe('Main: Currently testing apps management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
-  const { validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
+  const {
+    validAuthHeaders,
+    CORSPreflightRequest,
+    capabilitiesGETRequestValidAuth,
+    GETRequestToCloudUserEndpoint,
+    ocsMeta,
+    xmlResponseHeaders
+  } = require('./pactHelper.js')
 
   const responseBody = function (data) {
     return '<?xml version="1.0"?>\n' +
@@ -25,7 +31,10 @@ describe('Main: Currently testing apps management,', function () {
 
   beforeAll(function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+    Promise.all(promises).then(done, done.fail)
     // a request to GET attributes of an app
     const attributes = {
       attr1: {
@@ -127,6 +136,10 @@ describe('Main: Currently testing apps management,', function () {
 
   afterAll(function (done) {
     provider.removeInteractions().then(done, done.fail)
+  })
+
+  afterAll(function (done) {
+    provider.verify().then(done, done.fail)
   })
 
   beforeEach(function (done) {

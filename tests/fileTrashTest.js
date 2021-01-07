@@ -10,7 +10,16 @@ describe('oc.fileTrash', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { origin, validAuthHeaders, accessControlAllowHeaders, accessControlAllowMethods, setGeneralInteractions } = require('./pactHelper.js')
+  const {
+    origin,
+    validAuthHeaders,
+    accessControlAllowHeaders,
+    accessControlAllowMethods,
+
+    CORSPreflightRequest,
+    GETRequestToCloudUserEndpoint,
+    capabilitiesGETRequestValidAuth
+  } = require('./pactHelper.js')
   const deletedFolderId = '2147596415'
   const deletedFileId = '2147596419'
 
@@ -143,9 +152,19 @@ describe('oc.fileTrash', function () {
     oc = null
     done()
   })
+
+  afterAll(function (done) {
+    provider.verify().then(done, done.fail)
+  })
+
   describe('when deleting files and folders', function () {
     beforeAll(function (done) {
-      Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
+      Promise.all(promises).then(done, done.fail)
     })
     afterAll(function (done) {
       provider.removeInteractions().then(done, done.fail)
@@ -166,8 +185,11 @@ describe('oc.fileTrash', function () {
 
   describe('and when empty', function () {
     beforeAll(function (done) {
-      const promises = []
-      promises.push(setGeneralInteractions(provider))
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
       promises.push(provider.addInteraction({
         uponReceiving: 'PROPFIND empty trash',
         withRequest: requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody),
@@ -206,8 +228,11 @@ describe('oc.fileTrash', function () {
 
     describe('and folder is not restored', function () {
       beforeAll(function (done) {
-        const promises = []
-        promises.push(setGeneralInteractions(provider))
+        const promises = [
+          provider.addInteraction(CORSPreflightRequest()),
+          provider.addInteraction(capabilitiesGETRequestValidAuth()),
+          provider.addInteraction(GETRequestToCloudUserEndpoint())
+        ]
         promises.push(provider.addInteraction({
           uponReceiving: 'PROPFIND to trashbin with items',
           withRequest: requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody),
@@ -297,9 +322,12 @@ describe('oc.fileTrash', function () {
 
     describe('and when this deleted folder is restored to its original location', function () {
       const originalLocation = testFolder
-      beforeAll(async function (done) {
-        const promises = []
-        promises.push(setGeneralInteractions(provider))
+      beforeAll(function (done) {
+        const promises = [
+          provider.addInteraction(CORSPreflightRequest()),
+          provider.addInteraction(capabilitiesGETRequestValidAuth()),
+          provider.addInteraction(GETRequestToCloudUserEndpoint())
+        ]
         promises.push(provider.addInteraction({
           uponReceiving: 'MOVE folder from trashbin to fileslist to original location',
           withRequest: {
@@ -385,8 +413,11 @@ describe('oc.fileTrash', function () {
       const originalLocation = testFolder + ' (restored to a different location)'
 
       beforeAll(function (done) {
-        const promises = []
-        promises.push(setGeneralInteractions(provider))
+        const promises = [
+          provider.addInteraction(CORSPreflightRequest()),
+          provider.addInteraction(capabilitiesGETRequestValidAuth()),
+          provider.addInteraction(GETRequestToCloudUserEndpoint())
+        ]
         promises.push(provider.addInteraction({
           uponReceiving: 'MOVE folder from trashbin to fileslist to a different location',
           withRequest: {
@@ -473,9 +504,12 @@ describe('oc.fileTrash', function () {
     const testFile = config.testFile
 
     describe('and file is not restored', function () {
-      beforeAll(async function (done) {
-        const promises = []
-        promises.push(setGeneralInteractions(provider))
+      beforeAll(function (done) {
+        const promises = [
+          provider.addInteraction(CORSPreflightRequest()),
+          provider.addInteraction(capabilitiesGETRequestValidAuth()),
+          provider.addInteraction(GETRequestToCloudUserEndpoint())
+        ]
         promises.push(provider.addInteraction({
           uponReceiving: 'PROPFIND trash items before deleting file',
           withRequest: requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody),
@@ -542,9 +576,12 @@ describe('oc.fileTrash', function () {
 
     describe('and when this deleted file is restored to its original location', function () {
       const originalLocation = testFile
-      beforeAll(async function (done) {
-        const promises = []
-        promises.push(setGeneralInteractions(provider))
+      beforeAll(function (done) {
+        const promises = [
+          provider.addInteraction(CORSPreflightRequest()),
+          provider.addInteraction(capabilitiesGETRequestValidAuth()),
+          provider.addInteraction(GETRequestToCloudUserEndpoint())
+        ]
         promises.push(provider.addInteraction({
           uponReceiving: 'MOVE file from trashbin to fileslist to a different location',
           withRequest: {
@@ -624,9 +661,12 @@ describe('oc.fileTrash', function () {
     describe('and when this deleted file is restored to a different location', function () {
       const originalLocation = 'file (restored to a different location).txt'
 
-      beforeAll(async function (done) {
-        const promises = []
-        promises.push(setGeneralInteractions(provider))
+      beforeAll(function (done) {
+        const promises = [
+          provider.addInteraction(CORSPreflightRequest()),
+          provider.addInteraction(capabilitiesGETRequestValidAuth()),
+          provider.addInteraction(GETRequestToCloudUserEndpoint())
+        ]
         promises.push(provider.addInteraction({
           uponReceiving: 'MOVE file from trashbin to a new location',
           withRequest: {

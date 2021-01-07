@@ -11,7 +11,6 @@ describe('Main: Currently testing files management,', function () {
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
   const {
-    setGeneralInteractions,
     getContentsOfFile,
     deleteResource,
     webdavExceptionResponseBody,
@@ -20,7 +19,12 @@ describe('Main: Currently testing files management,', function () {
     uriEncodedTestSubFiles,
     testSubFiles,
     validAuthHeaders,
-    xmlResponseAndAccessControlCombinedHeader
+    xmlResponseAndAccessControlCombinedHeader,
+    CORSPreflightRequest,
+    GETRequestToCloudUserEndpoint,
+    capabilitiesGETRequestValidAuth,
+    createAFolder,
+    updateFile
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -213,9 +217,19 @@ describe('Main: Currently testing files management,', function () {
     oc = null
   })
 
+  afterAll(function (done) {
+    provider.verify().then(done, done.fail)
+  })
+
   describe('file/folder creation and deletion', function () {
     beforeAll(function (done) {
-      Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+      return Promise.all([
+        uriEncodedTestSubFiles.map(file => provider.addInteraction(updateFile(file))),
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint()),
+        provider.addInteraction(createAFolder())
+      ]).then(done, done.fail)
     })
     afterAll(function (done) {
       provider.removeInteractions().then(done, done.fail)
@@ -272,7 +286,21 @@ describe('Main: Currently testing files management,', function () {
   describe('list, get content and move file/folder', function () {
     beforeAll(async function (done) {
       const promises = []
-      promises.push(setGeneralInteractions(provider))
+
+      const updateFiles = [
+        config.testFolder + '/' + config.testFile,
+        config.nonExistentDir + '/file.txt'
+      ]
+      const updateInteractions = updateFiles.map(file => provider.addInteraction(updateFile(file)))
+
+      promises.concat([
+        ...updateInteractions,
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint()),
+        provider.addInteraction(createAFolder())
+      ])
+
       promises.push(provider.addInteraction(aPropfindRequestToListContentOfFolder(
         'test folder, with no depth specified',
         testFolder,
@@ -382,7 +410,6 @@ describe('Main: Currently testing files management,', function () {
 
     it('uploads file for an existing parent path', async function () {
       const newFile = testFolder + '/' + testFile
-      await provider.addInteraction(getContentsOfFile(newFile))
       let progressCalled = false
 
       const options = {
@@ -419,6 +446,7 @@ describe('Main: Currently testing files management,', function () {
       const url = oc.files.getFileUrlV2('/foo/bar')
       expect(url).toBe(owncloudURL + 'remote.php/dav/files/admin/foo/bar')
     })
+
     it('checking method : mkdir for an existing parent path', async function (done) {
       const newFolder = testFolder + '/' + 'new folder'
 
@@ -703,7 +731,12 @@ describe('Main: Currently testing files management,', function () {
 
     beforeAll(async function (done) {
       const promises = []
-      promises.push(setGeneralInteractions(provider))
+      promises.concat([
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ])
+
       Promise.all(promises).then(done, done.fail)
     })
 
@@ -789,8 +822,11 @@ describe('Main: Currently testing files management,', function () {
 
   describe('move existent file into same folder, different name', function () {
     beforeAll(async function (done) {
-      const promises = []
-      promises.push(setGeneralInteractions(provider))
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
       Promise.all(promises).then(done, done.fail)
     })
 
@@ -821,8 +857,11 @@ describe('Main: Currently testing files management,', function () {
 
   describe('copy existent file', function () {
     beforeAll(async function (done) {
-      const promises = []
-      promises.push(setGeneralInteractions(provider))
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
       Promise.all(promises).then(done, done.fail)
     })
 
@@ -885,7 +924,12 @@ describe('Main: Currently testing files management,', function () {
 
   describe('unfavorite a file', function () {
     beforeAll(function (done) {
-      Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
+      Promise.all(promises).then(done, done.fail)
     })
     afterAll(function (done) {
       provider.removeInteractions().then(done, done.fail)
@@ -913,8 +957,11 @@ describe('Main: Currently testing files management,', function () {
     let tagId = 6789
 
     beforeAll(async function (done) {
-      const promises = []
-      promises.push(setGeneralInteractions(provider))
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
       promises.push(provider.addInteraction(favoriteFile(true)))
       promises.push(provider.addInteraction(propfindFavoriteFileInfo(1)))
       Promise.all(promises).then(done, done.fail)

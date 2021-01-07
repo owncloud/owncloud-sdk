@@ -542,6 +542,8 @@ module.exports = {
   createOwncloud,
   capabilitiesGETRequestInvalidAuth,
   createAUser,
+  createAUserWithGroupMembership,
   deleteAUser,
-  createAUserWithGroupMembership
+  createAFolder,
+  updateFile
 }

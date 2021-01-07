@@ -10,7 +10,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, invalidAuthHeader } = require('../pactHelper.js')
+  const {
+    invalidAuthHeader,
+    CORSPreflightRequest,
+    capabilitiesGETRequestInvalidAuth
+  } = require('../pactHelper.js')
   const { unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
 
   const request = function (requestName, method, path) {
@@ -57,7 +61,8 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   beforeAll(function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
     promises.push(provider.addInteraction(request(
       'a user GET request with invalid auth',
       'GET',
@@ -76,7 +81,8 @@ describe('Unauthorized: Currently testing user management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 

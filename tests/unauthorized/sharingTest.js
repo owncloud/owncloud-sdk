@@ -9,11 +9,12 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
   const {
-    setGeneralInteractions,
     invalidAuthHeader,
     accessControlAllowHeaders,
     accessControlAllowMethods,
-    unauthorizedXmlResponseBody
+    unauthorizedXmlResponseBody,
+    CORSPreflightRequest,
+    capabilitiesGETRequestInvalidAuth
   } = require('../pactHelper.js')
 
   const unauthorizedResponseXml = {
@@ -32,7 +33,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
     })
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
     const requiredMethodsArray = ['POST', 'GET', 'DELETE']
     requiredMethodsArray.forEach(method => {
       promises.push(provider.addInteraction({
@@ -51,7 +53,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 

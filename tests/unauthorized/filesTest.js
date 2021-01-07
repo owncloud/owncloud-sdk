@@ -7,7 +7,14 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
-  const { setGeneralInteractions, accessControlAllowMethods, invalidAuthHeader, origin, webdavExceptionResponseBody } = require('../pactHelper.js')
+  const {
+    accessControlAllowMethods,
+    invalidAuthHeader,
+    origin,
+    webdavExceptionResponseBody,
+    CORSPreflightRequest,
+    capabilitiesGETRequestInvalidAuth
+  } = require('../pactHelper.js')
   const provider = new Pact.PactWeb()
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader,
@@ -32,8 +39,9 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   beforeAll(function (done) {
     const promises = []
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
     const requiredMethodsForUnauthorizedTest = ['GET', 'PUT', 'MKCOL', 'DELETE', 'COPY', 'MOVE', 'PROPFIND']
-    promises.push(setGeneralInteractions(provider))
     requiredMethodsForUnauthorizedTest.forEach((method) => {
       promises.push(provider.addInteraction({
         uponReceiving: `a ${method} request on file contents with invalid authentication`,
@@ -49,7 +57,8 @@ describe('Unauthorized: Currently testing files management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 
@@ -130,7 +139,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   it('checking method : delete', function (done) {
     const newFolder = config.testFolder + '/' + 'new folder'
 
-    oc.files.mkdir(newFolder).then(() => {
+    oc.files.delete(newFolder).then(() => {
       fail()
       done()
     }).catch(error => {

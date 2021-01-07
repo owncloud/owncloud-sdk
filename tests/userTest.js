@@ -8,7 +8,15 @@ describe('Main: Currently testing user management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
+  const {
+    ocsMeta,
+    CORSPreflightRequest,
+    capabilitiesGETRequestValidAuth,
+    GETRequestToCloudUserEndpoint,
+    createAUser,
+    deleteAUser,
+    createAUserWithGroupMembership
+  } = require('./pactHelper.js')
   const { accessControlAllowMethods, validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
   const aRequestToGetUserInformation = function (requestName, username, responseBody) {
@@ -198,7 +206,12 @@ describe('Main: Currently testing user management,', function () {
 
   beforeAll(function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+    promises.push(provider.addInteraction(createAUser()))
+    promises.push(provider.addInteraction(deleteAUser()))
+    promises.push(provider.addInteraction(createAUserWithGroupMembership()))
     promises.push(provider.addInteraction(aRequestToGetUserInformation(
       'of an existing user',
       config.username,
@@ -306,6 +319,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   afterAll(async function (done) {
+    await provider.verify()
     await provider.removeInteractions().then(done, done.fail)
   })
 

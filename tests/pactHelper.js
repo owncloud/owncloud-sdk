@@ -539,5 +539,6 @@ module.exports = {
   GETRequestToCloudUserEndpoint,
   CORSPreflightRequest,
   GETSingleUserEndpoint,
-  createOwncloud
+  createOwncloud,
+  capabilitiesGETRequestInvalidAuth
 }

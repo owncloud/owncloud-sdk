@@ -7,13 +7,16 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('../pactHelper.js')
+  const { capabilitiesGETRequestInvalidAuth } = require('../pactHelper.js')
 
   beforeAll(function (done) {
-    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+    const promises = []
+    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
+    Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 

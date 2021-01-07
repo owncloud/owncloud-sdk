@@ -10,7 +10,12 @@ describe('Unauthorized: Currently testing apps management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, invalidAuthHeader, unauthorizedXmlResponseBody } = require('../pactHelper.js')
+  const {
+    invalidAuthHeader,
+    unauthorizedXmlResponseBody,
+    CORSPreflightRequest,
+    capabilitiesGETRequestInvalidAuth
+  } = require('../pactHelper.js')
   const unauthorizedResponseObject = {
     status: 401,
     headers: {
@@ -25,7 +30,8 @@ describe('Unauthorized: Currently testing apps management,', function () {
   }
   beforeAll(function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
     const requiredAppMethods = ['GET', 'POST', 'DELETE']
     requiredAppMethods.forEach((method) => {
       promises.push(provider.addInteraction({
@@ -41,25 +47,11 @@ describe('Unauthorized: Currently testing apps management,', function () {
         willRespondWith: unauthorizedResponseObject
       }))
     })
-    const requiredAttributesMethodsArray = ['GET', 'POST']
-    requiredAttributesMethodsArray.forEach((method) => {
-      promises.push(provider.addInteraction({
-        uponReceiving: `a ${method} request for attributes with invalid authorization`,
-        withRequest: {
-          method: method,
-          path: Pact.Matchers.regex({
-            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/privatedata\\/.*',
-            generate: '/ocs/v1.php/privatedata/attribute/' + config.testApp
-          }),
-          headers: invalidAuthHeaderObject
-        },
-        willRespondWith: unauthorizedResponseObject
-      }))
-    })
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 

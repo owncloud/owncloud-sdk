@@ -8,8 +8,16 @@ describe('Signed urls', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, ocsMeta } = require('./pactHelper.js')
-  const { accessControlAllowHeaders, accessControlAllowMethods, validAuthHeaders, origin } = require('./pactHelper.js')
+  const { ocsMeta } = require('./pactHelper.js')
+  const {
+    accessControlAllowHeaders,
+    accessControlAllowMethods,
+    validAuthHeaders,
+    origin,
+    CORSPreflightRequest,
+    capabilitiesGETRequestValidAuth,
+    GETRequestToCloudUserEndpoint
+  } = require('./pactHelper.js')
 
   beforeEach(function (done) {
     oc = new OwnCloud({
@@ -38,7 +46,9 @@ describe('Signed urls', function () {
 
   beforeAll(async function (done) {
     const promises = []
-    promises.push(setGeneralInteractions(provider))
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
     promises.push(provider.addInteraction({
       uponReceiving: 'a GET request for a signing key',
       withRequest: {
@@ -94,15 +104,13 @@ describe('Signed urls', function () {
   }
   )
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 
   it('should allow file download with a signUrl', async function (done) {
-    const newFolder = config.testFolder
-    await oc.files.createFolder(newFolder)
-    await oc.files.putFileContents(newFolder + '/' + config.testFile, config.testContent)
-    const url = oc.files.getFileUrlV2(newFolder + '/' + config.testFile)
+    const url = oc.files.getFileUrlV2(config.testFolder + '/' + config.testFile)
     const signedUrl = await oc.signUrl(url)
     const response = await fetch(signedUrl)
     expect(response.ok).toEqual(true)

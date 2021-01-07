@@ -11,12 +11,19 @@ describe('Unauthorized: Currently testing group management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, invalidAuthHeader, unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
+  const {
+    invalidAuthHeader,
+    unauthorizedXmlResponseBody,
+    origin,
+    CORSPreflightRequest,
+    capabilitiesGETRequestInvalidAuth
+  } = require('../pactHelper.js')
 
   beforeAll(function (done) {
     const promises = []
+    promises.push(provider.addInteraction(CORSPreflightRequest()))
+    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
     const requiredAttributesForGroupInteractions = ['GET', 'POST', 'DELETE']
-    promises.push(setGeneralInteractions(provider))
     requiredAttributesForGroupInteractions.forEach(method => {
       promises.push(provider.addInteraction({
         uponReceiving: `a group ${method} request with invalid auth`,
@@ -44,7 +51,8 @@ describe('Unauthorized: Currently testing group management,', function () {
     Promise.all(promises).then(done, done.fail)
   })
 
-  afterAll(function (done) {
+  afterAll(async function (done) {
+    await provider.verify()
     provider.removeInteractions().then(done, done.fail)
   })
 

@@ -540,5 +540,8 @@ module.exports = {
   CORSPreflightRequest,
   GETSingleUserEndpoint,
   createOwncloud,
-  capabilitiesGETRequestInvalidAuth
+  capabilitiesGETRequestInvalidAuth,
+  createAUser,
+  deleteAUser,
+  createAUserWithGroupMembership
 }

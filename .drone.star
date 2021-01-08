@@ -11,12 +11,7 @@ config = {
 }
 
 def main(ctx):
-    pipelines = []
-    for i in range(10):
-        pipelines.append(fullBuild(i))
-        pipelines.append(testWithinSubFolder(i))
-    # return [ fullBuild(), testWithinSubFolder(), publish() ]
-    return pipelines
+    return [ fullBuild(), testWithinSubFolder(), publish() ]
 
 def incrementVersion():
     return [{
@@ -140,10 +135,10 @@ def publishSystem():
         }
     }]
 
-def fullBuild(part):
+def fullBuild():
     return {
         'kind': 'pipeline',
-        'name': 'Full build %s' % part,
+        'name': 'Full build',
         'platform': {
             'os': 'linux',
             'arch': 'amd64'
@@ -163,10 +158,10 @@ def fullBuild(part):
             test()
     }
 
-def testWithinSubFolder(part):
+def testWithinSubFolder():
     return {
         'kind': 'pipeline',
-        'name': 'Test within a subfolder %s' % part,
+        'name': 'Test within a subfolder',
         'platform': {
             'os': 'linux',
             'arch': 'amd64'

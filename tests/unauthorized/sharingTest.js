@@ -83,8 +83,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
 
     return oc.login().then(() => {
       fail('not expected to log in')
-    }).catch(() => {
-
+    }).catch((err) => {
+      if (err !== 'Unauthorized') {
+        throw new Error(err)
+      }
     })
   })
 

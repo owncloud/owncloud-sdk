@@ -30,8 +30,10 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
 
     return oc.login().then(() => {
       fail('not expected to log in')
-    }).catch(() => {
-
+    }).catch(err => {
+      if (err !== 'Unauthorized') {
+        throw new Error(err)
+      }
     })
   })
 

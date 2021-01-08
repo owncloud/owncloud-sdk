@@ -102,8 +102,10 @@ describe('Unauthorized: Currently testing user management,', function () {
 
     return oc.login().then(() => {
       fail('not expected to log in')
-    }).catch(() => {
-
+    }).catch((err) => {
+      if (err !== 'Unauthorized') {
+        throw new Error(err)
+      }
     })
   })
 

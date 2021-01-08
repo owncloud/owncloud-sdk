@@ -63,7 +63,7 @@ def pactLog():
             'pull': 'always',
             'detach': True,
             'commands': [
-                'mkdir -p /var/www/owncloud/owncloud-sdk/tests/test',
+                'mkdir -p /var/www/owncloud/owncloud-sdk/tests/log',
                 'touch /var/www/owncloud/owncloud-sdk/tests/log/pact.log',
                 'tail -f /var/www/owncloud/owncloud-sdk/tests/log/pact.log'
             ],

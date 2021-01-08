@@ -58,11 +58,12 @@ def buildSystem():
 
 def pactLog():
     return [{
-            'name': 'pactio logs',
+            'name': 'pact logs',
             'image': 'owncloudci/nodejs:12',
             'pull': 'always',
             'detach': True,
             'commands': [
+                'mkdir -p /var/www/owncloud/owncloud-sdk/tests/test',
                 'touch /var/www/owncloud/owncloud-sdk/tests/log/pact.log',
                 'tail -f /var/www/owncloud/owncloud-sdk/tests/log/pact.log'
             ],

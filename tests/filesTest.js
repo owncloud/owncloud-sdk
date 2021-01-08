@@ -721,7 +721,7 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  describe('TUS detection', function () {
+  xdescribe('TUS detection', function () {
     let parseBodyStub
     let xhr
     let requests

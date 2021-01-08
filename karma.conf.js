@@ -128,6 +128,7 @@ module.exports = function (config) {
       reports: ['lcovonly', 'text'],
       dir: path.join(__dirname, 'coverage'),
       fixWebpackSourcePaths: true
-    }
+    },
+    browserDisconnectTimeout: 20000,
   })
 }

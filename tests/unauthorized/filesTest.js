@@ -39,7 +39,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     generate: `/remote.php/webdav/${config.testFolder}`
   })
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
@@ -56,12 +56,11 @@ describe('Unauthorized: Currently testing files management,', function () {
       }))
     })
 
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   // TESTING CONFIGS
@@ -84,7 +83,11 @@ describe('Unauthorized: Currently testing files management,', function () {
       }
     })
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch(() => {
+
+    })
   })
 
   it('checking method : list', function (done) {

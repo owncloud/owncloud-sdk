@@ -89,7 +89,7 @@ describe('oc.publicFiles', function () {
     }
   }
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -100,12 +100,10 @@ describe('oc.publicFiles', function () {
       }
     })
 
-    oc.login().then(() => {
-      done()
-    }).catch(error => {
-      fail(error)
-      done()
-    })
+    return oc.login()
+      .catch(error => {
+        fail(error)
+      })
   })
 
   afterEach(function () {
@@ -127,8 +125,8 @@ describe('oc.publicFiles', function () {
       Promise.all(promises).then(done, done.fail)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return provider.removeInteractions()
     })
 
     using({
@@ -192,7 +190,7 @@ describe('oc.publicFiles', function () {
         // CREATED SHARES
         let testFolderShare = null
 
-        beforeAll(async function (done) {
+        beforeAll(async function () {
           const promises = [
             provider.addInteraction(CORSPreflightRequest()),
             provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -242,21 +240,19 @@ describe('oc.publicFiles', function () {
             }))
           }
 
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
-        beforeEach(async function (done) {
-          oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
+        beforeEach(function () {
+          return oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
             expect(typeof (share)).toBe('object')
             testFolderShare = share
-            done()
           }).catch(error => {
             fail(error)
-            done()
           })
         })
 
@@ -421,11 +417,11 @@ describe('oc.publicFiles', function () {
             config.testContent
           )))
 
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
         it('should create a folder', function (done) {

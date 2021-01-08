@@ -20,7 +20,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     pactCleanup
   } = require('../pactHelper.js')
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
@@ -49,12 +49,11 @@ describe('Unauthorized: Currently testing group management,', function () {
         }
       }))
     })
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   beforeEach(function () {
@@ -68,7 +67,11 @@ describe('Unauthorized: Currently testing group management,', function () {
       }
     })
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch(() => {
+
+    })
   })
 
   it('checking method : createGroup', function (done) {

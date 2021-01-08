@@ -9,15 +9,12 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
   const provider = new Pact.PactWeb()
   const { capabilitiesGETRequestInvalidAuth, pactCleanup } = require('../pactHelper.js')
 
-  beforeAll(function (done) {
-    const promises = []
-    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
-    Promise.all(promises).then(done, done.fail)
+  beforeAll(function () {
+    return provider.addInteraction(capabilitiesGETRequestInvalidAuth())
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   beforeEach(function () {
@@ -31,7 +28,11 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
       }
     })
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch(() => {
+
+    })
   })
 
   it('checking method : getCapabilities', function (done) {

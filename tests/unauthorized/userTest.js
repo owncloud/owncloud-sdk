@@ -60,7 +60,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     generate: '/ocs/v1.php/cloud/users/' + config.testUser
   })
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
@@ -79,12 +79,11 @@ describe('Unauthorized: Currently testing user management,', function () {
       'GET',
       subadminsUserEndpointPath
     )))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   // TESTING CONFIGS
@@ -101,7 +100,11 @@ describe('Unauthorized: Currently testing user management,', function () {
       }
     })
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch(() => {
+
+    })
   })
 
   it('checking method : getUser', async function (done) {

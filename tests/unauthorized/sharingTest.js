@@ -28,7 +28,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     body: unauthorizedXmlResponseBody
   }
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const url = Pact.Matchers.term({
       matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares.*',
       generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
@@ -51,12 +51,11 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
         willRespondWith: unauthorizedResponseXml
       }))
     })
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   // TESTING CONFIGS
@@ -82,7 +81,11 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       }
     })
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch(() => {
+
+    })
   })
 
   it('checking method : shareFileWithLink', function (done) {

@@ -17,23 +17,21 @@ describe('Main: Currently testing low level OCS', function () {
     pactCleanup
   } = require('./pactHelper.js')
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
     promises.push(provider.addInteraction(CORSPreflightRequest()))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterEach(async function (done) {
+  afterEach(async function () {
     oc.logout()
     oc = null
-    done()
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('checking : capabilities', async function (done) {

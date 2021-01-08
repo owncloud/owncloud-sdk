@@ -20,7 +20,7 @@ describe('Signed urls', function () {
     pactCleanup
   } = require('./pactHelper.js')
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -31,12 +31,10 @@ describe('Signed urls', function () {
       }
     })
 
-    oc.login().then(status => {
+    return oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
     }).catch(error => {
       expect(error).toBe(null)
-      done()
     })
   })
 
@@ -45,7 +43,7 @@ describe('Signed urls', function () {
     oc = null
   })
 
-  beforeAll(async function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
@@ -101,13 +99,12 @@ describe('Signed urls', function () {
       }
     })
     )
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   }
   )
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('should allow file download with a signUrl', async function (done) {

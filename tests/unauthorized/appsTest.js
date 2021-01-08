@@ -29,7 +29,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     authorization: invalidAuthHeader,
     Origin: origin
   }
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
@@ -48,12 +48,11 @@ describe('Unauthorized: Currently testing apps management,', function () {
         willRespondWith: unauthorizedResponseObject
       }))
     })
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   beforeEach(function () {
@@ -67,7 +66,11 @@ describe('Unauthorized: Currently testing apps management,', function () {
       }
     })
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch(() => {
+
+    })
   })
 
   it('checking method : getApps', function (done) {

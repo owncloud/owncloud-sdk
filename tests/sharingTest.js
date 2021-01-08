@@ -69,7 +69,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   }
 
   describe('Currently testing folder sharing,', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       oc = new OwnCloud({
         baseUrl: config.owncloudURL,
         auth: {
@@ -80,9 +80,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         }
       })
 
-      oc.login().then(() => {
-        done()
-      })
+      return oc.login()
     })
 
     afterEach(function () {
@@ -125,17 +123,17 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('sharedFolder,', function () {
       // needs to be double checked ...
       describe('updating share permissions,', function () {
-        beforeAll(async function (done) {
+        beforeAll(function () {
           const promises = []
           promises.push(setGeneralInteractions(provider))
           promises.push(provider.addInteraction(
             aGetRequestForPublicLinkShare('to confirm the permissions is not changed', 1, ''))
           )
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
         it('confirms not changed permissions', function (done) {
@@ -152,18 +150,18 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       // needs to be double checked
       describe('making publicUpload true,', function () {
-        beforeAll(async function (done) {
+        beforeAll(function () {
           const promises = []
           promises.push(setGeneralInteractions(provider))
           promises.push(provider.addInteraction(
             aGetRequestForPublicLinkShare('after making publicupload true', 15, ''))
           )
 
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
         it('confirms publicUpload true', function (done) {
@@ -180,7 +178,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       // needs to be double checked
       describe('adding password,', function () {
-        beforeAll(async function (done) {
+        beforeAll(function () {
           const additionalBodyElement = '  <share_with>***redacted***</share_with>\n' +
                   '  <share_with_displayname>***redacted***</share_with_displayname>\n'
 
@@ -189,11 +187,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
           promises.push(provider.addInteraction(
             aGetRequestForPublicLinkShare('after password is added', 1, additionalBodyElement))
           )
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
         it('confirms added password', function (done) {
@@ -211,7 +209,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   })
 
   describe('Currently testing file sharing,', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       const promises = []
       promises.push(setGeneralInteractions(provider))
       promises.push(provider.addInteraction({
@@ -432,14 +430,14 @@ describe('Main: Currently testing file/folder sharing,', function () {
         )
       }
 
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterEach(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterEach(function () {
+      return provider.removeInteractions()
     })
 
-    beforeEach(function (done) {
+    beforeEach(function () {
       oc = new OwnCloud({
         baseUrl: config.owncloudURL,
         auth: {
@@ -449,23 +447,21 @@ describe('Main: Currently testing file/folder sharing,', function () {
           }
         }
       })
-      oc.login().then(() => {
-        done()
-      })
+      return oc.login()
     })
 
     describe('sharedFilesByLink,', function () {
-      beforeEach(async function (done) {
+      beforeEach(function () {
         const promises = []
         for (let i = 0; i < config.testFiles.length; i++) {
           promises.push(provider.addInteraction(aGetRequestForAShareWithShareName('public link share',
             3, i)))
         }
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterEach(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterEach(function () {
+        return provider.removeInteractions()
       })
 
       describe('checking the shared files,', function () {
@@ -534,22 +530,22 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     describe('sharedFilesWithUser,', function () {
-      beforeEach(async function (done) {
+      beforeEach(function () {
         const promises = []
         for (let i = 0; i < config.testFiles.length; i++) {
           promises.push(provider.addInteraction(aGetRequestForAShareWithShareName(
             'user share ', 0, i)))
         }
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterEach(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterEach(function () {
+        return provider.removeInteractions()
       })
 
       describe('updating permissions', function () {
-        afterEach(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterEach(function () {
+          return provider.removeInteractions()
         })
 
         it('confirms updated permissions', function (done) {
@@ -637,17 +633,17 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     describe('sharedFilesWithGroup,', function () {
-      beforeEach(async function (done) {
+      beforeEach(function () {
         const promises = []
         for (let i = 0; i < config.testFiles.length; i++) {
           promises.push(provider.addInteraction(aGetRequestForAShareWithShareName(
             'group share ', 1, i)))
         }
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterEach(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterEach(function () {
+        return provider.removeInteractions()
       })
 
       it('checking method : isShared with shared file', function (done) {

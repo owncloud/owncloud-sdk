@@ -18,7 +18,8 @@ describe('oc.fileTrash', function () {
 
     CORSPreflightRequest,
     GETRequestToCloudUserEndpoint,
-    capabilitiesGETRequestValidAuth
+    capabilitiesGETRequestValidAuth,
+    pactCleanup
   } = require('./pactHelper.js')
   const deletedFolderId = '2147596415'
   const deletedFileId = '2147596419'
@@ -128,7 +129,7 @@ describe('oc.fileTrash', function () {
     }
   }
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -139,36 +140,33 @@ describe('oc.fileTrash', function () {
       }
     })
 
-    oc.login().then(status => {
+    return oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
     }).catch(error => {
       fail(error)
-      done()
     })
   })
+
   afterEach(function (done) {
     oc.logout()
     oc = null
     done()
   })
 
-  afterAll(function (done) {
-    provider.verify().then(done, done.fail)
-  })
-
   describe('when deleting files and folders', function () {
-    beforeAll(function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+
+    afterAll(function () {
+      return pactCleanup(provider)
     })
+
     it('should have the trashbin capability set', function (done) {
       if (!trashEnabled) {
         pending()
@@ -184,7 +182,7 @@ describe('oc.fileTrash', function () {
   })
 
   describe('and when empty', function () {
-    beforeAll(function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -203,11 +201,11 @@ describe('oc.fileTrash', function () {
           body: trashbinXmlResponseBody()
         }
       }))
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('should list no items ', function (done) {
@@ -227,7 +225,7 @@ describe('oc.fileTrash', function () {
     const testFile = testFolder + '/' + config.testFile
 
     describe('and folder is not restored', function () {
-      beforeAll(function (done) {
+      beforeAll(function () {
         const promises = [
           provider.addInteraction(CORSPreflightRequest()),
           provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -285,11 +283,11 @@ describe('oc.fileTrash', function () {
               '</d:multistatus>'
           }
         }))
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterAll(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterAll(function () {
+        return pactCleanup(provider)
       })
 
       it('should list a deleted folder', function (done) {
@@ -322,7 +320,7 @@ describe('oc.fileTrash', function () {
 
     describe('and when this deleted folder is restored to its original location', function () {
       const originalLocation = testFolder
-      beforeAll(function (done) {
+      beforeAll(function () {
         const promises = [
           provider.addInteraction(CORSPreflightRequest()),
           provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -385,11 +383,11 @@ describe('oc.fileTrash', function () {
               '</d:multistatus>'
           }
         }))
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterAll(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterAll(function () {
+        return pactCleanup(provider)
       })
 
       it('should list the folder in the original location and no longer in trash-bin', function (done) {
@@ -412,7 +410,7 @@ describe('oc.fileTrash', function () {
     describe('and when this deleted folder is restored to a different location', function () {
       const originalLocation = testFolder + ' (restored to a different location)'
 
-      beforeAll(function (done) {
+      beforeAll(function () {
         const promises = [
           provider.addInteraction(CORSPreflightRequest()),
           provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -475,10 +473,11 @@ describe('oc.fileTrash', function () {
               '</d:multistatus>'
           }
         }))
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
-      afterAll(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+
+      afterAll(function () {
+        return pactCleanup(provider)
       })
 
       it('should list the folder in the different location and no longer in trash-bin', function (done) {
@@ -504,7 +503,7 @@ describe('oc.fileTrash', function () {
     const testFile = config.testFile
 
     describe('and file is not restored', function () {
-      beforeAll(function (done) {
+      beforeAll(function () {
         const promises = [
           provider.addInteraction(CORSPreflightRequest()),
           provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -554,11 +553,11 @@ describe('oc.fileTrash', function () {
               '</d:multistatus>'
           }
         }))
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterAll(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterAll(function () {
+        return pactCleanup(provider)
       })
 
       it('should list the deleted file', function (done) {
@@ -576,7 +575,7 @@ describe('oc.fileTrash', function () {
 
     describe('and when this deleted file is restored to its original location', function () {
       const originalLocation = testFile
-      beforeAll(function (done) {
+      beforeAll(function () {
         const promises = [
           provider.addInteraction(CORSPreflightRequest()),
           provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -635,12 +634,13 @@ describe('oc.fileTrash', function () {
               '</d:multistatus>'
           }
         }))
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterAll(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterAll(function () {
+        return pactCleanup(provider)
       })
+
       it('should list the folder in the original location and no longer in trash-bin', function (done) {
         oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
           oc.fileTrash.list('/').then(trashItems => {
@@ -661,7 +661,7 @@ describe('oc.fileTrash', function () {
     describe('and when this deleted file is restored to a different location', function () {
       const originalLocation = 'file (restored to a different location).txt'
 
-      beforeAll(function (done) {
+      beforeAll(function () {
         const promises = [
           provider.addInteraction(CORSPreflightRequest()),
           provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -729,11 +729,11 @@ describe('oc.fileTrash', function () {
               '</d:multistatus>'
           }
         }))
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterAll(function (done) {
-        provider.removeInteractions().then(done, done.fail)
+      afterAll(function () {
+        return pactCleanup(provider)
       })
 
       it('should list the folder in the different location and no longer in trash-bin', function (done) {

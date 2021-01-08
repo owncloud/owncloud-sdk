@@ -14,23 +14,21 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     pactCleanup
   } = require('./pactHelper.js')
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterEach(async function (done) {
+  afterEach(function () {
     oc.logout()
     oc = null
-    done()
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('checking method : getConfig', async function (done) {

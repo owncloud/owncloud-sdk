@@ -10,7 +10,7 @@ describe('Main: Currently testing group management,', function () {
   const provider = new Pact.PactWeb()
   const { validAuthHeaders, xmlResponseHeaders, ocsMeta, applicationXmlResponseHeaders, CORSPreflightRequest, pactCleanup } = require('./pactHelper.js')
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -20,10 +20,9 @@ describe('Main: Currently testing group management,', function () {
         }
       }
     })
-    done()
   })
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction({
@@ -119,12 +118,11 @@ describe('Main: Currently testing group management,', function () {
           '</ocs>'
       }
     }))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('checking method : getGroups', function (done) {

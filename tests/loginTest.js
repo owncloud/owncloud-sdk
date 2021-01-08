@@ -16,12 +16,12 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   const provider = new Pact.PactWeb()
   const { setGeneralInteractions } = require('./pactHelper.js')
 
-  beforeAll(function (done) {
-    Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+  beforeAll(function () {
+    return setGeneralInteractions(provider)
   })
 
-  afterAll(function (done) {
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return provider.removeInteractions()
   })
 
   beforeEach(function () {

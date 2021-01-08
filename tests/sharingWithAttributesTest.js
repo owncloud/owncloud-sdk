@@ -39,7 +39,7 @@ describe('oc.shares', function () {
     return response
   }
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
@@ -69,15 +69,14 @@ describe('oc.shares', function () {
           '</ocs>'
       }
     }))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: owncloudURL,
       auth: {
@@ -87,9 +86,7 @@ describe('oc.shares', function () {
         }
       }
     })
-    oc.login().then(() => {
-      done()
-    })
+    return oc.login()
   })
 
   it('shall share with permissions in attributes', function (done) {

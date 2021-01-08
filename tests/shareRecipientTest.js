@@ -17,20 +17,19 @@ describe('Main: Currently testing share recipient,', function () {
     pactCleanup
   } = require('./pactHelper.js')
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -41,9 +40,7 @@ describe('Main: Currently testing share recipient,', function () {
       }
     })
 
-    oc.login().then(() => {
-      done()
-    })
+    return oc.login()
   })
 
   it('testing behavior : invalid page', function (done) {

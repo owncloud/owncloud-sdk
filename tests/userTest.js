@@ -205,7 +205,7 @@ describe('Main: Currently testing user management,', function () {
     }
   }
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
@@ -316,15 +316,14 @@ describe('Main: Currently testing user management,', function () {
       ' <data/>\n' +
       '</ocs>\n'
     )))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    pactCleanup(provider)
-      .then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
-  beforeEach(function (done) {
+  beforeEach(function () {
     oc = new OwnCloud({
       baseUrl: config.owncloudURL,
       auth: {
@@ -335,9 +334,8 @@ describe('Main: Currently testing user management,', function () {
       }
     })
 
-    oc.login().then(status => {
+    return oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
     })
   })
 

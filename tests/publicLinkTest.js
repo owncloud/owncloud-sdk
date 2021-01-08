@@ -12,10 +12,12 @@ describe('oc.publicFiles', function () {
   const {
     validAuthHeaders,
     origin,
-    setGeneralInteractions,
     ocsMeta,
     xmlResponseAndAccessControlCombinedHeader,
-    htmlResponseAndAccessControlCombinedHeader
+    htmlResponseAndAccessControlCombinedHeader,
+    CORSPreflightRequest,
+    capabilitiesGETRequestValidAuth,
+    GETRequestToCloudUserEndpoint
   } = require('./pactHelper.js')
   const provider = new Pact.PactWeb()
 
@@ -111,9 +113,18 @@ describe('oc.publicFiles', function () {
     oc = null
   })
 
+  afterAll(function (done) {
+    provider.verify().then(done, done.fail)
+  })
+
   describe('when creating file urls', function () {
     beforeAll(function (done) {
-      Promise.all(setGeneralInteractions(provider)).then(done, done.fail)
+      const promises = [
+        provider.addInteraction(CORSPreflightRequest()),
+        provider.addInteraction(capabilitiesGETRequestValidAuth()),
+        provider.addInteraction(GETRequestToCloudUserEndpoint())
+      ]
+      Promise.all(promises).then(done, done.fail)
     })
 
     afterAll(function (done) {
@@ -182,8 +193,11 @@ describe('oc.publicFiles', function () {
         let testFolderShare = null
 
         beforeAll(async function (done) {
-          const promises = []
-          promises.push(setGeneralInteractions(provider))
+          const promises = [
+            provider.addInteraction(CORSPreflightRequest()),
+            provider.addInteraction(capabilitiesGETRequestValidAuth()),
+            provider.addInteraction(GETRequestToCloudUserEndpoint())
+          ]
           promises.push(provider.addInteraction(createDeletePublicShare(
             'create a public link share',
             'POST',
@@ -363,8 +377,11 @@ describe('oc.publicFiles', function () {
     }, function (data, description) {
       describe(description, function () {
         beforeAll(function (done) {
-          const promises = []
-          promises.push(setGeneralInteractions(provider))
+          const promises = [
+            provider.addInteraction(CORSPreflightRequest()),
+            provider.addInteraction(capabilitiesGETRequestValidAuth()),
+            provider.addInteraction(GETRequestToCloudUserEndpoint())
+          ]
           promises.push(provider.addInteraction(createDeletePublicShare(
             'delete public link share',
             'DELETE',

@@ -58,7 +58,7 @@ def buildSystem():
 
 def pactLog():
     return [{
-            'name': 'build-system',
+            'name': 'pactio logs',
             'image': 'owncloudci/nodejs:12',
             'pull': 'always',
             'detach': True,

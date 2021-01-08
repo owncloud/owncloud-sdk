@@ -25,7 +25,7 @@ describe('Main: Currently testing low level OCS', function () {
     return Promise.all(promises)
   })
 
-  afterEach(async function () {
+  afterEach(function () {
     oc.logout()
     oc = null
   })

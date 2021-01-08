@@ -111,18 +111,18 @@ describe('oc.publicFiles', function () {
     oc = null
   })
 
-  afterAll(function (done) {
-    provider.verify().then(done, done.fail)
+  afterAll(function () {
+    return provider.verify()
   })
 
   describe('when creating file urls', function () {
-    beforeAll(function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises).then(done, done.fail)
+      Promise.all(promises)
     })
 
     afterAll(function () {
@@ -190,7 +190,7 @@ describe('oc.publicFiles', function () {
         // CREATED SHARES
         let testFolderShare = null
 
-        beforeAll(async function () {
+        beforeAll(function () {
           const promises = [
             provider.addInteraction(CORSPreflightRequest()),
             provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -372,7 +372,7 @@ describe('oc.publicFiles', function () {
       }
     }, function (data, description) {
       describe(description, function () {
-        beforeAll(function (done) {
+        beforeAll(function () {
           const promises = [
             provider.addInteraction(CORSPreflightRequest()),
             provider.addInteraction(capabilitiesGETRequestValidAuth()),

@@ -147,10 +147,9 @@ describe('oc.fileTrash', function () {
     })
   })
 
-  afterEach(function (done) {
+  afterEach(function () {
     oc.logout()
     oc = null
-    done()
   })
 
   describe('when deleting files and folders', function () {

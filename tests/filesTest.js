@@ -726,7 +726,7 @@ describe('Main: Currently testing files management,', function () {
     let xhr
     let requests
 
-    beforeAll(async function () {
+    beforeAll(function () {
       const promises = []
       promises.concat([
         provider.addInteraction(CORSPreflightRequest()),
@@ -818,7 +818,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('move existent file into same folder, different name', function () {
-    beforeAll(async function () {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -853,7 +853,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('copy existent file', function () {
-    beforeAll(async function () {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),

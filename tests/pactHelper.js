@@ -1,14 +1,16 @@
+import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import { Matchers } from '@pact-foundation/pact'
 const config = require('./config/config.json')
-const validUserPasswordHash = btoa(config.username + ':' + config.password)
+var validUserPasswordHash = Buffer.from(config.username + ':' + config.password, 'binary').toString('base64')
+
+const path = require('path')
 const OwnCloud = require('../src/owncloud')
-const Pact = require('@pact-foundation/pact-web')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE,HEAD,LOCK,UNLOCK'
 const origin = 'http://localhost:9876'
 const validAuthHeaders = {
-  authorization: 'Basic ' + validUserPasswordHash,
-  Origin: origin
+  authorization: 'Basic ' + validUserPasswordHash
 }
 
 const testSubFiles = [
@@ -55,16 +57,14 @@ const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {
 }
 
 const applicationXmlResponseHeaders = {
-  'Content-Type': 'application/xml; charset=utf-8',
-  'Access-Control-Allow-Origin': origin
+  'Content-Type': 'application/xml; charset=utf-8'
 }
 
 const xmlResponseHeaders = {
-  'Content-Type': 'text/xml; charset=utf-8',
-  'Access-Control-Allow-Origin': origin
+  'Content-Type': 'text/xml; charset=utf-8'
 }
 
-const invalidAuthHeader = Pact.Matchers.term({
+const invalidAuthHeader = Matchers.term({
   matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
   generate: 'Basic bm9uRXhpc3RpbmdVc2VycnByeXJxOHg2OmNvbmZpZy5wYXNzd29yZHJwcnlycTh4Ng=='
 })
@@ -87,7 +87,6 @@ const xmlResponseAndAccessControlCombinedHeader = {
 
 const htmlResponseAndAccessControlCombinedHeader = {
   'Content-Type': 'text/html; charset=utf-8',
-  'Access-Control-Allow-Origin': origin,
   'Access-Control-Allow-Headers': accessControlAllowHeaders,
   'Access-Control-Allow-Methods': accessControlAllowMethods
 }
@@ -108,10 +107,19 @@ const webdavExceptionResponseBody = (exception, message) => '<?xml version="1.0"
   `  <s:message>${message}</s:message>\n` +
   '</d:error>'
 
-const webdavPath = resource => Pact.Matchers.regex({
+const webdavPath = resource => Matchers.regex({
   matcher: '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
   generate: `/remote.php/webdav/${resource}`
 })
+
+const createProvider = function () {
+  return new PactV3({
+    consumer: 'owncloud-sdk',
+    provider: 'oc-server',
+    port: 1234,
+    dir: path.resolve(process.cwd(), 'tests', 'pacts')
+  })
+}
 
 const createOwncloud = function (username = config.username, password = config.password) {
   const oc = new OwnCloud({
@@ -181,61 +189,50 @@ const deleteResource = (resource, type = 'folder') => {
   }
 }
 
-const GETRequestToCloudUserEndpoint = function () {
-  return {
-    uponReceiving: 'a GET request to the cloud user endpoint',
-    withRequest: {
+async function GETRequestToCloudUserEndpoint (provider) {
+  await provider
+    .uponReceiving('a GET request to the cloud user endpoint')
+    .withRequest({
       method: 'GET',
-      path: Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/user$',
-        generate: '/ocs/v1.php/cloud/user'
-      }),
+      path: MatchersV3.regex(
+        /.*\/ocs\/v(1|2)\.php\/cloud\/user$/,
+        '/ocs/v1.php/cloud/user'
+      ),
       headers: validAuthHeaders
-    },
-    willRespondWith: {
+    })
+    .willRespondWith({
       status: 200,
       headers: applicationXmlResponseHeaders,
-      body: Pact.Matchers.term({
-        matcher: '<\\?xml version="1\\.0"\\?>\\s' +
-          '<ocs>\\s' +
-          ocsMeta('ok', 100, 'OK') +
-          ' <data>\\s' +
-          '  <id>admin<\\/id>\\s' +
-          '  <display-name>admin<\\/display-name>\\s' +
-          '  <email><\\/email>\\s.*' +
-          ' <\\/data>\\s' +
-          '<\\/ocs>',
-        generate: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', 100, 'OK') +
-          ' <data>\n' +
-          '  <id>admin</id>\n' +
-          '  <display-name>admin</display-name>\n' +
-          '  <email></email>\n' +
-          ' </data>\n' +
-          '</ocs>'
+      body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+        ocs.appendElement('meta', '', (meta) => {
+          meta.appendElement('status', '', 'ok')
+            .appendElement('statuscode', '', '100')
+            .appendElement('message', '', 'OK')
+        }).appendElement('data', '', (data) => {
+          data.appendElement('id', '', 'admin')
+          data.appendElement('display-name', '', 'admin')
+          data.appendElement('email', '', '')
+        })
       })
-    }
-  }
+    })
 }
 
-const capabilitiesGETRequestValidAuth = function () {
-  return {
-    uponReceiving: 'a capabilities GET request with valid authentication',
-    withRequest: {
+async function capabilitiesGETRequestValidAuth (provider) {
+  await provider
+    .uponReceiving('a capabilities GET request with valid authentication')
+    .withRequest({
       method: 'GET',
-      path: Pact.Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
-        generate: '/ocs/v1.php/cloud/capabilities'
-      }),
-      query: 'format=json',
+      path: MatchersV3.regex(
+        /.*\/ocs\/v(1|2)\.php\/cloud\/capabilities/,
+        '/ocs/v1.php/cloud/capabilities'
+      ),
+      query: { format: 'json' },
       headers: validAuthHeaders
-    },
-    willRespondWith: {
+    })
+    .willRespondWith({
       status: 200,
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: {
         ocs: {
@@ -245,13 +242,13 @@ const capabilitiesGETRequestValidAuth = function () {
             message: 'OK'
           },
           data: {
-            version: Pact.Matchers.like({
-              major: 10,
-              minor: 5,
-              micro: 1,
-              string: '10.5.1alpha1',
-              edition: 'Enterprise'
-            }),
+            version: {
+              major: MatchersV3.integer(10),
+              minor: MatchersV3.integer(5),
+              micro: MatchersV3.integer(1),
+              string: MatchersV3.string('10.5.1alpha1'),
+              edition: MatchersV3.string('Enterprise')
+            },
             capabilities: {
               files: {
                 privateLinks: true,
@@ -273,35 +270,7 @@ const capabilitiesGETRequestValidAuth = function () {
           }
         }
       }
-    }
-  }
-}
-
-const CORSPreflightRequest = function () {
-  return {
-    uponReceiving: 'any CORS preflight request',
-    withRequest: {
-      method: 'OPTIONS',
-      path: Pact.Matchers.regex({
-        matcher: '.*',
-        generate: '/ocs/v1.php/cloud/capabilities'
-      }),
-      headers: {
-        'Access-Control-Request-Method': Pact.Matchers.regex({
-          matcher: 'GET|POST|PUT|DELETE|MKCOL|PROPFIND|MOVE|COPY|REPORT|PROPPATCH',
-          generate: 'GET'
-        })
-      }
-    },
-    willRespondWith: {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': accessControlAllowHeaders,
-        'Access-Control-Allow-Methods': accessControlAllowMethods
-      }
-    }
-  }
+    })
 }
 
 const GETSingleUserEndpoint = function () {
@@ -309,7 +278,7 @@ const GETSingleUserEndpoint = function () {
     uponReceiving: 'a single user GET request to the cloud users endpoint',
     withRequest: {
       method: 'GET',
-      path: Pact.Matchers.term({
+      path: Matchers.term({
         matcher: '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
         generate: '/ocs/v2.php/cloud/users/' + config.testUser
       }),
@@ -343,7 +312,7 @@ const capabilitiesGETRequestInvalidAuth = function () {
     uponReceiving: 'a capabilities GET request with invalid authentication',
     withRequest: {
       method: 'GET',
-      path: Pact.Matchers.term({
+      path: Matchers.term({
         matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
         generate: '/ocs/v1.php/cloud/capabilities'
       }),
@@ -377,7 +346,7 @@ const createAUser = function () {
     uponReceiving: 'a create user request',
     withRequest: {
       method: 'POST',
-      path: Pact.Matchers.regex({
+      path: Matchers.regex({
         matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users',
         generate: '/ocs/v1.php/cloud/users'
       }),
@@ -398,7 +367,7 @@ const createAUserWithGroupMembership = function () {
     uponReceiving: 'a create user request including group membership',
     withRequest: {
       method: 'POST',
-      path: Pact.Matchers.term({
+      path: Matchers.term({
         matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users',
         generate: '/ocs/v1.php/cloud/users'
       }),
@@ -422,7 +391,7 @@ const deleteAUser = function () {
     uponReceiving: 'a request to delete a user',
     withRequest: {
       method: 'DELETE',
-      path: Pact.Matchers.term({
+      path: Matchers.term({
         matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
         generate: '/ocs/v1.php/cloud/users/' + config.testUser
       }),
@@ -445,7 +414,7 @@ const createAFolder = function () {
     uponReceiving: 'successfully create a folder',
     withRequest: {
       method: 'MKCOL',
-      path: Pact.Matchers.term({
+      path: Matchers.term({
         // accept any request to testfolder and any subfolders except notExistentDir
         matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '\\/(?!' + config.nonExistentDir + ').*\\/?',
         generate: '/remote.php/webdav/' + config.testFolder + '/'
@@ -486,7 +455,6 @@ const updateFile = function (file) {
 function setGeneralInteractions (provider) {
   const promises = []
 
-  promises.push(provider.addInteraction(CORSPreflightRequest()))
   promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
   promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
   promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
@@ -549,9 +517,9 @@ module.exports = {
   htmlResponseAndAccessControlCombinedHeader,
   capabilitiesGETRequestValidAuth,
   GETRequestToCloudUserEndpoint,
-  CORSPreflightRequest,
   GETSingleUserEndpoint,
   createOwncloud,
+  createProvider,
   capabilitiesGETRequestInvalidAuth,
   createAUser,
   createAUserWithGroupMembership,

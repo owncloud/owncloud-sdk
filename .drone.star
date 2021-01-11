@@ -82,7 +82,7 @@ def prepareTestConfig(subFolderPath = '/'):
 def test():
     return [{
         'name': 'test',
-        'image': 'owncloudci/chromium',
+        'image': 'owncloudci/nodejs:12',
         'pull': 'always',
         'commands': [
             'yarn test-drone'

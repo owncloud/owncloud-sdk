@@ -5,7 +5,7 @@ module.exports = function (config) {
     client: {
       jasmine: {
         random: false,
-        timeoutInterval: 30000
+        timeoutInterval: 10000
       },
       captureConsole: true,
 
@@ -16,9 +16,9 @@ module.exports = function (config) {
       }
     },
 
-    browserDisconnectTolerance: 3, // maximum number of tries a browser will attempt in the case of a disconnection
-    browserNoActivityTimeout: 60000,
-    browserDisconnectTimeout: 60000,
+    // browserDisconnectTolerance: 3, // maximum number of tries a browser will attempt in the case of a disconnection
+    // browserNoActivityTimeout: 60000,
+    // browserDisconnectTimeout: 60000,
     
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',

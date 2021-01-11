@@ -1,5 +1,4 @@
 describe('Unauthorized: Currently testing group management,', function () {
-  var OwnCloud = require('../../src')
   var config = require('../config/config.json')
 
   // CURRENT TIME
@@ -17,7 +16,8 @@ describe('Unauthorized: Currently testing group management,', function () {
     origin,
     CORSPreflightRequest,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
 
   beforeAll(function () {
@@ -57,15 +57,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   })
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password + timeRightNow
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
     return oc.login().then(() => {
       fail('not expected to log in')

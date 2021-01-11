@@ -1,5 +1,4 @@
 describe('Main: Currently testing user management,', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -16,7 +15,8 @@ describe('Main: Currently testing user management,', function () {
     createAUser,
     deleteAUser,
     createAUserWithGroupMembership,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
   const { accessControlAllowMethods, validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
@@ -324,15 +324,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+    oc = createOwncloud()
 
     return oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })

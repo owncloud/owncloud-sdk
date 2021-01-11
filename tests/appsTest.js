@@ -1,5 +1,4 @@
 describe('Main: Currently testing apps management,', function () {
-  const OwnCloud = require('../src/owncloud')
   const utf8 = require('utf8')
   const config = require('./config/config.json')
 
@@ -19,7 +18,8 @@ describe('Main: Currently testing apps management,', function () {
     GETRequestToCloudUserEndpoint,
     ocsMeta,
     xmlResponseHeaders,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
   const responseBody = function (data) {
@@ -139,21 +139,8 @@ describe('Main: Currently testing apps management,', function () {
   })
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
-
-    return oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-    }).catch(error => {
-      expect(error).toBe(null)
-    })
+    oc = createOwncloud()
+    return oc.login()
   })
 
   afterEach(function () {

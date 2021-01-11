@@ -1,5 +1,4 @@
 describe('Main: Currently testing group management,', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -8,18 +7,10 @@ describe('Main: Currently testing group management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { validAuthHeaders, xmlResponseHeaders, ocsMeta, applicationXmlResponseHeaders, CORSPreflightRequest, pactCleanup } = require('./pactHelper.js')
+  const { validAuthHeaders, xmlResponseHeaders, ocsMeta, applicationXmlResponseHeaders, CORSPreflightRequest, pactCleanup, createOwncloud } = require('./pactHelper.js')
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+    oc = createOwncloud()
   })
 
   beforeAll(function () {

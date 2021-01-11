@@ -1,5 +1,4 @@
 describe('Signed urls', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -8,7 +7,7 @@ describe('Signed urls', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { ocsMeta } = require('./pactHelper.js')
+  const { ocsMeta, createOwncloud } = require('./pactHelper.js')
   const {
     accessControlAllowHeaders,
     accessControlAllowMethods,
@@ -21,15 +20,7 @@ describe('Signed urls', function () {
   } = require('./pactHelper.js')
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+    oc = createOwncloud()
 
     return oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })

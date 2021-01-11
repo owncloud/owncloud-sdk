@@ -1,7 +1,6 @@
 describe('Unauthorized: Currently testing apps management,', function () {
   // CURRENT TIME
   const timeRightNow = new Date().getTime()
-  const OwnCloud = require('../../src')
   const config = require('../config/config.json')
 
   // LIBRARY INSTANCE
@@ -15,7 +14,8 @@ describe('Unauthorized: Currently testing apps management,', function () {
     unauthorizedXmlResponseBody,
     CORSPreflightRequest,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
   const unauthorizedResponseObject = {
     status: 401,
@@ -56,15 +56,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   })
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password + timeRightNow
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
     return oc.login().then(() => {
       fail('not expected to log in')

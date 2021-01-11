@@ -1,5 +1,4 @@
 describe('Main: Currently testing share recipient,', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -14,7 +13,8 @@ describe('Main: Currently testing share recipient,', function () {
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
   beforeAll(function () {
@@ -30,15 +30,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+    oc = createOwncloud()
 
     return oc.login()
   })

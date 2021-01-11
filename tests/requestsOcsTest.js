@@ -35,7 +35,8 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : capabilities', async function (done) {
-    oc = await createOwncloud()
+    oc = createOwncloud()
+    await oc.login()
     oc.requests.ocs({
       service: 'cloud',
       action: 'capabilities'
@@ -61,7 +62,8 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : error behavior', async function (done) {
-    oc = await createOwncloud()
+    oc = createOwncloud()
+    await oc.login()
     await provider.addInteraction({
       uponReceiving: 'an update request for an unknown user',
       withRequest: {
@@ -107,7 +109,8 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : PUT email', async function (done) {
-    oc = await createOwncloud()
+    oc = createOwncloud()
+    await oc.login()
     await provider.addInteraction({
       uponReceiving: 'an update user request that sets email',
       given (providerState) {

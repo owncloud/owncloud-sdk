@@ -1,5 +1,4 @@
 describe('oc.fileTrash', function () {
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -19,7 +18,8 @@ describe('oc.fileTrash', function () {
     CORSPreflightRequest,
     GETRequestToCloudUserEndpoint,
     capabilitiesGETRequestValidAuth,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
   const deletedFolderId = '2147596415'
   const deletedFileId = '2147596419'
@@ -130,21 +130,8 @@ describe('oc.fileTrash', function () {
   }
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
-
-    return oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-    }).catch(error => {
-      fail(error)
-    })
+    oc = createOwncloud()
+    return oc.login()
   })
 
   afterEach(function () {

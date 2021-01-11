@@ -1,6 +1,5 @@
 describe('Main: Currently testing files management,', function () {
   const FileInfo = require('../src/fileInfo')
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
   const sinon = require('sinon')
 
@@ -25,11 +24,12 @@ describe('Main: Currently testing files management,', function () {
     capabilitiesGETRequestValidAuth,
     createAFolder,
     updateFile,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
-  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL, username, password } = config
+  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL } = config
   const testSubDir = testFolder + '/' + 'subdir'
 
   const aMoveRequest = function (name, header, response) {
@@ -194,21 +194,8 @@ describe('Main: Currently testing files management,', function () {
   }
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: owncloudURL,
-      auth: {
-        basic: {
-          username: username,
-          password: password
-        }
-      }
-    })
-
-    return oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-    }).catch(error => {
-      expect(error).toBe(null)
-    })
+    oc = createOwncloud()
+    return oc.login()
   })
 
   afterEach(function () {

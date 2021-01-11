@@ -1,5 +1,4 @@
 describe('oc.shares', function () {
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -15,11 +14,12 @@ describe('oc.shares', function () {
     shareResponseOcsData,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
-  const { testUser, testFile, owncloudURL, username, password } = config
+  const { testUser, testFile } = config
   const shareAttributes = {
     attributes: [
       { scope: 'ownCloud', key: 'read', value: 'true' },
@@ -76,16 +76,8 @@ describe('oc.shares', function () {
     return pactCleanup(provider)
   })
 
-  beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: owncloudURL,
-      auth: {
-        basic: {
-          username: username,
-          password: password
-        }
-      }
-    })
+  beforeEach(async function () {
+    oc = createOwncloud()
     return oc.login()
   })
 

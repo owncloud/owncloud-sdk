@@ -1,13 +1,14 @@
 describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
-  const OwnCloud = require('../../src')
   const config = require('../config/config.json')
+  var timeRightNow = new Date().getTime()
+
   // LIBRARY INSTANCE
   let oc
 
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { capabilitiesGETRequestInvalidAuth, pactCleanup } = require('../pactHelper.js')
+  const { capabilitiesGETRequestInvalidAuth, pactCleanup, createOwncloud } = require('../pactHelper.js')
 
   beforeAll(function () {
     return provider.addInteraction(capabilitiesGETRequestInvalidAuth())
@@ -18,15 +19,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
   })
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password + new Date().getTime()
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
     return oc.login().then(() => {
       fail('not expected to log in')

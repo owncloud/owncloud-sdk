@@ -1,5 +1,4 @@
 describe('Main: Currently testing file/folder sharing,', function () {
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -8,7 +7,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { setGeneralInteractions, ocsMeta, shareResponseOcsData, applicationXmlResponseHeaders } = require('./pactHelper.js')
+  const { setGeneralInteractions, ocsMeta, shareResponseOcsData, applicationXmlResponseHeaders, createOwncloud } = require('./pactHelper.js')
   const { accessControlAllowHeaders, accessControlAllowMethods, validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -70,16 +69,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   describe('Currently testing folder sharing,', function () {
     beforeEach(function () {
-      oc = new OwnCloud({
-        baseUrl: config.owncloudURL,
-        auth: {
-          basic: {
-            username: config.username,
-            password: config.password
-          }
-        }
-      })
-
+      oc = createOwncloud()
       return oc.login()
     })
 
@@ -438,15 +428,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     beforeEach(function () {
-      oc = new OwnCloud({
-        baseUrl: config.owncloudURL,
-        auth: {
-          basic: {
-            username: config.username,
-            password: config.password
-          }
-        }
-      })
+      oc = createOwncloud()
       return oc.login()
     })
 

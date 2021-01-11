@@ -1,6 +1,4 @@
 describe('oc.publicFiles', function () {
-  // CURRENT TIME
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
   const using = require('jasmine-data-provider')
 
@@ -17,7 +15,8 @@ describe('oc.publicFiles', function () {
     htmlResponseAndAccessControlCombinedHeader,
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    createOwncloud
   } = require('./pactHelper.js')
   const provider = new Pact.PactWeb()
 
@@ -90,15 +89,7 @@ describe('oc.publicFiles', function () {
   }
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+    oc = createOwncloud()
 
     return oc.login()
   })

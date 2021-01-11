@@ -1,7 +1,6 @@
 describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../../src')
   var config = require('../config/config.json')
 
   // LIBRARY INSTANCE
@@ -14,7 +13,8 @@ describe('Unauthorized: Currently testing user management,', function () {
     invalidAuthHeader,
     CORSPreflightRequest,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
   const { unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
 
@@ -90,15 +90,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   var testUserPassword = 'password'
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password + timeRightNow
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
     return oc.login().then(() => {
       fail('not expected to log in')

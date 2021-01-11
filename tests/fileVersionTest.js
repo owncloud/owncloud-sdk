@@ -82,8 +82,9 @@ describe('Main: Currently testing file versions management,', function () {
     generate: `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
   })
 
-  beforeEach(async function () {
-    oc = await createOwncloud()
+  beforeEach(function () {
+    oc = createOwncloud()
+    return oc.login()
   })
 
   afterEach(async function () {

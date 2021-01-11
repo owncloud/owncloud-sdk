@@ -1,6 +1,6 @@
 describe('Unauthorized: Currently testing file/folder sharing,', function () {
-  const OwnCloud = require('../../src')
   const config = require('../config/config.json')
+  var timeRightNow = new Date().getTime()
 
   // LIBRARY INSTANCE
   let oc
@@ -15,7 +15,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     unauthorizedXmlResponseBody,
     CORSPreflightRequest,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
 
   const unauthorizedResponseXml = {
@@ -64,22 +65,11 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     testFile,
     testFolder,
     testGroup,
-    nonExistentFile,
-    owncloudURL,
-    username,
-    password
+    nonExistentFile
   } = config
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: owncloudURL,
-      auth: {
-        basic: {
-          username: username,
-          password: password + new Date().getTime()
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
     return oc.login().then(() => {
       fail('not expected to log in')

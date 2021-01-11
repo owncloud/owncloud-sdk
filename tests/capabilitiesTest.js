@@ -32,7 +32,8 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
   })
 
   it('checking method : getConfig', async function (done) {
-    oc = await createOwncloud()
+    oc = createOwncloud()
+    await oc.login()
     await provider.addInteraction({
       uponReceiving: 'GET config request',
       withRequest: {
@@ -70,7 +71,8 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
   })
 
   it('checking method : getCapabilities', async function (done) {
-    oc = await createOwncloud()
+    oc = createOwncloud()
+    await oc.login()
     oc.getCapabilities().then(capabilities => {
       expect(capabilities).not.toBe(null)
       expect(typeof (capabilities)).toBe('object')

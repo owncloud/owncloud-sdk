@@ -101,9 +101,6 @@ describe('oc.publicFiles', function () {
     })
 
     return oc.login()
-      .catch(error => {
-        fail(error)
-      })
   })
 
   afterEach(function () {
@@ -122,7 +119,7 @@ describe('oc.publicFiles', function () {
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises)
+      return Promise.all(promises)
     })
 
     afterAll(function () {

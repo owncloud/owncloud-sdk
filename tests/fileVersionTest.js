@@ -208,7 +208,7 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     it('retrieves file versions', async function (done) {
-      oc.fileVersions.listVersions(fileInfo.id).then(versions => {
+      return oc.fileVersions.listVersions(fileInfo.id).then(versions => {
         expect(versions.length).toEqual(2)
         expect(versions[0].getSize()).toEqual(2)
         expect(versions[1].getSize()).toEqual(1)

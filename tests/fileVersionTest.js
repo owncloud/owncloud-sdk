@@ -1,5 +1,4 @@
 describe('Main: Currently testing file versions management,', function () {
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -9,12 +8,15 @@ describe('Main: Currently testing file versions management,', function () {
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
   const {
-    setGeneralInteractions,
     validAuthHeaders,
     accessControlAllowHeaders,
     accessControlAllowMethods,
     applicationXmlResponseHeaders,
-    getContentsOfFile
+    getContentsOfFile,
+    CORSPreflightRequest,
+    GETRequestToCloudUserEndpoint,
+    capabilitiesGETRequestValidAuth,
+    createOwncloud
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -80,34 +82,21 @@ describe('Main: Currently testing file versions management,', function () {
     generate: `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
   })
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
-
-    oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
-    })
+  beforeEach(async function () {
+    oc = await createOwncloud()
   })
-  afterEach(function () {
+
+  afterEach(async function () {
     oc.logout()
     oc = null
   })
 
   describe('file versions of non existing file', () => {
-    beforeAll(done => {
+    beforeAll(() => {
       const promises = []
-      promises.push(setGeneralInteractions(provider))
+      promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+      promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+      promises.push(provider.addInteraction(CORSPreflightRequest()))
       promises.push(provider.addInteraction({
         uponReceiving: 'PROPFIND file versions of non existent file',
         withRequest: propfindFileVersionsRequestData,
@@ -122,12 +111,14 @@ describe('Main: Currently testing file versions management,', function () {
         }
       }))
 
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(async function () {
+      await provider.verify()
+      return provider.removeInteractions()
     })
+
     it('retrieves file versions of not existing file', function (done) {
       oc.fileVersions.listVersions(fileInfo.id).then(versions => {
         expect(versions).toBe(null)
@@ -141,9 +132,11 @@ describe('Main: Currently testing file versions management,', function () {
   })
 
   describe('file versions for existing files', () => {
-    beforeAll(done => {
+    beforeAll(() => {
       const promises = []
-      promises.push(setGeneralInteractions(provider))
+      promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+      promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+      promises.push(provider.addInteraction(CORSPreflightRequest()))
       promises.push(provider.addInteraction({
         uponReceiving: 'PROPFIND file versions of existent file',
         withRequest: propfindFileVersionsRequestData,
@@ -201,11 +194,12 @@ describe('Main: Currently testing file versions management,', function () {
         }
       }))
 
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(async function () {
+      await provider.verify()
+      return provider.removeInteractions()
     })
 
     it('checking method: getFileVersionUrl', function () {

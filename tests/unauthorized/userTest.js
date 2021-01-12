@@ -1,7 +1,6 @@
 describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../../src')
   var config = require('../config/config.json')
 
   // LIBRARY INSTANCE
@@ -13,7 +12,9 @@ describe('Unauthorized: Currently testing user management,', function () {
   const {
     invalidAuthHeader,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
   const { unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
 
@@ -59,7 +60,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     generate: '/ocs/v1.php/cloud/users/' + config.testUser
   })
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
@@ -78,29 +79,24 @@ describe('Unauthorized: Currently testing user management,', function () {
       'GET',
       subadminsUserEndpointPath
     )))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   // TESTING CONFIGS
   var testUserPassword = 'password'
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password + timeRightNow
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch((err) => {
+      expect(err).toBe('Unauthorized')
+    })
   })
 
   it('checking method : getUser', async function (done) {

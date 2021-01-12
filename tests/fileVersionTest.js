@@ -83,7 +83,8 @@ describe('Main: Currently testing file versions management,', function () {
   })
 
   beforeEach(async function () {
-    oc = await createOwncloud()
+    oc = createOwncloud()
+    return oc.login()
   })
 
   afterEach(async function () {

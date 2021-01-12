@@ -10,31 +10,33 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
     validAuthHeaders,
     xmlResponseHeaders,
     ocsMeta,
-    createOwncloud
+    createOwncloud,
+    pactCleanup
   } = require('./pactHelper.js')
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
-    Promise.all(promises).then(done, done.fail)
-  })
-
-  beforeEach(function (done) {
-    const promises = []
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterEach(async function (done) {
+  afterEach(function () {
     oc.logout()
     oc = null
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  })
+
+  beforeEach(function () {
+    oc = createOwncloud()
+    return oc.login()
+  })
+
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('checking method : getConfig', async function (done) {
-    oc = await createOwncloud()
     await provider.addInteraction({
       uponReceiving: 'GET config request',
       withRequest: {
@@ -72,7 +74,6 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', fu
   })
 
   it('checking method : getCapabilities', async function (done) {
-    oc = await createOwncloud()
     oc.getCapabilities().then(capabilities => {
       expect(capabilities).not.toBe(null)
       expect(typeof (capabilities)).toBe('object')

@@ -1,5 +1,4 @@
 describe('Main: Currently testing group management,', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -8,22 +7,13 @@ describe('Main: Currently testing group management,', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { validAuthHeaders, xmlResponseHeaders, ocsMeta, applicationXmlResponseHeaders, CORSPreflightRequest } = require('./pactHelper.js')
+  const { validAuthHeaders, xmlResponseHeaders, ocsMeta, applicationXmlResponseHeaders, CORSPreflightRequest, pactCleanup, createOwncloud } = require('./pactHelper.js')
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
-    done()
+  beforeEach(function () {
+    oc = createOwncloud()
   })
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction({
@@ -119,12 +109,11 @@ describe('Main: Currently testing group management,', function () {
           '</ocs>'
       }
     }))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    await provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('checking method : getGroups', function (done) {

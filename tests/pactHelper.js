@@ -513,9 +513,9 @@ function setGeneralInteractions (provider) {
 }
 
 function pactCleanup (provider) {
-  // return provider.verify()
-  //   .then(() => provider.removeInteractions())
-  return provider.removeInteractions()
+  return provider.verify()
+    .then(() => provider.removeInteractions())
+  // return provider.removeInteractions()
 }
 
 module.exports = {

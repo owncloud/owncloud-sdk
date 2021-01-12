@@ -1,5 +1,4 @@
 describe('Main: Currently testing share recipient,', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -13,36 +12,27 @@ describe('Main: Currently testing share recipient,', function () {
     origin,
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+  beforeEach(function () {
+    oc = createOwncloud()
 
-    oc.login().then(() => {
-      done()
-    })
+    return oc.login()
   })
 
   it('testing behavior : invalid page', function (done) {

@@ -113,17 +113,16 @@ const webdavPath = resource => Pact.Matchers.regex({
   generate: `/remote.php/webdav/${resource}`
 })
 
-const createOwncloud = async function () {
+const createOwncloud = function (username = config.username, password = config.password) {
   const oc = new OwnCloud({
     baseUrl: config.owncloudURL,
     auth: {
       basic: {
-        username: config.username,
-        password: config.password
+        username,
+        password
       }
     }
   })
-  await oc.login()
   return oc
 }
 
@@ -513,6 +512,11 @@ function setGeneralInteractions (provider) {
   return promises
 }
 
+function pactCleanup (provider) {
+  return provider.verify()
+    .then(() => provider.removeInteractions())
+}
+
 module.exports = {
   setGeneralInteractions,
   getContentsOfFile,
@@ -545,5 +549,6 @@ module.exports = {
   createAUserWithGroupMembership,
   deleteAUser,
   createAFolder,
-  updateFile
+  updateFile,
+  pactCleanup
 }

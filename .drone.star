@@ -51,6 +51,19 @@ def buildSystem():
             ],
     }]
 
+def pactLog():
+    return [{
+            'name': 'pact logs',
+            'image': 'owncloudci/nodejs:12',
+            'pull': 'always',
+            'detach': True,
+            'commands': [
+                'mkdir -p /var/www/owncloud/owncloud-sdk/tests/log',
+                'touch /var/www/owncloud/owncloud-sdk/tests/log/pact.log',
+                'tail -f /var/www/owncloud/owncloud-sdk/tests/log/pact.log'
+            ],
+    }]
+
 def prepareTestConfig(subFolderPath = '/'):
     return [{
         'name': 'prepare-test-config',
@@ -141,6 +154,7 @@ def fullBuild():
             buildDocs() +
             buildSystem() +
             prepareTestConfig() +
+            pactLog() +
             test()
     }
 
@@ -163,6 +177,7 @@ def testWithinSubFolder():
             buildDocs() +
             buildSystem() +
             prepareTestConfig('/sub/') +
+            pactLog() +
             test()
     }
 

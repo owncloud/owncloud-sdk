@@ -1,5 +1,4 @@
 describe('Main: Currently testing apps management,', function () {
-  const OwnCloud = require('../src/owncloud')
   const utf8 = require('utf8')
   const config = require('./config/config.json')
 
@@ -18,7 +17,9 @@ describe('Main: Currently testing apps management,', function () {
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
     ocsMeta,
-    xmlResponseHeaders
+    xmlResponseHeaders,
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
   const responseBody = function (data) {
@@ -29,12 +30,11 @@ describe('Main: Currently testing apps management,', function () {
     '</ocs>'
   }
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    Promise.all(promises).then(done, done.fail)
     // a request to GET attributes of an app
     const attributes = {
       attr1: {
@@ -131,35 +131,16 @@ describe('Main: Currently testing apps management,', function () {
       }))
     }
 
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(function (done) {
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
-  afterAll(function (done) {
-    provider.verify().then(done, done.fail)
-  })
-
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
-
-    oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
-    })
+  beforeEach(function () {
+    oc = createOwncloud()
+    return oc.login()
   })
 
   afterEach(function () {

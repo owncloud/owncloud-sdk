@@ -1,5 +1,4 @@
 describe('Signed urls', function () {
-  var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -8,7 +7,7 @@ describe('Signed urls', function () {
   // PACT setup
   const Pact = require('@pact-foundation/pact-web')
   const provider = new Pact.PactWeb()
-  const { ocsMeta } = require('./pactHelper.js')
+  const { ocsMeta, createOwncloud } = require('./pactHelper.js')
   const {
     accessControlAllowHeaders,
     accessControlAllowMethods,
@@ -16,26 +15,17 @@ describe('Signed urls', function () {
     origin,
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    pactCleanup
   } = require('./pactHelper.js')
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+  beforeEach(function () {
+    oc = createOwncloud()
 
-    oc.login().then(status => {
+    return oc.login().then(status => {
       expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
     }).catch(error => {
       expect(error).toBe(null)
-      done()
     })
   })
 
@@ -44,7 +34,7 @@ describe('Signed urls', function () {
     oc = null
   })
 
-  beforeAll(async function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
@@ -100,13 +90,12 @@ describe('Signed urls', function () {
       }
     })
     )
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   }
   )
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   it('should allow file download with a signUrl', async function (done) {

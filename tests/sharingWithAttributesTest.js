@@ -1,5 +1,4 @@
 describe('oc.shares', function () {
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
 
   // LIBRARY INSTANCE
@@ -14,11 +13,13 @@ describe('oc.shares', function () {
     ocsMeta,
     shareResponseOcsData,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    pactCleanup,
+    createOwncloud
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
-  const { testUser, testFile, owncloudURL, username, password } = config
+  const { testUser, testFile } = config
   const shareAttributes = {
     attributes: [
       { scope: 'ownCloud', key: 'read', value: 'true' },
@@ -38,7 +39,7 @@ describe('oc.shares', function () {
     return response
   }
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
     promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
@@ -68,27 +69,16 @@ describe('oc.shares', function () {
           '</ocs>'
       }
     }))
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: owncloudURL,
-      auth: {
-        basic: {
-          username: username,
-          password: password
-        }
-      }
-    })
-    oc.login().then(() => {
-      done()
-    })
+  beforeEach(async function () {
+    oc = createOwncloud()
+    return oc.login()
   })
 
   it('shall share with permissions in attributes', function (done) {

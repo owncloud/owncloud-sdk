@@ -1,6 +1,5 @@
 describe('Main: Currently testing files management,', function () {
   const FileInfo = require('../src/fileInfo')
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
   const sinon = require('sinon')
 
@@ -24,11 +23,13 @@ describe('Main: Currently testing files management,', function () {
     GETRequestToCloudUserEndpoint,
     capabilitiesGETRequestValidAuth,
     createAFolder,
-    updateFile
+    updateFile,
+    createOwncloud,
+    pactCleanup
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
-  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL, username, password } = config
+  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL } = config
   const testSubDir = testFolder + '/' + 'subdir'
 
   const aMoveRequest = function (name, header, response) {
@@ -192,24 +193,10 @@ describe('Main: Currently testing files management,', function () {
     }
   }
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: owncloudURL,
-      auth: {
-        basic: {
-          username: username,
-          password: password
-        }
-      }
-    })
+  beforeEach(function () {
+    oc = createOwncloud()
 
-    oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
-    })
+    return oc.login()
   })
 
   afterEach(function () {
@@ -217,22 +204,18 @@ describe('Main: Currently testing files management,', function () {
     oc = null
   })
 
-  afterAll(function (done) {
-    provider.verify().then(done, done.fail)
-  })
-
   describe('file/folder creation and deletion', function () {
-    beforeAll(function (done) {
+    beforeAll(function () {
       return Promise.all([
         uriEncodedTestSubFiles.map(file => provider.addInteraction(updateFile(file))),
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint()),
         provider.addInteraction(createAFolder())
-      ]).then(done, done.fail)
+      ])
     })
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
     it('creates the testFolder at instance', function (done) {
       oc.files.createFolder(testFolder).then(status => {
@@ -284,7 +267,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('list, get content and move file/folder', function () {
-    beforeAll(async function (done) {
+    beforeAll(function () {
       const promises = []
 
       const updateFiles = [
@@ -318,11 +301,11 @@ describe('Main: Currently testing files management,', function () {
         'non existing file',
         nonExistentFile,
         [], '1')))
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('checking method : list with no depth specified', function (done) {
@@ -729,7 +712,7 @@ describe('Main: Currently testing files management,', function () {
     let xhr
     let requests
 
-    beforeAll(async function (done) {
+    beforeAll(function () {
       const promises = []
       promises.concat([
         provider.addInteraction(CORSPreflightRequest()),
@@ -737,11 +720,11 @@ describe('Main: Currently testing files management,', function () {
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ])
 
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     beforeEach(function () {
@@ -821,17 +804,17 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('move existent file into same folder, different name', function () {
-    beforeAll(async function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('checking method : move existent file into same folder, different name', async function (done) {
@@ -856,17 +839,17 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('copy existent file', function () {
-    beforeAll(async function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('checking method : copy existent file into same folder, different name', async function (done) {
@@ -923,16 +906,16 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('unfavorite a file', function () {
-    beforeAll(function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('checking method: unfavorite', async function (done) {
@@ -956,7 +939,7 @@ describe('Main: Currently testing files management,', function () {
     let fileId = 123456789
     let tagId = 6789
 
-    beforeAll(async function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -964,11 +947,11 @@ describe('Main: Currently testing files management,', function () {
       ]
       promises.push(provider.addInteraction(favoriteFile(true)))
       promises.push(provider.addInteraction(propfindFavoriteFileInfo(1)))
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('checking method: favorite', function (done) {

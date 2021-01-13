@@ -1,6 +1,4 @@
 describe('oc.publicFiles', function () {
-  // CURRENT TIME
-  const OwnCloud = require('../src/owncloud')
   const config = require('./config/config.json')
   const using = require('jasmine-data-provider')
 
@@ -17,7 +15,8 @@ describe('oc.publicFiles', function () {
     htmlResponseAndAccessControlCombinedHeader,
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    GETRequestToCloudUserEndpoint,
+    createOwncloud
   } = require('./pactHelper.js')
   const provider = new Pact.PactWeb()
 
@@ -89,23 +88,10 @@ describe('oc.publicFiles', function () {
     }
   }
 
-  beforeEach(function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
-        }
-      }
-    })
+  beforeEach(function () {
+    oc = createOwncloud()
 
-    oc.login().then(() => {
-      done()
-    }).catch(error => {
-      fail(error)
-      done()
-    })
+    return oc.login()
   })
 
   afterEach(function () {
@@ -113,22 +99,22 @@ describe('oc.publicFiles', function () {
     oc = null
   })
 
-  afterAll(function (done) {
-    provider.verify().then(done, done.fail)
+  afterAll(function () {
+    return provider.verify()
   })
 
   describe('when creating file urls', function () {
-    beforeAll(function (done) {
+    beforeAll(function () {
       const promises = [
         provider.addInteraction(CORSPreflightRequest()),
         provider.addInteraction(capabilitiesGETRequestValidAuth()),
         provider.addInteraction(GETRequestToCloudUserEndpoint())
       ]
-      Promise.all(promises).then(done, done.fail)
+      return Promise.all(promises)
     })
 
-    afterAll(function (done) {
-      provider.removeInteractions().then(done, done.fail)
+    afterAll(function () {
+      return provider.removeInteractions()
     })
 
     using({
@@ -192,7 +178,7 @@ describe('oc.publicFiles', function () {
         // CREATED SHARES
         let testFolderShare = null
 
-        beforeAll(async function (done) {
+        beforeAll(function () {
           const promises = [
             provider.addInteraction(CORSPreflightRequest()),
             provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -242,21 +228,19 @@ describe('oc.publicFiles', function () {
             }))
           }
 
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
-        beforeEach(async function (done) {
-          oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
+        beforeEach(function () {
+          return oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
             expect(typeof (share)).toBe('object')
             testFolderShare = share
-            done()
           }).catch(error => {
             fail(error)
-            done()
           })
         })
 
@@ -376,7 +360,7 @@ describe('oc.publicFiles', function () {
       }
     }, function (data, description) {
       describe(description, function () {
-        beforeAll(function (done) {
+        beforeAll(function () {
           const promises = [
             provider.addInteraction(CORSPreflightRequest()),
             provider.addInteraction(capabilitiesGETRequestValidAuth()),
@@ -421,11 +405,11 @@ describe('oc.publicFiles', function () {
             config.testContent
           )))
 
-          Promise.all(promises).then(done, done.fail)
+          return Promise.all(promises)
         })
 
-        afterAll(function (done) {
-          provider.removeInteractions().then(done, done.fail)
+        afterAll(function () {
+          return provider.removeInteractions()
         })
 
         it('should create a folder', function (done) {

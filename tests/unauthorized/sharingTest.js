@@ -1,6 +1,6 @@
 describe('Unauthorized: Currently testing file/folder sharing,', function () {
-  const OwnCloud = require('../../src')
   const config = require('../config/config.json')
+  var timeRightNow = new Date().getTime()
 
   // LIBRARY INSTANCE
   let oc
@@ -14,7 +14,9 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     accessControlAllowMethods,
     unauthorizedXmlResponseBody,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
 
   const unauthorizedResponseXml = {
@@ -27,7 +29,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     body: unauthorizedXmlResponseBody
   }
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const url = Pact.Matchers.term({
       matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares.*',
       generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
@@ -50,12 +52,11 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
         willRespondWith: unauthorizedResponseXml
       }))
     })
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   // TESTING CONFIGS
@@ -64,24 +65,17 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     testFile,
     testFolder,
     testGroup,
-    nonExistentFile,
-    owncloudURL,
-    username,
-    password
+    nonExistentFile
   } = config
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: owncloudURL,
-      auth: {
-        basic: {
-          username: username,
-          password: password + new Date().getTime()
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch((err) => {
+      expect(err).toBe('Unauthorized')
+    })
   })
 
   it('checking method : shareFileWithLink', function (done) {

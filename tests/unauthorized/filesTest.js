@@ -1,6 +1,6 @@
 describe('Unauthorized: Currently testing files management,', function () {
-  const OwnCloud = require('../../src')
   const config = require('../config/config.json')
+  var timeRightNow = new Date().getTime()
 
   // LIBRARY INSTANCE
   let oc
@@ -13,8 +13,11 @@ describe('Unauthorized: Currently testing files management,', function () {
     origin,
     webdavExceptionResponseBody,
     CORSPreflightRequest,
-    capabilitiesGETRequestInvalidAuth
+    capabilitiesGETRequestInvalidAuth,
+    pactCleanup,
+    createOwncloud
   } = require('../pactHelper.js')
+
   const provider = new Pact.PactWeb()
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader,
@@ -37,7 +40,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     generate: `/remote.php/webdav/${config.testFolder}`
   })
 
-  beforeAll(function (done) {
+  beforeAll(function () {
     const promises = []
     promises.push(provider.addInteraction(CORSPreflightRequest()))
     promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
@@ -54,12 +57,11 @@ describe('Unauthorized: Currently testing files management,', function () {
       }))
     })
 
-    Promise.all(promises).then(done, done.fail)
+    return Promise.all(promises)
   })
 
-  afterAll(async function (done) {
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
+  afterAll(function () {
+    return pactCleanup(provider)
   })
 
   // TESTING CONFIGS
@@ -72,17 +74,13 @@ describe('Unauthorized: Currently testing files management,', function () {
   ]
 
   beforeEach(function () {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password + new Date().getTime()
-        }
-      }
-    })
+    oc = createOwncloud(config.username, config.password + timeRightNow)
 
-    oc.login()
+    return oc.login().then(() => {
+      fail('not expected to log in')
+    }).catch((err) => {
+      expect(err).toBe('Unauthorized')
+    })
   })
 
   it('checking method : list', function (done) {

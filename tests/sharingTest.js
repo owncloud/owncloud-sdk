@@ -112,80 +112,99 @@ describe('Main: Currently testing file/folder sharing,', function () {
     }
   }
 
-  beforeEach(function (done) {
-    const promises = []
-    promises.push(provider.addInteraction(CORSPreflightRequest()))
-    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
-    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    Promise.all(promises).then(done, done.fail)
-  })
-
-  afterEach(async function (done) {
-    provider.removeInteractions().then(done, done.fail)
-  })
-
-  beforeEach(function () {
+  beforeEach(async function () {
     oc = createOwncloud()
-    return oc.login()
+    await oc.login()
   })
 
-  afterAll(async function (done) {
+  afterEach(function () {
     oc.logout()
     oc = null
-    await provider.verify()
-    provider.removeInteractions().then(done, done.fail)
   })
 
   describe('Currently testing folder sharing,', function () {
-    describe('sharedFolder,', function () {
-      // needs to be double checked ...
-      describe('updating share permissions,', function () {
-        it('confirms not changed permissions', async function (done) {
-          await provider.addInteraction(
-            aGetRequestForPublicLinkShare('to confirm the permissions is not changed', 1, ''))
-          oc.shares.getShare(testFolderShareID).then(share => {
-            // permissions would still be read only as the share is public
-            expect(share.getPermissions()).toEqual(1)
-            done()
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
-        })
+    // needs to be double checked ...
+    describe('updating share permissions,', function () {
+      beforeAll(function () {
+        const promises = []
+        promises.push(provider.addInteraction(CORSPreflightRequest()))
+        promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+        promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+        promises.push(provider.addInteraction(aGetRequestForPublicLinkShare('to confirm the permissions is not changed', 1, '')))
+        return Promise.all(promises)
       })
 
-      // needs to be double checked
-      describe('making publicUpload true,', function () {
-        it('confirms publicUpload true', async function (done) {
-          await provider.addInteraction(
-            aGetRequestForPublicLinkShare('after making publicupload true', 15, ''))
-          oc.shares.getShare(testFolderShareID).then(share => {
-            expect(share.getPermissions() & OCS_PERMISSION_CREATE).toBeGreaterThan(0)
-            expect(share.getPermissions() & OCS_PERMISSION_UPDATE).toBeGreaterThan(0)
-            done()
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
-        })
+      afterAll(async function () {
+        await provider.verify()
+        return provider.removeInteractions()
       })
 
-      // needs to be double checked
-      describe('adding password,', function () {
-        const additionalBodyElement = '  <share_with>***redacted***</share_with>\n' +
-                  '  <share_with_displayname>***redacted***</share_with_displayname>\n'
+      it('confirms not changed permissions', function (done) {
+        oc.shares.getShare(testFolderShareID).then(share => {
+          // permissions would still be read only as the share is public
+          expect(share.getPermissions()).toEqual(1)
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
+      })
+    })
 
-        it('confirms added password', async function (done) {
-          await provider.addInteraction(
-            aGetRequestForPublicLinkShare('after password is added', 1, additionalBodyElement))
-          oc.shares.getShare(testFolderShareID).then(async share => {
-            expect(typeof (share.getShareWith())).toEqual('string')
-            expect(typeof (share.getShareWithDisplayName())).toEqual('string')
-            done()
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
+    // needs to be double checked
+    describe('making publicUpload true,', function () {
+      beforeAll(function () {
+        const promises = []
+        promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+        promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+        promises.push(provider.addInteraction(aGetRequestForPublicLinkShare('after making publicupload true', 15, '')))
+
+        return Promise.all(promises)
+      })
+
+      afterAll(async function () {
+        await provider.verify()
+        return provider.removeInteractions()
+      })
+
+      it('confirms publicUpload true', function (done) {
+        oc.shares.getShare(testFolderShareID).then(share => {
+          expect(share.getPermissions() & OCS_PERMISSION_CREATE).toBeGreaterThan(0)
+          expect(share.getPermissions() & OCS_PERMISSION_UPDATE).toBeGreaterThan(0)
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
+        })
+      })
+    })
+
+    // needs to be double checked
+    describe('adding password,', function () {
+      const additionalBodyElement = '  <share_with>***redacted***</share_with>\n' +
+      '  <share_with_displayname>***redacted***</share_with_displayname>\n'
+      beforeAll(function () {
+        const promises = []
+        promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+        promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+        promises.push(provider.addInteraction(aGetRequestForPublicLinkShare('after password is added', 1, additionalBodyElement)))
+
+        return Promise.all(promises)
+      })
+
+      afterAll(async function () {
+        await provider.verify()
+        return provider.removeInteractions()
+      })
+
+      it('confirms added password', function (done) {
+        oc.shares.getShare(testFolderShareID).then(async share => {
+          expect(typeof (share.getShareWith())).toEqual('string')
+          expect(typeof (share.getShareWithDisplayName())).toEqual('string')
+          done()
+        }).catch(error => {
+          expect(error).toBe(null)
+          done()
         })
       })
     })
@@ -193,15 +212,52 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   describe('Currently testing file sharing,', function () {
     describe('sharedFilesByLink,', function () {
+      beforeAll(function () {
+        const promises = []
+        promises.push(provider.addInteraction(CORSPreflightRequest()))
+        promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+        promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+
+        for (let i = 0; i < config.testFiles.length; i++) {
+          promises.push(provider.addInteraction(aGetRequestForAShareWithShareName('public link share', 3, i)))
+        }
+
+        for (let i = 0; i < config.testFiles.length; i++) {
+          promises.push(provider.addInteraction({
+            uponReceiving: 'a GET request for an existent share with id ' + config.testFilesId[i],
+            withRequest: {
+              method: 'GET',
+              path: Pact.Matchers.term({
+                matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + config.testFilesId[i] + '$',
+                generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + config.testFilesId[i]
+              }),
+              headers: validAuthHeaders
+            },
+            willRespondWith: {
+              status: 200,
+              headers: xmlResponseHeaders,
+              body: '<?xml version="1.0"?>\n' +
+                '<ocs>\n' +
+                ocsMeta('ok', '100') +
+                ' <data>\n' +
+                '  <element>\n' +
+                shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
+                '  </element>\n' +
+                ' </data>\n' +
+                '</ocs>'
+            }
+          }))
+        }
+
+        return Promise.all(promises)
+      })
+
+      afterAll(async function () {
+        await provider.verify()
+        return provider.removeInteractions()
+      })
+
       describe('checking the shared files,', function () {
-        beforeEach(async function (done) {
-          const promises = []
-          for (let i = 0; i < config.testFiles.length; i++) {
-            promises.push(provider.addInteraction(aGetRequestForAShareWithShareName('public link share',
-              3, i)))
-          }
-          Promise.all(promises).then(done, done.fail)
-        })
         it('checking method : isShared with shared file', function (done) {
           let count = 0
           for (let i = 0; i < testFiles.length; i++) {
@@ -248,9 +304,162 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
       })
 
-      it('checking method : getShare with existent share', async function (done) {
+      it('checking method : getShare with existent share', function (done) {
+        let count = 0
+        for (const file in sharedFiles) {
+          oc.shares.getShare(sharedFiles[file]).then(share => {
+            expect(typeof (share)).toBe('object')
+            expect(Object.prototype.hasOwnProperty.call(sharedFiles, share.getId())).toBeGreaterThan(-1)
+            count++
+            if (count === Object.keys(sharedFiles).length) {
+              done()
+            }
+          }).catch(error => {
+            expect(error).toBe(null)
+            done()
+          })
+        }
+      })
+    })
+
+    describe('sharedFilesWithUser,', function () {
+      describe('updating permissions', function () {
+        beforeAll(function () {
+          const promises = []
+          promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+          promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+
+          promises.push(provider.addInteraction(
+            aGetRequestForPublicLinkShare('after confirming updated permission', 19, '')))
+          return Promise.all(promises)
+        })
+
+        afterAll(async function () {
+          await provider.verify()
+          return provider.removeInteractions()
+        })
+
+        it('confirms updated permissions', function (done) {
+          const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
+          let count = 0
+
+          for (const file in sharedFiles) {
+            oc.shares.getShare(sharedFiles[file]).then(share => {
+              expect(share.getPermissions()).toEqual(maxPerms)
+              count++
+              if (count === Object.keys(sharedFiles).length) {
+                done()
+              }
+            }).catch(error => {
+              expect(error).toBe(null)
+              done()
+            })
+          }
+        })
+      })
+
+      describe('checking method :', function () {
+        beforeAll(function () {
+          const promises = []
+          // promises.push(provider.addInteraction(CORSPreflightRequest()))
+          promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+          promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+
+          for (let i = 0; i < config.testFiles.length; i++) {
+            promises.push(provider.addInteraction(aGetRequestForAShareWithShareName(
+              'user share ', 0, i)))
+          }
+          promises.push(provider.addInteraction(
+            aGetRequestForPublicLinkShare('to confirm the share', 1, '')))
+          return Promise.all(promises)
+        })
+
+        afterAll(async function () {
+          await provider.verify()
+          return provider.removeInteractions()
+        })
+
+        it('isShared with shared file', function (done) {
+          let count = 0
+
+          for (const file in sharedFiles) {
+            oc.shares.isShared(file).then(status => {
+              expect(status).toEqual(true)
+              count++
+              if (count === Object.keys(sharedFiles).length) {
+                done()
+              }
+            }).catch(error => {
+              expect(error).toBe(null)
+              done()
+            })
+          }
+        })
+
+        it('getShare with existent share', async function (done) {
+          let count = 0
+          for (const file in sharedFiles) {
+            oc.shares.getShare(sharedFiles[file]).then(share => {
+              expect(typeof (share)).toBe('object')
+              expect(Object.prototype.hasOwnProperty.call(sharedFiles, share.getId())).toBeGreaterThan(-1)
+              count++
+              if (count === Object.keys(sharedFiles).length) {
+                done()
+              }
+            }).catch(error => {
+              expect(error).toBe(null)
+              done()
+            })
+          }
+        })
+
+        it('getShares for shared file', function (done) {
+          let count = 0
+          const allIDs = []
+
+          for (var file in sharedFiles) {
+            allIDs.push(sharedFiles[file])
+          }
+
+          for (file in sharedFiles) {
+            oc.shares.getShares(file).then(shares => {
+              expect(shares.constructor).toBe(Array)
+              let flag = 0
+              for (let i = 0; i < shares.length; i++) {
+                const share = shares[i]
+                if (allIDs.indexOf(share.getId()) > -1) {
+                  flag = 1
+                }
+              }
+              expect(flag).toEqual(1)
+              count++
+              if (count === Object.keys(sharedFiles).length) {
+                done()
+              }
+            }).catch(error => {
+              expect(error).toBe(null)
+              done()
+            })
+          }
+        })
+      })
+    })
+
+    describe('sharedFilesWithGroup,', function () {
+      beforeAll(async function () {
+        await provider.removeInteractions()
+        const promises = []
+        // promises.push(provider.addInteraction(CORSPreflightRequest()))
+        promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+        promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
+
         for (let i = 0; i < config.testFiles.length; i++) {
-          await provider.addInteraction({
+          promises.push(provider.addInteraction(aGetRequestForAShareWithShareName(
+            'group share ', 1, i)))
+        }
+
+        for (let i = 0; i < config.testFiles.length; i++) {
+          promises.push(provider.addInteraction({
             uponReceiving: 'a GET request for an existent share with id ' + config.testFilesId[i],
             withRequest: {
               method: 'GET',
@@ -273,141 +482,15 @@ describe('Main: Currently testing file/folder sharing,', function () {
                 ' </data>\n' +
                 '</ocs>'
             }
-          })
+          }))
         }
-        let count = 0
-        for (const file in sharedFiles) {
-          oc.shares.getShare(sharedFiles[file]).then(share => {
-            expect(typeof (share)).toBe('object')
-            expect(Object.prototype.hasOwnProperty.call(sharedFiles, share.getId())).toBeGreaterThan(-1)
-            count++
-            if (count === Object.keys(sharedFiles).length) {
-              done()
-            }
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
-        }
-      })
-    })
 
-    describe('sharedFilesWithUser,', function () {
-      beforeEach(function (done) {
-        const promises = []
-        for (let i = 0; i < config.testFiles.length; i++) {
-          promises.push(provider.addInteraction(aGetRequestForAShareWithShareName(
-            'user share ', 0, i)))
-        }
-        Promise.all(promises).then(done, done.fail)
+        return Promise.all(promises)
       })
 
-      afterEach(function (done) {
-        provider.removeInteractions().then(done, done.fail)
-      })
-
-      describe('updating permissions', function () {
-        afterEach(function (done) {
-          provider.removeInteractions().then(done, done.fail)
-        })
-
-        it('confirms updated permissions', async function (done) {
-          await provider.addInteraction(
-            aGetRequestForPublicLinkShare('after confirming updated permission', 19, ''))
-          const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
-          let count = 0
-
-          for (const file in sharedFiles) {
-            oc.shares.getShare(sharedFiles[file]).then(share => {
-              expect(share.getPermissions()).toEqual(maxPerms)
-              count++
-              if (count === Object.keys(sharedFiles).length) {
-                done()
-              }
-            }).catch(error => {
-              expect(error).toBe(null)
-              done()
-            })
-          }
-        })
-      })
-
-      it('checking method : isShared with shared file', function (done) {
-        let count = 0
-
-        for (const file in sharedFiles) {
-          oc.shares.isShared(file).then(status => {
-            expect(status).toEqual(true)
-            count++
-            if (count === Object.keys(sharedFiles).length) {
-              done()
-            }
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
-        }
-      })
-
-      it('checking method : getShare with existent share', async function (done) {
-        await provider.addInteraction(
-          aGetRequestForPublicLinkShare('to confirm the share', 1, ''))
-        let count = 0
-
-        for (const file in sharedFiles) {
-          oc.shares.getShare(sharedFiles[file]).then(share => {
-            expect(typeof (share)).toBe('object')
-            expect(Object.prototype.hasOwnProperty.call(sharedFiles, share.getId())).toBeGreaterThan(-1)
-            count++
-            if (count === Object.keys(sharedFiles).length) {
-              done()
-            }
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
-        }
-      })
-
-      it('checking method : getShares for shared file', function (done) {
-        let count = 0
-        const allIDs = []
-
-        for (var file in sharedFiles) {
-          allIDs.push(sharedFiles[file])
-        }
-
-        for (file in sharedFiles) {
-          oc.shares.getShares(file).then(shares => {
-            expect(shares.constructor).toBe(Array)
-            let flag = 0
-            for (let i = 0; i < shares.length; i++) {
-              const share = shares[i]
-              if (allIDs.indexOf(share.getId()) > -1) {
-                flag = 1
-              }
-            }
-            expect(flag).toEqual(1)
-            count++
-            if (count === Object.keys(sharedFiles).length) {
-              done()
-            }
-          }).catch(error => {
-            expect(error).toBe(null)
-            done()
-          })
-        }
-      })
-    })
-
-    describe('sharedFilesWithGroup,', function () {
-      beforeEach(function (done) {
-        const promises = []
-        for (let i = 0; i < config.testFiles.length; i++) {
-          promises.push(provider.addInteraction(aGetRequestForAShareWithShareName(
-            'group share ', 1, i)))
-        }
-        Promise.all(promises).then(done, done.fail)
+      afterAll(async function () {
+        await provider.verify()
+        return provider.removeInteractions()
       })
 
       it('checking method : isShared with shared file', function (done) {
@@ -426,11 +509,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
         }
       })
 
-      it('checking method : getShare with existent share', async function (done) {
-        await provider.addInteraction(
-          aGetRequestForPublicLinkShare('of existing file', 14, ''))
+      it('checking method : getShare with existent share', function (done) {
         let count = 0
-
         for (const file in sharedFiles) {
           oc.shares.getShare(sharedFiles[file]).then(share => {
             expect(typeof (share)).toBe('object')
@@ -477,8 +557,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     describe('checking method: ', function () {
-      beforeEach(function (done) {
+      beforeAll(function (done) {
         const promises = []
+        promises.push(provider.addInteraction(CORSPreflightRequest()))
+        promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
+        promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
 
         promises.push(provider.addInteraction({
           uponReceiving: 'a link share POST request with a non-existent file',
@@ -617,32 +700,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
           }
         })
         )
-        for (let i = 0; i < config.testFiles.length; i++) {
-          promises.push(provider.addInteraction({
-            uponReceiving: 'a GET request for an existent share with id ' + config.testFilesId[i],
-            withRequest: {
-              method: 'GET',
-              path: Pact.Matchers.term({
-                matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + config.testFilesId[i] + '$',
-                generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + config.testFilesId[i]
-              }),
-              headers: validAuthHeaders
-            },
-            willRespondWith: {
-              status: 200,
-              headers: xmlResponseHeaders,
-              body: '<?xml version="1.0"?>\n' +
-                '<ocs>\n' +
-                ocsMeta('ok', '100') +
-                ' <data>\n' +
-                '  <element>\n' +
-                shareResponseOcsData(0, config.testFilesId[i], 19, config.testFiles[i]) +
-                '  </element>\n' +
-                ' </data>\n' +
-                '</ocs>'
-            }
-          }))
-        }
 
         const requests = ['PUT', 'DELETE']
         for (let i = 0; i < requests.length; i++) {
@@ -701,6 +758,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
         promises.push(provider.addInteraction(deleteResource('newFileCreated123', 'file')))
 
         Promise.all(promises).then(done, done.fail)
+      })
+
+      afterAll(async function () {
+        await provider.verify()
+        return provider.removeInteractions()
       })
 
       it('shareFileWithLink with non-existent file', function (done) {

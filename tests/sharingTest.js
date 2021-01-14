@@ -19,7 +19,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
     createOwncloud,
     ocsMeta,
     shareResponseOcsData,
-    deleteResource
+    deleteResource,
+    pactCleanup
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -135,8 +136,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterAll(async function () {
-        await provider.verify()
-        return provider.removeInteractions()
+        await pactCleanup(provider)
       })
 
       it('confirms not changed permissions', function (done) {
@@ -155,6 +155,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('making publicUpload true,', function () {
       beforeAll(function () {
         const promises = []
+        promises.push(provider.addInteraction(CORSPreflightRequest()))
         promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
         promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
         promises.push(provider.addInteraction(aGetRequestForPublicLinkShare('after making publicupload true', 15, '')))
@@ -163,8 +164,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterAll(async function () {
-        await provider.verify()
-        return provider.removeInteractions()
+        await pactCleanup(provider)
       })
 
       it('confirms publicUpload true', function (done) {
@@ -185,6 +185,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       '  <share_with_displayname>***redacted***</share_with_displayname>\n'
       beforeAll(function () {
         const promises = []
+        promises.push(provider.addInteraction(CORSPreflightRequest()))
         promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
         promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
         promises.push(provider.addInteraction(aGetRequestForPublicLinkShare('after password is added', 1, additionalBodyElement)))
@@ -193,8 +194,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterAll(async function () {
-        await provider.verify()
-        return provider.removeInteractions()
+        await pactCleanup(provider)
       })
 
       it('confirms added password', function (done) {
@@ -253,8 +253,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterAll(async function () {
-        await provider.verify()
-        return provider.removeInteractions()
+        await pactCleanup(provider)
       })
 
       describe('checking the shared files,', function () {
@@ -326,6 +325,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('updating permissions', function () {
         beforeAll(function () {
           const promises = []
+          promises.push(provider.addInteraction(CORSPreflightRequest()))
           promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
           promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
 
@@ -335,8 +335,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         afterAll(async function () {
-          await provider.verify()
-          return provider.removeInteractions()
+          await pactCleanup(provider)
         })
 
         it('confirms updated permissions', function (done) {
@@ -361,7 +360,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('checking method :', function () {
         beforeAll(function () {
           const promises = []
-          // promises.push(provider.addInteraction(CORSPreflightRequest()))
+          promises.push(provider.addInteraction(CORSPreflightRequest()))
           promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
           promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
 
@@ -375,8 +374,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         afterAll(async function () {
-          await provider.verify()
-          return provider.removeInteractions()
+          await pactCleanup(provider)
         })
 
         it('isShared with shared file', function (done) {
@@ -449,7 +447,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       beforeAll(async function () {
         await provider.removeInteractions()
         const promises = []
-        // promises.push(provider.addInteraction(CORSPreflightRequest()))
+        promises.push(provider.addInteraction(CORSPreflightRequest()))
         promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
         promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
 
@@ -489,8 +487,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterAll(async function () {
-        await provider.verify()
-        return provider.removeInteractions()
+        await pactCleanup(provider)
       })
 
       it('checking method : isShared with shared file', function (done) {
@@ -761,8 +758,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       afterAll(async function () {
-        await provider.verify()
-        return provider.removeInteractions()
+        await pactCleanup(provider)
       })
 
       it('shareFileWithLink with non-existent file', function (done) {

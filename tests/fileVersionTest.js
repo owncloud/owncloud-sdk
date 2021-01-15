@@ -16,7 +16,8 @@ describe('Main: Currently testing file versions management,', function () {
     CORSPreflightRequest,
     GETRequestToCloudUserEndpoint,
     capabilitiesGETRequestValidAuth,
-    createOwncloud
+    createOwncloud,
+    pactCleanup
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -82,7 +83,7 @@ describe('Main: Currently testing file versions management,', function () {
     generate: `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
   })
 
-  beforeEach(async function () {
+  beforeEach(function () {
     oc = createOwncloud()
     return oc.login()
   })
@@ -115,9 +116,8 @@ describe('Main: Currently testing file versions management,', function () {
       return Promise.all(promises)
     })
 
-    afterAll(async function () {
-      await provider.verify()
-      return provider.removeInteractions()
+    afterAll(function () {
+      return pactCleanup(provider)
     })
 
     it('retrieves file versions of not existing file', function (done) {
@@ -199,8 +199,7 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     afterAll(async function () {
-      await provider.verify()
-      return provider.removeInteractions()
+      return pactCleanup(provider)
     })
 
     it('checking method: getFileVersionUrl', function () {

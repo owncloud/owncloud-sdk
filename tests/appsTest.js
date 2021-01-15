@@ -1,229 +1,168 @@
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+
 describe('Main: Currently testing apps management,', function () {
-  const utf8 = require('utf8')
-  const config = require('./config/config.json')
-
-  // LIBRARY INSTANCE
-  let oc
-
-  // TESTING CONFIGS
   const nonExistentApp = 'nonExistentApp123'
 
   // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
   const {
     validAuthHeaders,
-    CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
-    ocsMeta,
     xmlResponseHeaders,
-    pactCleanup,
+    createProvider,
     createOwncloud
   } = require('./pactHelper.js')
 
-  const responseBody = function (data) {
-    return '<?xml version="1.0"?>\n' +
-    '<ocs>\n' +
-    ocsMeta('ok', '100') +
-    data +
-    '</ocs>'
-  }
-
-  beforeAll(function () {
-    const promises = []
-    promises.push(provider.addInteraction(CORSPreflightRequest()))
-    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
-    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    // a request to GET attributes of an app
-    const attributes = {
-      attr1: {
-        attrExists: true,
-        value: 'value1'
-      },
-      'attr+plus space': {
-        attrExists: true,
-        value: 'value+plus space and/slash'
-      },
-      属性1: {
-        attrExists: true,
-        value: '值对1'
-      },
-      'attr ': {
-        attrExists: false,
-        value: ''
-      },
-      'attr+plus space ': {
-        attrExists: false,
-        value: ''
-      },
-      '属性1 ': {
-        attrExists: false,
-        value: ''
-      },
-      '': {
-        attrExists: false,
-        value: {
-          attr1: 'value1',
-          'attr+plus space': 'value+plus space and/slash',
-          属性1: '值对1'
-        }
-      },
-      'attr1-no-value': {
-        attrExists: true,
-        value: ''
-      },
-      'attr+plus space-no-value': {
-        attrExists: true,
-        value: ''
-      },
-      '属性1-no-value': {
-        attrExists: true,
-        value: ''
-      }
-    }
-    for (const attribute in attributes) {
-      // default no data
-      let data = ' <data/>\n'
-
-      // no attributes specified, return all attributes
-      if (!attribute) {
-        data = ' <data>\n'
-        for (const [key, value] of Object.entries(attributes[attribute].value)) {
-          data = data +
-            '  <element>\n' +
-            '   <key>' + utf8.encode(key) + '</key>\n' +
-            '   <app>' + config.testApp + '</app>\n' +
-            '   <value>' + utf8.encode(value) + '</value>\n' +
-            '  </element>\n'
-        }
-        data = data + ' </data>'
-      } else if (attributes[attribute].attrExists) {
-        // attribute exists
-        data = ' <data>\n' +
-          '  <element>\n' +
-          '   <key>' + utf8.encode(attribute) + '</key>\n' +
-          '   <app>' + config.testApp + '</app>\n' +
-          '   <value>' + utf8.encode(attributes[attribute].value) + '</value>\n' +
-          '  </element>\n' +
-          ' </data>\n'
-      }
-    }
-
-    const requests = ['POST', 'DELETE']
-    for (let i = 0; i < requests.length; i++) {
-      const action = (requests[i] === 'POST') ? 'enable' : 'disable'
-      promises.push(provider.addInteraction({
-        uponReceiving: action + ' apps',
-        withRequest: {
-          method: requests[i],
-          path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/apps\\/.+$',
-            generate: '/ocs/v1.php/cloud/apps/files'
-          }),
-          headers: validAuthHeaders
-        },
-        willRespondWith: {
-          status: 200,
-          headers: xmlResponseHeaders,
-          body: responseBody(' <data/>\n')
-        }
-      }))
-    }
-
-    return Promise.all(promises)
-  })
-
-  afterAll(function () {
-    return pactCleanup(provider)
-  })
-
-  beforeEach(function () {
-    oc = createOwncloud()
-    return oc.login()
-  })
-
-  afterEach(function () {
-    oc.logout()
-    oc = null
-  })
-
-  it('checking method : getApps', async function (done) {
-    await provider.addInteraction({
-      uponReceiving: 'a GET request for a list of apps',
-      withRequest: {
-        method: 'GET',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/apps$',
-          generate: '/ocs/v1.php/cloud/apps'
-        }),
+  const changeAppStatus = (provider, action) => {
+    const method = action === 'enable' ? 'POST' : 'DELETE'
+    return provider
+      .uponReceiving(action + ' apps')
+      .withRequest({
+        method,
+        path: MatchersV3.regex(
+          /.*\/ocs\/v1\.php\/cloud\/apps\/.+$/,
+          '/ocs/v1.php/cloud/apps/files'
+        ),
         headers: validAuthHeaders
-      },
-      willRespondWith: {
+      })
+      .willRespondWith({
         status: 200,
         headers: xmlResponseHeaders,
-        body: responseBody(' <data>\n' +
-          '  <apps>\n' +
-          '   <element>workflow</element>\n' +
-          '   <element>files</element>\n' +
-          '  </apps>\n' +
-          ' </data>\n')
-      }
-    })
-    oc.apps.getApps().then(apps => {
-      expect(apps).not.toBe(null)
-      expect(typeof (apps)).toBe('object')
-      expect(apps.files).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
+        body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+          ocs.appendElement('meta', '', (meta) => {
+            meta
+              .appendElement('status', '', 'ok')
+              .appendElement('statuscode', '', 100)
+              .appendElement('message', '', '')
+          }).appendElement('data', '', '')
+        })
+      })
+  }
+
+  const getApps = (provider, query) => {
+    return provider
+      .uponReceiving('a GET request for a list of apps')
+      .withRequest({
+        method: 'GET',
+        path: MatchersV3.regex(
+          /.*\/ocs\/v1\.php\/cloud\/apps$/,
+          '/ocs/v1.php/cloud/apps'
+        ),
+        query: query,
+        headers: validAuthHeaders
+      })
+      .willRespondWith({
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+          ocs.appendElement('meta', '', (meta) => {
+            meta
+              .appendElement('status', '', 'ok')
+              .appendElement('statuscode', '', 100)
+              .appendElement('message', '', '')
+          }).appendElement('data', '', (data) => {
+            data.appendElement('apps', '', (apps) => {
+              apps
+                .appendElement('element', '', 'workflow')
+                .appendElement('element', '', 'files')
+            })
+          })
+        })
+      })
+  }
+
+  it('checking method : getApps', async () => {
+    const provider = createProvider()
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
+    await getApps(provider, { filter: 'enabled' })
+    await getApps(provider, {})
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.apps.getApps().then(apps => {
+        expect(apps).not.toBe(null)
+        expect(typeof (apps)).toBe('object')
+        expect(apps.files).toBe(true)
+      }).catch(error => {
+        expect(error).toBe(null)
+      })
     })
   })
 
-  it('checking method : enableApp when app exists', function (done) {
-    oc.apps.enableApp('files').then(status => {
-      expect(status).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
+  it('checking method : enableApp when app exists', async function () {
+    const provider = createProvider()
+    await changeAppStatus(provider, 'enable')
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.apps.enableApp('files').then(status => {
+        expect(status).toBe(true)
+      }).catch(error => {
+        expect(error).toBe(null)
+      })
     })
   })
 
   // cors issue
-  it('checking method : disableApp when app exists', function (done) {
-    oc.apps.disableApp('files').then(status => {
-      expect(status).toBe(true)
+  it('checking method : disableApp when app exists', async function () {
+    const provider = createProvider()
+    await changeAppStatus(provider, 'disable')
+    await changeAppStatus(provider, 'enable')
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
 
-      // Re-Enabling the Files App
-      return oc.apps.enableApp('files')
-    }).then(status => {
-      expect(status).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.apps.disableApp('files').then(status => {
+        expect(status).toBe(true)
+
+        // Re-Enabling the Files App
+        return oc.apps.enableApp('files')
+      }).then(status => {
+        expect(status).toBe(true)
+      }).catch(error => {
+        expect(error).toBe(null)
+      })
     })
   })
 
-  it('checking method : enableApp when app doesn\'t exist', function (done) {
-    oc.apps.enableApp(nonExistentApp).then(status => {
-      expect(status).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toEqual('No app found by the name "' + nonExistentApp + '"')
-      done()
+  it('checking method : enableApp when app doesn\'t exist', async function () {
+    const provider = createProvider()
+    await changeAppStatus(provider, 'enable')
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.apps.enableApp(nonExistentApp).then(status => {
+        expect(status).toBe(true)
+      }).catch(error => {
+        console.log(error)
+        expect(error).toEqual('No app found by the name "' + nonExistentApp + '"')
+      })
     })
   })
 
-  it('checking method : disableApp when app doesn\'t exist', function (done) {
-    oc.apps.disableApp(nonExistentApp).then(status => {
-      expect(status).toBe(true)
-      done()
-    }).catch(error => {
-      expect(error).toBe(null)
-      done()
+  it('checking method : disableApp when app doesn\'t exist', async function () {
+    const provider = createProvider()
+    await changeAppStatus(provider, 'disable')
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.apps.disableApp(nonExistentApp).then(status => {
+        expect(status).toBe(true)
+      }).catch(error => {
+        expect(error).toBe(null)
+      })
     })
   })
 })

@@ -16,7 +16,8 @@ describe('oc.publicFiles', function () {
     CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
-    createOwncloud
+    createOwncloud,
+    pactCleanup
   } = require('./pactHelper.js')
   const provider = new Pact.PactWeb()
 
@@ -99,10 +100,6 @@ describe('oc.publicFiles', function () {
     oc = null
   })
 
-  afterAll(function () {
-    return provider.verify()
-  })
-
   describe('when creating file urls', function () {
     beforeAll(function () {
       const promises = [
@@ -114,7 +111,7 @@ describe('oc.publicFiles', function () {
     })
 
     afterAll(function () {
-      return provider.removeInteractions()
+      return pactCleanup(provider)
     })
 
     using({
@@ -232,7 +229,7 @@ describe('oc.publicFiles', function () {
         })
 
         afterAll(function () {
-          return provider.removeInteractions()
+          return pactCleanup(provider)
         })
 
         beforeEach(function () {
@@ -409,7 +406,7 @@ describe('oc.publicFiles', function () {
         })
 
         afterAll(function () {
-          return provider.removeInteractions()
+          return pactCleanup(provider)
         })
 
         it('should create a folder', function (done) {

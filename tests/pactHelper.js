@@ -1,5 +1,6 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 import { Matchers } from '@pact-foundation/pact'
+
 const config = require('./config/config.json')
 var validUserPasswordHash = Buffer.from(config.username + ':' + config.password, 'binary').toString('base64')
 
@@ -23,19 +24,18 @@ const testSubFiles = [
 
 const uriEncodedTestSubFiles = testSubFiles.map(item => encodeURIComponent(item).split('%2F').join('/'))
 
-const ocsMeta = function (status, statusCode, Message = null) {
-  if (Message == null) {
-    return ' <meta>\n' +
-      '  <status>' + status + '</status>\n' +
-      '  <statuscode>' + statusCode + '</statuscode>\n' +
-      '  <message/>\n' +
-      ' </meta>\n'
-  }
-  return ' <meta>\n' +
-    '  <status>' + status + '</status>\n' +
-    '  <statuscode>' + statusCode + '</statuscode>\n' +
-    '  <message>' + Message + '</message>\n' +
-    ' </meta>\n'
+/**
+ *
+ * @param meta {XmlElement}
+ * @param status {string}
+ * @param statusCode {string}
+ * @param Message {string}
+ * @returns {string}
+ */
+const ocsMeta = function (meta, status, statusCode, Message = null) {
+  return meta.appendElement('status', '', status)
+    .appendElement('statuscode', '', statusCode)
+    .appendElement('message', '', Message)
 }
 
 const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {

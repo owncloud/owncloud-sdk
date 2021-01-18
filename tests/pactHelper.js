@@ -59,6 +59,7 @@ const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {
 const applicationXmlResponseHeaders = {
   'Content-Type': 'application/xml; charset=utf-8'
 }
+const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urlencoded' }
 
 const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8'
@@ -341,72 +342,78 @@ const capabilitiesGETRequestInvalidAuth = function () {
   }
 }
 
-const createAUser = function () {
-  return {
-    uponReceiving: 'a create user request',
-    withRequest: {
+const createAUser = function (provider) {
+  provider.uponReceiving('a create user request')
+    .withRequest({
       method: 'POST',
-      path: Matchers.regex({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users',
-        generate: '/ocs/v1.php/cloud/users'
-      }),
-      headers: validAuthHeaders,
-      body: 'password=' + config.testUser + '&userid=' + config.testUser
-    },
-    willRespondWith: {
+      path: MatchersV3.regex(
+        '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users',
+        '/ocs/v1.php/cloud/users'
+      ),
+      headers: {
+        ...validAuthHeaders,
+        ...applicationFormUrlEncoded
+      }
+      // TODO: uncomment this line once the issue is fixed
+      // https://github.com/pact-foundation/pact-js/issues/577
+
+    // body: `password=${config.testUserPassword}&userid=${config.testUser}`
+    }).willRespondWith({
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': origin
       }
-    }
-  }
+    })
 }
 
-const createAUserWithGroupMembership = function () {
-  return {
-    uponReceiving: 'a create user request including group membership',
-    withRequest: {
+const createAUserWithGroupMembership = function (provider) {
+  return provider
+    .uponReceiving('a create user request including group membership')
+    .withRequest({
       method: 'POST',
-      path: Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users',
-        generate: '/ocs/v1.php/cloud/users'
-      }),
-      headers: validAuthHeaders,
-      body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
-    },
-    willRespondWith: {
+      path: MatchersV3.regex(
+        '.*\\/ocs\\/v1\\.php\\/cloud\\/users',
+        '/ocs/v1.php/cloud/users'
+      ),
+      headers: validAuthHeaders
+      // TODO: uncomment this line once the issue is fixed
+      // https://github.com/pact-foundation/pact-js/issues/577
+
+      // body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
+    })
+    .willRespondWith({
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        '  <data/>\n' +
-        '</ocs>\n'
-    }
-  }
+      body: new XmlBuilder('1.0', '', 'ocs')
+        .build(ocs => {
+          ocs.appendElement('meta', '', (meta) => {
+            return ocsMeta(meta, 'ok', '100')
+          }).appendElement('data', '', '')
+        })
+    })
 }
 
-const deleteAUser = function () {
-  return {
-    uponReceiving: 'a request to delete a user',
-    withRequest: {
+const deleteAUser = function (provider) {
+  provider.uponReceiving('a request to delete a user')
+    .withRequest({
       method: 'DELETE',
-      path: Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-        generate: '/ocs/v1.php/cloud/users/' + config.testUser
-      }),
+      path: MatchersV3.regex(
+        '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+        '/ocs/v1.php/cloud/users/' + config.testUser
+      ),
       headers: validAuthHeaders
-    },
-    willRespondWith: {
+    }).willRespondWith({
       status: 200,
       headers: xmlResponseHeaders,
-      body: '<?xml version="1.0"?>\n' +
-        '<ocs>\n' +
-        ocsMeta('ok', '100') +
-        '  <data/>\n' +
-        '</ocs>\n'
-    }
-  }
+
+      body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+        ocs
+          .appendElement('meta', '', meta => {
+            ocsMeta(meta, 'ok', 100)
+          })
+          .appendElement('data', '', '')
+      })
+    })
 }
 
 const createAFolder = function () {

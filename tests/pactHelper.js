@@ -65,20 +65,14 @@ const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8'
 }
 
-const invalidAuthHeader = Matchers.term({
-  matcher: '^(?!Basic ' + validUserPasswordHash + ').*$', // match anything except a valid auth
-  generate: 'Basic bm9uRXhpc3RpbmdVc2VycnByeXJxOHg2OmNvbmZpZy5wYXNzd29yZHJwcnlycTh4Ng=='
-})
+const invalidAuthHeader = 'Basic YWRtaW46bm90QVZhbGlkUGFzc3dvcmQ='
 
-const unauthorizedXmlResponseBody = '<?xml version="1.0"?>\n' +
-  '<ocs>\n' +
-  ' <meta>\n' +
-  '  <status>failure</status>\n' +
-  '  <statuscode>997</statuscode>\n' +
-  '  <message>Unauthorised</message>\n' +
-  ' </meta>\n' +
-  ' <data/>\n' +
-  '</ocs>'
+const unauthorizedXmlResponseBody = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+  ocs.appendElement('meta', '', (meta) => {
+    return ocsMeta(meta, 'failure', '997', 'Unauthorised')
+  })
+    .appendElement('data', '', '')
+})
 
 const xmlResponseAndAccessControlCombinedHeader = {
   ...applicationXmlResponseHeaders,
@@ -308,22 +302,19 @@ const GETSingleUserEndpoint = function () {
   }
 }
 
-const capabilitiesGETRequestInvalidAuth = function () {
-  return {
-    uponReceiving: 'a capabilities GET request with invalid authentication',
-    withRequest: {
+const capabilitiesGETRequestInvalidAuth = function (provider) {
+  return provider.uponReceiving('a capabilities GET request with invalid authentication')
+    .withRequest({
       method: 'GET',
-      path: Matchers.term({
-        matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
-        generate: '/ocs/v1.php/cloud/capabilities'
-      }),
-      query: 'format=json',
+      path: MatchersV3.regex(
+        '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
+        '/ocs/v1.php/cloud/capabilities'
+      ),
+      query: { format: 'json' },
       headers: {
-        authorization: invalidAuthHeader,
-        Origin: origin
+        authorization: invalidAuthHeader
       }
-    },
-    willRespondWith: {
+    }).willRespondWith({
       status: 401,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -338,8 +329,7 @@ const capabilitiesGETRequestInvalidAuth = function () {
           }
         }
       }
-    }
-  }
+    })
 }
 
 const createAUser = function (provider) {

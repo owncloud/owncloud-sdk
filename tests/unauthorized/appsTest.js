@@ -1,97 +1,105 @@
-describe('Unauthorized: Currently testing apps management,', function () {
+import { MatchersV3 } from '@pact-foundation/pact/v3'
+
+fdescribe('Unauthorized: Currently testing apps management,', function () {
   // CURRENT TIME
-  const timeRightNow = new Date().getTime()
   const config = require('../config/config.json')
 
-  // LIBRARY INSTANCE
-  let oc
-
-  // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
   const {
-    invalidAuthHeader,
     unauthorizedXmlResponseBody,
-    CORSPreflightRequest,
+    createOwncloud,
+    createProvider,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup,
-    createOwncloud
+    invalidAuthHeader
   } = require('../pactHelper.js')
   const unauthorizedResponseObject = {
     status: 401,
     headers: {
-      'Content-Type': 'text/xml; charset=utf-8',
-      'Access-Control-Allow-Origin': origin
+      'Content-Type': 'text/xml; charset=utf-8'
     },
     body: unauthorizedXmlResponseBody
   }
   const invalidAuthHeaderObject = {
-    authorization: invalidAuthHeader,
-    Origin: origin
+    authorization: invalidAuthHeader
   }
-  beforeAll(function () {
-    const promises = []
-    promises.push(provider.addInteraction(CORSPreflightRequest()))
-    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
-    const requiredAppMethods = ['GET', 'POST', 'DELETE']
-    requiredAppMethods.forEach((method) => {
-      promises.push(provider.addInteraction({
-        uponReceiving: `an ${method} app request with invalid auth`,
-        withRequest: {
-          method: method,
-          path: Pact.Matchers.regex({
-            matcher: '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps.*',
-            generate: '/ocs/v1.php/cloud/apps'
-          }),
-          headers: invalidAuthHeaderObject
-        },
-        willRespondWith: unauthorizedResponseObject
-      }))
-    })
-    return Promise.all(promises)
-  })
+  const getApps = async (provider, method, query) => {
+    return provider
+      .uponReceiving(`an ${method} app request with invalid auth`)
+      .withRequest({
+        method: method,
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps.*',
+          '/ocs/v1.php/cloud/apps'
+        ),
+        query: query,
+        headers: invalidAuthHeaderObject
+      })
+      .willRespondWith(unauthorizedResponseObject)
+  }
 
-  afterAll(function () {
-    return pactCleanup(provider)
-  })
+  it('checking method : getApps', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await getApps(provider, 'GET')
+    await getApps(provider, 'GET', { filter: 'enabled' })
 
-  beforeEach(function () {
-    oc = createOwncloud(config.username, config.password + timeRightNow)
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
 
-    return oc.login().then(() => {
-      fail('not expected to log in')
-    }).catch((err) => {
-      expect(err).toBe('Unauthorized')
-    })
-  })
-
-  it('checking method : getApps', function (done) {
-    oc.apps.getApps().then(apps => {
-      expect(apps).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+      return oc.apps.getApps().then(apps => {
+        expect(apps).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
     })
   })
 
-  it('checking method : enableApp when app exists', function (done) {
-    oc.apps.enableApp('files').then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+  it('checking method : enableApp when app exists', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await getApps(provider, 'POST')
+    // await getApps(provider, 'POST', { filter: 'enabled' })
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+
+      return oc.apps.enableApp('files').then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
     })
   })
 
-  it('checking method : disableApp', function (done) {
-    oc.apps.disableApp('files').then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+  it('checking method : disableApp', async function (done) {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await getApps(provider, 'DELETE')
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+
+      return oc.apps.disableApp('files').then(status => {
+        expect(status).toBe(null)
+        done()
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+        done()
+      })
     })
   })
 })

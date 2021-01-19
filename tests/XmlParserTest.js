@@ -62,18 +62,16 @@ describe('Main: Currently testing XmlParser,', function () {
   }
 
   describe('testing 1st XML', function () {
-    it('tests XML', function (done) {
+    it('tests XML', function () {
       var parsedXml = parser(sampleXml1, sampleNS1)
       expect(parsedXml).toEqual(parsedXml1)
-      done()
     })
   })
 
   describe('testing 2nd XML', function () {
-    it('tests XML', function (done) {
+    it('tests XML', function () {
       var parsedXml = parser(sampleXml2, sampleNS2)
       expect(parsedXml).toEqual(parsedXml2)
-      done()
     })
   })
 })

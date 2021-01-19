@@ -1,12 +1,8 @@
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+
 describe('oc.shares', function () {
   const config = require('./config/config.json')
 
-  // LIBRARY INSTANCE
-  let oc
-
-  // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
   const {
     validAuthHeaders,
     applicationXmlResponseHeaders,
@@ -14,8 +10,8 @@ describe('oc.shares', function () {
     shareResponseOcsData,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
-    pactCleanup,
-    createOwncloud
+    createOwncloud,
+    createProvider
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -39,52 +35,50 @@ describe('oc.shares', function () {
     return response
   }
 
-  beforeAll(function () {
-    const promises = []
-    promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
-    promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-    promises.push(provider.addInteraction({
-      uponReceiving: 'Share with permissions in attributes',
-      withRequest: {
+  const sharingWithAttributes = (provider) => {
+    return provider
+      .uponReceiving('Share with permissions in attributes')
+      .withRequest({
         method: 'POST',
-        path: Pact.Matchers.term({
-          matcher: '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
-        headers: validAuthHeaders,
-        body: `shareType=0&shareWith=${testUser}&path=%2F${testFile}&attributes%5B0%5D%5Bscope%5D=${shareAttributes.attributes[0].scope}&attributes%5B0%5D%5Bkey%5D=${shareAttributes.attributes[0].key}&attributes%5B0%5D%5Bvalue%5D=${shareAttributes.attributes[0].value}&attributes%5B1%5D%5Bscope%5D=${shareAttributes.attributes[1].scope}&attributes%5B1%5D%5Bkey%5D=${shareAttributes.attributes[1].key}&attributes%5B1%5D%5Bvalue%5D=${shareAttributes.attributes[1].value}`
-      },
-      willRespondWith: {
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
+          '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+        ),
+        headers: validAuthHeaders
+        // TODO: uncomment this line once the issue is fixed
+        // https://github.com/pact-foundation/pact-js/issues/577
+
+        // body: `shareType=0&shareWith=${testUser}&path=%2F${testFile}&attributes%5B0%5D%5Bscope%5D=${shareAttributes.attributes[0].scope}&attributes%5B0%5D%5Bkey%5D=${shareAttributes.attributes[0].key}&attributes%5B0%5D%5Bvalue%5D=${shareAttributes.attributes[0].value}&attributes%5B1%5D%5Bscope%5D=${shareAttributes.attributes[1].scope}&attributes%5B1%5D%5Bkey%5D=${shareAttributes.attributes[1].key}&attributes%5B1%5D%5Bvalue%5D=${shareAttributes.attributes[1].value}`
+      })
+      .willRespondWith({
         status: 200,
         headers: applicationXmlResponseHeaders,
-        body: '<?xml version="1.0"?>\n' +
-          '<ocs>\n' +
-          ocsMeta('ok', '100') +
-          ' <data>\n' +
-          shareResponseOcsData(0, 7, 17, testFile) +
-          `<share_with>${testUser}</share_with>\n` +
-          `<share_with_displayname>${testUser}</share_with_displayname>` +
-          `<attributes>${shareAttributesResponse()}</attributes>` +
-          '</data>\n' +
-          '</ocs>'
-      }
-    }))
-    return Promise.all(promises)
-  })
+        body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+          ocs.appendElement('meta', '', (meta) => {
+            return ocsMeta(meta, 'ok', '100')
+          })
+            .appendElement('data', '', (data) => {
+              shareResponseOcsData(data, 0, 7, 17, testFile)
+                .appendElement('share_with', '', testUser)
+                .appendElement('share_with_displayname', '', testUser)
+                .appendElement('attributes', '', shareAttributesResponse())
+            })
+        })
+      })
+  }
 
-  afterAll(function () {
-    return pactCleanup(provider)
-  })
+  it('shall share with permissions in attributes', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
+    await sharingWithAttributes(provider)
 
-  beforeEach(async function () {
-    oc = createOwncloud()
-    return oc.login()
-  })
-
-  it('shall share with permissions in attributes', function (done) {
-    return oc.shares.shareFileWithUser(testFile, testUser, shareAttributes).then(share => {
-      expect(share.getPermissions()).toBe(17)
-      done()
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.shares.shareFileWithUser(testFile, testUser, shareAttributes).then(share => {
+        expect(share.getPermissions()).toBe(17)
+      })
     })
   })
 })

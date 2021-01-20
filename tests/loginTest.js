@@ -12,17 +12,12 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   var nonExistentUser = 'nonExistentUser' + timeRightNow
 
   // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
-  const { setGeneralInteractions } = require('./pactHelper.js')
-
-  beforeAll(function () {
-    return setGeneralInteractions(provider)
-  })
-
-  afterAll(function () {
-    return provider.removeInteractions()
-  })
+  const {
+    createProvider,
+    capabilitiesGETRequestInvalidAuth,
+    capabilitiesGETRequestValidAuth,
+    GETRequestToCloudUserEndpoint
+  } = require('./pactHelper.js')
 
   beforeEach(function () {
     oc = null
@@ -49,63 +44,72 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     }
   })
 
-  it('checking method : login with wrong config.username and config.password', function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: nonExistentUser,
-          password: 'config.password' + timeRightNow
-        }
-      }
-    })
+  it('checking method : login with wrong username and password', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider, nonExistentUser, 'config.password' + timeRightNow)
 
-    oc.login().then(() => {
-      fail()
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+    return provider.executeTest(async () => {
+      oc = new OwnCloud({
+        baseUrl: config.owncloudURL,
+        auth: {
+          basic: {
+            username: nonExistentUser,
+            password: 'config.password' + timeRightNow
+          }
+        }
+      })
+
+      return oc.login().then(() => {
+        fail()
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
     })
   })
 
-  it('checking method : login with correct config.username only', function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: 'config.password' + timeRightNow
-        }
-      }
-    })
+  it('checking method : login with correct username only', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider, config.username, 'config.password' + timeRightNow)
 
-    oc.login().then(() => {
-      fail()
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+    return provider.executeTest(async () => {
+      oc = new OwnCloud({
+        baseUrl: config.owncloudURL,
+        auth: {
+          basic: {
+            username: config.username,
+            password: 'config.password' + timeRightNow
+          }
+        }
+      })
+
+      return oc.login().then(() => {
+        fail()
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
     })
   })
 
-  it('checking method : login with correct config.username and config.password', function (done) {
-    oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
-      auth: {
-        basic: {
-          username: config.username,
-          password: config.password
+  it('checking method : login with correct config.username and config.password', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestValidAuth(provider)
+    await GETRequestToCloudUserEndpoint(provider)
+    return provider.executeTest(async () => {
+      oc = new OwnCloud({
+        baseUrl: config.owncloudURL,
+        auth: {
+          basic: {
+            username: config.username,
+            password: config.password
+          }
         }
-      }
-    })
+      })
 
-    oc.login().then(status => {
-      expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
-      done()
-    }).catch(error => {
-      fail(error)
-      done()
+      return oc.login().then(status => {
+        expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+      }).catch(error => {
+        fail(error)
+      })
     })
   })
 })

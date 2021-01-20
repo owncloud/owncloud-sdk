@@ -295,9 +295,6 @@ class helpers {
       err = 'Please specify an authorization first.'
     }
 
-    if (err) {
-      throw new Error(err)
-    }
     const headers = {
       authorization: this._authHeader,
       'Content-Type': 'application/x-www-form-urlencoded'

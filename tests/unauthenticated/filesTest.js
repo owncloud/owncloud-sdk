@@ -78,7 +78,7 @@ describe('Unauthenticated: Currently testing files management,', function () {
   it('checking method : delete', function (done) {
     var newFolder = testFolder + '/' + 'new folder'
 
-    oc.files.mkdir(newFolder).then(status => {
+    oc.files.delete(newFolder).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

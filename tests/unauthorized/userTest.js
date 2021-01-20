@@ -4,7 +4,6 @@ describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var config = require('../config/config.json')
-  let provider = null
 
   const {
     invalidAuthHeader,
@@ -60,17 +59,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   //   '/ocs/v1.php/cloud/users/' + config.testUser
   // )
 
-  // beforeAll(async function () {
-  //   await request(provider, 'a user GET request with invalid auth', 'GET', usersEndpointPath)
-  //   await request(provider, 'a group user GET request with invalid auth', 'GET', groupsEndpointPath)
-  //   await request(provider, 'a GET request with invalid auth to check if user is a subadmin of any groups', 'GET', subadminsUserEndpointPath)
-  // })
-
   // TESTING CONFIGS
   var testUserPassword = 'password'
 
   it('checking method : getUser', async function () {
-    provider = createProvider()
+    const provider = createProvider()
     await capabilitiesGETRequestInvalidAuth(provider)
     await request(provider, 'a GET request with invalid auth to check for user admin', 'GET', adminUserEndpointPath)
     await provider.executeTest(async () => {
@@ -90,7 +83,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : createUser', async function () {
-    provider = createProvider()
+    const provider = createProvider()
     await capabilitiesGETRequestInvalidAuth(provider)
     await request(provider, 'a create user POST request with invalid auth', 'POST', usersEndpointPath)
     await provider.executeTest(async () => {
@@ -107,39 +100,63 @@ describe('Unauthorized: Currently testing user management,', function () {
       })
     })
   })
+
+  it('checking method : searchUsers', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      oc.users.searchUsers('').then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : userExists', async function () {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a user GET request with invalid auth', 'GET', usersEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      oc.users.userExists(config.username).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  // it('checking method : setUserAttribute', async function () {
+  //   const provider = createProvider()
+  //   await capabilitiesGETRequestInvalidAuth(provider)
+  //   // await request(provider, 'a user GET request with invalid auth', 'GET', usersEndpointPath)
   //
-  // it('checking method : searchUsers', function (done) {
-  //   oc.users.searchUsers('').then(data => {
-  //     expect(data).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : userExists', function (done) {
-  //   oc.users.userExists(config.username).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : setUserAttribute', async function (done) {
-  //   await provider.addInteraction(request(
-  //     'a user PUT request with invalid auth',
-  //     'PUT',
-  //     testUserEndpointPath
-  //   ))
-  //   oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
-  //     expect(data).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
+  //   await provider.executeTest(async () => {
+  //     const oc = createOwncloud(config.username, config.invalidPassword)
+  //     await oc.login().then(() => {
+  //       fail('not expected to log in')
+  //     }).catch((err) => {
+  //       expect(err).toBe('Unauthorized')
+  //     })
+  //     oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
+  //       expect(data).toBe(null)
+  //     }).catch(error => {
+  //       expect(error).toMatch('Unauthorized')
+  //     })
   //   })
   // })
   //

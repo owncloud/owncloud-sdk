@@ -161,6 +161,7 @@ module.exports = {
     '**/tests/unauthenticated/*.js',
     '**/tests/unauthorized/appsTest.js',
     '**/tests/unauthorized/capabilitiesTest.js',
+    '**/tests/unauthorized/groupTest.js',
     '**/tests/loginTest.js'
   ]
 

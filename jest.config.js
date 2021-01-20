@@ -160,7 +160,8 @@ module.exports = {
     '**/tests/userTest.js',
     '**/tests/unauthenticated/*.js',
     '**/tests/unauthorized/appsTest.js',
-    '**/tests/unauthorized/capabilitiesTest.js'
+    '**/tests/unauthorized/capabilitiesTest.js',
+    '**/tests/loginTest.js'
   ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

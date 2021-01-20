@@ -64,6 +64,11 @@ const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urle
 const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8'
 }
+const getAuthHeaders = (username, password) => {
+  const header = `${username}:${password}`
+  const buff = Buffer.from(header)
+  return 'Basic ' + buff.toString('base64')
+}
 
 const invalidAuthHeader = 'Basic YWRtaW46bm90QVZhbGlkUGFzc3dvcmQ='
 
@@ -302,8 +307,8 @@ const GETSingleUserEndpoint = function () {
   }
 }
 
-const capabilitiesGETRequestInvalidAuth = function (provider) {
-  return provider.uponReceiving('a capabilities GET request with invalid authentication')
+const capabilitiesGETRequestInvalidAuth = function (provider, username = config.username, password = config.invalidPassword) {
+  return provider.uponReceiving(`a capabilities GET request with invalid authentication by ${username} with ${password}`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -312,7 +317,7 @@ const capabilitiesGETRequestInvalidAuth = function (provider) {
       ),
       query: { format: 'json' },
       headers: {
-        authorization: invalidAuthHeader
+        authorization: getAuthHeaders(username, password)
       }
     }).willRespondWith({
       status: 401,

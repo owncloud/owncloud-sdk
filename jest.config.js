@@ -163,6 +163,7 @@ module.exports = {
     '**/tests/unauthorized/capabilitiesTest.js',
     '**/tests/unauthorized/groupTest.js',
     '**/tests/unauthorized/sharingTest.js',
+    '**/tests/unauthorized/userTest.js',
     '**/tests/loginTest.js',
     '**/tests/sharingWithAttributesTest.js',
     '**/tests/shareRecipientTest.js',

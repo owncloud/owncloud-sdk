@@ -1,7 +1,6 @@
 import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Unauthorized: Currently testing apps management,', function () {
-  // CURRENT TIME
   const config = require('../config/config.json')
 
   const {

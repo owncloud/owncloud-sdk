@@ -1,287 +1,263 @@
+import { MatchersV3 } from '@pact-foundation/pact/v3'
+
 describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var config = require('../config/config.json')
+  let provider = null
 
-  // LIBRARY INSTANCE
-  var oc
-
-  // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
   const {
     invalidAuthHeader,
-    CORSPreflightRequest,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup,
     createOwncloud
   } = require('../pactHelper.js')
-  const { unauthorizedXmlResponseBody, origin } = require('../pactHelper.js')
+  const {
+    unauthorizedXmlResponseBody,
+    createProvider
+  } = require('../pactHelper.js')
 
-  const request = function (requestName, method, path) {
-    return {
-      uponReceiving: requestName,
-      withRequest: {
+  const request = async (provider, requestName, method, path) => {
+    return provider
+      .uponReceiving(requestName)
+      .withRequest({
         method: method,
         path: path,
         headers: {
-          authorization: invalidAuthHeader,
-          Origin: origin
+          authorization: invalidAuthHeader
         }
-      },
-      willRespondWith: {
+      })
+      .willRespondWith({
         status: 401,
         headers: {
-          'Content-Type': 'text/xml; charset=utf-8',
-          'Access-Control-Allow-Origin': origin
+          'Content-Type': 'text/xml; charset=utf-8'
         },
         body: unauthorizedXmlResponseBody
-      }
-    }
+      })
   }
 
-  const usersEndpointPath = Pact.Matchers.term({
-    matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
-    generate: '/ocs/v1.php/cloud/users'
-  })
+  const adminUserEndpointPath = MatchersV3.regex(
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/admin$',
+    '/ocs/v1.php/cloud/users/admin'
+  )
 
-  const groupsEndpointPath = Pact.Matchers.term({
-    matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
-    generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
-  })
+  const usersEndpointPath = MatchersV3.regex(
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
+    '/ocs/v1.php/cloud/users'
+  )
 
-  const subadminsUserEndpointPath = Pact.Matchers.term({
-    matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
-    generate: '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
-  })
+  // const groupsEndpointPath = MatchersV3.regex(
+  //   '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+  //   '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+  // )
+  //
+  // const subadminsUserEndpointPath = MatchersV3.regex(
+  //   '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
+  //   '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+  // )
+  //
+  // const testUserEndpointPath = MatchersV3.regex(
+  //   '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+  //   '/ocs/v1.php/cloud/users/' + config.testUser
+  // )
 
-  const testUserEndpointPath = Pact.Matchers.term({
-    matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-    generate: '/ocs/v1.php/cloud/users/' + config.testUser
-  })
-
-  beforeAll(function () {
-    const promises = []
-    promises.push(provider.addInteraction(CORSPreflightRequest()))
-    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
-    promises.push(provider.addInteraction(request(
-      'a user GET request with invalid auth',
-      'GET',
-      usersEndpointPath
-    )))
-    promises.push(provider.addInteraction(request(
-      'a group user GET request with invalid auth',
-      'GET',
-      groupsEndpointPath
-    )))
-    promises.push(provider.addInteraction(request(
-      'a GET request with invalid auth to check if user is a subadmin of any groups',
-      'GET',
-      subadminsUserEndpointPath
-    )))
-    return Promise.all(promises)
-  })
-
-  afterAll(function () {
-    return pactCleanup(provider)
-  })
+  // beforeAll(async function () {
+  //   await request(provider, 'a user GET request with invalid auth', 'GET', usersEndpointPath)
+  //   await request(provider, 'a group user GET request with invalid auth', 'GET', groupsEndpointPath)
+  //   await request(provider, 'a GET request with invalid auth to check if user is a subadmin of any groups', 'GET', subadminsUserEndpointPath)
+  // })
 
   // TESTING CONFIGS
   var testUserPassword = 'password'
 
-  beforeEach(function () {
-    oc = createOwncloud(config.username, config.password + timeRightNow)
-
-    return oc.login().then(() => {
-      fail('not expected to log in')
-    }).catch((err) => {
-      expect(err).toBe('Unauthorized')
-    })
-  })
-
-  it('checking method : getUser', async function (done) {
-    await provider.addInteraction(request(
-      'a GET request with invalid auth to check for user admin',
-      'GET',
-      Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/admin$',
-        generate: '/ocs/v1.php/cloud/users/admin'
+  it('checking method : getUser', async function () {
+    provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to check for user admin', 'GET', adminUserEndpointPath)
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
       })
-    ))
-    oc.users.getUser(config.username).then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
 
-  it('checking method : createUser', async function (done) {
-    await provider.addInteraction(request(
-      'a create user POST request with invalid auth',
-      'POST',
-      usersEndpointPath
-    ))
-    oc.users.createUser('newUser' + timeRightNow, testUserPassword).then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : searchUsers', function (done) {
-    oc.users.searchUsers('').then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : userExists', function (done) {
-    oc.users.userExists(config.username).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : setUserAttribute', async function (done) {
-    await provider.addInteraction(request(
-      'a user PUT request with invalid auth',
-      'PUT',
-      testUserEndpointPath
-    ))
-    oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : addUserToGroup', async function (done) {
-    await provider.addInteraction(request(
-      'a user POST request with invalid auth to add user to group',
-      'POST',
-      groupsEndpointPath
-    ))
-    oc.users.addUserToGroup(config.testUser, config.testGroup).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : getUserGroups', function (done) {
-    oc.users.getUserGroups(config.testUser).then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : userIsInGroup', function (done) {
-    oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : getUser', async function (done) {
-    await provider.addInteraction(request(
-      'a GET request with invalid auth to check for user',
-      'GET',
-      testUserEndpointPath
-    ))
-    oc.users.getUser(config.testUser).then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : removeUserFromGroup', async function (done) {
-    await provider.addInteraction(request(
-      'a DELETE request with invalid auth to remove user from group',
-      'DELETE',
-      groupsEndpointPath
-    ))
-    oc.users.removeUserFromGroup(config.testUser, config.testGroup).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : addUserToSubadminGroup', async function (done) {
-    await provider.addInteraction(request(
-      'a POST request with invalid auth to add user to subadmin group',
-      'POST',
-      subadminsUserEndpointPath
-    ))
-    oc.users.addUserToSubadminGroup(config.testUser, config.testGroup).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : getUserSubadminGroups', function (done) {
-    oc.users.getUserSubadminGroups(config.testUser).then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : userIsInSubadminGroup', function (done) {
-    oc.users.userIsInSubadminGroup(config.testUser, config.testGroup).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
-
-  it('checking method : deleteUser', async function (done) {
-    await provider.addInteraction(request(
-      'a request to DELETE a non-existent user with invalid auth',
-      'DELETE',
-      Pact.Matchers.term({
-        matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
-        generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
+      return oc.users.getUser(config.username).then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
       })
-    ))
-    oc.users.deleteUser(config.nonExistentUser).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
     })
   })
+
+  it('checking method : createUser', async function () {
+    provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a create user POST request with invalid auth', 'POST', usersEndpointPath)
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.createUser('newUser' + timeRightNow, testUserPassword).then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+  //
+  // it('checking method : searchUsers', function (done) {
+  //   oc.users.searchUsers('').then(data => {
+  //     expect(data).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : userExists', function (done) {
+  //   oc.users.userExists(config.username).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : setUserAttribute', async function (done) {
+  //   await provider.addInteraction(request(
+  //     'a user PUT request with invalid auth',
+  //     'PUT',
+  //     testUserEndpointPath
+  //   ))
+  //   oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
+  //     expect(data).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : addUserToGroup', async function (done) {
+  //   await provider.addInteraction(request(
+  //     'a user POST request with invalid auth to add user to group',
+  //     'POST',
+  //     groupsEndpointPath
+  //   ))
+  //   oc.users.addUserToGroup(config.testUser, config.testGroup).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : getUserGroups', function (done) {
+  //   oc.users.getUserGroups(config.testUser).then(data => {
+  //     expect(data).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : userIsInGroup', function (done) {
+  //   oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : getUser', async function (done) {
+  //   await provider.addInteraction(request(
+  //     'a GET request with invalid auth to check for user',
+  //     'GET',
+  //     testUserEndpointPath
+  //   ))
+  //   oc.users.getUser(config.testUser).then(data => {
+  //     expect(data).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : removeUserFromGroup', async function (done) {
+  //   await provider.addInteraction(request(
+  //     'a DELETE request with invalid auth to remove user from group',
+  //     'DELETE',
+  //     groupsEndpointPath
+  //   ))
+  //   oc.users.removeUserFromGroup(config.testUser, config.testGroup).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : addUserToSubadminGroup', async function (done) {
+  //   await provider.addInteraction(request(
+  //     'a POST request with invalid auth to add user to subadmin group',
+  //     'POST',
+  //     subadminsUserEndpointPath
+  //   ))
+  //   oc.users.addUserToSubadminGroup(config.testUser, config.testGroup).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : getUserSubadminGroups', function (done) {
+  //   oc.users.getUserSubadminGroups(config.testUser).then(data => {
+  //     expect(data).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : userIsInSubadminGroup', function (done) {
+  //   oc.users.userIsInSubadminGroup(config.testUser, config.testGroup).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
+  //
+  // it('checking method : deleteUser', async function (done) {
+  //   await provider.addInteraction(request(
+  //     'a request to DELETE a non-existent user with invalid auth',
+  //     'DELETE',
+  //     Pact.Matchers.term({
+  //       matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+  //       generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
+  //     })
+  //   ))
+  //   oc.users.deleteUser(config.nonExistentUser).then(status => {
+  //     expect(status).toBe(null)
+  //     done()
+  //   }).catch(error => {
+  //     expect(error).toMatch('Unauthorized')
+  //     done()
+  //   })
+  // })
 })

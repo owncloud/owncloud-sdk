@@ -38,22 +38,20 @@ const ocsMeta = function (meta, status, statusCode, Message = null) {
     .appendElement('message', '', Message)
 }
 
-const shareResponseOcsData = function (shareType, id, permissions, fileTarget) {
-  const data = '  <id>' + id + '</id>\n' +
-    '  <share_type>' + shareType + '</share_type>\n' +
-    '  <uid_owner>admin</uid_owner>\n' +
-    '  <displayname_owner>admin</displayname_owner>\n' +
-    '  <permissions>' + permissions + '</permissions>\n' +
-    '  <uid_file_owner>admin</uid_file_owner>\n' +
-    '  <displayname_file_owner>admin</displayname_file_owner>\n' +
-    '  <path>' + fileTarget + '</path>\n' +
-    '  <file_target>' + fileTarget + '</file_target>\n'
+const shareResponseOcsData = function (node, shareType, id, permissions, fileTarget) {
+  const res = node.appendElement('id', '', id)
+    .appendElement('share_type', '', shareType)
+    .appendElement('uid_owner', '', 'admin')
+    .appendElement('displayname_owner', '', 'admin')
+    .appendElement('permissions', '', permissions)
+    .appendElement('displayname_file_owner', '', 'admin')
+    .appendElement('path', '', fileTarget)
+    .appendElement('file_target', '', fileTarget)
 
   if (shareType === 3) {
-    return data +
-      '  <url>' + config.owncloudURL + '/s/yrkoLeS33y1aTya</url>\n'
+    res.appendElement('url', '', config.owncloudURL + '/s/yrkoLeS33y1aTya')
   }
-  return data
+  return res
 }
 
 const applicationXmlResponseHeaders = {

@@ -1,40 +1,31 @@
 describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
   const config = require('../config/config.json')
-  var timeRightNow = new Date().getTime()
 
-  // LIBRARY INSTANCE
-  let oc
+  const {
+    capabilitiesGETRequestInvalidAuth,
+    createOwncloud,
+    createProvider
+  } = require('../pactHelper.js')
 
-  // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
-  const { capabilitiesGETRequestInvalidAuth, pactCleanup, createOwncloud } = require('../pactHelper.js')
+  it('checking method : getCapabilities', async function (done) {
+    const provider = createProvider()
+    await capabilitiesGETRequestInvalidAuth(provider)
 
-  beforeAll(function () {
-    return provider.addInteraction(capabilitiesGETRequestInvalidAuth())
-  })
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
 
-  afterAll(function () {
-    return pactCleanup(provider)
-  })
-
-  beforeEach(function () {
-    oc = createOwncloud(config.username, config.password + timeRightNow)
-
-    return oc.login().then(() => {
-      fail('not expected to log in')
-    }).catch(err => {
-      expect(err).toBe('Unauthorized')
-    })
-  })
-
-  it('checking method : getCapabilities', function (done) {
-    oc.getCapabilities().then(capabilities => {
-      expect(capabilities).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+      return oc.getCapabilities().then(capabilities => {
+        expect(capabilities).toBe(null)
+        done()
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+        done()
+      })
     })
   })
 })

@@ -1,6 +1,6 @@
 import { MatchersV3 } from '@pact-foundation/pact/v3'
 
-fdescribe('Unauthorized: Currently testing apps management,', function () {
+describe('Unauthorized: Currently testing apps management,', function () {
   // CURRENT TIME
   const config = require('../config/config.json')
 
@@ -11,6 +11,7 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     capabilitiesGETRequestInvalidAuth,
     invalidAuthHeader
   } = require('../pactHelper.js')
+
   const unauthorizedResponseObject = {
     status: 401,
     headers: {
@@ -18,9 +19,11 @@ fdescribe('Unauthorized: Currently testing apps management,', function () {
     },
     body: unauthorizedXmlResponseBody
   }
+
   const invalidAuthHeaderObject = {
     authorization: invalidAuthHeader
   }
+
   const getApps = async (provider, method, query) => {
     return provider
       .uponReceiving(`an ${method} app request with invalid auth`)

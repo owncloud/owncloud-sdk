@@ -1,118 +1,182 @@
+import { MatchersV3 } from '@pact-foundation/pact/v3'
+
 describe('Unauthorized: Currently testing group management,', function () {
-  var config = require('../config/config.json')
+  const config = require('../config/config.json')
 
-  // CURRENT TIME
-  var timeRightNow = new Date().getTime()
-
-  // LIBRARY INSTANCE
-  var oc
-
-  // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
-  const provider = new Pact.PactWeb()
   const {
-    invalidAuthHeader,
     unauthorizedXmlResponseBody,
-    origin,
-    CORSPreflightRequest,
+    createOwncloud,
+    createProvider,
     capabilitiesGETRequestInvalidAuth,
-    pactCleanup,
-    createOwncloud
+    invalidAuthHeader
   } = require('../pactHelper.js')
 
-  beforeAll(function () {
-    const promises = []
-    promises.push(provider.addInteraction(CORSPreflightRequest()))
-    promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
-    const requiredAttributesForGroupInteractions = ['GET', 'POST', 'DELETE']
-    requiredAttributesForGroupInteractions.forEach(method => {
-      promises.push(provider.addInteraction({
-        uponReceiving: `a group ${method} request with invalid auth`,
-        withRequest: {
-          method: method,
-          path: Pact.Matchers.term({
-            matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/groups.*',
-            generate: '/ocs/v1.php/cloud/groups/' + config.testGroup
-          }),
-          headers: {
-            authorization: invalidAuthHeader,
-            Origin: origin
-          }
-        },
-        willRespondWith: {
-          status: 401,
-          headers: {
-            'Content-Type': 'text/xml; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
-          body: unauthorizedXmlResponseBody
-        }
-      }))
-    })
-    return Promise.all(promises)
-  })
+  const unauthorizedResponseObject = {
+    status: 401,
+    headers: {
+      'Content-Type': 'text/xml; charset=utf-8'
+    },
+    body: unauthorizedXmlResponseBody
+  }
 
-  afterAll(function () {
-    return pactCleanup(provider)
-  })
+  const invalidAuthHeaderObject = {
+    authorization: invalidAuthHeader
+  }
 
-  beforeEach(function () {
-    oc = createOwncloud(config.username, config.password + timeRightNow)
+  const groupsRequest = (provider, method) => {
+    return provider
+      .uponReceiving(`a ${method} group(s) request with invalid auth`)
+      .withRequest({
+        method: method,
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/groups.*',
+          '/ocs/v1.php/cloud/groups'
+        ),
+        headers: invalidAuthHeaderObject
+      })
+      .willRespondWith(unauthorizedResponseObject)
+  }
 
-    return oc.login().then(() => {
-      fail('not expected to log in')
-    }).catch((err) => {
-      expect(err).toBe('Unauthorized')
-    })
-  })
+  const DELETEGroupRequest = (provider) => {
+    return provider
+      .uponReceiving('a DELETE group request with invalid auth')
+      .withRequest({
+        method: 'DELETE',
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/groups\\/.*',
+          '/ocs/v1.php/cloud/groups/' + config.testGroup
+        ),
+        headers: invalidAuthHeaderObject
+      })
+      .willRespondWith(unauthorizedResponseObject)
+  }
 
-  it('checking method : createGroup', function (done) {
-    oc.groups.createGroup('newGroup' + timeRightNow).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
+  const GETGroupMemberRequest = (provider) => {
+    return provider
+      .uponReceiving('a GET group member request with invalid auth')
+      .withRequest({
+        method: 'GET',
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/groups\\/.*',
+          '/ocs/v1.php/cloud/groups/' + config.username
+        ),
+        headers: invalidAuthHeaderObject
+      })
+      .willRespondWith(unauthorizedResponseObject)
+  }
 
-  it('checking method : getGroups', function (done) {
-    oc.groups.getGroups().then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
+  it('checking method : getGroups', async () => {
+    const provider = createProvider()
 
-  it('checking method : groupExists', function (done) {
-    oc.groups.groupExists('admin').then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
-    })
-  })
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await groupsRequest(provider, 'GET')
 
-  it('checking method : getGroupMembers', function (done) {
-    oc.groups.getGroupMembers('admin').then(data => {
-      expect(data).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+    return provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch(error => {
+        expect(error).toBe('Unauthorized')
+      })
+
+      return oc.groups.getGroups().then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
     })
   })
 
-  it('checking method : deleteGroup', function (done) {
-    oc.groups.deleteGroup(config.testGroup).then(status => {
-      expect(status).toBe(null)
-      done()
-    }).catch(error => {
-      expect(error).toMatch('Unauthorized')
-      done()
+  it('checking method : createGroup', async () => {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await groupsRequest(provider, 'POST')
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch(error => {
+        expect(error).toBe('Unauthorized')
+      })
+
+      return oc.groups.createGroup('newGroup').then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : groupExists', async () => {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await groupsRequest(provider, 'GET')
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch(error => {
+        expect(error).toBe('Unauthorized')
+      })
+
+      return oc.groups.groupExists('admin').then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : deleteGroup', async () => {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await DELETEGroupRequest(provider)
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch(error => {
+        expect(error).toBe('Unauthorized')
+      })
+
+      return oc.groups.deleteGroup(config.testGroup).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : getGroupMembers', async () => {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await GETGroupMemberRequest(provider)
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch(error => {
+        expect(error).toBe('Unauthorized')
+      })
+
+      return oc.groups.getGroupMembers('admin').then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
     })
   })
 })

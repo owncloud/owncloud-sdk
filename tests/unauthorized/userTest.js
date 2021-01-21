@@ -15,7 +15,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     createProvider
   } = require('../pactHelper.js')
 
-  const request = async (provider, requestName, method, path) => {
+  const request = async (provider, requestName, method, path, query) => {
     return provider
       .uponReceiving(requestName)
       .withRequest({
@@ -23,7 +23,8 @@ describe('Unauthorized: Currently testing user management,', function () {
         path: path,
         headers: {
           authorization: invalidAuthHeader
-        }
+        },
+        query: query
       })
       .willRespondWith({
         status: 401,
@@ -44,28 +45,35 @@ describe('Unauthorized: Currently testing user management,', function () {
     '/ocs/v1.php/cloud/users'
   )
 
-  // const groupsEndpointPath = MatchersV3.regex(
-  //   '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
-  //   '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
-  // )
-  //
-  // const subadminsUserEndpointPath = MatchersV3.regex(
-  //   '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
-  //   '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
-  // )
-  //
-  // const testUserEndpointPath = MatchersV3.regex(
-  //   '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-  //   '/ocs/v1.php/cloud/users/' + config.testUser
-  // )
+  const groupsEndpointPath = MatchersV3.regex(
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
+    '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+  )
+
+  const subadminsUserEndpointPath = MatchersV3.regex(
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
+    '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+  )
+
+  const testUserEndpointPath = MatchersV3.regex(
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
+    '/ocs/v1.php/cloud/users/' + config.testUser
+  )
+
+  const nonExistingUserEndpoint = MatchersV3.regex(
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
+    '/ocs/v1.php/cloud/users/' + config.nonExistentUser
+  )
 
   // TESTING CONFIGS
   var testUserPassword = 'password'
 
   it('checking method : getUser', async function () {
     const provider = createProvider()
+
     await capabilitiesGETRequestInvalidAuth(provider)
     await request(provider, 'a GET request with invalid auth to check for user admin', 'GET', adminUserEndpointPath)
+
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
       await oc.login().then(() => {
@@ -73,7 +81,6 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-
       return oc.users.getUser(config.username).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
@@ -84,8 +91,10 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   it('checking method : createUser', async function () {
     const provider = createProvider()
+
     await capabilitiesGETRequestInvalidAuth(provider)
     await request(provider, 'a create user POST request with invalid auth', 'POST', usersEndpointPath)
+
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
       await oc.login().then(() => {
@@ -103,7 +112,9 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   it('checking method : searchUsers', async function () {
     const provider = createProvider()
+
     await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to search user', 'GET', usersEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
@@ -112,7 +123,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      oc.users.searchUsers('').then(data => {
+      return oc.users.searchUsers('').then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -122,8 +133,10 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   it('checking method : userExists', async function () {
     const provider = createProvider()
+    const query = { search: 'admin' }
+
     await capabilitiesGETRequestInvalidAuth(provider)
-    await request(provider, 'a user GET request with invalid auth', 'GET', usersEndpointPath)
+    await request(provider, 'a admin GET request with invalid auth', 'GET', usersEndpointPath, query)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
@@ -132,7 +145,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      oc.users.userExists(config.username).then(status => {
+      return oc.users.userExists(config.username).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -140,141 +153,213 @@ describe('Unauthorized: Currently testing user management,', function () {
     })
   })
 
-  // it('checking method : setUserAttribute', async function () {
-  //   const provider = createProvider()
-  //   await capabilitiesGETRequestInvalidAuth(provider)
-  //   // await request(provider, 'a user GET request with invalid auth', 'GET', usersEndpointPath)
-  //
-  //   await provider.executeTest(async () => {
-  //     const oc = createOwncloud(config.username, config.invalidPassword)
-  //     await oc.login().then(() => {
-  //       fail('not expected to log in')
-  //     }).catch((err) => {
-  //       expect(err).toBe('Unauthorized')
-  //     })
-  //     oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
-  //       expect(data).toBe(null)
-  //     }).catch(error => {
-  //       expect(error).toMatch('Unauthorized')
-  //     })
-  //   })
-  // })
-  //
-  // it('checking method : addUserToGroup', async function (done) {
-  //   await provider.addInteraction(request(
-  //     'a user POST request with invalid auth to add user to group',
-  //     'POST',
-  //     groupsEndpointPath
-  //   ))
-  //   oc.users.addUserToGroup(config.testUser, config.testGroup).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : getUserGroups', function (done) {
-  //   oc.users.getUserGroups(config.testUser).then(data => {
-  //     expect(data).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : userIsInGroup', function (done) {
-  //   oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : getUser', async function (done) {
-  //   await provider.addInteraction(request(
-  //     'a GET request with invalid auth to check for user',
-  //     'GET',
-  //     testUserEndpointPath
-  //   ))
-  //   oc.users.getUser(config.testUser).then(data => {
-  //     expect(data).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : removeUserFromGroup', async function (done) {
-  //   await provider.addInteraction(request(
-  //     'a DELETE request with invalid auth to remove user from group',
-  //     'DELETE',
-  //     groupsEndpointPath
-  //   ))
-  //   oc.users.removeUserFromGroup(config.testUser, config.testGroup).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : addUserToSubadminGroup', async function (done) {
-  //   await provider.addInteraction(request(
-  //     'a POST request with invalid auth to add user to subadmin group',
-  //     'POST',
-  //     subadminsUserEndpointPath
-  //   ))
-  //   oc.users.addUserToSubadminGroup(config.testUser, config.testGroup).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : getUserSubadminGroups', function (done) {
-  //   oc.users.getUserSubadminGroups(config.testUser).then(data => {
-  //     expect(data).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : userIsInSubadminGroup', function (done) {
-  //   oc.users.userIsInSubadminGroup(config.testUser, config.testGroup).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
-  //
-  // it('checking method : deleteUser', async function (done) {
-  //   await provider.addInteraction(request(
-  //     'a request to DELETE a non-existent user with invalid auth',
-  //     'DELETE',
-  //     Pact.Matchers.term({
-  //       matcher: '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
-  //       generate: '/ocs/v1.php/cloud/users/' + config.nonExistentUser
-  //     })
-  //   ))
-  //   oc.users.deleteUser(config.nonExistentUser).then(status => {
-  //     expect(status).toBe(null)
-  //     done()
-  //   }).catch(error => {
-  //     expect(error).toMatch('Unauthorized')
-  //     done()
-  //   })
-  // })
+  it('checking method : setUserAttribute', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a user PUT request with invalid auth to add user to group', 'PUT', testUserEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : addUserToGroup', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a user POST request with invalid auth', 'POST', groupsEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.addUserToGroup(config.testUser, config.testGroup).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : getUserGroups', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to get user in group', 'GET', groupsEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.getUserGroups(config.testUser).then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : userIsInGroup', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to check for user', 'GET', groupsEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : getUser', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to check for user endpoint', 'GET', testUserEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.getUser(config.testUser).then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : removeUserFromGroup', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a DELETE request with invalid auth to remove user from group', 'DELETE', groupsEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.removeUserFromGroup(config.testUser, config.testGroup).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : addUserToSubadminGroup', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a POST request with invalid auth to add user to subadmin group', 'POST', subadminsUserEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.addUserToSubadminGroup(config.testUser, config.testGroup).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : getUserSubadminGroups', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to get user of subadmin group', 'GET', subadminsUserEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.getUserSubadminGroups(config.testUser).then(data => {
+        expect(data).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : userIsInSubadminGroup', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a GET request with invalid auth to check user is in subadmin group', 'GET', subadminsUserEndpointPath)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.userIsInSubadminGroup(config.testUser, config.testGroup).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
+
+  it('checking method : deleteUser', async function () {
+    const provider = createProvider()
+
+    await capabilitiesGETRequestInvalidAuth(provider)
+    await request(provider, 'a request to DELETE a non-existent user with invalid auth', 'DELETE', nonExistingUserEndpoint)
+
+    await provider.executeTest(async () => {
+      const oc = createOwncloud(config.username, config.invalidPassword)
+      await oc.login().then(() => {
+        fail('not expected to log in')
+      }).catch((err) => {
+        expect(err).toBe('Unauthorized')
+      })
+      return oc.users.deleteUser(config.nonExistentUser).then(status => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(error).toMatch('Unauthorized')
+      })
+    })
+  })
 })

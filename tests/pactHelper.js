@@ -271,19 +271,18 @@ async function capabilitiesGETRequestValidAuth (provider) {
     })
 }
 
-const GETSingleUserEndpoint = function () {
-  return {
-    uponReceiving: 'a single user GET request to the cloud users endpoint',
-    withRequest: {
+const GETSingleUserEndpoint = function (provider) {
+  return provider.uponReceiving('a single user GET request to the cloud users endpoint')
+    .withRequest({
       method: 'GET',
-      path: Matchers.term({
-        matcher: '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-        generate: '/ocs/v2.php/cloud/users/' + config.testUser
-      }),
-      query: 'format=json',
+      path: MatchersV3.regex(
+        '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
+        '/ocs/v2.php/cloud/users/' + config.testUser
+      ),
+      query: { format: 'json' },
       headers: validAuthHeaders
-    },
-    willRespondWith: {
+    })
+    .willRespondWith({
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -301,8 +300,7 @@ const GETSingleUserEndpoint = function () {
           }
         }
       }
-    }
-  }
+    })
 }
 
 const capabilitiesGETRequestInvalidAuth = function (provider, username = config.username, password = config.invalidPassword) {

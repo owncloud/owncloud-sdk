@@ -2,6 +2,9 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing file/folder sharing,', function () {
   const config = require('./config/config.json')
+
+  // TODO: Remove these once the issue is fixed
+  // https://github.com/pact-foundation/pact-js/issues/589
   config.testFiles = [
     'test space and + and #.txt',
     'test.txt',
@@ -43,6 +46,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
     'test space and + and #.txt': 18,
     'test.txt': 14,
     'hello world.txt': 19
+    // TODO: uncomment this once the issue is fixed
+    // https://github.com/pact-foundation/pact-js/issues/589
+    // '%2F%E6%96%87%E4%BB%B6.txt': 19
   }
   const testFolderShareID = 9
 

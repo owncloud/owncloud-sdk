@@ -1070,9 +1070,9 @@
     url-join "^4.0.0"
 
 "@pact-foundation/pact@beta":
-  version "10.0.0-beta.22"
-  resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-10.0.0-beta.22.tgz#387e25927b15e2a5704c8b59ef7b5edad4a13b74"
-  integrity sha512-AgldVSXqS2nYOWjlhIBUdHxx5cGCQAFsAhluT9YJcR+KmwgLkK9mRwkmhX1gge8VVsWxgpxaqSIysadQsmSFEw==
+  version "10.0.0-beta.25"
+  resolved "https://registry.yarnpkg.com/@pact-foundation/pact/-/pact-10.0.0-beta.25.tgz#2932fe1f521835d27b7a2827d54eba0b512ee6eb"
+  integrity sha512-4Ko2EHlSlDRj07h+/pCpK+bWc/v5lZYHyRVoABGzrRiP35dwjIq6+Kzs4eQoc68mtj9zeK3e3sujx9/pvm9aeQ==
   dependencies:
     "@pact-foundation/pact-node" "^10.10.1"
     "@types/bluebird" "^3.5.20"

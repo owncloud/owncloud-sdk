@@ -171,6 +171,7 @@ module.exports = {
     '**/tests/XmlParserTest.js',
     '**/tests/signedUrlTest.js',
     '**/tests/requestsOcsTest.js',
+    '**/tests/sharingTest.js',
   ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

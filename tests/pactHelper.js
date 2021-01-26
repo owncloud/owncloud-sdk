@@ -42,11 +42,14 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
   const res = node.appendElement('id', '', id)
     .appendElement('share_type', '', shareType)
     .appendElement('uid_owner', '', 'admin')
+    .appendElement('displayname', '', 'admin')
     .appendElement('displayname_owner', '', 'admin')
     .appendElement('permissions', '', permissions)
+    .appendElement('uid_file_owner', '', 'admin')
     .appendElement('displayname_file_owner', '', 'admin')
     .appendElement('path', '', fileTarget)
     .appendElement('file_target', '', fileTarget)
+    .appendElement('stime', '', Math.floor(Date.now() / 1000))
 
   if (shareType === 3) {
     res.appendElement('url', '', config.owncloudURL + '/s/yrkoLeS33y1aTya')

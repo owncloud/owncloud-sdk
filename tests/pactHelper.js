@@ -1,5 +1,4 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
-import { Matchers } from '@pact-foundation/pact'
 
 const config = require('./config/config.json')
 var validUserPasswordHash = Buffer.from(config.username + ':' + config.password, 'binary').toString('base64')
@@ -68,6 +67,7 @@ const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urle
 const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8'
 }
+
 const getAuthHeaders = (username, password) => {
   const header = `${username}:${password}`
   const buff = Buffer.from(header)
@@ -98,25 +98,27 @@ const htmlResponseAndAccessControlCombinedHeader = {
 const resourceNotFoundExceptionMessage = resource => `File with name ${resource} could not be located`
 
 const webdavMatcherForResource = resource => {
+  if (resource === '/') {
+    return ''
+  }
   if (resource.includes('/')) {
     return resource.split('/').join('\\/') + '$'
   } else {
     return resource + '$'
   }
 }
-
 const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0', 'utf-8', 'd:error')
   .build(dError => {
     dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
     dError
-      .appendElement('s:exception', ' ', `Sabre\\DAV\\Exception\\${exception}`)
-      .appendElement('s:message', ' ', message)
+      .appendElement('s:exception', '', `Sabre\\DAV\\Exception\\${exception}`)
+      .appendElement('s:message', '', message)
   })
 
-const webdavPath = resource => Matchers.regex({
-  matcher: '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
-  generate: `/remote.php/webdav/${resource}`
-})
+const webdavPath = resource => MatchersV3.regex(
+  '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
+  `/remote.php/webdav/${resource}`
+)
 
 const createProvider = function () {
   return new PactV3({
@@ -140,59 +142,58 @@ const createOwncloud = function (username = config.username, password = config.p
   return oc
 }
 
-const getContentsOfFile = file => {
-  return {
-    uponReceiving: 'GET contents of file ' + file,
-    withRequest: {
+const getContentsOfFile = (provider, file) => {
+  return provider
+    .uponReceiving('GET contents of file ' + file)
+    .withRequest({
       method: 'GET',
       path: webdavPath(file),
       headers: validAuthHeaders
-    },
-    willRespondWith: file !== config.nonExistentFile ? {
+    }).willRespondWith(file !== config.nonExistentFile ? {
       status: 200,
-      headers: xmlResponseAndAccessControlCombinedHeader,
-      body: config.testContent
+      headers: textPlainResponseHeaders
+      // TODO uncomment this line once the PR is available in release
+      // https://github.com/pact-foundation/pact-js/pull/590
+      // body: config.testContent
     } : {
       status: 404,
       headers: xmlResponseAndAccessControlCombinedHeader,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
-    }
-  }
+    })
 }
 
-const deleteResource = (resource, type = 'folder') => {
-  return {
-    uponReceiving: `a request to delete a ${type},  ${resource}`,
-    withRequest: {
-      method: 'DELETE',
-      path: webdavPath(resource),
-      headers: validAuthHeaders
-    },
-    willRespondWith: resource.includes('nonExistent') ? {
+const deleteResource = (provider, resource, type = 'folder') => {
+  let response
+  if (resource.includes('nonExistent')) {
+    response = {
       status: 404,
       headers: xmlResponseAndAccessControlCombinedHeader,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
-    } : (function (type) {
-      if (type === 'file') {
-        return {
-          status: 200,
-          headers: xmlResponseHeaders,
-          body: '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ocsMeta('ok', '100') +
-            ' <data/>\n' +
-            '</ocs>'
-        }
-      } else {
-        return {
-          status: 204,
-          headers: {
-            'Access-Control-Allow-Origin': origin
-          }
-        }
+    }
+  } else if (type === 'file') {
+    response = {
+      status: 200,
+      headers: xmlResponseHeaders,
+      body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+        ocs.appendElement('meta', '', (meta) => {
+          ocsMeta(meta, 'ok', '100')
+        }).appendElement('data', '', '')
+      })
+    }
+  } else {
+    response = {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': origin
       }
-    }())
+    }
   }
+  return provider.uponReceiving(`a request to delete a ${type},  ${resource}`)
+    .withRequest({
+      method: 'DELETE',
+      path: webdavPath(resource),
+      headers: validAuthHeaders
+    }).willRespondWith(response)
 }
 
 async function GETRequestToCloudUserEndpoint (provider) {
@@ -412,47 +413,50 @@ const deleteAUser = function (provider) {
     })
 }
 
-const createAFolder = function () {
-  return {
-    uponReceiving: 'successfully create a folder',
-    withRequest: {
+const createAFolder = function (provider, folderName) {
+  return provider.uponReceiving('successfully create a folder ' + folderName)
+    .withRequest({
       method: 'MKCOL',
-      path: Matchers.term({
+      path: MatchersV3.regex(
         // accept any request to testfolder and any subfolders except notExistentDir
-        matcher: '.*\\/remote\\.php\\/webdav\\/' + config.testFolder + '\\/(?!' + config.nonExistentDir + ').*\\/?',
-        generate: '/remote.php/webdav/' + config.testFolder + '/'
-      }),
+        `.*\\/remote\\.php\\/webdav\\/${folderName}\\/?`,
+        '/remote.php/webdav/' + folderName + '/'
+      ),
       headers: validAuthHeaders
-    },
-    willRespondWith: {
+    }).willRespondWith({
       status: 201,
       headers: htmlResponseAndAccessControlCombinedHeader
-    }
-  }
+    })
 }
 
-const updateFile = function (file) {
-  return {
-    uponReceiving: 'Put file contents to file ' + file,
-    withRequest: {
+const updateFile = function (provider, file) {
+  return provider.uponReceiving('Put file contents to file ' + file)
+    .withRequest({
       method: 'PUT',
       path: webdavPath(file),
-      headers: validAuthHeaders,
-      body: config.testContent
-    },
-    willRespondWith: file.includes('nonExistent') ? {
+      headers: {
+        ...validAuthHeaders,
+        'Content-Type': 'text/plain;charset=utf-8'
+      }
+      // TODO: uncomment this once the issue is fixed
+      // https://github.com/pact-foundation/pact-js/issues/589
+      // body: config.testContent
+    }).willRespondWith(file.includes('nonExistent') ? {
       status: 404,
       headers: {
-        'Access-Control-Allow-Origin': origin
+        'Access-Control-Allow-Origin': origin,
+        ...applicationXmlResponseHeaders
       },
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     } : {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': origin
+        'Access-Control-Allow-Origin': origin,
+        'OC-FileId': config.testFileOcFileId,
+        ETag: config.testFileEtag,
+        'OC-ETag': config.testFileEtag
       }
-    }
-  }
+    })
 }
 
 function setGeneralInteractions (provider) {

@@ -347,11 +347,8 @@ const createAUser = function (provider) {
       headers: {
         ...validAuthHeaders,
         ...applicationFormUrlEncoded
-      }
-      // TODO: uncomment this line once the issue is fixed
-      // https://github.com/pact-foundation/pact-js/issues/577
-
-    // body: `password=${config.testUserPassword}&userid=${config.testUser}`
+      },
+      body: `password=${config.testUserPassword}&userid=${config.testUser}`
     }).willRespondWith({
       status: 200,
       headers: {
@@ -369,11 +366,11 @@ const createAUserWithGroupMembership = function (provider) {
         '.*\\/ocs\\/v1\\.php\\/cloud\\/users',
         '/ocs/v1.php/cloud/users'
       ),
-      headers: validAuthHeaders
-      // TODO: uncomment this line once the issue is fixed
-      // https://github.com/pact-foundation/pact-js/issues/577
-
-      // body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
+      headers: {
+        ...validAuthHeaders,
+        ...applicationFormUrlEncoded
+      },
+      body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
     })
     .willRespondWith({
       status: 200,
@@ -509,6 +506,7 @@ module.exports = {
   invalidAuthHeader,
   xmlResponseHeaders,
   applicationXmlResponseHeaders,
+  applicationFormUrlEncoded,
   accessControlAllowHeaders,
   accessControlAllowMethods,
   unauthorizedXmlResponseBody,

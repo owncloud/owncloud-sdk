@@ -14,7 +14,7 @@ describe('Main: Currently testing user management,', function () {
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
-  const { validAuthHeaders, xmlResponseHeaders } = require('./pactHelper.js')
+  const { validAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
 
   const aRequestToGetUserInformation = function (provider, requestName, username, responseBody) {
     return provider
@@ -66,11 +66,11 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username,
           '/ocs/v1.php/cloud/users/' + username
         ),
-        headers: validAuthHeaders
-        // TODO: uncomment this line once the issue is fixed
-        // https://github.com/pact-foundation/pact-js/issues/577
-
-        // body: requestBody
+        headers: {
+          ...validAuthHeaders,
+          ...applicationFormUrlEncoded
+        },
+        body: requestBody
       })
       .willRespondWith({
         status: 200,
@@ -94,11 +94,12 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
           '/ocs/v1.php/cloud/users/' + username + '/groups'
         ),
-        headers: validAuthHeaders
-        // TODO: uncomment this line once the issue is fixed
-        // https://github.com/pact-foundation/pact-js/issues/577
-
-        // body: 'groupid=' + group
+        headers:
+          {
+            ...validAuthHeaders,
+            ...applicationFormUrlEncoded
+          },
+        body: 'groupid=' + group
       })
       .willRespondWith({
         status: 200,
@@ -141,11 +142,12 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
           '/ocs/v1.php/cloud/users/' + username + '/groups'
         ),
-        headers: validAuthHeaders
-        // TODO: uncomment this line once the issue is fixed
-        // https://github.com/pact-foundation/pact-js/issues/577
-
-        // body: 'groupid=' + group
+        headers:
+          {
+            ...validAuthHeaders,
+            ...applicationFormUrlEncoded
+          },
+        body: 'groupid=' + group
       })
       .willRespondWith({
         status: 200,
@@ -170,11 +172,12 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username + '\\/subadmins$',
           '/ocs/v1.php/cloud/users/' + username + '/subadmins'
         ),
-        headers: validAuthHeaders
-        // TODO: uncomment this line once the issue is fixed
-        // https://github.com/pact-foundation/pact-js/issues/577
-
-        // body: 'groupid=' + group
+        headers:
+          {
+            ...validAuthHeaders,
+            ...applicationFormUrlEncoded
+          },
+        body: 'groupid=' + group
       })
       .willRespondWith({
         status: 200,

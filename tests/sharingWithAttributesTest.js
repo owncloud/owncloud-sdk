@@ -6,6 +6,7 @@ describe('oc.shares', function () {
   const {
     validAuthHeaders,
     applicationXmlResponseHeaders,
+    applicationFormUrlEncoded,
     ocsMeta,
     shareResponseOcsData,
     capabilitiesGETRequestValidAuth,
@@ -44,11 +45,11 @@ describe('oc.shares', function () {
           '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
-        headers: validAuthHeaders
-        // TODO: uncomment this line once the issue is fixed
-        // https://github.com/pact-foundation/pact-js/issues/577
-
-        // body: `shareType=0&shareWith=${testUser}&path=%2F${testFile}&attributes%5B0%5D%5Bscope%5D=${shareAttributes.attributes[0].scope}&attributes%5B0%5D%5Bkey%5D=${shareAttributes.attributes[0].key}&attributes%5B0%5D%5Bvalue%5D=${shareAttributes.attributes[0].value}&attributes%5B1%5D%5Bscope%5D=${shareAttributes.attributes[1].scope}&attributes%5B1%5D%5Bkey%5D=${shareAttributes.attributes[1].key}&attributes%5B1%5D%5Bvalue%5D=${shareAttributes.attributes[1].value}`
+        headers: {
+          ...validAuthHeaders,
+          ...applicationFormUrlEncoded
+        },
+        body: `shareType=0&shareWith=${testUser}&path=%2F${testFile}&attributes%5B0%5D%5Bscope%5D=${shareAttributes.attributes[0].scope}&attributes%5B0%5D%5Bkey%5D=${shareAttributes.attributes[0].key}&attributes%5B0%5D%5Bvalue%5D=${shareAttributes.attributes[0].value}&attributes%5B1%5D%5Bscope%5D=${shareAttributes.attributes[1].scope}&attributes%5B1%5D%5Bkey%5D=${shareAttributes.attributes[1].key}&attributes%5B1%5D%5Bvalue%5D=${shareAttributes.attributes[1].value}`
       })
       .willRespondWith({
         status: 200,

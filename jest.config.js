@@ -172,6 +172,7 @@ module.exports = {
     '**/tests/signedUrlTest.js',
     '**/tests/requestsOcsTest.js',
     '**/tests/sharingTest.js',
+    '**/tests/publicLinkTest.js',
   ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

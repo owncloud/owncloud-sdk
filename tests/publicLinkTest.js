@@ -1,119 +1,90 @@
+// TODO: Unskip the tests after the issue is fixed
+// https://github.com/owncloud/owncloud-sdk/issues/705
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+
 describe('oc.publicFiles', function () {
   const config = require('./config/config.json')
   const using = require('jasmine-data-provider')
 
-  // LIBRARY INSTANCE
-  let oc
-
-  // PACT setup
-  const Pact = require('@pact-foundation/pact-web')
   const {
     validAuthHeaders,
     origin,
-    ocsMeta,
     xmlResponseAndAccessControlCombinedHeader,
     htmlResponseAndAccessControlCombinedHeader,
-    CORSPreflightRequest,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
     createOwncloud,
-    pactCleanup
+    createProvider,
+    textPlainResponseHeaders,
+    applicationXmlResponseHeaders,
+    ocsMeta
   } = require('./pactHelper.js')
-  const provider = new Pact.PactWeb()
 
-  const publicLinkShareTokenPath = Pact.Matchers.term({
-    matcher: '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPublicLinkFolder,
-    generate: '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/'
-  })
+  const publicLinkShareTokenPath = MatchersV3.regex(
+    '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPublicLinkFolder,
+    '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/'
+  )
 
   const moveResourceResponse = {
     status: 201,
     headers: htmlResponseAndAccessControlCombinedHeader
   }
 
-  const createDeletePublicShare = (description, method, responseBody) => {
-    return {
-      uponReceiving: description,
-      withRequest: {
+  const createDeletePublicShare = (provider, description, method, responseBody) => {
+    return provider
+      .uponReceiving(description)
+      .withRequest({
         method: method,
-        path: Pact.Matchers.regex({
-          matcher: '.*\\/ocs\\/v(1|2)\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
-          generate: '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        }),
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v(1|2)\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+          '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+        ),
         headers: validAuthHeaders
-      },
-      willRespondWith: {
+      }).willRespondWith({
         status: 200,
         headers: xmlResponseAndAccessControlCombinedHeader,
         body: responseBody
-      }
-    }
+      })
   }
 
-  const createDeleteFolderInPublicShare = (description, method, statusCode) => {
-    return {
-      uponReceiving: description,
-      withRequest: {
+  const createDeleteFolderInPublicShare = (provider, description, method, statusCode) => {
+    return provider
+      .uponReceiving(description)
+      .withRequest({
         method: method,
-        path: Pact.Matchers.regex({
-          matcher: `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/foo`,
-          generate: `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
-        })
-      },
-      willRespondWith: {
+        path: MatchersV3.regex(
+          `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/foo`,
+          `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
+        )
+      })
+      .willRespondWith({
         status: statusCode,
         headers: htmlResponseAndAccessControlCombinedHeader
-      }
-    }
+      })
   }
 
-  const createUpdateGetContentInPublicShare = (description, method, statusCode, requestBody = undefined, responseBody = undefined) => {
-    return {
-      uponReceiving: description,
-      withRequest: {
+  const createUpdateGetContentInPublicShare = (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined) => {
+    return provider
+      .uponReceiving(description)
+      .withRequest({
         method: method,
-        path: Pact.Matchers.regex({
-          matcher: `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/lorem\\.txt`,
-          generate: `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem.txt`
-        }),
+        path: MatchersV3.regex(
+          `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/lorem\\.txt`,
+          `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem.txt`
+        ),
         headers: {
-          Origin: origin
+          ...textPlainResponseHeaders
         },
         body: requestBody
-      },
-      willRespondWith: {
+      })
+      .willRespondWith({
         status: statusCode,
         headers: htmlResponseAndAccessControlCombinedHeader,
         body: responseBody
-      }
-    }
+      })
   }
 
-  beforeEach(function () {
-    oc = createOwncloud()
-
-    return oc.login()
-  })
-
-  afterEach(function () {
-    oc.logout()
-    oc = null
-  })
-
   describe('when creating file urls', function () {
-    beforeAll(function () {
-      const promises = [
-        provider.addInteraction(CORSPreflightRequest()),
-        provider.addInteraction(capabilitiesGETRequestValidAuth()),
-        provider.addInteraction(GETRequestToCloudUserEndpoint())
-      ]
-      return Promise.all(promises)
-    })
-
-    afterAll(function () {
-      return pactCleanup(provider)
-    })
-
     using({
       'token only': {
         token: 'abcdef',
@@ -132,14 +103,14 @@ describe('oc.publicFiles', function () {
       }
     }, function (data, description) {
       it('shall work with ' + description, function () {
+        const oc = createOwncloud()
         expect(oc.publicFiles.getFileUrl(data.token, data.path))
           .toBe(config.owncloudURL + data.expected)
       })
-    }
-    )
+    })
   })
 
-  describe('when listing a shared folder', function () {
+  describe.skip('when listing a shared folder', function () {
     using({
       'without password': {
         shareParams: {},
@@ -175,168 +146,165 @@ describe('oc.publicFiles', function () {
         // CREATED SHARES
         let testFolderShare = null
 
-        beforeAll(function () {
-          const promises = [
-            provider.addInteraction(CORSPreflightRequest()),
-            provider.addInteraction(capabilitiesGETRequestValidAuth()),
-            provider.addInteraction(GETRequestToCloudUserEndpoint())
-          ]
-          promises.push(provider.addInteraction(createDeletePublicShare(
+        it('should list the folder contents', async function () {
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await createDeletePublicShare(
+            provider,
             'create a public link share',
             'POST',
-            '<?xml version="1.0"?>\n' +
-            '<ocs>\n' +
-            ' <data>\n' +
-            '  <token>' + config.shareTokenOfPublicLinkFolder + '</token>\n' +
-            ' </data>\n' +
-            '</ocs>\n'
-          )))
+            new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+              ocs.appendElement('meta', '', (meta) => {
+                ocsMeta(meta, 'ok', '100')
+              }).appendElement('data', '', (data) => {
+                data.appendElement('token', '', config.shareTokenOfPublicLinkFolder)
+              })
+            })
+          )
           if (data.shallGrantAccess) {
-            promises.push(provider.addInteraction({
-              uponReceiving: 'list content of a public link folder',
-              withRequest: {
+            await provider
+              .uponReceiving('list content of a public link folder')
+              .withRequest({
                 method: 'PROPFIND',
                 path: publicLinkShareTokenPath
-              },
-              willRespondWith: {
+              })
+              .willRespondWith({
                 status: 207,
                 headers: xmlResponseAndAccessControlCombinedHeader,
                 body: propfindBody('1')
-              }
-            }))
+              })
           } else {
-            promises.push(provider.addInteraction({
-              uponReceiving: 'list content of a password protected public link folder using the wrong password',
-              withRequest: {
+            await provider
+              .uponReceiving('list content of a password protected public link folder using the wrong password')
+              .withRequest({
                 method: 'PROPFIND',
                 path: publicLinkShareTokenPath,
                 headers: {
                   Origin: origin
                 }
-              },
-              willRespondWith: {
+              })
+              .willRespondWith({
                 status: 401,
                 headers: xmlResponseAndAccessControlCombinedHeader,
-                body: '<?xml version="1.0" encoding="utf-8"?>\n' +
-                  '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
-                  '  <s:exception>Sabre\\DAV\\Exception\\NotAuthenticated</s:exception>\n' +
-                  '</d:error>\n'
-              }
-            }))
+                body: new XmlBuilder('1.0', '', 'd:error').build(dError => {
+                  dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+                  dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\webdavExceptionResponseBody')
+                })
+              })
           }
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
 
-          return Promise.all(promises)
-        })
-
-        afterAll(function () {
-          return pactCleanup(provider)
-        })
-
-        beforeEach(function () {
-          return oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
-            expect(typeof (share)).toBe('object')
-            testFolderShare = share
-          }).catch(error => {
-            fail(error)
-          })
-        })
-
-        it('should list the folder contents', function (done) {
-          oc.publicFiles.list(testFolderShare.getToken(), data.passwordWhenListing).then(files => {
-            if (data.shallGrantAccess) {
-              // test length
-              expect(files.length).toBe(4)
-              // test root folder
-              expect(files[0].getName()).toBe(testFolderShare.getToken())
-              expect(files[0].getPath()).toBe('/')
-              expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
-              expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.username)
-              expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
-
-              // test folder elements
-              expect(files[1].getName()).toBe(config.testFiles[0])
-              expect(files[1].getPath()).toBe('/' + testFolderShare.getToken() + '/')
-
-              expect(files[2].getName()).toBe(config.testFiles[1])
-              expect(files[2].getPath()).toBe('/' + testFolderShare.getToken() + '/')
-
-              expect(files[3].getName()).toBe(config.testFiles[2])
-              expect(files[3].getPath()).toBe('/' + testFolderShare.getToken() + '/')
-            } else {
-              fail(files)
-            }
-            done()
-          }).catch(error => {
-            if (data.shallGrantAccess) {
+            await oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
+              expect(typeof (share)).toBe('object')
+              testFolderShare = share
+            }).catch(error => {
               fail(error)
-            } else {
-              expect(error.statusCode).toBe(401)
-            }
-            done()
+            })
+
+            await oc.publicFiles.list(testFolderShare.getToken(), data.passwordWhenListing).then(files => {
+              if (data.shallGrantAccess) {
+                // test length
+                expect(files.length).toBe(4)
+                // test root folder
+                expect(files[0].getName()).toBe(testFolderShare.getToken())
+                expect(files[0].getPath()).toBe('/')
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.username)
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
+
+                // test folder elements
+                expect(files[1].getName()).toBe(config.testFiles[0])
+                expect(files[1].getPath()).toBe('/' + testFolderShare.getToken() + '/')
+
+                expect(files[2].getName()).toBe(config.testFiles[1])
+                expect(files[2].getPath()).toBe('/' + testFolderShare.getToken() + '/')
+
+                expect(files[3].getName()).toBe(config.testFiles[2])
+                expect(files[3].getPath()).toBe('/' + testFolderShare.getToken() + '/')
+              } else {
+                fail(files)
+              }
+            }).catch(error => {
+              if (data.shallGrantAccess) {
+                fail(error)
+              } else {
+                expect(error.statusCode).toBe(401)
+              }
+            })
           })
         })
 
-        it('should download files from a public shared folder', async function (done) {
+        it('should download files from a public shared folder', async function () {
+          const provider = createProvider()
           if (data.shallGrantAccess) {
-            await provider.addInteraction({
-              uponReceiving: 'download files from a public shared folder',
-              withRequest: {
+            await provider
+              .uponReceiving('download files from a public shared folder')
+              .withRequest({
                 method: 'GET',
                 path: publicLinkShareTokenPath
-              },
-              willRespondWith: {
+              })
+              .willRespondWith({
                 status: 200,
                 headers: {
                   'Content-Type': 'text/plain;charset=UTF-8',
                   'Access-Control-Allow-Origin': origin
                 },
                 body: testContent
-              }
-            })
+              })
           } else {
-            await provider.addInteraction({
-              uponReceiving: 'download files from a public shared folder using wrong password',
-              withRequest: {
+            await provider
+              .uponReceiving('download files from a public shared folder using wrong password')
+              .withRequest({
                 method: 'GET',
                 path: publicLinkShareTokenPath
-              },
-              willRespondWith: {
+              })
+              .willRespondWith({
                 status: 401,
                 headers: {
-                  'Content-Type': 'text/plain;charset=UTF-8',
+                  // 'Content-Type': 'text/plain;charset=UTF-8',
                   'Access-Control-Allow-Origin': origin
                 },
-                body: '<?xml version="1.0" encoding="utf-8"?>\n' +
-                  '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
-                  '  <s:exception>Sabre\\DAV\\Exception\\NotAuthenticated</s:exception>\n' +
-                  '  <s:message>Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect</s:message>\n' +
-                  '</d:error>'
+                body: new XmlBuilder('1.0', '', 'd:error').build(dError => {
+                  dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+                  dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
+                    .appendElement('s:message', '', 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect')
+                })
+              })
+          }
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
+            await oc.shares.shareFileWithLink(config.testFolder, data.shareParams).then(share => {
+              expect(typeof (share)).toBe('object')
+              testFolderShare = share
+            }).catch(error => {
+              fail(error)
+            })
+            await oc.publicFiles.download(testFolderShare.getToken(), config.testFiles[2], data.passwordWhenListing).then(resp => {
+              if (data.shallGrantAccess) {
+                if (resp.ok) {
+                  return resp.text().then(text => {
+                    expect(text).toEqual(testContent)
+                  })
+                } else {
+                  fail(resp.statusText)
+                }
+              } else {
+                expect(resp.status).toBe(401)
+              }
+            }).catch(error => {
+              if (data.shallGrantAccess) {
+                fail(error)
+              } else {
+                expect(error.statusCode).toBe(401)
               }
             })
-          }
-
-          return oc.publicFiles.download(testFolderShare.getToken(), config.testFiles[2], data.passwordWhenListing).then(resp => {
-            if (data.shallGrantAccess) {
-              if (resp.ok) {
-                return resp.text().then(text => {
-                  expect(text).toEqual(testContent)
-                  done()
-                })
-              }
-              fail(resp.statusText)
-              done()
-            } else {
-              expect(resp.status).toBe(401)
-              done()
-            }
-          }).catch(error => {
-            if (data.shallGrantAccess) {
-              fail(error)
-            } else {
-              expect(error.statusCode).toBe(401)
-              done()
-            }
-            done()
           })
         })
       })
@@ -345,11 +313,13 @@ describe('oc.publicFiles', function () {
   describe('when working with files and folder a shared folder', function () {
     using({
       'without password': {
+        description: 'without password',
         shareParams: {
           permissions: 15
         }
       },
       'with password': {
+        description: 'with password',
         shareParams: {
           password: 'password',
           permissions: 15
@@ -357,281 +327,311 @@ describe('oc.publicFiles', function () {
       }
     }, function (data, description) {
       describe(description, function () {
-        beforeAll(function () {
-          const promises = [
-            provider.addInteraction(CORSPreflightRequest()),
-            provider.addInteraction(capabilitiesGETRequestValidAuth()),
-            provider.addInteraction(GETRequestToCloudUserEndpoint())
-          ]
-          promises.push(provider.addInteraction(createDeletePublicShare(
-            'delete public link share',
-            'DELETE',
-            ocsMeta('ok', '100')
-          )))
-          promises.push(provider.addInteraction(createDeleteFolderInPublicShare(
-            'create a folder in public share',
+        it('should create a folder', async function () {
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await createDeleteFolderInPublicShare(
+            provider,
+            'create a folder in public share' + ' ' + data.description,
             'MKCOL',
             201
-          )))
-
-          promises.push(provider.addInteraction(createDeleteFolderInPublicShare(
-            'delete a folder in public share',
+          )
+          await createDeleteFolderInPublicShare(
+            provider,
+            'delete a folder in public share' + ' ' + data.description,
             'DELETE',
             204
-          )))
+          )
 
-          promises.push(provider.addInteraction(createUpdateGetContentInPublicShare(
-            'put content to file in public share',
-            'PUT',
-            201,
-            config.testContent
-          )))
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
 
-          promises.push(provider.addInteraction(createUpdateGetContentInPublicShare(
-            'update content of public share',
+            return oc.publicFiles.createFolder(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then(() => {
+              return oc.publicFiles.delete(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password)
+            }).catch(error => {
+              fail(error)
+            })
+          })
+        })
+
+        it.skip('should create a file', async function () {
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await createUpdateGetContentInPublicShare(
+            provider,
+            'update content of public share' + ' ' + data.description,
             'PUT',
             204,
             'lorem'
-          )))
+          )
 
-          promises.push(provider.addInteraction(createUpdateGetContentInPublicShare(
-            'get content of file in public share',
+          await createUpdateGetContentInPublicShare(
+            provider,
+            'get content of file in public share' + ' ' + data.description,
             'GET',
             200,
             undefined,
             config.testContent
-          )))
+          )
 
-          return Promise.all(promises)
-        })
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
 
-        afterAll(function () {
-          return pactCleanup(provider)
-        })
-
-        it('should create a folder', function (done) {
-          return oc.publicFiles.createFolder(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then(() => {
-            return oc.publicFiles.delete(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then(() => {
-              done()
-            })
-          }).catch(error => {
-            fail(error)
-            done()
-          })
-        })
-
-        it('should create a file', async function () {
-          try {
-            const testContent = '123456'
-            const newFile = 'lorem.txt'
-            let progressCalled = false
-            const options = {
-              onProgress: () => {
-                progressCalled = true
+            try {
+              const testContent = '123456'
+              const newFile = 'lorem.txt'
+              let progressCalled = false
+              const options = {
+                onProgress: () => {
+                  progressCalled = true
+                }
               }
+              const status = await oc.publicFiles.putFileContents(
+                config.shareTokenOfPublicLinkFolder,
+                newFile,
+                data.shareParams.password,
+                testContent,
+                options
+              )
+              expect(typeof status).toBe('object')
+              expect(progressCalled).toEqual(true)
+              const resp = await oc.publicFiles.download(config.shareTokenOfPublicLinkFolder, newFile, data.shareParams.password)
+              const content = await resp.text()
+              expect(content).toEqual(testContent)
+            } catch (error) {
+              fail(error)
             }
-            const status = await oc.publicFiles.putFileContents(
-              config.shareTokenOfPublicLinkFolder,
-              newFile,
-              data.shareParams.password,
-              testContent,
-              options
-            )
-            expect(typeof status).toBe('object')
-            expect(progressCalled).toEqual(true)
-            const resp = await oc.publicFiles.download(config.shareTokenOfPublicLinkFolder, newFile, data.shareParams.password)
-            const content = await resp.text()
-            expect(content).toEqual(testContent)
-          } catch (error) {
-            fail(error)
-          }
+          })
         })
 
         it('should update a file', async function () {
-          try {
-            const resp = await oc.publicFiles.putFileContents(config.shareTokenOfPublicLinkFolder, 'lorem.txt', data.shareParams.password, '123456')
-            const options = {
-              previousEntityTag: resp.ETag
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await createUpdateGetContentInPublicShare(
+            provider,
+            'update content of public share' + ' ' + data.description + ' and content lorem',
+            'PUT',
+            204,
+            'lorem'
+          )
+          await createUpdateGetContentInPublicShare(
+            provider,
+            'update content of public share' + ' ' + data.description + ' and content 123456',
+            'PUT',
+            204,
+            '123456'
+          )
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
+            try {
+              const resp = await oc.publicFiles.putFileContents(config.shareTokenOfPublicLinkFolder, 'lorem.txt', data.shareParams.password, '123456')
+              const options = {
+                previousEntityTag: resp.ETag
+              }
+              const status = await oc.publicFiles.putFileContents(config.shareTokenOfPublicLinkFolder, 'lorem.txt', data.shareParams.password, 'lorem', options)
+              expect(typeof status).toBe('object')
+            } catch (error) {
+              fail(error)
             }
-            const status = await oc.publicFiles.putFileContents(config.shareTokenOfPublicLinkFolder, 'lorem.txt', data.shareParams.password, 'lorem', options)
-            expect(typeof status).toBe('object')
-          } catch (error) {
-            fail(error)
-          }
+          })
         })
 
-        it('should move a file', async function (done) {
-          await provider.addInteraction({
-            uponReceiving: 'Move a file',
-            withRequest: {
-              method: 'MOVE',
-              path: Pact.Matchers.regex({
-                matcher: `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/lorem\\.txt`,
-                generate: `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem.txt`
-              }),
-              headers: {
-                Origin: origin,
-                Destination: `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`
-              }
-            },
-            willRespondWith: moveResourceResponse
-          })
+        it('should move a file', async function () {
           const source = config.shareTokenOfPublicLinkFolder + '/lorem.txt'
           const target = config.shareTokenOfPublicLinkFolder + '/lorem123456.txt'
-          return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
-            done()
-          }).catch(error => {
-            fail(error)
-            done()
+
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await provider
+            .uponReceiving('Move a file' + ' ' + data.description)
+            .withRequest({
+              method: 'MOVE',
+              path: MatchersV3.regex(
+                `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/lorem\\.txt`,
+                `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem.txt`
+              ),
+              headers: {
+                Destination: `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`
+              }
+            })
+            .willRespondWith(moveResourceResponse)
+
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
+            return oc.publicFiles.move(source, target, data.shareParams.password)
+              .catch(error => {
+                fail(error)
+              })
           })
         })
 
-        it('should move a file to subfolder', async function (done) {
-          await provider.addInteraction({
-            uponReceiving: 'Move a file to subfolder',
-            withRequest: {
-              method: 'MOVE',
-              path: Pact.Matchers.regex({
-                matcher: `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/lorem123456\\.txt`,
-                generate: `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`
-              }),
-              headers: {
-                Origin: origin,
-                Destination: `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`
-              }
-            },
-            willRespondWith: moveResourceResponse
-          })
+        it('should move a file to subfolder', async function () {
           const source = config.shareTokenOfPublicLinkFolder + '/lorem123456.txt'
           const target = config.shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
-          return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
-            done()
-          }).catch(error => {
-            fail(error)
-            done()
+
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await provider
+            .uponReceiving('Move a file to subfolder' + ' ' + data.description)
+            .withRequest({
+              method: 'MOVE',
+              path: MatchersV3.regex(
+                `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/lorem123456\\.txt`,
+                `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`
+              ),
+              headers: {
+                Destination: `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`
+              }
+            })
+            .willRespondWith(moveResourceResponse)
+
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
+            return oc.publicFiles.move(source, target, data.shareParams.password).catch(error => {
+              fail(error)
+            })
           })
         })
 
-        it('should move a folder', async function (done) {
-          await provider.addInteraction({
-            uponReceiving: 'Move a folder',
-            withRequest: {
+        it('should move a folder', async function () {
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await createDeleteFolderInPublicShare(
+            provider,
+            'create a folder in public share for rename' + ' ' + data.description,
+            'MKCOL',
+            201
+          )
+          await provider
+            .uponReceiving('Move a folder to different name' + ' ' + data.description)
+            .withRequest({
               method: 'MOVE',
-              path: Pact.Matchers.regex({
-                matcher: `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/foo`,
-                generate: `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
-              }),
+              path: MatchersV3.regex(
+                `.*\\/remote\\.php\\/dav\\/public-files\\/${config.shareTokenOfPublicLinkFolder}\\/foo`,
+                `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
+              ),
               headers: {
-                Origin: origin,
                 Destination: `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
               }
-            },
-            willRespondWith: moveResourceResponse
-          })
-          return oc.publicFiles.createFolder(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then(() => {
-            const source = config.shareTokenOfPublicLinkFolder + '/' + 'foo'
-            const target = config.shareTokenOfPublicLinkFolder + '/' + 'bar'
-            return oc.publicFiles.move(source, target, data.shareParams.password).then(() => {
-              done()
+            }).willRespondWith(moveResourceResponse)
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
+            return oc.publicFiles.createFolder(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then(() => {
+              const source = config.shareTokenOfPublicLinkFolder + '/' + 'foo'
+              const target = config.shareTokenOfPublicLinkFolder + '/' + 'bar'
+              return oc.publicFiles.move(source, target, data.shareParams.password)
+            }).catch(error => {
+              fail(error)
             })
-          }).catch(error => {
-            fail(error)
-            done()
           })
         })
 
-        it('should get fileInfo of shared folder', async function () {
-          await provider.addInteraction({
-            uponReceiving: 'Get file info of public share',
-            withRequest: {
+        it.skip('should get fileInfo of shared folder', async function () {
+          const provider = createProvider()
+          await capabilitiesGETRequestValidAuth(provider)
+          await GETRequestToCloudUserEndpoint(provider)
+          await provider
+            .uponReceiving('Get file info of public share' + ' ' + data.description)
+            .withRequest({
               method: 'PROPFIND',
               path: publicLinkShareTokenPath,
               headers: {
-                Origin: origin
+                ...applicationXmlResponseHeaders
               },
-              body: '<?xml version="1.0"?>\n' +
-                '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">\n' +
-                '  <d:prop>\n' +
-                '    <oc:public-link-item-type />\n' +
-                '    <oc:public-link-permission />\n' +
-                '    <oc:public-link-expiration />\n' +
-                '    <oc:public-link-share-datetime />\n' +
-                '    <oc:public-link-share-owner />\n' +
-                '    <d:getcontenttype />\n' +
-                '  </d:prop>\n' +
-                '</d:propfind>'
-            },
-            willRespondWith: {
+              body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
+                dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
+                dPropfind.appendElement('d:prop', '', dProp => {
+                  dProp.appendElement('oc:public-link-item-type', '', '')
+                  dProp.appendElement('oc:public-link-permission', '', '')
+                  dProp.appendElement('oc:public-link-expiration', '', '')
+                  dProp.appendElement('oc:public-link-share-datetime', '', '')
+                  dProp.appendElement('oc:public-link-share-owner', '', '')
+                  dProp.appendElement('d:getcontenttype', '', '')
+                })
+              })
+            })
+            .willRespondWith({
               status: 207,
               headers: xmlResponseAndAccessControlCombinedHeader,
               body: propfindBody('15')
+            })
+
+          return provider.executeTest(async () => {
+            const oc = createOwncloud()
+            await oc.login()
+            const sharedFolder = config.shareTokenOfPublicLinkFolder
+            const folder = await oc.publicFiles.getFileInfo(
+              sharedFolder,
+              data.shareParams.password
+            )
+            // Return error message in case the name does not exist
+            if (!folder.name) {
+              return fail(folder)
             }
+            // We need to remove slash which is first char in fileInfo.name
+            const folderName = folder.name.slice(1)
+            expect(folderName).toBe(sharedFolder)
           })
-          const sharedFolder = config.shareTokenOfPublicLinkFolder
-          const folder = await oc.publicFiles.getFileInfo(
-            sharedFolder,
-            data.shareParams.password
-          )
-
-          // Return error message in case the name does not exist
-          if (!folder.name) {
-            return fail(folder)
-          }
-
-          // We need to remove slash which is first char in fileInfo.name
-          const folderName = folder.name.slice(1)
-
-          expect(folderName).toBe(sharedFolder)
         })
       })
     })
   })
 
-  function buildPropfindFileList () {
-    let contentResponse = ''
+  function buildPropfindFileList (node) {
     for (let fileNum = 0; fileNum < config.testFiles.length; fileNum++) {
-      contentResponse +=
-        '<d:response>\n' +
-        // TODO add ${SUBFOLDER} in the href
-        '   <d:href>/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/' +
-        encodeURIComponent(config.testFiles[fileNum]) + '</d:href>\n' +
-        '   <d:propstat>\n' +
-        '      <d:prop>\n' +
-        '         <d:getcontenttype>text/plain</d:getcontenttype>\n' +
-        '      </d:prop>\n' +
-        '      <d:status>HTTP/1.1 200 OK</d:status>\n' +
-        '   </d:propstat>\n' +
-        '   <d:propstat>\n' +
-        '      <d:prop>\n' +
-        '         <oc:public-link-item-type />\n' +
-        '         <oc:public-link-permission />\n' +
-        '         <oc:public-link-expiration />\n' +
-        '         <oc:public-link-share-datetime />\n' +
-        '         <oc:public-link-share-owner />\n' +
-        '      </d:prop>\n' +
-        '      <d:status>HTTP/1.1 404 Not Found</d:status>\n' +
-        '   </d:propstat>\n' +
-        '</d:response>\n'
+      node.appendElement('d:response', '', dResponse => {
+        dResponse.appendElement('d:href', '', '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/' +
+          encodeURIComponent(config.testFiles[fileNum]))
+          .appendElement('d:propstat', '', dPropstat => {
+            dPropstat.appendElement('d:prop', '', dProp => {
+              dProp
+                .appendElement('d:getcontenttype', '', 'text/plain')
+            })
+              .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+          }).appendElement('d:propstat', '', dPropstat => {
+            dPropstat.appendElement('d:prop', '', dProp => {
+              dProp
+                .appendElement('oc:public-link-item-type', '', '')
+                .appendElement('oc:public-link-permission', '', '')
+                .appendElement('oc:public-link-expiration', '', '')
+                .appendElement('oc:public-link-share-datetime', '', '')
+                .appendElement('oc:public-link-share-owenr', '', '')
+            })
+              .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+          })
+      })
     }
-    return contentResponse
   }
 
   function propfindBody (permission) {
-    const response = permission === '1' ? buildPropfindFileList() : ''
-    return '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<d:multistatus xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns" xmlns:s="http://sabredav.org/ns">\n' +
-      '   <d:response>\n' +
-      '      <d:href>/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/</d:href>\n' +
-      '      <d:propstat>\n' +
-      '         <d:prop>\n' +
-      '            <oc:public-link-item-type>folder</oc:public-link-item-type>\n' +
-      '            <oc:public-link-permission>' + permission + '</oc:public-link-permission>\n' +
-      '            <oc:public-link-share-owner>' + config.username + '</oc:public-link-share-owner>\n' +
-      '         </d:prop>\n' +
-      '         <d:status>HTTP/1.1 200 OK</d:status>\n' +
-      '      </d:propstat>\n' +
-      '   </d:response>\n' +
-      response +
-      '</d:multistatus>'
+    return new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
+      dMultistatus.appendElement('d:response', '', dResponse => {
+        dResponse.appendElement('d:href', '', '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder)
+          .appendElement('d:propstat', '', dPropstat => {
+            dPropstat.appendElement('d:prop', '', dProp => {
+              dProp
+                .appendElement('oc:public-link-item-type', '', 'folder')
+                .appendElement('oc:public-link-permission', '', permission)
+                .appendElement('oc:public-link-share-owner', '', config.username)
+            })
+              .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+          })
+        if (permission === '1') {
+          buildPropfindFileList(dResponse)
+        }
+      })
+    })
   }
 })

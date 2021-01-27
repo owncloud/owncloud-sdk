@@ -105,11 +105,13 @@ const webdavMatcherForResource = resource => {
   }
 }
 
-const webdavExceptionResponseBody = (exception, message) => '<?xml version="1.0" encoding="utf-8"?>\n' +
-  '<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">\n' +
-  `  <s:exception>Sabre\\DAV\\Exception\\${exception}</s:exception>\n` +
-  `  <s:message>${message}</s:message>\n` +
-  '</d:error>'
+const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0', 'utf-8', 'd:error')
+  .build(dError => {
+    dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+    dError
+      .appendElement('s:exception', ' ', `Sabre\\DAV\\Exception\\${exception}`)
+      .appendElement('s:message', ' ', message)
+  })
 
 const webdavPath = resource => Matchers.regex({
   matcher: '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),

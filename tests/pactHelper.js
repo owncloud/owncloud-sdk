@@ -60,6 +60,9 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
 const applicationXmlResponseHeaders = {
   'Content-Type': 'application/xml; charset=utf-8'
 }
+const textPlainResponseHeaders = {
+  'Content-Type': 'text/plain; charset=utf-8'
+}
 const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urlencoded' }
 
 const xmlResponseHeaders = {
@@ -507,6 +510,7 @@ module.exports = {
   xmlResponseHeaders,
   applicationXmlResponseHeaders,
   applicationFormUrlEncoded,
+  textPlainResponseHeaders,
   accessControlAllowHeaders,
   accessControlAllowMethods,
   unauthorizedXmlResponseBody,

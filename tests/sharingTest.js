@@ -19,6 +19,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   const {
     applicationXmlResponseHeaders,
+    applicationFormUrlEncoded,
     accessControlAllowHeaders,
     accessControlAllowMethods,
     validAuthHeaders,
@@ -489,10 +490,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
-            headers: validAuthHeaders
-          // TODO: uncomment this line once the issue is fixed
-          // https://github.com/pact-foundation/pact-js/issues/577
-          // body: 'shareType=3' + '&path=%2F' + config.nonExistentFile + '&password=' + config.testUserPassword
+            headers: {
+              ...validAuthHeaders,
+              ...applicationFormUrlEncoded
+            },
+            body: 'shareType=3' + '&path=%2F' + config.nonExistentFile + '&password=' + config.testUserPassword
           }).willRespondWith({
             status: 200,
             headers: {
@@ -516,10 +518,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
-            headers: validAuthHeaders
-          // TODO: uncomment this line once the issue is fixed
-          // https://github.com/pact-foundation/pact-js/issues/577
-          // body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.nonExistentFile + '&permissions=19'
+            headers: {
+              ...validAuthHeaders,
+              ...applicationFormUrlEncoded
+            },
+            body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.nonExistentFile + '&permissions=19'
           }).willRespondWith({
             status: 200,
             headers: applicationXmlResponseHeaders,
@@ -627,10 +630,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
-            headers: validAuthHeaders
-            // TODO: uncomment this line once the issue is fixed
-            // https://github.com/pact-foundation/pact-js/issues/577
-            // body: 'shareType=0&shareWith=' + config.testUser + '&path=' + config.testFilesPath[i] + '&expireDate=' + config.expirationDate
+            headers: {
+              ...validAuthHeaders,
+              ...applicationFormUrlEncoded
+            },
+            body: 'shareType=0&shareWith=' + config.testUser + '&path=' + file + '&expireDate=' + config.expirationDate
           })
           .willRespondWith({
             status: 200,
@@ -848,12 +852,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         await capabilitiesGETRequestValidAuth(provider)
         await GETRequestToCloudUserEndpoint(provider)
 
-        // TODO: uncomment this line once the issue is fixed
-        // https://github.com/pact-foundation/pact-js/issues/577
-        // await Promise.all(testFiles.map(file => sharePOSTRequestWithExpirationDateSet(provider, file)))
-
-        await sharePOSTRequestWithExpirationDateSet(provider, testFiles[0])
-
+        await Promise.all(config.testFilesPath.map(file => sharePOSTRequestWithExpirationDateSet(provider, file)))
         return provider.executeTest(async () => {
           const oc = createOwncloud()
           await oc.login()

@@ -9,7 +9,6 @@ describe('Main: Currently testing group management,', function () {
     validAuthHeaders,
     xmlResponseHeaders,
     ocsMeta,
-    applicationXmlResponseHeaders,
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
     createOwncloud
@@ -173,11 +172,12 @@ describe('Main: Currently testing group management,', function () {
           /.*\/ocs\/v1\.php\/cloud\/groups$/,
           '/ocs/v1.php/cloud/groups'
         ),
-        headers: headers
+        headers: headers,
+        body: 'groupid=' + config.testGroup
       })
       .willRespondWith({
         status: 200,
-        headers: applicationXmlResponseHeaders,
+        headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
             return ocsMeta(meta, 'ok', '100')

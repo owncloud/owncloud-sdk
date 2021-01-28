@@ -16,6 +16,7 @@ describe('Main: Currently testing group management,', function () {
 
   async function GETGroupsRequest (provider) {
     await provider
+      .given('group exists', { groupName: config.testGroup })
       .uponReceiving('a GET groups request')
       .withRequest({
         method: 'GET',
@@ -43,6 +44,14 @@ describe('Main: Currently testing group management,', function () {
   }
 
   async function DELETEGroupRequests (provider, group) {
+    if (group === config.nonExistentGroup) {
+      await provider
+        .given('group does not exist', { groupName: group })
+    } else {
+      await provider
+        .given('group exists', { groupName: group })
+    }
+
     await provider
       .uponReceiving('a DELETE request for group, ' + group)
       .withRequest({
@@ -165,6 +174,7 @@ describe('Main: Currently testing group management,', function () {
   it('checking method : createGroup', async function () {
     const headers = { ...validAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
     await provider
+      .given('group does not exist', { groupName: config.testGroup })
       .uponReceiving('a create group POST request')
       .withRequest({
         method: 'POST',

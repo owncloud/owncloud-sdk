@@ -68,7 +68,7 @@ describe('Signed urls', function () {
         headers: {
           'Access-Control-Allow-Headers': accessControlAllowHeaders,
           'Access-Control-Allow-Methods': accessControlAllowMethods,
-          'Content-Type': 'text/xml; charset=utf-8',
+          'Content-Type': 'text/plain; charset=utf-8',
           'Access-Control-Allow-Origin': origin
         }
         // TODO: uncomment this line once the issue is fixed

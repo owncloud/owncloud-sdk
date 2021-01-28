@@ -33,9 +33,8 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
           ocs.appendElement('meta', '', (meta) => {
             meta.appendElement('status', '', 'ok')
               .appendElement('statuscode', '', '100')
-              .appendElement('message', '', '')
           }).appendElement('data', '', (data) => {
-            data.appendElement('version', '', '1.7')
+            data.appendElement('version', '', MatchersV3.decimal(1.7))
           })
         })
       })

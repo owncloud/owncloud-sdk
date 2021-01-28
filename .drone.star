@@ -11,7 +11,7 @@ config = {
 }
 
 def main(ctx):
-    return [ fullBuild(), testWithinSubFolder(), publish() ]
+    return [ consumerTestPipeline(), consumerTestPipeline('/sub/'), providerTestPipeline(), publish() ]
 
 def incrementVersion():
     return [{
@@ -79,13 +79,202 @@ def prepareTestConfig(subFolderPath = '/'):
         }
     }]
 
-def test():
+def getDbName(db):
+    return db.split(':')[0]
+
+def getDbUsername(db):
+    name = getDbName(db)
+
+    if name == 'oracle':
+        return 'system'
+
+    return 'owncloud'
+
+def getDbPassword(db):
+    name = getDbName(db)
+
+    if name == 'oracle':
+        return 'oracle'
+
+    return 'owncloud'
+
+def getDbDatabase(db):
+    name = getDbName(db)
+
+    if name == 'oracle':
+        return 'XE'
+
+    return 'owncloud'
+
+def getDbRootPassword():
+    return 'owncloud'
+
+def installCore(version, db):
+    host = getDbName(db)
+    dbType = host
+
+    username = getDbUsername(db)
+    password = getDbPassword(db)
+    database = getDbDatabase(db)
+
+    if host == 'mariadb':
+        dbType = 'mysql'
+
+    if host == 'postgres':
+        dbType = 'pgsql'
+
+    if host == 'oracle':
+        dbType = 'oci'
+
+    stepDefinition = {
+        'name': 'install-core',
+        'image': 'owncloudci/core',
+        'pull': 'always',
+        'settings': {
+            'version': version,
+            'core_path': '/var/www/owncloud/server',
+            'db_type': dbType,
+            'db_name': database,
+            'db_host': host,
+            'db_username': username,
+            'db_password': password
+        }
+    }
+
+    return [stepDefinition]
+
+def setupServerAndApp(logLevel):
+    return [{
+        'name': 'setup-server-%s' % config['app'],
+        'image': 'owncloudci/php:7.3',
+        'pull': 'always',
+        'commands': [
+            'cd /var/www/owncloud/server/',
+            'php occ a:e testing',
+            'php occ config:system:set trusted_domains 1 --value=owncloud',
+            'php occ config:system:set cors.allowed-domains 0 --value=http://web',
+            'php occ log:manage --level %s' % logLevel,
+            'php occ config:list',
+            'php occ config:system:set skeletondirectory --value=/var/www/owncloud/server/apps/testing/data/webUISkeleton',
+            'php occ config:system:set dav.enable.tech_preview  --type=boolean --value=true',
+            'php occ config:system:set web.baseUrl --value="http://web"',
+            'php occ config:system:set sharing.federation.allowHttpFallback --value=true --type=bool'
+        ]
+    }]
+
+def fixPermissions():
+    return [{
+        'name': 'fix-permissions',
+        'image': 'owncloudci/php:7.3',
+        'pull': 'always',
+        'commands': [
+            'cd /var/www/owncloud/server',
+            'chown www-data * -R'
+        ]
+    }]
+
+def owncloudLog():
+    return [{
+        'name': 'owncloud-log',
+        'image': 'owncloud/ubuntu:16.04',
+        'pull': 'always',
+        'detach': True,
+        'commands': [
+            'tail -f /var/www/owncloud/server/data/owncloud.log'
+        ]
+    }]
+
+def owncloudService():
+    return [{
+        'name': 'owncloud',
+        'image': 'owncloudci/php:7.3',
+        'pull': 'always',
+        'environment': {
+            'APACHE_WEBROOT': '/var/www/owncloud/server/',
+        },
+        'command': [
+            '/usr/local/bin/apachectl',
+            '-e',
+            'debug',
+            '-D',
+            'FOREGROUND'
+        ]
+    }]
+
+def databaseService(db):
+    dbName = getDbName(db)
+    if (dbName == 'mariadb') or (dbName == 'mysql'):
+        return [{
+            'name': dbName,
+            'image': db,
+            'pull': 'always',
+            'environment': {
+                'MYSQL_USER': getDbUsername(db),
+                'MYSQL_PASSWORD': getDbPassword(db),
+                'MYSQL_DATABASE': getDbDatabase(db),
+                'MYSQL_ROOT_PASSWORD': getDbRootPassword()
+            }
+        }]
+
+    if dbName == 'postgres':
+        return [{
+            'name': dbName,
+            'image': db,
+            'pull': 'always',
+            'environment': {
+                'POSTGRES_USER': getDbUsername(db),
+                'POSTGRES_PASSWORD': getDbPassword(db),
+                'POSTGRES_DB': getDbDatabase(db)
+            }
+        }]
+
+    if dbName == 'oracle':
+        return [{
+            'name': dbName,
+            'image': 'deepdiver/docker-oracle-xe-11g:latest',
+            'pull': 'always',
+            'environment': {
+                'ORACLE_USER': getDbUsername(db),
+                'ORACLE_PASSWORD': getDbPassword(db),
+                'ORACLE_DB': getDbDatabase(db),
+                'ORACLE_DISABLE_ASYNCH_IO': 'true',
+            }
+        }]
+
+    return []
+
+def pactConsumerTests(uploadPact):
     return [{
         'name': 'test',
         'image': 'owncloudci/nodejs:12',
         'pull': 'always',
+        'environment': {
+            'PACTFLOW_TOKEN': {
+                'from_secret': 'pactflow_token'
+            }
+        },
         'commands': [
-            'yarn test-drone'
+            'yarn test-consumer'
+         ] + ([
+            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server.json',
+            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${DRONE_SOURCE_BRANCH}'
+        ] if uploadPact else [])
+    }]
+
+def pactProviderTests(version):
+    return [{
+        'name': 'test',
+        'image': 'owncloudci/nodejs:12',
+        'pull': 'always',
+        'environment': {
+            'PROVIDER_BASE_URL': 'http://owncloud/',
+            'PACTFLOW_TOKEN': {
+                'from_secret': 'pactflow_token'
+            },
+            'PROVIDER_VERSION': version
+        },
+        'commands': [
+            'yarn test-provider'
         ]
     }]
 
@@ -135,10 +324,10 @@ def publishSystem():
         }
     }]
 
-def fullBuild():
+def consumerTestPipeline(subFolderPath = '/'):
     return {
         'kind': 'pipeline',
-        'name': 'Full build',
+        'name': 'testConsumer-' + ('root' if subFolderPath == '/' else 'subfolder'),
         'platform': {
             'os': 'linux',
             'arch': 'amd64'
@@ -151,17 +340,16 @@ def fullBuild():
             'branch': 'master'
         },
         'steps':
-            buildDocs() +
             buildSystem() +
-            prepareTestConfig() +
             pactLog() +
-            test()
+            prepareTestConfig(subFolderPath) +
+            pactConsumerTests(True if subFolderPath == '/' else False),
     }
 
-def testWithinSubFolder():
+def providerTestPipeline():
     return {
         'kind': 'pipeline',
-        'name': 'Test within a subfolder',
+        'name': 'testProvider',
         'platform': {
             'os': 'linux',
             'arch': 'amd64'
@@ -173,13 +361,21 @@ def testWithinSubFolder():
         'trigger': {
             'branch': 'master'
         },
+        'depends_on': [ 'testConsumer-root', 'testConsumer-subfolder' ],
         'steps':
-            buildDocs() +
             buildSystem() +
-            prepareTestConfig('/sub/') +
             pactLog() +
-            test()
+            prepareTestConfig() +
+            installCore('daily-master-qa', 'mysql:5.5') +
+            owncloudLog() +
+            setupServerAndApp('2') +
+            fixPermissions()+
+            pactProviderTests('daily-master-qa'),
+         'services':
+            owncloudService() +
+            databaseService('mysql:5.5')
     }
+
 
 def publish():
     return {
@@ -193,7 +389,7 @@ def publish():
             'base': '/var/www/owncloud',
             'path': 'owncloud-sdk'
         },
-        'depends_on': [ 'Full build', 'Test within a subfolder' ],
+        'depends_on': [ 'testConsumer-root', 'testConsumer-subfolder', 'testProvider' ],
         'trigger': {
             'branch': 'master'
         },

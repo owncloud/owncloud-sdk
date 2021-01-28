@@ -310,7 +310,6 @@ class helpers {
         headers: headers
       })
         .then(async res => {
-          res.headers = new fetch.Headers(res.headers)
           res.statusCode = res.status
           resolve({
             response: res,

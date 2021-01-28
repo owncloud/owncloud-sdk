@@ -171,6 +171,7 @@ module.exports = {
     '**/tests/publicLinkTest.js',
     '**/tests/fileTrashTest.js',
     '**/tests/fileVersionTest.js',
+    '**/tests/filesTest.js',
   ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

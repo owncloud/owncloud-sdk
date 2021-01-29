@@ -68,6 +68,10 @@ const xmlResponseHeaders = {
   'Content-Type': 'text/xml; charset=utf-8'
 }
 
+const htmlResponseHeaders = {
+  'Content-Type': 'text/html; charset=utf-8'
+}
+
 const getAuthHeaders = (username, password) => {
   const header = `${username}:${password}`
   const buff = Buffer.from(header)
@@ -514,6 +518,7 @@ module.exports = {
   validAuthHeaders,
   invalidAuthHeader,
   xmlResponseHeaders,
+  htmlResponseHeaders,
   applicationXmlResponseHeaders,
   applicationFormUrlEncoded,
   textPlainResponseHeaders,

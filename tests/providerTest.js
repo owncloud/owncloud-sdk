@@ -22,6 +22,7 @@ describe('provider testing', () => {
       opts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
       opts.publishVerificationResult = true
       opts.pactBrokerToken = process.env.PACTFLOW_TOKEN
+      opts.enablePending = true
       opts.consumerVersionSelectors = [
         {
           tag: process.env.DRONE_SOURCE_BRANCH,

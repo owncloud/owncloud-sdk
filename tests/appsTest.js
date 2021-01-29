@@ -63,8 +63,8 @@ describe('Main: Currently testing apps management,', function () {
           }).appendElement('data', '', (data) => {
             data.appendElement('apps', '', (apps) => {
               apps
-                .appendElement('element', '', 'workflow')
-                .appendElement('element', '', 'files')
+                .appendElement('element', '', MatchersV3.string('workflow'))
+                .appendElement('element', '', MatchersV3.string('files'))
             })
           })
         })

@@ -79,53 +79,7 @@ def prepareTestConfig(subFolderPath = '/'):
         }
     }]
 
-def getDbName(db):
-    return db.split(':')[0]
-
-def getDbUsername(db):
-    name = getDbName(db)
-
-    if name == 'oracle':
-        return 'system'
-
-    return 'owncloud'
-
-def getDbPassword(db):
-    name = getDbName(db)
-
-    if name == 'oracle':
-        return 'oracle'
-
-    return 'owncloud'
-
-def getDbDatabase(db):
-    name = getDbName(db)
-
-    if name == 'oracle':
-        return 'XE'
-
-    return 'owncloud'
-
-def getDbRootPassword():
-    return 'owncloud'
-
-def installCore(version, db):
-    host = getDbName(db)
-    dbType = host
-
-    username = getDbUsername(db)
-    password = getDbPassword(db)
-    database = getDbDatabase(db)
-
-    if host == 'mariadb':
-        dbType = 'mysql'
-
-    if host == 'postgres':
-        dbType = 'pgsql'
-
-    if host == 'oracle':
-        dbType = 'oci'
-
+def installCore(version):
     stepDefinition = {
         'name': 'install-core',
         'image': 'owncloudci/core',
@@ -133,11 +87,11 @@ def installCore(version, db):
         'settings': {
             'version': version,
             'core_path': '/var/www/owncloud/server',
-            'db_type': dbType,
-            'db_name': database,
-            'db_host': host,
-            'db_username': username,
-            'db_password': password
+            'db_type': 'mysql',
+            'db_name': 'owncloud',
+            'db_host': 'mysql',
+            'db_username': 'owncloud',
+            'db_password': 'owncloud'
         }
     }
 
@@ -201,47 +155,18 @@ def owncloudService():
         ]
     }]
 
-def databaseService(db):
-    dbName = getDbName(db)
-    if (dbName == 'mariadb') or (dbName == 'mysql'):
-        return [{
-            'name': dbName,
-            'image': db,
-            'pull': 'always',
-            'environment': {
-                'MYSQL_USER': getDbUsername(db),
-                'MYSQL_PASSWORD': getDbPassword(db),
-                'MYSQL_DATABASE': getDbDatabase(db),
-                'MYSQL_ROOT_PASSWORD': getDbRootPassword()
-            }
-        }]
-
-    if dbName == 'postgres':
-        return [{
-            'name': dbName,
-            'image': db,
-            'pull': 'always',
-            'environment': {
-                'POSTGRES_USER': getDbUsername(db),
-                'POSTGRES_PASSWORD': getDbPassword(db),
-                'POSTGRES_DB': getDbDatabase(db)
-            }
-        }]
-
-    if dbName == 'oracle':
-        return [{
-            'name': dbName,
-            'image': 'deepdiver/docker-oracle-xe-11g:latest',
-            'pull': 'always',
-            'environment': {
-                'ORACLE_USER': getDbUsername(db),
-                'ORACLE_PASSWORD': getDbPassword(db),
-                'ORACLE_DB': getDbDatabase(db),
-                'ORACLE_DISABLE_ASYNCH_IO': 'true',
-            }
-        }]
-
-    return []
+def databaseService():
+    return [{
+        'name': 'mysql',
+        'image': 'mysql:5.5',
+        'pull': 'always',
+        'environment': {
+            'MYSQL_USER': 'owncloud',
+            'MYSQL_PASSWORD': 'owncloud',
+            'MYSQL_DATABASE': 'owncloud',
+            'MYSQL_ROOT_PASSWORD': 'owncloud'
+        }
+    }]
 
 def pactConsumerTests(uploadPact):
     return [{
@@ -366,14 +291,14 @@ def providerTestPipeline():
             buildSystem() +
             pactLog() +
             prepareTestConfig() +
-            installCore('daily-master-qa', 'mysql:5.5') +
+            installCore('daily-master-qa') +
             owncloudLog() +
             setupServerAndApp('2') +
             fixPermissions()+
             pactProviderTests('daily-master-qa'),
          'services':
             owncloudService() +
-            databaseService('mysql:5.5')
+            databaseService()
     }
 
 

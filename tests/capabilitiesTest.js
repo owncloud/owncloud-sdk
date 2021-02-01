@@ -9,7 +9,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
     validAuthHeaders,
-    xmlResponseHeaders
+    applicationXmlResponseHeaders
   } = require('./pactHelper.js')
 
   it('checking method : getConfig', async () => {
@@ -28,14 +28,13 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
       })
       .willRespondWith({
         status: 200,
-        headers: xmlResponseHeaders,
+        headers: applicationXmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
             meta.appendElement('status', '', 'ok')
               .appendElement('statuscode', '', '100')
-              .appendElement('message', '', '')
           }).appendElement('data', '', (data) => {
-            data.appendElement('version', '', '1.7')
+            data.appendElement('version', '', MatchersV3.decimal(1.7))
           })
         })
       })

@@ -9,12 +9,27 @@ describe('Main: Currently testing apps management,', function () {
     capabilitiesGETRequestValidAuth,
     GETRequestToCloudUserEndpoint,
     xmlResponseHeaders,
+    htmlResponseHeaders,
     createProvider,
     createOwncloud
   } = require('./pactHelper.js')
 
   const changeAppStatus = (provider, action) => {
-    const method = action === 'enable' ? 'POST' : 'DELETE'
+    let method = 'DELETE'
+    let responseHeader = htmlResponseHeaders
+    let body = ''
+    if (action === 'enable') {
+      method = 'POST'
+      responseHeader = xmlResponseHeaders
+      body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+        ocs.appendElement('meta', '', (meta) => {
+          meta
+            .appendElement('status', '', 'ok')
+            .appendElement('statuscode', '', 100)
+            .appendElement('message', '', '')
+        }).appendElement('data', '', '')
+      })
+    }
     return provider
       .uponReceiving(action + ' apps')
       .withRequest({
@@ -27,15 +42,8 @@ describe('Main: Currently testing apps management,', function () {
       })
       .willRespondWith({
         status: 200,
-        headers: xmlResponseHeaders,
-        body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-          ocs.appendElement('meta', '', (meta) => {
-            meta
-              .appendElement('status', '', 'ok')
-              .appendElement('statuscode', '', 100)
-              .appendElement('message', '', '')
-          }).appendElement('data', '', '')
-        })
+        headers: responseHeader,
+        body: body
       })
   }
 
@@ -63,8 +71,8 @@ describe('Main: Currently testing apps management,', function () {
           }).appendElement('data', '', (data) => {
             data.appendElement('apps', '', (apps) => {
               apps
-                .appendElement('element', '', 'workflow')
-                .appendElement('element', '', 'files')
+                .appendElement('element', '', MatchersV3.string('workflow'))
+                .appendElement('element', '', MatchersV3.string('files'))
             })
           })
         })

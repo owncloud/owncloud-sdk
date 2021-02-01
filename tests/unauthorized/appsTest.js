@@ -23,13 +23,13 @@ describe('Unauthorized: Currently testing apps management,', function () {
     authorization: invalidAuthHeader
   }
 
-  const getApps = async (provider, method, query) => {
+  const aGETAppsRequest = async (provider, query) => {
     return provider
-      .uponReceiving(`an ${method} app request with invalid auth`)
+      .uponReceiving('an GET app request with invalid auth')
       .withRequest({
-        method: method,
+        method: 'GET',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps.*',
+          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps$',
           '/ocs/v1.php/cloud/apps'
         ),
         query: query,
@@ -38,11 +38,25 @@ describe('Unauthorized: Currently testing apps management,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
+  const appRequestInvalidAuth = async (provider, method, app) => {
+    return provider
+      .uponReceiving(`an ${method} app request with invalid auth`)
+      .withRequest({
+        method: method,
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps\\/.*',
+          `/ocs/v1.php/cloud/apps/${app}`
+        ),
+        headers: invalidAuthHeaderObject
+      })
+      .willRespondWith(unauthorizedResponseObject)
+  }
+
   it('checking method : getApps', async function () {
     const provider = createProvider()
     await capabilitiesGETRequestInvalidAuth(provider)
-    await getApps(provider, 'GET')
-    await getApps(provider, 'GET', { filter: 'enabled' })
+    await aGETAppsRequest(provider)
+    await aGETAppsRequest(provider, { filter: 'enabled' })
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
@@ -63,8 +77,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   it('checking method : enableApp when app exists', async function () {
     const provider = createProvider()
     await capabilitiesGETRequestInvalidAuth(provider)
-    await getApps(provider, 'POST')
-    // await getApps(provider, 'POST', { filter: 'enabled' })
+    await appRequestInvalidAuth(provider, 'POST', 'files')
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
@@ -85,7 +98,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   it('checking method : disableApp', async function (done) {
     const provider = createProvider()
     await capabilitiesGETRequestInvalidAuth(provider)
-    await getApps(provider, 'DELETE')
+    await appRequestInvalidAuth(provider, 'DELETE', 'files')
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)

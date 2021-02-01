@@ -5,8 +5,6 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
 
   const {
     invalidAuthHeader,
-    accessControlAllowHeaders,
-    accessControlAllowMethods,
     unauthorizedXmlResponseBody,
     capabilitiesGETRequestInvalidAuth,
     createOwncloud,
@@ -29,9 +27,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   const unauthorizedResponseObject = {
     status: 401,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': accessControlAllowHeaders,
-      'Access-Control-Allow-Methods': accessControlAllowMethods
+      'Content-Type': 'application/xml;charset=utf-8'
     },
     body: unauthorizedXmlResponseBody
   }
@@ -59,7 +55,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
           '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
-        query: { path: '/' + path },
+        query: { path: `/${path}` },
         headers: invalidAuthHeaderObject
       })
       .willRespondWith(unauthorizedResponseObject)

@@ -377,9 +377,7 @@ describe('Main: Currently testing files management,', function () {
         await oc.login()
         for (let i = 0; i < testSubFiles.length; i++) {
           await oc.files.getFileContents(testSubFiles[i], { resolveWithResponseObject: true }).then((resp) => {
-            // TODO uncomment this line once the PR is available in release
-            // https://github.com/pact-foundation/pact-js/pull/590
-            // expect(resp.body).toEqual(testContent)
+            expect(resp.body).toEqual(testContent)
             expect(resp.headers.ETag).toBeDefined()
           }).catch(error => {
             expect(error).toBe(null)

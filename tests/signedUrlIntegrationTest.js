@@ -70,11 +70,8 @@ describe('Signed urls', function () {
           'Access-Control-Allow-Methods': accessControlAllowMethods,
           'Content-Type': 'text/plain; charset=utf-8',
           'Access-Control-Allow-Origin': origin
-        }
-        // TODO: uncomment this line once this PR is merged and a new version of pact-js is published
-        // https://github.com/pact-foundation/pact-js/pull/590
-
-        // body: config.testContent
+        },
+        body: config.testContent
       })
   }
 
@@ -93,11 +90,8 @@ describe('Signed urls', function () {
       const signedUrl = await oc.signUrl(url)
       const response = await fetch(signedUrl)
       expect(response.ok).toEqual(true)
-      // TODO: uncomment this line once this PR is merged and a new version of pact-js is published
-      // https://github.com/pact-foundation/pact-js/pull/590
-
-      // const txt = await response.text()
-      // expect(txt).toEqual(config.testContent)
+      const txt = await response.text()
+      expect(txt).toEqual(config.testContent)
     })
   })
 })

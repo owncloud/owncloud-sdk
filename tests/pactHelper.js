@@ -155,10 +155,8 @@ const getContentsOfFile = (provider, file) => {
       headers: validAuthHeaders
     }).willRespondWith(file !== config.nonExistentFile ? {
       status: 200,
-      headers: textPlainResponseHeaders
-      // TODO uncomment this line once the PR is available in release
-      // https://github.com/pact-foundation/pact-js/pull/590
-      // body: config.testContent
+      headers: textPlainResponseHeaders,
+      body: config.testContent
     } : {
       status: 404,
       headers: xmlResponseAndAccessControlCombinedHeader,

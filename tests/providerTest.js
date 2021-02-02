@@ -1,4 +1,5 @@
 const config = require('./config/config.json')
+const { getOCSMeta } = require('./helpers/ocsResponseParser')
 
 describe('provider testing', () => {
   const { VerifierV3 } = require('@pact-foundation/pact/v3')
@@ -9,7 +10,8 @@ describe('provider testing', () => {
   const { parseString } = require('xml2js')
 
   const {
-    validAdminAuthHeaders
+    validAdminAuthHeaders,
+    applicationFormUrlEncoded
   } = require('./pactHelper.js')
 
   const {
@@ -63,7 +65,7 @@ describe('provider testing', () => {
             body: 'groupid=' + parameters.groupName,
             headers: {
               ...validAdminAuthHeaders,
-              ...{ 'Content-Type': 'application/x-www-form-urlencoded' }
+              ...applicationFormUrlEncoded
             }
           })
           return Promise.resolve({ description: 'group added' })
@@ -121,7 +123,7 @@ describe('provider testing', () => {
               body: `userid=${parameters.username}&password=${parameters.password}`,
               headers: {
                 ...validAdminAuthHeaders,
-                ...{ 'Content-Type': 'application/x-www-form-urlencoded' }
+                ...applicationFormUrlEncoded
               }
             })
           chai.assert.strictEqual(
@@ -152,6 +154,46 @@ describe('provider testing', () => {
           const link = nodeValue.replace(/^.*(\/remote\.php\/dav\/meta\/.*)$/, '$1')
           return { versionLink: link }
         }
+      },
+      'user is made group subadmin': (setup, parameters) => {
+        if (setup) {
+          const response = fetch(process.env.PROVIDER_BASE_URL +
+                          '/ocs/v1.php/cloud/users/' + parameters.username +
+                          '/subadmins?format=json', {
+            method: 'POST',
+            body: `groupid=${parameters.groupName}`,
+            headers: {
+              ...validAdminAuthHeaders,
+              ...applicationFormUrlEncoded
+            }
+          })
+          const { status } = getOCSMeta(response)
+          chai.assert.strictEqual(status, 'ok',
+          `making user ${parameters.username} subadmin of group ${parameters.groupName} failed`)
+        }
+        return Promise.resolve({
+          description: `user '${parameters.username}' made subadmin of group '${parameters.groupName}'`
+        })
+      },
+      'user is added to group': (setup, parameters) => {
+        if (setup) {
+          const response = fetch(process.env.PROVIDER_BASE_URL +
+                          '/ocs/v1.php/cloud/users/' + parameters.username +
+                          '/groups?format=json', {
+            method: 'POST',
+            body: `groupid=${parameters.groupName}`,
+            headers: {
+              ...validAdminAuthHeaders,
+              ...applicationFormUrlEncoded
+            }
+          })
+          const { status } = getOCSMeta(response)
+          chai.assert.strictEqual(status, 'ok',
+          `adding user ${parameters.username} to group ${parameters.groupName} failed`)
+        }
+        return Promise.resolve({
+          description: `user '${parameters.username}' added to group '${parameters.groupName}'`
+        })
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

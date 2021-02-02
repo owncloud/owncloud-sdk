@@ -16,7 +16,11 @@ describe('Main: Currently testing user management,', function () {
   } = require('./pactHelper.js')
   const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
 
-  const getUserInformationInteraction = function (provider, requestName, username, responseBody) {
+  const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
+    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+    }
     return provider
       .uponReceiving('a request to GET user information ' + requestName)
       .withRequest({
@@ -36,6 +40,7 @@ describe('Main: Currently testing user management,', function () {
 
   const getUsersInteraction = function (provider, requestName, query, bodyData) {
     return provider
+      .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
       .uponReceiving('a request to list all users ' + requestName)
       .withRequest({
         method: 'GET',
@@ -57,9 +62,14 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const changeUserAttributeInteraction = function (provider, requestName, username, requestBody, response) {
+  const changeUserAttributeInteraction = async function (provider, requestName, username, requestBody, response) {
+    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+    }
+
     return provider
-      .uponReceiving('set user attribute of an ' + requestName)
+      .uponReceiving('set user attribute of ' + requestName)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
@@ -85,9 +95,22 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const addUserToGroupInteraction = function (provider, requestName, username, group) {
+  const addUserToGroupInteraction = async function (provider, requestName, username, group) {
+    let ocsStatusCode = 102
+    if (username === config.nonExistentUser) {
+      ocsStatusCode = 103
+    }
+    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+    }
+    if (group !== config.nonExistentGroup) {
+      await provider
+        .given('group exists', { groupName: group })
+    }
+
     return provider
-      .uponReceiving('add user to group with an existent user and a non existent group ' + requestName)
+      .uponReceiving('add user to group ' + requestName)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -107,15 +130,20 @@ describe('Main: Currently testing user management,', function () {
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs
             .appendElement('meta', '', meta => {
-              ocsMeta(meta, 'failure', 102)
+              ocsMeta(meta, 'failure', ocsStatusCode)
             })
             .appendElement('data', '', '')
         })
       })
   }
 
-  const getGroupOfUserInteraction = function (provider, requestName, username, responseBody) {
-    // TODO: for provider test, need to add a state to put user in group
+  const getGroupOfUserInteraction = async function (provider, requestName, username, responseBody) {
+    if (username !== config.validAdminAuthHeaders && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('group exists', { groupName: config.testGroup })
+        .given('user is added to group', { username: username, groupName: config.testGroup })
+    }
     return provider
       .uponReceiving('a request to GET the groups that a user is a member of ' + requestName)
       .withRequest({
@@ -133,7 +161,19 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const removeUserFromGroupInteraction = function (provider, requestName, username, group) {
+  const removeUserFromGroupInteraction = async function (provider, requestName, username, group) {
+    let ocsStatusCode = 102
+    if (username === config.nonExistentUser) {
+      ocsStatusCode = 103
+    }
+    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+    }
+    if (group !== config.nonExistentGroup) {
+      await provider
+        .given('group exists', { groupName: group })
+    }
     return provider
       .uponReceiving('Remove user from a group ' + requestName)
       .withRequest({
@@ -156,14 +196,22 @@ describe('Main: Currently testing user management,', function () {
           ocs.appendElement('meta', '', (meta) => {
             meta
               .appendElement('status', '', 'failure')
-              .appendElement('statuscode', '', 102)
+              .appendElement('statuscode', '', ocsStatusCode)
               .appendElement('message', '', '')
           }).appendElement('data', '', '')
         })
       })
   }
 
-  const addUserToSubAdminGroupInteraction = function (provider, request, username, group, responseOcsMeta) {
+  const addUserToSubAdminGroupInteraction = async function (provider, request, username, group, responseOcsMeta) {
+    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+    }
+    if (group !== config.nonExistentGroup) {
+      await provider
+        .given('group exists', { groupName: group })
+    }
     return provider
       .uponReceiving('Add user to subadmin group ' + request)
       .withRequest({
@@ -189,8 +237,13 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const getUsersSubAdminGroupsInteraction = function (provider, requestName, username, responseBody) {
-    // TODO: for provider test, need to add a state to make user subadmin of the group
+  const getUsersSubAdminGroupsInteraction = async function (provider, requestName, username, responseBody) {
+    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+      await provider
+        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('group exists', { groupName: config.testGroup })
+        .given('user is made group subadmin', { username: username, groupName: config.testGroup })
+    }
     return provider
       .uponReceiving('a request to GET groups that a user is a subadmin of ' + requestName)
       .withRequest({
@@ -336,15 +389,15 @@ describe('Main: Currently testing user management,', function () {
             data.appendElement('enabled', '', 'true')
               .appendElement('quota', '', quota => {
                 quota
-                  .appendElement('free', '', '57800708096')
-                  .appendElement('used', '', '2740027')
-                  .appendElement('total', '', '57803448123')
+                  .appendElement('free', '', MatchersV3.number(57800708096))
+                  .appendElement('used', '', MatchersV3.number(2740027))
+                  .appendElement('total', '', MatchersV3.number(57803448123))
                   .appendElement('relative', '', '0')
                   .appendElement('definition', '', 'default')
               })
               .appendElement('email', '', '')
               .appendElement('displayname', '', config.adminUsername)
-              .appendElement('two_fafctor_auth_enabled', '', 'false')
+              .appendElement('two_factor_auth_enabled', '', 'false')
           })
         })
     )
@@ -395,7 +448,6 @@ describe('Main: Currently testing user management,', function () {
       }).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
-        console.log(error)
         expect(error).toBe(null)
       })
     })
@@ -548,42 +600,19 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await changeUserAttributeInteraction(
       provider,
-      ' an existent user, attribute is allowed',
+      'an existent user, attribute is allowed',
       config.testUser,
       'key=email&value=asd%40a.com',
       meta => {
         ocsMeta(meta, 'ok', 100)
       }
     )
-    await getUserInformationInteraction(
-      provider,
-      ' to get user attribute of an existent user',
-      config.testUser,
 
-      new XmlBuilder('1.0', '', 'ocs')
-        .build(ocs => {
-          ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
-          }).appendElement('data', '', data => {
-            data.appendElement('enabled', '', 'true')
-              .appendElement('quota', '', quota => {
-                quota.appendElement('definition', '', 'default')
-              })
-              .appendElement('email', '', 'asd@a.com')
-              .appendElement('displayname', '', 'test123')
-              .appendElement('two_fafctor_auth_enabled', '', 'false')
-          })
-        })
-    )
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
       return oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
         expect(data).toEqual(true)
-        return oc.users.getUser(config.testUser)
-      }).then(user => {
-        expect(typeof (user)).toEqual('object')
-        expect(user.email).toEqual('asd@a.com')
       }).catch(error => {
         expect(error).toBe(null)
       })
@@ -596,7 +625,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await changeUserAttributeInteraction(
       provider,
-      ' an existent user, attribute is not allowed',
+      'an existent user, attribute is not allowed',
       config.testUser,
       'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D',
       meta => {
@@ -624,11 +653,11 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await changeUserAttributeInteraction(
       provider,
-      ' a non existent user',
+      'a non existent user',
       config.nonExistentUser,
       'key=email&value=asd%40a.com',
       meta => {
-        ocsMeta(meta, 'failure', 997)
+        ocsMeta(meta, 'failure', 101)
       }
     )
 
@@ -639,7 +668,7 @@ describe('Main: Currently testing user management,', function () {
         expect(status).toBe(null)
       }).catch(error => {
         expect(typeof (error)).toBe('object')
-        expect(error.ocs.meta.statuscode).toEqual('997')
+        expect(error.ocs.meta.statuscode).toEqual('101')
       })
     })
   })
@@ -687,7 +716,7 @@ describe('Main: Currently testing user management,', function () {
         expect(status).toBe(null)
       }).catch(error => {
         expect(typeof (error)).toBe('object')
-        expect(error.ocs.meta.statuscode).toEqual('102')
+        expect(error.ocs.meta.statuscode).toEqual('103')
       })
     })
   })
@@ -814,7 +843,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationInteraction(
       provider,
-      ' to get user attribute of an existent user, ' + config.testUser,
+      'to get user attribute of an existent user, ' + config.testUser,
       config.testUser,
 
       new XmlBuilder('1.0', '', 'ocs')
@@ -826,9 +855,8 @@ describe('Main: Currently testing user management,', function () {
               .appendElement('quota', '', quota => {
                 quota.appendElement('definition', '', 'default')
               })
-              .appendElement('email', '', 'asd@a.com')
               .appendElement('displayname', '', 'test123')
-              .appendElement('two_fafctor_auth_enabled', '', 'false')
+              .appendElement('two_factor_auth_enabled', '', 'false')
           })
         })
     )
@@ -903,7 +931,7 @@ describe('Main: Currently testing user management,', function () {
           expect(status).toBe(null)
         }).catch(error => {
           expect(typeof (error)).toBe('object')
-          expect(error.ocs.meta.statuscode).toEqual('102')
+          expect(error.ocs.meta.statuscode).toEqual('103')
         })
     })
   })

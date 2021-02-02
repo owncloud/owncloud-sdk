@@ -383,14 +383,13 @@ const createUserInteraction = function (provider) {
       body: `password=${config.testUserPassword}&userid=${config.testUser}`
     }).willRespondWith({
       status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      }
+      headers: xmlResponseHeaders
     })
 }
 
 const createUserWithGroupMembershipInteraction = function (provider) {
   return provider
+    .given('group exists', { groupName: config.testGroup })
     .uponReceiving('a create user request including group membership')
     .withRequest({
       method: 'POST',

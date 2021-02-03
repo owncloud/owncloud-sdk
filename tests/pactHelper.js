@@ -329,8 +329,7 @@ const capabilitiesGETRequestInvalidAuth = function (provider, username = config.
     }).willRespondWith({
       status: 401,
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: {
         ocs: {

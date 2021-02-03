@@ -7,7 +7,7 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   const {
     invalidAuthHeader,
-    applicationXmlResponseHeaders,
+    xmlResponseHeaders,
     capabilitiesGETRequestInvalidAuth,
     createOwncloud
   } = require('../pactHelper.js')
@@ -29,7 +29,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       })
       .willRespondWith({
         status: 401,
-        headers: applicationXmlResponseHeaders,
+        headers: xmlResponseHeaders,
         body: unauthorizedXmlResponseBody
       })
   }

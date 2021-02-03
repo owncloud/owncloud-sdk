@@ -16,15 +16,14 @@ describe('Main: Currently testing files management,', function () {
     uriEncodedTestSubFiles,
     testSubFiles,
     validAuthHeaders,
-    xmlResponseAndAccessControlCombinedHeader,
+    applicationXmlResponseHeaders,
+    htmlResponseHeaders,
     GETRequestToCloudUserEndpoint,
     capabilitiesGETRequestValidAuth,
     createAFolder,
     updateFile,
     createOwncloud,
-    createProvider,
-    applicationXmlResponseHeaders,
-    origin
+    createProvider
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
@@ -46,13 +45,13 @@ describe('Main: Currently testing files management,', function () {
     if (name.includes('non existing')) {
       response = {
         status: 404,
-        headers: xmlResponseAndAccessControlCombinedHeader,
+        headers: applicationXmlResponseHeaders,
         body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(parentFolder))
       }
     } else {
       response = {
         status: 207,
-        headers: xmlResponseAndAccessControlCombinedHeader,
+        headers: applicationXmlResponseHeaders,
         body: new XmlBuilder('1.0', 'utf-8', 'd:multistatus').build(dMultistatus => {
           dMultistatus.setAttributes({ 'xmlns:d': 'DAV:' })
           dMultistatus
@@ -140,10 +139,7 @@ describe('Main: Currently testing files management,', function () {
         })
       }).willRespondWith({
         status: 207,
-        headers: {
-          ...xmlResponseAndAccessControlCombinedHeader,
-          'Access-Control-Expose-Headers': 'Content-Location,DAV,ETag,Link,Lock-Token,OC-ETag,OC-Checksum,OC-FileId,OC-JobStatus-Location,Vary,Webdav-Location,X-Sabre-Status'
-        },
+        headers: applicationXmlResponseHeaders,
         body: new XmlBuilder('1.0', 'utf-8', 'd:multistatus').build(dMultistatus => {
           dMultistatus.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns', 'xmlns:oc': 'http://owncloud.org/ns' })
           dMultistatus
@@ -174,7 +170,7 @@ describe('Main: Currently testing files management,', function () {
         })
       }).willRespondWith({
         status: 207,
-        headers: xmlResponseAndAccessControlCombinedHeader,
+        headers: applicationXmlResponseHeaders,
         body: new XmlBuilder('1.0', 'utf-8', 'd:multistatus').build(dMultistatus => {
           dMultistatus.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns', 'xmlns:oc': 'http://owncloud.org/ns' })
           dMultistatus
@@ -499,10 +495,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 409,
-          headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            'Access-Control-Allow-Origin': origin
-          },
+          headers: htmlResponseHeaders,
           body: webdavExceptionResponseBody('Conflict', 'Parent node does not exist')
         })
 
@@ -566,7 +559,7 @@ describe('Main: Currently testing files management,', function () {
         },
         {
           status: 403,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: webdavExceptionResponseBody('Forbidden', 'Source and destination uri are identical.')
         })
       return provider.executeTest(async () => {
@@ -596,7 +589,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 201,
-          headers: xmlResponseAndAccessControlCombinedHeader
+          headers: applicationXmlResponseHeaders
         })
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -625,7 +618,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 404,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(nonExistentFile))
         })
 
@@ -656,7 +649,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 403,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: webdavExceptionResponseBody('Forbidden', 'Source and destination uri are identical.')
         })
 
@@ -687,7 +680,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 404,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(nonExistentFile))
         })
       return provider.executeTest(async () => {
@@ -723,7 +716,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 207,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -757,7 +750,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 207,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -795,7 +788,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe.skip('TUS detection', function () {
     const tusSupportRequest = (provider, enabled = true) => {
-      let respHeaders = xmlResponseAndAccessControlCombinedHeader
+      let respHeaders = applicationXmlResponseHeaders
       if (enabled) {
         respHeaders = {
           ...respHeaders,
@@ -918,7 +911,7 @@ describe('Main: Currently testing files management,', function () {
         },
         {
           status: 201,
-          headers: xmlResponseAndAccessControlCombinedHeader
+          headers: applicationXmlResponseHeaders
         })
 
       return provider.executeTest(async () => {
@@ -950,7 +943,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 201,
-          headers: xmlResponseAndAccessControlCombinedHeader
+          headers: applicationXmlResponseHeaders
         })
 
       return provider.executeTest(async () => {
@@ -980,7 +973,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 201,
-          headers: xmlResponseAndAccessControlCombinedHeader
+          headers: applicationXmlResponseHeaders
         })
 
       return provider.executeTest(async () => {
@@ -1069,7 +1062,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 207,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -1142,7 +1135,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 207,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -1187,7 +1180,7 @@ describe('Main: Currently testing files management,', function () {
       const getFileInfoBy = data => {
         return {
           status: 207,
-          headers: xmlResponseAndAccessControlCombinedHeader,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -1226,7 +1219,7 @@ describe('Main: Currently testing files management,', function () {
         .willRespondWith({
           status: 201,
           headers: {
-            ...xmlResponseAndAccessControlCombinedHeader,
+            ...applicationXmlResponseHeaders,
             'Access-Control-Expose-Headers': 'Content-Location,DAV,ETag,Link,Lock-Token,OC-ETag,OC-Checksum,OC-FileId,OC-JobStatus-Location,Vary,Webdav-Location,X-Sabre-Status',
             'Content-Location': `/remote.php/dav/systemtags/${tagId}`
           }
@@ -1258,7 +1251,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 201,
-          headers: xmlResponseAndAccessControlCombinedHeader
+          headers: applicationXmlResponseHeaders
         })
 
       await provider

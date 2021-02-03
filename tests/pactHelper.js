@@ -136,6 +136,7 @@ const createOwncloud = function (username = config.username, password = config.p
 
 const getContentsOfFile = (provider, file) => {
   return provider
+    .given('file exists', { fileName: file })
     .uponReceiving('GET contents of file ' + file)
     .withRequest({
       method: 'GET',

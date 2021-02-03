@@ -87,18 +87,6 @@ const unauthorizedXmlResponseBody = new XmlBuilder('1.0', '', 'ocs').build(ocs =
     .appendElement('data', '', '')
 })
 
-const xmlResponseAndAccessControlCombinedHeader = {
-  ...applicationXmlResponseHeaders,
-  'Access-Control-Allow-Headers': accessControlAllowHeaders,
-  'Access-Control-Allow-Methods': accessControlAllowMethods
-}
-
-const htmlResponseAndAccessControlCombinedHeader = {
-  'Content-Type': 'text/html; charset=utf-8',
-  'Access-Control-Allow-Headers': accessControlAllowHeaders,
-  'Access-Control-Allow-Methods': accessControlAllowMethods
-}
-
 const resourceNotFoundExceptionMessage = resource => `File with name ${resource} could not be located`
 
 const webdavMatcherForResource = resource => {
@@ -159,7 +147,7 @@ const getContentsOfFile = (provider, file) => {
       body: config.testContent
     } : {
       status: 404,
-      headers: xmlResponseAndAccessControlCombinedHeader,
+      headers: applicationXmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
     })
 }
@@ -169,7 +157,7 @@ const deleteResource = (provider, resource, type = 'folder') => {
   if (resource.includes('nonExistent')) {
     response = {
       status: 404,
-      headers: xmlResponseAndAccessControlCombinedHeader,
+      headers: applicationXmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
@@ -426,7 +414,7 @@ const createAFolder = function (provider, folderName) {
       headers: validAuthHeaders
     }).willRespondWith({
       status: 201,
-      headers: htmlResponseAndAccessControlCombinedHeader
+      headers: htmlResponseHeaders
     })
 }
 
@@ -516,16 +504,14 @@ module.exports = {
   invalidAuthHeader,
   xmlResponseHeaders,
   htmlResponseHeaders,
-  applicationXmlResponseHeaders,
   applicationFormUrlEncoded,
   textPlainResponseHeaders,
   accessControlAllowHeaders,
   accessControlAllowMethods,
   unauthorizedXmlResponseBody,
-  xmlResponseAndAccessControlCombinedHeader,
+  applicationXmlResponseHeaders,
   testSubFiles,
   uriEncodedTestSubFiles,
-  htmlResponseAndAccessControlCombinedHeader,
   capabilitiesGETRequestValidAuth,
   GETRequestToCloudUserEndpoint,
   GETSingleUserEndpoint,

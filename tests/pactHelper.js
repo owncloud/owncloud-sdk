@@ -135,8 +135,11 @@ const createOwncloud = function (username = config.username, password = config.p
 }
 
 const getContentsOfFile = (provider, file) => {
+  if (file !== config.nonExistentFile) {
+    provider
+      .given('file exists', { fileName: file })
+  }
   return provider
-    .given('file exists', { fileName: file })
     .uponReceiving('GET contents of file ' + file)
     .withRequest({
       method: 'GET',
@@ -404,7 +407,8 @@ const deleteAUser = function (provider) {
 }
 
 const createAFolder = function (provider, folderName) {
-  return provider.uponReceiving('successfully create a folder ' + folderName)
+  return provider
+    .uponReceiving('successfully create a folder ' + folderName)
     .withRequest({
       method: 'MKCOL',
       path: MatchersV3.regex(

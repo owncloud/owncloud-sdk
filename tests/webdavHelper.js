@@ -14,6 +14,17 @@ const createDavPath = function (userId, element) {
 }
 
 /**
+ * returns the full and sanitized URL of the dav resource
+ * @param {string} userId
+ * @param {string} resource
+ * @returns {string}
+ */
+const createFullDavUrl = function (userId, resource) {
+  return (process.env.PROVIDER_BASE_URL + createDavPath(userId, resource))
+    .replace(/([^:])\/{2,}/g, '$1/')
+}
+
+/**
  * Create a folder using webDAV api.
  *
  * @param {string} user
@@ -28,8 +39,7 @@ const createFolderRecrusive = function (user, folderName) {
     for (let j = 0; j <= i; j++) {
       recrusivePath += path.sep + folders[j]
     }
-    const davPath = createDavPath(user, recrusivePath)
-    results[i] = fetch(process.env.PROVIDER_BASE_URL + davPath, {
+    results[i] = fetch(createFullDavUrl(user, recrusivePath), {
       method: 'MKCOL',
       headers: validAuthHeaders
     })
@@ -46,8 +56,7 @@ const createFolderRecrusive = function (user, folderName) {
  * @returns {*} result of the fetch request
  */
 const createFile = function (user, fileName, contents = '') {
-  const davPath = createDavPath(user, fileName)
-  return fetch(process.env.PROVIDER_BASE_URL + davPath, {
+  return fetch(createFullDavUrl(user, fileName), {
     method: 'PUT',
     headers: validAuthHeaders,
     body: contents
@@ -62,8 +71,7 @@ const createFile = function (user, fileName, contents = '') {
  * @returns {*} result of the fetch request
  */
 const deleteItem = function (user, itemName) {
-  const davPath = createDavPath(user, itemName)
-  return fetch(process.env.PROVIDER_BASE_URL + davPath, {
+  return fetch(createFullDavUrl(user, itemName), {
     method: 'DELETE',
     headers: validAuthHeaders
   })

@@ -1,5 +1,7 @@
 const config = require('./config/config.json')
-const { getOCSMeta } = require('./helpers/ocsResponseParser')
+const { getOCSMeta, getOCSData } = require('./helpers/ocsResponseParser')
+
+let lastSharedToken = ''
 
 describe('provider testing', () => {
   const { VerifierV3 } = require('@pact-foundation/pact/v3')
@@ -21,6 +23,12 @@ describe('provider testing', () => {
     getFileId,
     listVersionsFolder
   } = require('./webdavHelper.js')
+
+  const {
+    shareResource,
+    createFolderInLastPublicShare,
+    createFileInLastPublicShare
+  } = require('./helpers/sharingHelper.js')
 
   chai.use(chaiAsPromised)
 
@@ -92,7 +100,7 @@ describe('provider testing', () => {
       'file exists': (setup, parameters) => {
         const dirname = path.dirname(parameters.fileName)
         if (setup) {
-          if (dirname !== '' && dirname !== '/') {
+          if (dirname !== '' && dirname !== '/' && dirname !== '.') {
             const results = createFolderRecrusive(
               parameters.username, parameters.password, dirname
             )
@@ -199,6 +207,53 @@ describe('provider testing', () => {
         return Promise.resolve({
           description: `user '${parameters.username}' added to group '${parameters.groupName}'`
         })
+      },
+      'resource is shared': (setup, parameters) => {
+        if (setup) {
+          const { username, password, resource, shareType, shareWith } = parameters
+          const response = shareResource(username, password, resource, shareType, shareWith, parameters.permissions)
+
+          const { status } = getOCSMeta(response)
+          /* eslint-disable-next-line camelcase */
+          const { id, share_type, uid_owner, token, path, file_target, permissions, stime, item_type } = getOCSData(response)
+          const shareResponse = {
+            id,
+            share_type,
+            uid_owner,
+            token,
+            path,
+            file_target,
+            permissions,
+            stime,
+            item_type
+          }
+
+          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.resource}' failed`)
+
+          lastSharedToken = token
+          return shareResponse
+        }
+        return Promise.resolve({ description: 'file/folder shared' })
+      },
+      'folder exists in last shared public share': (setup, parameters) => {
+        if (setup) {
+          const { folderName } = parameters
+          const response = createFolderInLastPublicShare(lastSharedToken, folderName)
+
+          const { status } = response
+          chai.assert.strictEqual(status, 201, 'creating folder in last public share failed')
+        }
+        return Promise.resolve({ description: 'folder created in last shared public share' })
+      },
+      'file exists in last shared public share': (setup, parameters) => {
+        if (setup) {
+          const { fileName } = parameters
+          const response = createFileInLastPublicShare(lastSharedToken, fileName)
+
+          const { status } = response
+          chai.assert.strictEqual(status, 201, 'creating file in last public share failed')
+        }
+        return Promise.resolve({ description: 'file created in last shared public share' })
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

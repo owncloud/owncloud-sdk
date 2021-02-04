@@ -627,7 +627,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               ocs.appendElement('meta', '', (meta) => {
                 ocsMeta(meta, 'ok', 100)
               }).appendElement('data', '', data => {
-                shareResponseOcsData(data, 0, config.testFilesId[testFiles.indexOf(file)], 19, file)
+                shareResponseOcsData(data, 0, config.testFilesId[config.testFilesPath.indexOf(file)], 19, file)
                   .appendElement('expiration', '', config.expirationDate + ' 00:00:00')
               })
             })

@@ -38,17 +38,16 @@ const ocsMeta = function (meta, status, statusCode, Message = null) {
 }
 
 const shareResponseOcsData = function (node, shareType, id, permissions, fileTarget) {
-  const res = node.appendElement('id', '', id)
-    .appendElement('share_type', '', shareType)
-    .appendElement('uid_owner', '', config.adminUsername)
-    .appendElement('displayname', '', config.adminUsername)
-    .appendElement('displayname_owner', '', config.adminUsername)
-    .appendElement('permissions', '', permissions)
-    .appendElement('uid_file_owner', '', 'admin')
-    .appendElement('displayname_file_owner', '', config.adminUsername)
+  const res = node.appendElement('id', '', MatchersV3.string(id))
+    .appendElement('share_type', '', shareType.toString())
+    .appendElement('uid_owner', '', MatchersV3.string(config.adminUsername))
+    .appendElement('displayname_owner', '', MatchersV3.string(config.adminUsername))
+    .appendElement('permissions', '', MatchersV3.number(permissions))
+    .appendElement('uid_file_owner', '', MatchersV3.string(config.adminUsername))
+    .appendElement('displayname_file_owner', '', MatchersV3.string(config.adminUsername))
     .appendElement('path', '', fileTarget)
     .appendElement('file_target', '', fileTarget)
-    .appendElement('stime', '', Math.floor(Date.now() / 1000))
+    .appendElement('stime', '', MatchersV3.string(Math.floor(Date.now() / 1000)))
 
   if (shareType === 3) {
     res.appendElement('url', '', config.owncloudURL + '/s/yrkoLeS33y1aTya')

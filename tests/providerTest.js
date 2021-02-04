@@ -107,6 +107,11 @@ describe('provider testing', () => {
           )
         }
         return Promise.resolve({ description: 'file created' })
+      },
+      'the item is deleted after the interaction': (setup, parameters) => {
+        if (!setup) {
+          deleteItem(config.username, parameters.itemName)
+        }
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

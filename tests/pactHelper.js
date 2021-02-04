@@ -408,6 +408,7 @@ const deleteAUser = function (provider) {
 
 const createAFolder = function (provider, folderName) {
   return provider
+    .given('the item is deleted after the interaction', { itemName: folderName })
     .uponReceiving('successfully create a folder ' + folderName)
     .withRequest({
       method: 'MKCOL',

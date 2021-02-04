@@ -4,6 +4,7 @@ const {
   applicationFormUrlEncoded,
   sanitizeUrl
 } = require('../pactHelper.js')
+const config = require('../config/config.json')
 
 const shareEndPoint = '/ocs/v1.php/apps/files_sharing/api/v1/shares'
 const publicFilesEndPoint = '/remote.php/dav/public-files'
@@ -38,7 +39,7 @@ const getPublicFilesEndPoint = function () {
  * @param {string} name
  * @param {boolean} publicUpload
  * @param {string} password
- * @param {Date} expireDate
+ * @param {string} expireDate
  * @returns {*} result of the fetch request
  */
 const shareResource = function (
@@ -91,29 +92,18 @@ const getShareInfoByPath = function (username, userPassword, path) {
 const validateParams = function (data) {
   const params = new URLSearchParams()
   if (data) {
-    if (data.path) {
-      params.append('path', data.path)
-    }
-    if (data.shareType !== undefined && data.shareType !== null && data.shareType !== '') {
-      params.append('shareType', data.shareType)
-    }
-    if (data.shareWith) {
-      params.append('shareWith', data.shareWith)
-    }
-    if (data.permissions) {
-      params.append('permissions', data.permissions)
-    }
-    if (data.name) {
-      params.append('name', data.name)
-    }
-    if (data.password) {
-      params.append('password', data.password)
-    }
-    if (data.expireDate) {
-      params.append('expireDate', data.expireDate)
-    }
-    if (data.publicUpload !== undefined && data.publicUpload !== null && data.publicUpload !== '') {
-      params.append('publicUpload', data.publicUpload.toString().toLowerCase())
+    for (const key in data) {
+      let value = data[key]
+      if (key === 'publicUpload' || key === 'shareType') {
+        if (value !== undefined && value !== null && value !== '') {
+          value = value.toString().toLowerCase()
+          params.append(key, value)
+        }
+      } else {
+        if (value) {
+          params.append(key, value)
+        }
+      }
     }
   }
 
@@ -147,9 +137,48 @@ const createFileInLastPublicShare = function (token, fileName) {
   })
 }
 
+/**
+ * convert JS object to form url encoded data.
+ *
+ * @param {object} obj
+ * @returns {string}
+ */
+const toFormUrlEncoded = function (obj) {
+  if (obj) {
+    for (const key in obj) {
+      let value = obj[key]
+      if (key === 'publicUpload') {
+        value = obj[key].toString().toLowerCase()
+      }
+      return `${key}=${value}`
+    }
+  }
+}
+
+/**
+ * @param {sring} resource
+ * @param {sring} resourceType
+ *
+ * @returns {object} shareId and shareToken
+ */
+const getShareIdToken = (resource, resourceType) => {
+  let shareId, shareToken
+  if (resourceType === 'folder') {
+    shareId = config.testFolderId
+    shareToken = config.shareTokenOfPublicLinkFolder
+  } else {
+    const iteration = config.testFiles.indexOf(resource)
+    shareId = config.testFilesId[iteration]
+    shareToken = config.testFilesToken[iteration]
+  }
+  return { shareId, shareToken }
+}
+
 module.exports = {
   shareResource,
   getShareInfoByPath,
   createFolderInLastPublicShare,
-  createFileInLastPublicShare
+  createFileInLastPublicShare,
+  toFormUrlEncoded,
+  getShareIdToken
 }

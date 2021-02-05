@@ -165,6 +165,7 @@ const deleteResource = (provider, resource, type = 'folder') => {
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
+    provider.given('file exists', { fileName: resource })
     response = {
       status: 200,
       headers: xmlResponseHeaders,
@@ -175,6 +176,7 @@ const deleteResource = (provider, resource, type = 'folder') => {
       })
     }
   } else {
+    provider.given('folder exists', { folderName: resource })
     response = {
       status: 204
     }

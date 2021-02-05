@@ -436,7 +436,7 @@ const updateFile = function (provider, file) {
       headers: applicationXmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     } : {
-      status: 200,
+      status: 201,
       headers: {
         'OC-FileId': config.testFileOcFileId,
         ETag: config.testFileEtag,

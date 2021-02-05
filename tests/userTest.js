@@ -63,7 +63,7 @@ describe('Main: Currently testing user management,', function () {
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username,
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username,
           '/ocs/v1.php/cloud/users/' + username
         ),
         headers: {
@@ -139,7 +139,7 @@ describe('Main: Currently testing user management,', function () {
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
           '/ocs/v1.php/cloud/users/' + username + '/groups'
         ),
         headers:
@@ -169,7 +169,7 @@ describe('Main: Currently testing user management,', function () {
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/' + username + '\\/subadmins$',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/subadmins$',
           '/ocs/v1.php/cloud/users/' + username + '/subadmins'
         ),
         headers:

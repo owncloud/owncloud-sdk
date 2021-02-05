@@ -21,7 +21,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
-          /.*\/ocs\/v(1|2)\.php\/config/,
+          /.*\/ocs\/v1\.php\/config/,
           '/ocs/v1.php/config'
         ),
         headers: validAuthHeaders

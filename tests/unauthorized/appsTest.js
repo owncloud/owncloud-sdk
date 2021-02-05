@@ -29,7 +29,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps$',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/apps$',
           '/ocs/v1.php/cloud/apps'
         ),
         query: query,
@@ -44,7 +44,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       .withRequest({
         method: method,
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/apps\\/.*',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/apps\\/.*',
           `/ocs/v1.php/cloud/apps/${app}`
         ),
         headers: invalidAuthHeaderObject

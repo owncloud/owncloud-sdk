@@ -448,49 +448,7 @@ const updateFile = function (provider, file) {
     })
 }
 
-function setGeneralInteractions (provider) {
-  const promises = []
-
-  promises.push(provider.addInteraction(capabilitiesGETRequestValidAuth()))
-  promises.push(provider.addInteraction(capabilitiesGETRequestInvalidAuth()))
-  promises.push(provider.addInteraction(GETRequestToCloudUserEndpoint()))
-  promises.push(provider.addInteraction(GETSingleUserEndpoint()))
-  promises.push(provider.addInteraction(createAUser()))
-  promises.push(provider.addInteraction(createAUserWithGroupMembership()))
-  promises.push(provider.addInteraction(deleteAUser()))
-  promises.push(provider.addInteraction(createAFolder()))
-
-  let files = ['test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt', 'newFileCreated123', config.testFile]
-  for (const file of files) {
-    promises.push(provider.addInteraction(deleteResource(file, 'file')))
-  }
-
-  files = [
-    'test.txt', '%E6%96%87%E4%BB%B6.txt', 'test%20space%20and%20%2B%20and%20%23.txt',
-    config.testFile, config.testFolder + '/' + config.testFile,
-    ...uriEncodedTestSubFiles, config.nonExistentDir + '/file.txt'
-  ]
-  for (const file of files) {
-    promises.push(provider.addInteraction(updateFile(file)))
-  }
-  return promises
-}
-
-function pactCleanup (provider) {
-  // TODO: uncomment this line after tests are moved to JEST
-  // Reason: currently we run the tests on browser runtime.
-  // so it makes a cors request
-  // Because of that verify() will throw error because the cors request will not be called sometime
-  // This maybe because the browser runtime caches the cors info
-
-  // return provider.verify()
-  //   .then(() => provider.removeInteractions())
-
-  return provider.removeInteractions()
-}
-
 module.exports = {
-  setGeneralInteractions,
   getContentsOfFile,
   deleteResource,
   ocsMeta,
@@ -522,6 +480,5 @@ module.exports = {
   createAUserWithGroupMembership,
   deleteAUser,
   createAFolder,
-  updateFile,
-  pactCleanup
+  updateFile
 }

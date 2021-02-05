@@ -87,18 +87,6 @@ const unauthorizedXmlResponseBody = new XmlBuilder('1.0', '', 'ocs').build(ocs =
     .appendElement('data', '', '')
 })
 
-const xmlResponseAndAccessControlCombinedHeader = {
-  ...applicationXmlResponseHeaders,
-  'Access-Control-Allow-Headers': accessControlAllowHeaders,
-  'Access-Control-Allow-Methods': accessControlAllowMethods
-}
-
-const htmlResponseAndAccessControlCombinedHeader = {
-  'Content-Type': 'text/html; charset=utf-8',
-  'Access-Control-Allow-Headers': accessControlAllowHeaders,
-  'Access-Control-Allow-Methods': accessControlAllowMethods
-}
-
 const resourceNotFoundExceptionMessage = resource => `File with name ${resource} could not be located`
 
 const webdavMatcherForResource = resource => {
@@ -147,6 +135,10 @@ const createOwncloud = function (username = config.username, password = config.p
 }
 
 const getContentsOfFile = (provider, file) => {
+  if (file !== config.nonExistentFile) {
+    provider
+      .given('file exists', { fileName: file })
+  }
   return provider
     .uponReceiving('GET contents of file ' + file)
     .withRequest({
@@ -159,7 +151,7 @@ const getContentsOfFile = (provider, file) => {
       body: config.testContent
     } : {
       status: 404,
-      headers: xmlResponseAndAccessControlCombinedHeader,
+      headers: applicationXmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
     })
 }
@@ -169,10 +161,11 @@ const deleteResource = (provider, resource, type = 'folder') => {
   if (resource.includes('nonExistent')) {
     response = {
       status: 404,
-      headers: xmlResponseAndAccessControlCombinedHeader,
+      headers: applicationXmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
+    provider.given('file exists', { fileName: resource })
     response = {
       status: 200,
       headers: xmlResponseHeaders,
@@ -183,11 +176,9 @@ const deleteResource = (provider, resource, type = 'folder') => {
       })
     }
   } else {
+    provider.given('folder exists', { folderName: resource })
     response = {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': origin
-      }
+      status: 204
     }
   }
   return provider.uponReceiving(`a request to delete a ${type},  ${resource}`)
@@ -296,8 +287,7 @@ const GETSingleUserEndpoint = function (provider) {
     .willRespondWith({
       status: 200,
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Access-Control-Allow-Origin': origin
+        'Content-Type': 'application/json; charset=utf-8'
       },
       body: {
         ocs: {
@@ -415,7 +405,8 @@ const deleteAUser = function (provider) {
 }
 
 const createAFolder = function (provider, folderName) {
-  return provider.uponReceiving('successfully create a folder ' + folderName)
+  return provider
+    .uponReceiving('successfully create a folder ' + folderName)
     .withRequest({
       method: 'MKCOL',
       path: MatchersV3.regex(
@@ -426,11 +417,12 @@ const createAFolder = function (provider, folderName) {
       headers: validAuthHeaders
     }).willRespondWith({
       status: 201,
-      headers: htmlResponseAndAccessControlCombinedHeader
+      headers: htmlResponseHeaders
     })
 }
 
 const updateFile = function (provider, file) {
+  const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)
   return provider.uponReceiving('Put file contents to file ' + file)
     .withRequest({
       method: 'PUT',
@@ -444,18 +436,14 @@ const updateFile = function (provider, file) {
       // body: config.testContent
     }).willRespondWith(file.includes('nonExistent') ? {
       status: 404,
-      headers: {
-        'Access-Control-Allow-Origin': origin,
-        ...applicationXmlResponseHeaders
-      },
+      headers: applicationXmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     } : {
-      status: 200,
+      status: 201,
       headers: {
-        'Access-Control-Allow-Origin': origin,
-        'OC-FileId': config.testFileOcFileId,
-        ETag: config.testFileEtag,
-        'OC-ETag': config.testFileEtag
+        'OC-FileId': MatchersV3.like(config.testFileOcFileId),
+        ETag: etagMatcher,
+        'OC-ETag': etagMatcher
       }
     })
 }
@@ -516,16 +504,14 @@ module.exports = {
   invalidAuthHeader,
   xmlResponseHeaders,
   htmlResponseHeaders,
-  applicationXmlResponseHeaders,
   applicationFormUrlEncoded,
   textPlainResponseHeaders,
   accessControlAllowHeaders,
   accessControlAllowMethods,
   unauthorizedXmlResponseBody,
-  xmlResponseAndAccessControlCombinedHeader,
+  applicationXmlResponseHeaders,
   testSubFiles,
   uriEncodedTestSubFiles,
-  htmlResponseAndAccessControlCombinedHeader,
   capabilitiesGETRequestValidAuth,
   GETRequestToCloudUserEndpoint,
   GETSingleUserEndpoint,

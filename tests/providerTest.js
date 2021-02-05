@@ -1,3 +1,5 @@
+const config = require('./config/config.json')
+
 describe('provider testing', () => {
   const { VerifierV3 } = require('@pact-foundation/pact/v3')
   const chai = require('chai')
@@ -8,6 +10,12 @@ describe('provider testing', () => {
   const {
     validAuthHeaders
   } = require('./pactHelper.js')
+
+  const {
+    createFolderRecrusive,
+    createFile,
+    deleteItem
+  } = require('./webdavHelper.js')
 
   chai.use(chaiAsPromised)
 
@@ -60,6 +68,31 @@ describe('provider testing', () => {
           headers: validAuthHeaders
         })
         return Promise.resolve({ description: 'group deleted' })
+      },
+      'folder exists': (setup, parameters) => {
+        if (setup) {
+          createFolderRecrusive(config.username, parameters.folderName)
+        }
+        return Promise.resolve({ description: 'folder created' })
+      },
+      'file exists': (setup, parameters) => {
+        const dirname = path.dirname(parameters.fileName)
+        if (setup) {
+          if (dirname !== '' && dirname !== '/') {
+            createFolderRecrusive(config.username, dirname)
+          }
+          createFile(config.username, parameters.fileName, config.testContent)
+        } else {
+          let itemToDelete
+          if (dirname !== '' && dirname !== '/') {
+            const folders = dirname.split(path.sep)
+            itemToDelete = folders[0]
+          } else {
+            itemToDelete = parameters.fileName
+          }
+          deleteItem(config.username, itemToDelete)
+        }
+        return Promise.resolve({ description: 'file created' })
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

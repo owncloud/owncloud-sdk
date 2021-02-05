@@ -71,7 +71,9 @@ describe('provider testing', () => {
       },
       'folder exists': (setup, parameters) => {
         if (setup) {
-          const results = createFolderRecrusive(config.adminUsername, parameters.folderName)
+          const results = createFolderRecrusive(
+            parameters.username, parameters.password, parameters.folderName
+          )
           chai.assert.isBelow(
             results[0].status, 300, `creating folder '${parameters.folderName}' failed`
           )
@@ -82,14 +84,18 @@ describe('provider testing', () => {
         const dirname = path.dirname(parameters.fileName)
         if (setup) {
           if (dirname !== '' && dirname !== '/') {
-            const results = createFolderRecrusive(config.adminUsername, dirname)
+            const results = createFolderRecrusive(
+              parameters.username, parameters.password, dirname
+            )
             for (let i = 0; i < results.length; i++) {
               chai.assert.isBelow(
                 results[i].status, 300, `creating folder '${dirname}' failed'`
               )
             }
           }
-          const result = createFile(config.adminUsername, parameters.fileName, config.testContent)
+          const result = createFile(
+            parameters.username, parameters.password, parameters.fileName, config.testContent
+          )
           chai.assert.isBelow(
             result.status, 300, `creating file '${parameters.fileName}' failed`
           )
@@ -101,7 +107,9 @@ describe('provider testing', () => {
           } else {
             itemToDelete = parameters.fileName
           }
-          const result = deleteItem(config.adminUsername, itemToDelete)
+          const result = deleteItem(
+            parameters.username, parameters.password, itemToDelete
+          )
           chai.assert.strictEqual(
             result.status, 204, `deleting '${itemToDelete}' failed`
           )

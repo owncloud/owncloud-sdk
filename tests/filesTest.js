@@ -248,12 +248,14 @@ describe('Main: Currently testing files management,', function () {
 
     it('deletes the test folder at instance', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await deleteResourceInteraction(provider, testFolder)
+      await getCapabilitiesInteraction(provider, config.adminUsername, config.adminPassword)
+      await getCurrentUserInformationInteraction(provider, config.adminUsername, config.adminPassword)
+      await deleteResourceInteraction(
+        provider, testFolder, 'folder', config.adminUsername, config.adminPassword
+      )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.adminUsername, config.adminPassword)
         await oc.login()
         return oc.files.delete(testFolder).then(status => {
           expect(status).toBe(true)

@@ -156,7 +156,10 @@ const getContentsOfFileInteraction = (provider, file) => {
     })
 }
 
-const deleteResourceInteraction = (provider, resource, type = 'folder') => {
+const deleteResourceInteraction = (
+  provider, resource, type = 'folder',
+  user = config.adminUsername, password = config.adminPassword
+) => {
   let response
   if (resource.includes('nonExistent')) {
     response = {
@@ -165,7 +168,11 @@ const deleteResourceInteraction = (provider, resource, type = 'folder') => {
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
-    provider.given('file exists', { fileName: resource })
+    provider.given('file exists', {
+      fileName: resource,
+      username: user,
+      password: password
+    })
     response = {
       status: 200,
       headers: xmlResponseHeaders,
@@ -176,29 +183,35 @@ const deleteResourceInteraction = (provider, resource, type = 'folder') => {
       })
     }
   } else {
-    provider.given('folder exists', { folderName: resource })
+    provider.given('folder exists', {
+      folderName: resource,
+      username: user,
+      password: password
+    })
     response = {
       status: 204
     }
   }
-  return provider.uponReceiving(`a request to delete a ${type},  ${resource}`)
+  return provider.uponReceiving(`as '${user}' delete a ${type} called '${resource}'`)
     .withRequest({
       method: 'DELETE',
       path: webdavPath(resource),
-      headers: validAdminAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith(response)
 }
 
-async function getCurrentUserInformationInteraction (provider) {
+async function getCurrentUserInformationInteraction (
+  provider, user = config.adminUsername, password = config.adminPassword
+) {
   await provider
-    .uponReceiving('a GET request to the cloud user endpoint')
+    .uponReceiving(`as '${user}' get current user information`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
         /.*\/ocs\/v1\.php\/cloud\/user$/,
         '/ocs/v1.php/cloud/user'
       ),
-      headers: validAdminAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     })
     .willRespondWith({
       status: 200,
@@ -217,9 +230,11 @@ async function getCurrentUserInformationInteraction (provider) {
     })
 }
 
-async function getCapabilitiesInteraction (provider) {
+async function getCapabilitiesInteraction (
+  provider, user = config.adminUsername, password = config.adminPassword
+) {
   await provider
-    .uponReceiving('a capabilities GET request with valid authentication')
+    .uponReceiving(`as '${user}' get capabilities with valid authentication`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -227,7 +242,7 @@ async function getCapabilitiesInteraction (provider) {
         '/ocs/v1.php/cloud/capabilities'
       ),
       query: { format: 'json' },
-      headers: validAdminAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     })
     .willRespondWith({
       status: 200,
@@ -449,6 +464,7 @@ const updateFileInteraction = function (provider, file) {
 }
 
 module.exports = {
+  getAuthHeaders,
   getContentsOfFileInteraction,
   deleteResourceInteraction,
   ocsMeta,

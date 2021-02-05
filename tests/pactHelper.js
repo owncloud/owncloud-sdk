@@ -420,6 +420,7 @@ const createAFolder = function (provider, folderName) {
 }
 
 const updateFile = function (provider, file) {
+  const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)
   return provider.uponReceiving('Put file contents to file ' + file)
     .withRequest({
       method: 'PUT',
@@ -438,9 +439,9 @@ const updateFile = function (provider, file) {
     } : {
       status: 201,
       headers: {
-        'OC-FileId': config.testFileOcFileId,
-        ETag: config.testFileEtag,
-        'OC-ETag': config.testFileEtag
+        'OC-FileId': MatchersV3.like(config.testFileOcFileId),
+        ETag: etagMatcher,
+        'OC-ETag': etagMatcher
       }
     })
 }

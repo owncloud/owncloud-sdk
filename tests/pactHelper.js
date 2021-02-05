@@ -134,7 +134,7 @@ const createOwncloud = function (username = config.username, password = config.p
   return oc
 }
 
-const getContentsOfFile = (provider, file) => {
+const getContentsOfFileInteraction = (provider, file) => {
   if (file !== config.nonExistentFile) {
     provider
       .given('file exists', { fileName: file })
@@ -156,7 +156,7 @@ const getContentsOfFile = (provider, file) => {
     })
 }
 
-const deleteResource = (provider, resource, type = 'folder') => {
+const deleteResourceInteraction = (provider, resource, type = 'folder') => {
   let response
   if (resource.includes('nonExistent')) {
     response = {
@@ -189,7 +189,7 @@ const deleteResource = (provider, resource, type = 'folder') => {
     }).willRespondWith(response)
 }
 
-async function GETRequestToCloudUserEndpoint (provider) {
+async function getCurrentUserInformationInteraction (provider) {
   await provider
     .uponReceiving('a GET request to the cloud user endpoint')
     .withRequest({
@@ -217,7 +217,7 @@ async function GETRequestToCloudUserEndpoint (provider) {
     })
 }
 
-async function capabilitiesGETRequestValidAuth (provider) {
+async function getCapabilitiesInteraction (provider) {
   await provider
     .uponReceiving('a capabilities GET request with valid authentication')
     .withRequest({
@@ -273,7 +273,7 @@ async function capabilitiesGETRequestValidAuth (provider) {
     })
 }
 
-const GETSingleUserEndpoint = function (provider) {
+const getUserInformationAsAdminInteraction = function (provider) {
   return provider.uponReceiving('a single user GET request to the cloud users endpoint')
     .withRequest({
       method: 'GET',
@@ -304,7 +304,7 @@ const GETSingleUserEndpoint = function (provider) {
     })
 }
 
-const capabilitiesGETRequestInvalidAuth = function (provider, username = config.username, password = config.invalidPassword) {
+const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.username, password = config.invalidPassword) {
   return provider.uponReceiving(`a capabilities GET request with invalid authentication by ${username} with ${password}`)
     .withRequest({
       method: 'GET',
@@ -333,7 +333,7 @@ const capabilitiesGETRequestInvalidAuth = function (provider, username = config.
     })
 }
 
-const createAUser = function (provider) {
+const createUserInteraction = function (provider) {
   provider.uponReceiving('a create user request')
     .withRequest({
       method: 'POST',
@@ -354,7 +354,7 @@ const createAUser = function (provider) {
     })
 }
 
-const createAUserWithGroupMembership = function (provider) {
+const createUserWithGroupMembershipInteraction = function (provider) {
   return provider
     .uponReceiving('a create user request including group membership')
     .withRequest({
@@ -381,7 +381,7 @@ const createAUserWithGroupMembership = function (provider) {
     })
 }
 
-const deleteAUser = function (provider) {
+const deleteUserInteraction = function (provider) {
   provider.uponReceiving('a request to delete a user')
     .withRequest({
       method: 'DELETE',
@@ -404,7 +404,7 @@ const deleteAUser = function (provider) {
     })
 }
 
-const createAFolder = function (provider, folderName) {
+const createFolderInteraction = function (provider, folderName) {
   return provider
     .uponReceiving('successfully create a folder ' + folderName)
     .withRequest({
@@ -421,7 +421,7 @@ const createAFolder = function (provider, folderName) {
     })
 }
 
-const updateFile = function (provider, file) {
+const updateFileInteraction = function (provider, file) {
   const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)
   return provider.uponReceiving('Put file contents to file ' + file)
     .withRequest({
@@ -449,8 +449,8 @@ const updateFile = function (provider, file) {
 }
 
 module.exports = {
-  getContentsOfFile,
-  deleteResource,
+  getContentsOfFileInteraction,
+  deleteResourceInteraction,
   ocsMeta,
   shareResponseOcsData,
   webdavMatcherForResource,
@@ -470,15 +470,15 @@ module.exports = {
   applicationXmlResponseHeaders,
   testSubFiles,
   uriEncodedTestSubFiles,
-  capabilitiesGETRequestValidAuth,
-  GETRequestToCloudUserEndpoint,
-  GETSingleUserEndpoint,
+  getCapabilitiesInteraction,
+  getCurrentUserInformationInteraction,
+  getUserInformationAsAdminInteraction,
   createOwncloud,
   createProvider,
-  capabilitiesGETRequestInvalidAuth,
-  createAUser,
-  createAUserWithGroupMembership,
-  deleteAUser,
-  createAFolder,
-  updateFile
+  getCapabilitiesWithInvalidAuthInteraction,
+  createUserInteraction,
+  createUserWithGroupMembershipInteraction,
+  deleteUserInteraction,
+  createFolderInteraction,
+  updateFileInteraction
 }

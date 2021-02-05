@@ -14,9 +14,9 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   // PACT setup
   const {
     createProvider,
-    capabilitiesGETRequestInvalidAuth,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint
+    getCapabilitiesWithInvalidAuthInteraction,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction
   } = require('./pactHelper.js')
 
   beforeEach(function () {
@@ -46,7 +46,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with wrong username and password', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider, nonExistentUser, 'config.password' + timeRightNow)
+    await getCapabilitiesWithInvalidAuthInteraction(provider, nonExistentUser, 'config.password' + timeRightNow)
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
@@ -69,7 +69,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with correct username only', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider, config.username, 'config.password' + timeRightNow)
+    await getCapabilitiesWithInvalidAuthInteraction(provider, config.username, 'config.password' + timeRightNow)
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
@@ -92,8 +92,8 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with correct config.username and config.password', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     return provider.executeTest(async () => {
       oc = new OwnCloud({
         baseUrl: config.owncloudURL,

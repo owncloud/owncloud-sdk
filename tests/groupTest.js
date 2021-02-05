@@ -9,12 +9,12 @@ describe('Main: Currently testing group management,', function () {
     validAuthHeaders,
     xmlResponseHeaders,
     ocsMeta,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     createOwncloud
   } = require('./pactHelper.js')
 
-  async function GETGroupsRequest (provider) {
+  async function getGroupsInteraction (provider) {
     await provider
       .given('group exists', { groupName: config.testGroup })
       .uponReceiving('a GET groups request')
@@ -43,7 +43,7 @@ describe('Main: Currently testing group management,', function () {
       })
   }
 
-  async function DELETEGroupRequests (provider, group) {
+  async function deleteGroupInteraction (provider, group) {
     if (group === config.nonExistentGroup) {
       await provider
         .given('group does not exist', { groupName: group })
@@ -76,12 +76,12 @@ describe('Main: Currently testing group management,', function () {
 
   beforeEach(async function () {
     provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
   })
 
   it('checking method : getGroups', async function () {
-    await GETGroupsRequest(provider)
+    await getGroupsInteraction(provider)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
@@ -96,7 +96,7 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : groupExists with an existing group', async function () {
-    await GETGroupsRequest(provider)
+    await getGroupsInteraction(provider)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
@@ -109,7 +109,7 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : groupExists with a non-existent group', async function () {
-    await GETGroupsRequest(provider)
+    await getGroupsInteraction(provider)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
@@ -158,7 +158,7 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : deleteGroup with a non-existent group', async function () {
-    await DELETEGroupRequests(provider, config.nonExistentGroup)
+    await deleteGroupInteraction(provider, config.nonExistentGroup)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
@@ -207,7 +207,7 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : delete a group', async function () {
-    await DELETEGroupRequests(provider, config.testGroup)
+    await deleteGroupInteraction(provider, config.testGroup)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()

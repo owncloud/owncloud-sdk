@@ -12,7 +12,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     invalidAuthHeader,
     origin,
     webdavExceptionResponseBody,
-    capabilitiesGETRequestInvalidAuth,
+    getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
     createProvider
   } = require('../pactHelper.js')
@@ -37,7 +37,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     `/remote.php/webdav/${config.testFolder}`
   )
 
-  const UnauthorizedInteraction = (provider, method) => {
+  const unauthorizedWebDavInteraction = (provider, method) => {
     return provider
       .uponReceiving(`a ${method} request on file contents with invalid authentication`)
       .withRequest({
@@ -59,8 +59,8 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it.skip('checking method : list', async function () {
     const provider = createProvider()
-    await UnauthorizedInteraction(provider, 'PROPFIND')
-    await capabilitiesGETRequestInvalidAuth(provider)
+    await unauthorizedWebDavInteraction(provider, 'PROPFIND')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
@@ -79,8 +79,8 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it.skip('checking method : getFileContents', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'GET')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'GET')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.invalidPassword)
@@ -104,8 +104,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it.skip('checking method : putFileContents', async function () {
     const newFile = config.testFolder + '/' + 'file.txt'
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'PUT')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'PUT')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.password + timeRightNow)
@@ -125,8 +125,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it.skip('checking method : mkdir', async function () {
     const newFolder = config.testFolder + '/' + 'new folder/'
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'MKCOL')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'MKCOL')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.password + timeRightNow)
@@ -146,8 +146,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it.skip('checking method : delete', async function () {
     const newFolder = config.testFolder + '/' + 'new folder'
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'DELETE')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'DELETE')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.password + timeRightNow)
@@ -167,8 +167,8 @@ describe('Unauthorized: Currently testing files management,', function () {
   it.skip('checking method : getFile', async function () {
     const file = 'tempFile'
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'PUT')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'PUT')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.password + timeRightNow)
@@ -187,8 +187,8 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it.skip('checking method : move', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'MOVE')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'MOVE')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.password + timeRightNow)
@@ -207,8 +207,8 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it.skip('checking method : copy', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await UnauthorizedInteraction(provider, 'COPY')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await unauthorizedWebDavInteraction(provider, 'COPY')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.username, config.password + timeRightNow)

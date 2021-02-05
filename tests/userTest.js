@@ -6,17 +6,17 @@ describe('Main: Currently testing user management,', function () {
   // PACT setup
   const {
     ocsMeta,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
-    createAUser,
-    deleteAUser,
-    createAUserWithGroupMembership,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
+    createUserInteraction,
+    deleteUserInteraction,
+    createUserWithGroupMembershipInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
   const { validAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
 
-  const aRequestToGetUserInformation = function (provider, requestName, username, responseBody) {
+  const getUserInformationInteraction = function (provider, requestName, username, responseBody) {
     return provider
       .uponReceiving('a request to GET user information ' + requestName)
       .withRequest({
@@ -34,7 +34,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aGETRequestToListUsers = function (provider, requestName, query, bodyData) {
+  const getUsersInteraction = function (provider, requestName, query, bodyData) {
     return provider
       .uponReceiving('a request to list all users ' + requestName)
       .withRequest({
@@ -57,7 +57,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aPUTRequestToSetUserAttribute = function (provider, requestName, username, requestBody, response) {
+  const changeUserAttributeInteraction = function (provider, requestName, username, requestBody, response) {
     return provider
       .uponReceiving('set user attribute of an ' + requestName)
       .withRequest({
@@ -85,7 +85,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aPOSTRequestToAddUsersToGroup = function (provider, requestName, username, group) {
+  const addUserToGroupInteraction = function (provider, requestName, username, group) {
     return provider
       .uponReceiving('add user to group with an existent user and a non existent group ' + requestName)
       .withRequest({
@@ -114,7 +114,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aRequestToGetGroupOfAUser = function (provider, requestName, username, responseBody) {
+  const getGroupOfUserInteraction = function (provider, requestName, username, responseBody) {
     // TODO: for provider test, need to add a state to put user in group
     return provider
       .uponReceiving('a request to GET the groups that a user is a member of ' + requestName)
@@ -133,7 +133,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aDELETERequestToRemoveUserFromAGroup = function (provider, requestName, username, group) {
+  const removeUserFromGroupInteraction = function (provider, requestName, username, group) {
     return provider
       .uponReceiving('Remove user from a group ' + requestName)
       .withRequest({
@@ -163,7 +163,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aPOSTRequestToAddUserToSubAdminGroup = function (provider, request, username, group, responseOcsMeta) {
+  const addUserToSubAdminGroupInteraction = function (provider, request, username, group, responseOcsMeta) {
     return provider
       .uponReceiving('Add user to subadmin group ' + request)
       .withRequest({
@@ -189,7 +189,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const aRequestToGetUserSubAdminGroup = function (provider, requestName, username, responseBody) {
+  const getUsersSubAdminGroupsInteraction = function (provider, requestName, username, responseBody) {
     // TODO: for provider test, need to add a state to make user subadmin of the group
     return provider
       .uponReceiving('a request to GET groups that a user is a subadmin of ' + requestName)
@@ -208,8 +208,8 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const getUserInformationNonExistentUser = function (provider) {
-    return aRequestToGetUserInformation(
+  const getUserInformationOfNonExistentUserInteraction = function (provider) {
+    return getUserInformationInteraction(
       provider,
       'of a non-existent user',
       config.nonExistentUser,
@@ -225,9 +225,9 @@ describe('Main: Currently testing user management,', function () {
   describe('added testUser to testGroup,', function () {
     it('checking method : getUserGroups with an existent user', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aRequestToGetGroupOfAUser(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await getGroupOfUserInteraction(
         provider,
         ' with existent user',
         config.testUser,
@@ -256,10 +256,10 @@ describe('Main: Currently testing user management,', function () {
 
     it('checking method : userIsInGroup with an existent user, existent group', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
-      await aRequestToGetGroupOfAUser(
+      await getGroupOfUserInteraction(
         provider,
         ' with existent user',
         config.testUser,
@@ -290,10 +290,10 @@ describe('Main: Currently testing user management,', function () {
   describe('made testUser as testGroup subAdmin', function () {
     it('checking method : getUserSubadminGroups with an existent user', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
-      await aRequestToGetUserSubAdminGroup(
+      await getUsersSubAdminGroupsInteraction(
         provider,
         ' with an existent user',
         config.testUser,
@@ -322,9 +322,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : getUser on an existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetUserInformation(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUserInformationInteraction(
       provider,
       'of an existing user',
       config.username,
@@ -363,10 +363,10 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : getUser on a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
 
-    await getUserInformationNonExistentUser(provider)
+    await getUserInformationOfNonExistentUserInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -381,10 +381,10 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : createUser & deleteUser', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await createAUser(provider)
-    await deleteAUser(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await createUserInteraction(provider)
+    await deleteUserInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -403,11 +403,11 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : createUser with groups', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await deleteAUser(provider)
-    await createAUserWithGroupMembership(provider)
-    await aRequestToGetGroupOfAUser(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await deleteUserInteraction(provider)
+    await createUserWithGroupMembershipInteraction(provider)
+    await getGroupOfUserInteraction(
       provider,
       ' with existent user',
       config.testUser,
@@ -442,9 +442,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : searchUsers', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aGETRequestToListUsers(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersInteraction(
       provider,
       'to get all users',
       {},
@@ -471,9 +471,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : searchUsers with zero user results', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aGETRequestToListUsers(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersInteraction(
       provider,
       'search for user that does not exists',
       { search: config.nonExistentUser },
@@ -495,9 +495,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userExists with existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aGETRequestToListUsers(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersInteraction(
       provider,
       'search for a user that exists',
       { search: config.username },
@@ -521,9 +521,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userExists with non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aGETRequestToListUsers(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersInteraction(
       provider,
       'search for a user that doesn\'t exists',
       { search: config.nonExistentUser },
@@ -544,9 +544,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : setUserAttribute of an existent user, allowed attribute', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPUTRequestToSetUserAttribute(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await changeUserAttributeInteraction(
       provider,
       ' an existent user, attribute is allowed',
       config.testUser,
@@ -555,7 +555,7 @@ describe('Main: Currently testing user management,', function () {
         ocsMeta(meta, 'ok', 100)
       }
     )
-    await aRequestToGetUserInformation(
+    await getUserInformationInteraction(
       provider,
       ' to get user attribute of an existent user',
       config.testUser,
@@ -592,9 +592,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : setUserAttribute of an existent user, not allowed attribute', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPUTRequestToSetUserAttribute(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await changeUserAttributeInteraction(
       provider,
       ' an existent user, attribute is not allowed',
       config.testUser,
@@ -620,9 +620,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : setUserAttribute of a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPUTRequestToSetUserAttribute(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await changeUserAttributeInteraction(
       provider,
       ' a non existent user',
       config.nonExistentUser,
@@ -646,9 +646,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : addUserToGroup with existent user, non existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPOSTRequestToAddUsersToGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await addUserToGroupInteraction(
       provider,
       'with an existent user and a non existent group',
       config.testUser,
@@ -671,9 +671,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : addUserToGroup with non existent user, existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPOSTRequestToAddUsersToGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await addUserToGroupInteraction(
       provider,
       'with a non-existent user and an existent group',
       config.nonExistentUser,
@@ -694,9 +694,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : getUserGroups with a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    aRequestToGetGroupOfAUser(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    getGroupOfUserInteraction(
       provider,
       ' non existing user',
       config.nonExistentUser,
@@ -722,9 +722,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userIsInGroup with an existent user but a group the user isn\'t part of', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetGroupOfAUser(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getGroupOfUserInteraction(
       provider,
       ' with existent user and group that user isn\'t part of ',
       config.testUser,
@@ -752,9 +752,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userIsInGroup with an existent user, non existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetGroupOfAUser(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getGroupOfUserInteraction(
       provider,
       ' with existent user and nonexistant group',
       config.testUser,
@@ -783,9 +783,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userIsInGroup with a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetGroupOfAUser(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getGroupOfUserInteraction(
       provider,
       ' with a non-existent user',
       config.nonExistentUser,
@@ -810,9 +810,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : getUser with an existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetUserInformation(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUserInformationInteraction(
       provider,
       ' to get user attribute of an existent user, ' + config.testUser,
       config.testUser,
@@ -846,9 +846,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : getUser with a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await getUserInformationNonExistentUser(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUserInformationOfNonExistentUserInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -863,9 +863,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : removeUserFromGroup with existent user, non existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aDELETERequestToRemoveUserFromAGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await removeUserFromGroupInteraction(
       provider,
       'with existent user and non-existent group',
       config.testUser,
@@ -886,9 +886,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : removeUserFromGroup with non existent user, existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aDELETERequestToRemoveUserFromAGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await removeUserFromGroupInteraction(
       provider,
       'with a non-existent user and an existent group',
       config.nonExistentUser,
@@ -910,9 +910,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : addUserToSubadminGroup with existent user, non existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPOSTRequestToAddUserToSubAdminGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await addUserToSubAdminGroupInteraction(
       provider,
       'with existent user non existent group',
       config.testUser,
@@ -936,9 +936,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : addUserToSubadminGroup with non existent user, existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aPOSTRequestToAddUserToSubAdminGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await addUserToSubAdminGroupInteraction(
       provider,
       'with a non-existent user and an existent group',
       config.nonExistentUser,
@@ -960,9 +960,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : getUserSubadminGroups with a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetUserSubAdminGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersSubAdminGroupsInteraction(
       provider,
       ' with a non-existent user',
       config.nonExistentUser,
@@ -988,9 +988,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userIsInSubadminGroup with existent user, non existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetUserSubAdminGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersSubAdminGroupsInteraction(
       provider,
       ' with an existent user',
       config.testUser,
@@ -1017,9 +1017,9 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : userIsInSubadminGroup with non existent user, existent group', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await aRequestToGetUserSubAdminGroup(
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUsersSubAdminGroupsInteraction(
       provider,
       ' with a non-existent user',
       config.nonExistentUser,
@@ -1045,8 +1045,8 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : deleteUser on a non existent user', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await provider
       .uponReceiving('a request to delete a non-existent user')
       .withRequest({

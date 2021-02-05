@@ -15,8 +15,8 @@ describe('oc.fileTrash', function () {
     validAuthHeaders,
     accessControlAllowHeaders,
     accessControlAllowMethods,
-    GETRequestToCloudUserEndpoint,
-    capabilitiesGETRequestValidAuth,
+    getCurrentUserInformationInteraction,
+    getCapabilitiesInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
@@ -142,8 +142,8 @@ describe('oc.fileTrash', function () {
   describe('when deleting files and folders', function () {
     it('should have the trashbin capability set', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -163,8 +163,8 @@ describe('oc.fileTrash', function () {
   describe.skip('and when empty', function () {
     it('should list no items ', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('PROPFIND empty trash')
         .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
@@ -258,8 +258,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list a deleted folder', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await propfindForTrashbinWithItems(provider)
 
         return provider.executeTest(async () => {
@@ -274,8 +274,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list an item within a deleted folder', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await listItemWithinADeletedFolder(provider)
         await propfindForTrashbinWithItems(provider)
 
@@ -372,8 +372,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list the folder in the original location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await moveFolderFromTrashbinToFilesList(provider)
         await propfindForTrashbinWithItems(provider)
         await propfindToARestoredFolderInOriginalLocation(provider)
@@ -468,8 +468,8 @@ describe('oc.fileTrash', function () {
       }
       it.skip('should list the folder in the different location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
         await PropfindToAnEmptytrashbinAfterRestoring(provider)
         await PropfindToARestoredFolderInNewLocation(provider)
@@ -551,8 +551,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list the deleted file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await propfindTrashItemsBeforeDeletingFile(provider)
 
         return provider.executeTest(async () => {
@@ -638,8 +638,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list the folder in the original location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
         await propfindTrashItemsAfterRestoringDeletingFile(provider)
         await propfindToARestoredFileInOriginalLocation(provider)
@@ -738,8 +738,8 @@ describe('oc.fileTrash', function () {
       }
       it.skip('should list the folder in the different location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
         await propfindToARestoredFileInNewLocationEmpty(provider)
         await propfindToARestoredFileInNewLocation(provider)

@@ -11,12 +11,12 @@ describe('Signed urls', function () {
     accessControlAllowMethods,
     validAuthHeaders,
     origin,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     createProvider
   } = require('./pactHelper.js')
 
-  const requestGETSigningKey = (provider) => {
+  const getSigningKeyInteraction = (provider) => {
     return provider
       .uponReceiving('a GET request for a signing key')
       .withRequest({
@@ -46,7 +46,7 @@ describe('Signed urls', function () {
       })
   }
 
-  const requestGETFileDownloadWithSignedURL = (provider) => {
+  const downloadWithSignedURLInteraction = (provider) => {
     return provider
       .uponReceiving('a GET request for a file download using signed url')
       .withRequest({
@@ -77,10 +77,10 @@ describe('Signed urls', function () {
 
   it('should allow file download with a signUrl', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await requestGETSigningKey(provider)
-    await requestGETFileDownloadWithSignedURL(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getSigningKeyInteraction(provider)
+    await downloadWithSignedURLInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()

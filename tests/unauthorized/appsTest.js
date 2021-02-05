@@ -59,7 +59,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     await getAppsInvalidAuthInteraction(provider, { filter: 'enabled' })
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -80,7 +80,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     await appRequestInvalidAuthInteraction(provider, 'POST', 'files')
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -101,7 +101,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     await appRequestInvalidAuthInteraction(provider, 'DELETE', 'files')
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

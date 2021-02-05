@@ -72,7 +72,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await groupsInteraction(provider, 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -95,7 +95,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await groupsInteraction(provider, 'POST')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -118,7 +118,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await groupsInteraction(provider, 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -141,7 +141,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await deleteGroupInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -164,7 +164,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await getGroupMembersInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')

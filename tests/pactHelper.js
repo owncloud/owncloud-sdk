@@ -1,7 +1,7 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 const config = require('./config/config.json')
-var validUserPasswordHash = Buffer.from(config.username + ':' + config.password, 'binary').toString('base64')
+var validUserPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
 
 const path = require('path')
 const OwnCloud = require('../src/owncloud')
@@ -40,12 +40,12 @@ const ocsMeta = function (meta, status, statusCode, Message = null) {
 const shareResponseOcsData = function (node, shareType, id, permissions, fileTarget) {
   const res = node.appendElement('id', '', id)
     .appendElement('share_type', '', shareType)
-    .appendElement('uid_owner', '', 'admin')
-    .appendElement('displayname', '', 'admin')
-    .appendElement('displayname_owner', '', 'admin')
+    .appendElement('uid_owner', '', config.adminUsername)
+    .appendElement('displayname', '', config.adminUsername)
+    .appendElement('displayname_owner', '', config.adminUsername)
     .appendElement('permissions', '', permissions)
     .appendElement('uid_file_owner', '', 'admin')
-    .appendElement('displayname_file_owner', '', 'admin')
+    .appendElement('displayname_file_owner', '', config.adminUsername)
     .appendElement('path', '', fileTarget)
     .appendElement('file_target', '', fileTarget)
     .appendElement('stime', '', Math.floor(Date.now() / 1000))
@@ -121,7 +121,7 @@ const createProvider = function () {
   })
 }
 
-const createOwncloud = function (username = config.username, password = config.password) {
+const createOwncloud = function (username = config.adminUsername, password = config.adminPassword) {
   const oc = new OwnCloud({
     baseUrl: config.owncloudURL,
     auth: {
@@ -209,8 +209,8 @@ async function getCurrentUserInformationInteraction (provider) {
             .appendElement('statuscode', '', '100')
             .appendElement('message', '', 'OK')
         }).appendElement('data', '', (data) => {
-          data.appendElement('id', '', 'admin')
-          data.appendElement('display-name', '', 'admin')
+          data.appendElement('id', '', config.adminUsername)
+          data.appendElement('display-name', '', config.adminUsername)
           data.appendElement('email', '', '')
         })
       })
@@ -304,7 +304,7 @@ const getUserInformationAsAdminInteraction = function (provider) {
     })
 }
 
-const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.username, password = config.invalidPassword) {
+const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.adminUsername, password = config.invalidPassword) {
   return provider.uponReceiving(`a capabilities GET request with invalid authentication by ${username} with ${password}`)
     .withRequest({
       method: 'GET',

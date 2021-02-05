@@ -63,7 +63,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -83,7 +83,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -108,7 +108,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'PUT')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.password + timeRightNow)
+      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -129,7 +129,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'MKCOL')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.password + timeRightNow)
+      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -150,7 +150,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'DELETE')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.password + timeRightNow)
+      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -171,7 +171,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'PUT')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.password + timeRightNow)
+      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -191,7 +191,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'MOVE')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.password + timeRightNow)
+      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -211,7 +211,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'COPY')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.password + timeRightNow)
+      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

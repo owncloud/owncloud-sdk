@@ -212,7 +212,7 @@ describe('oc.publicFiles', function () {
                 expect(files[0].getName()).toBe(testFolderShare.getToken())
                 expect(files[0].getPath()).toBe('/')
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
-                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.username)
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.adminUsername)
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
 
                 // test folder elements
@@ -624,7 +624,7 @@ describe('oc.publicFiles', function () {
               dProp
                 .appendElement('oc:public-link-item-type', '', 'folder')
                 .appendElement('oc:public-link-permission', '', permission)
-                .appendElement('oc:public-link-share-owner', '', config.username)
+                .appendElement('oc:public-link-share-owner', '', config.adminUsername)
             })
               .appendElement('d:status', '', 'HTTP/1.1 200 OK')
           })

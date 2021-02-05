@@ -459,7 +459,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud()
         await oc.login()
         const url = oc.files.getFileUrlV2('/foo/bar')
-        expect(url).toBe(owncloudURL + 'remote.php/dav/files/admin/foo/bar')
+        expect(url).toBe(owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/foo/bar')
       })
     })
 
@@ -1047,8 +1047,8 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/$',
-            generate: '/remote.php/dav/files/admin/'
+            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
           headers: validAuthHeaders,
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
@@ -1070,7 +1070,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp.appendElement('oc:favorite', '', '1')
@@ -1115,8 +1115,8 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/$',
-            generate: '/remote.php/dav/files/admin/'
+            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
           headers: validAuthHeaders,
           body: new XmlBuilder('1.0', '', 'oc:search-files').build(ocSearchFiles => {
@@ -1143,7 +1143,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
@@ -1188,7 +1188,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', `/remote.php/${data === fileId ? 'webdav' : 'dav/files/admin'}/${testFolder}/${testFile}`)
+              dResponse.appendElement('d:href', '', `/remote.php/${data === fileId ? 'webdav' : 'dav/files/' + config.adminUsername}/${testFolder}/${testFile}`)
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
@@ -1259,8 +1259,8 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/$',
-            generate: '/remote.php/dav/files/admin/'
+            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
           headers: validAuthHeaders,
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {

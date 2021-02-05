@@ -71,7 +71,7 @@ describe('provider testing', () => {
       },
       'folder exists': (setup, parameters) => {
         if (setup) {
-          createFolderRecrusive(config.username, parameters.folderName)
+          createFolderRecrusive(config.adminUsername, parameters.folderName)
         }
         return Promise.resolve({ description: 'folder created' })
       },
@@ -79,9 +79,9 @@ describe('provider testing', () => {
         const dirname = path.dirname(parameters.fileName)
         if (setup) {
           if (dirname !== '' && dirname !== '/') {
-            createFolderRecrusive(config.username, dirname)
+            createFolderRecrusive(config.adminUsername, dirname)
           }
-          createFile(config.username, parameters.fileName, config.testContent)
+          createFile(config.adminUsername, parameters.fileName, config.testContent)
         } else {
           let itemToDelete
           if (dirname !== '' && dirname !== '/') {
@@ -90,7 +90,7 @@ describe('provider testing', () => {
           } else {
             itemToDelete = parameters.fileName
           }
-          deleteItem(config.username, itemToDelete)
+          deleteItem(config.adminUsername, itemToDelete)
         }
         return Promise.resolve({ description: 'file created' })
       }

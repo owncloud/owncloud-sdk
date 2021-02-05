@@ -12,7 +12,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

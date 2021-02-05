@@ -327,7 +327,7 @@ describe('Main: Currently testing user management,', function () {
     await getUserInformationInteraction(
       provider,
       'of an existing user',
-      config.username,
+      config.adminUsername,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
@@ -343,7 +343,7 @@ describe('Main: Currently testing user management,', function () {
                   .appendElement('definition', '', 'default')
               })
               .appendElement('email', '', '')
-              .appendElement('displayname', '', config.username)
+              .appendElement('displayname', '', config.adminUsername)
               .appendElement('two_fafctor_auth_enabled', '', 'false')
           })
         })
@@ -352,9 +352,9 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.getUser(config.username).then(data => {
+      return oc.users.getUser(config.adminUsername).then(data => {
         expect(typeof (data)).toEqual('object')
-        expect(data.displayname).toEqual(config.username)
+        expect(data.displayname).toEqual(config.adminUsername)
       }).catch(error => {
         expect(error).toBe(null)
       })
@@ -450,7 +450,7 @@ describe('Main: Currently testing user management,', function () {
       {},
       data => {
         data.appendElement('users', '', users => {
-          users.appendElement('element', '', config.username)
+          users.appendElement('element', '', config.adminUsername)
             .appendElement('element', '', config.testUser)
         })
       }
@@ -461,7 +461,7 @@ describe('Main: Currently testing user management,', function () {
       await oc.login()
       return oc.users.searchUsers('').then(data => {
         expect(typeof (data)).toEqual('object')
-        expect(data.indexOf(config.username)).toBeGreaterThan(-1)
+        expect(data.indexOf(config.adminUsername)).toBeGreaterThan(-1)
         expect(data.indexOf(config.testUser)).toBeGreaterThan(-1)
       }).catch(error => {
         expect(error).toBe(null)
@@ -500,10 +500,10 @@ describe('Main: Currently testing user management,', function () {
     await getUsersInteraction(
       provider,
       'search for a user that exists',
-      { search: config.username },
+      { search: config.adminUsername },
       data => {
         data.appendElement('users', '', users => {
-          users.appendElement('element', '', config.username)
+          users.appendElement('element', '', config.adminUsername)
         })
       }
     )
@@ -511,7 +511,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.userExists(config.username).then(status => {
+      return oc.users.userExists(config.adminUsername).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
         expect(error).toBe(null)

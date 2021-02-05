@@ -39,7 +39,7 @@ describe('Signed urls', function () {
             return ocsMeta(meta, 'ok', '100', 'OK')
           })
             .appendElement('data', '', (data) => {
-              data.appendElement('user', '', 'admin')
+              data.appendElement('user', '', config.adminUsername)
                 .appendElement('signing-key', '', 'YONNpClEO2GVtTDqIwaVsgLBIuDSe03wFhdwcG1WmorRK/iE8xGs7HyHNseftgb3')
             })
         })
@@ -52,14 +52,14 @@ describe('Signed urls', function () {
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
-          '.*\\/remote\\.php\\/dav\\/files\\/admin\\/' + config.testFolder + '\\/' + config.testFile + '?.+$',
-          '/remote.php/dav/files/admin/' + config.testFolder + '/' + config.testFile + '?'
+          '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/' + config.testFolder + '\\/' + config.testFile + '?.+$',
+          '/remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '/' + config.testFile + '?'
         ),
         query: {
           'OC-Verb': 'GET',
           'OC-Algo': 'PBKDF2/10000-SHA512',
           'OC-Signature': MatchersV3.regex('[a-f0-9]+', '481af3539853a2032d750b57901988b194c6b47d883710f3359dc7e58a3518cb'),
-          'OC-Credential': 'admin',
+          'OC-Credential': config.adminUsername,
           'OC-Expires': '1200',
           'OC-Date': MatchersV3.regex('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z', '2021-01-19T02:54:22.486Z')
         }

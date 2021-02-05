@@ -20,7 +20,7 @@ describe('Unauthenticated: Currently testing user management,', function () {
   })
 
   it('checking method : getUser', function (done) {
-    oc.users.getUser(config.username).then(data => {
+    oc.users.getUser(config.adminUsername).then(data => {
       expect(data).toBe(null)
       done()
     }).catch(error => {
@@ -50,7 +50,7 @@ describe('Unauthenticated: Currently testing user management,', function () {
   })
 
   it('checking method : userExists', function (done) {
-    oc.users.userExists(config.username).then(status => {
+    oc.users.userExists(config.adminUsername).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

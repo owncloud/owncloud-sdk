@@ -46,7 +46,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with wrong username and password', async function () {
     const provider = createProvider()
-    await getCapabilitiesWithInvalidAuthInteraction(provider, nonExistentUser, 'config.password' + timeRightNow)
+    await getCapabilitiesWithInvalidAuthInteraction(provider, nonExistentUser, 'config.adminPassword' + timeRightNow)
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
@@ -54,7 +54,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
         auth: {
           basic: {
             username: nonExistentUser,
-            password: 'config.password' + timeRightNow
+            password: 'config.adminPassword' + timeRightNow
           }
         }
       })
@@ -69,15 +69,15 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with correct username only', async function () {
     const provider = createProvider()
-    await getCapabilitiesWithInvalidAuthInteraction(provider, config.username, 'config.password' + timeRightNow)
+    await getCapabilitiesWithInvalidAuthInteraction(provider, config.adminUsername, 'config.adminPassword' + timeRightNow)
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
         baseUrl: config.owncloudURL,
         auth: {
           basic: {
-            username: config.username,
-            password: 'config.password' + timeRightNow
+            username: config.adminUsername,
+            password: 'config.adminPassword' + timeRightNow
           }
         }
       })
@@ -90,7 +90,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     })
   })
 
-  it('checking method : login with correct config.username and config.password', async function () {
+  it('checking method : login with correct config.adminUsername and config.adminPassword', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -99,14 +99,14 @@ describe('Main: Currently testing Login and initLibrary,', function () {
         baseUrl: config.owncloudURL,
         auth: {
           basic: {
-            username: config.username,
-            password: config.password
+            username: config.adminUsername,
+            password: config.adminPassword
           }
         }
       })
 
       return oc.login().then(status => {
-        expect(status).toEqual({ id: 'admin', 'display-name': 'admin', email: {} })
+        expect(status).toEqual({ id: config.adminUsername, 'display-name': config.adminUsername, email: {} })
       }).catch(error => {
         fail(error)
       })

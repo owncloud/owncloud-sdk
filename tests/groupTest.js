@@ -140,7 +140,7 @@ describe('Main: Currently testing group management,', function () {
             return ocsMeta(meta, 'ok', '100')
           }).appendElement('data', '', (data) => {
             data.appendElement('users', '', (users) => {
-              users.appendElement('element', '', 'admin')
+              users.appendElement('element', '', config.adminUsername)
             })
           })
         })
@@ -150,7 +150,7 @@ describe('Main: Currently testing group management,', function () {
       await oc.login()
       return oc.groups.getGroupMembers('admin').then(data => {
         expect(typeof (data)).toBe('object')
-        expect(data.indexOf(config.username)).toBeGreaterThan(-1)
+        expect(data.indexOf(config.adminUsername)).toBeGreaterThan(-1)
       }).catch(error => {
         expect(error).toBe(null)
       })

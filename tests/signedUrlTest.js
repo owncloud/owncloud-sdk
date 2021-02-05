@@ -30,8 +30,8 @@ describe('Main: Currently testing url signing,', function () {
       baseUrl: config.owncloudURL,
       auth: {
         basic: {
-          username: config.username,
-          password: config.password
+          username: config.adminUsername,
+          password: config.adminPassword
         }
       },
       signingKey: '1234567890',

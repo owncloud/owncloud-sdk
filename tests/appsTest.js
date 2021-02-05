@@ -6,8 +6,8 @@ describe('Main: Currently testing apps management,', function () {
   // PACT setup
   const {
     validAuthHeaders,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     xmlResponseHeaders,
     htmlResponseHeaders,
     createProvider,
@@ -47,7 +47,7 @@ describe('Main: Currently testing apps management,', function () {
       })
   }
 
-  const getApps = (provider, query) => {
+  const getAppsInteraction = (provider, query) => {
     return provider
       .uponReceiving('a GET request for a list of apps')
       .withRequest({
@@ -81,10 +81,10 @@ describe('Main: Currently testing apps management,', function () {
 
   it('checking method : getApps', async () => {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await getApps(provider, { filter: 'enabled' })
-    await getApps(provider, {})
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getAppsInteraction(provider, { filter: 'enabled' })
+    await getAppsInteraction(provider, {})
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -102,8 +102,8 @@ describe('Main: Currently testing apps management,', function () {
   it('checking method : enableApp when app exists', async function () {
     const provider = createProvider()
     await changeAppStatus(provider, 'enable')
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
@@ -120,8 +120,8 @@ describe('Main: Currently testing apps management,', function () {
     const provider = createProvider()
     await changeAppStatus(provider, 'disable')
     await changeAppStatus(provider, 'enable')
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -142,8 +142,8 @@ describe('Main: Currently testing apps management,', function () {
   it('checking method : enableApp when app doesn\'t exist', async function () {
     const provider = createProvider()
     await changeAppStatus(provider, 'enable')
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -160,8 +160,8 @@ describe('Main: Currently testing apps management,', function () {
   it('checking method : disableApp when app doesn\'t exist', async function () {
     const provider = createProvider()
     await changeAppStatus(provider, 'disable')
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()

@@ -2,17 +2,17 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
   const config = require('../config/config.json')
 
   const {
-    capabilitiesGETRequestInvalidAuth,
+    getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
     createProvider
   } = require('../pactHelper.js')
 
   it('checking method : getCapabilities', async function (done) {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

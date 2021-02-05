@@ -7,7 +7,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     unauthorizedXmlResponseBody,
     createOwncloud,
     createProvider,
-    capabilitiesGETRequestInvalidAuth,
+    getCapabilitiesWithInvalidAuthInteraction,
     invalidAuthHeader
   } = require('../pactHelper.js')
 
@@ -23,7 +23,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     authorization: invalidAuthHeader
   }
 
-  const aGETAppsRequest = async (provider, query) => {
+  const getAppsInvalidAuthInteraction = async (provider, query) => {
     return provider
       .uponReceiving('an GET app request with invalid auth')
       .withRequest({
@@ -38,7 +38,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
-  const appRequestInvalidAuth = async (provider, method, app) => {
+  const appRequestInvalidAuthInteraction = async (provider, method, app) => {
     return provider
       .uponReceiving(`an ${method} app request with invalid auth`)
       .withRequest({
@@ -54,12 +54,12 @@ describe('Unauthorized: Currently testing apps management,', function () {
 
   it('checking method : getApps', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await aGETAppsRequest(provider)
-    await aGETAppsRequest(provider, { filter: 'enabled' })
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getAppsInvalidAuthInteraction(provider)
+    await getAppsInvalidAuthInteraction(provider, { filter: 'enabled' })
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -76,11 +76,11 @@ describe('Unauthorized: Currently testing apps management,', function () {
 
   it('checking method : enableApp when app exists', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await appRequestInvalidAuth(provider, 'POST', 'files')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await appRequestInvalidAuthInteraction(provider, 'POST', 'files')
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -97,11 +97,11 @@ describe('Unauthorized: Currently testing apps management,', function () {
 
   it('checking method : disableApp', async function (done) {
     const provider = createProvider()
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await appRequestInvalidAuth(provider, 'DELETE', 'files')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await appRequestInvalidAuthInteraction(provider, 'DELETE', 'files')
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

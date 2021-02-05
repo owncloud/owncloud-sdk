@@ -10,9 +10,9 @@ describe('Main: Currently testing file versions management,', function () {
     accessControlAllowHeaders,
     accessControlAllowMethods,
     applicationXmlResponseHeaders,
-    getContentsOfFile,
-    GETRequestToCloudUserEndpoint,
-    capabilitiesGETRequestValidAuth,
+    getContentsOfFileInteraction,
+    getCurrentUserInformationInteraction,
+    getCapabilitiesInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
@@ -82,8 +82,8 @@ describe('Main: Currently testing file versions management,', function () {
   describe.skip('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('PROPFIND file versions of non existent file')
         .withRequest(propfindFileVersionsRequestData)
@@ -179,8 +179,8 @@ describe('Main: Currently testing file versions management,', function () {
 
     it.skip('retrieves file versions', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await PropfindFileVersionOfExistentFiles(provider)
       await getFileVersionContents(provider)
 
@@ -203,9 +203,9 @@ describe('Main: Currently testing file versions management,', function () {
 
     it.skip('restore file version', async function (done) {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await provider.addInteraction(getContentsOfFile(versionedFile))
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await provider.addInteraction(getContentsOfFileInteraction(versionedFile))
       await PropfindFileVersionOfExistentFiles(provider)
       await getFileVersionContents(provider)
       await restoreFileVersion(provider)

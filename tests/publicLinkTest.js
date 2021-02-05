@@ -11,8 +11,8 @@ describe('oc.publicFiles', function () {
     origin,
     xmlResponseAndAccessControlCombinedHeader,
     htmlResponseAndAccessControlCombinedHeader,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     createOwncloud,
     createProvider,
     textPlainResponseHeaders,
@@ -30,7 +30,7 @@ describe('oc.publicFiles', function () {
     headers: htmlResponseAndAccessControlCombinedHeader
   }
 
-  const createDeletePublicShare = (provider, description, method, responseBody) => {
+  const publicShareInteraction = (provider, description, method, responseBody) => {
     return provider
       .uponReceiving(description)
       .withRequest({
@@ -47,7 +47,7 @@ describe('oc.publicFiles', function () {
       })
   }
 
-  const createDeleteFolderInPublicShare = (provider, description, method, statusCode) => {
+  const folderInPublicShareInteraction = (provider, description, method, statusCode) => {
     return provider
       .uponReceiving(description)
       .withRequest({
@@ -63,7 +63,7 @@ describe('oc.publicFiles', function () {
       })
   }
 
-  const createUpdateGetContentInPublicShare = (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined) => {
+  const publicShareContentInteraction = (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined) => {
     return provider
       .uponReceiving(description)
       .withRequest({
@@ -148,9 +148,9 @@ describe('oc.publicFiles', function () {
 
         it('should list the folder contents', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
-          await createDeletePublicShare(
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
+          await publicShareInteraction(
             provider,
             'create a public link share',
             'POST',
@@ -212,7 +212,7 @@ describe('oc.publicFiles', function () {
                 expect(files[0].getName()).toBe(testFolderShare.getToken())
                 expect(files[0].getPath()).toBe('/')
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
-                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.username)
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.adminUsername)
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
 
                 // test folder elements
@@ -274,8 +274,8 @@ describe('oc.publicFiles', function () {
                 })
               })
           }
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
 
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -329,15 +329,15 @@ describe('oc.publicFiles', function () {
       describe(description, function () {
         it('should create a folder', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
-          await createDeleteFolderInPublicShare(
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
+          await folderInPublicShareInteraction(
             provider,
             'create a folder in public share' + ' ' + data.description,
             'MKCOL',
             201
           )
-          await createDeleteFolderInPublicShare(
+          await folderInPublicShareInteraction(
             provider,
             'delete a folder in public share' + ' ' + data.description,
             'DELETE',
@@ -358,9 +358,9 @@ describe('oc.publicFiles', function () {
 
         it.skip('should create a file', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
-          await createUpdateGetContentInPublicShare(
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
+          await publicShareContentInteraction(
             provider,
             'update content of public share' + ' ' + data.description,
             'PUT',
@@ -368,7 +368,7 @@ describe('oc.publicFiles', function () {
             'lorem'
           )
 
-          await createUpdateGetContentInPublicShare(
+          await publicShareContentInteraction(
             provider,
             'get content of file in public share' + ' ' + data.description,
             'GET',
@@ -410,16 +410,16 @@ describe('oc.publicFiles', function () {
 
         it('should update a file', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
-          await createUpdateGetContentInPublicShare(
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
+          await publicShareContentInteraction(
             provider,
             'update content of public share' + ' ' + data.description + ' and content lorem',
             'PUT',
             204,
             'lorem'
           )
-          await createUpdateGetContentInPublicShare(
+          await publicShareContentInteraction(
             provider,
             'update content of public share' + ' ' + data.description + ' and content 123456',
             'PUT',
@@ -447,8 +447,8 @@ describe('oc.publicFiles', function () {
           const target = config.shareTokenOfPublicLinkFolder + '/lorem123456.txt'
 
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           await provider
             .uponReceiving('Move a file' + ' ' + data.description)
             .withRequest({
@@ -478,8 +478,8 @@ describe('oc.publicFiles', function () {
           const target = config.shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
 
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           await provider
             .uponReceiving('Move a file to subfolder' + ' ' + data.description)
             .withRequest({
@@ -505,9 +505,9 @@ describe('oc.publicFiles', function () {
 
         it('should move a folder', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
-          await createDeleteFolderInPublicShare(
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
+          await folderInPublicShareInteraction(
             provider,
             'create a folder in public share for rename' + ' ' + data.description,
             'MKCOL',
@@ -540,8 +540,8 @@ describe('oc.publicFiles', function () {
 
         it.skip('should get fileInfo of shared folder', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           await provider
             .uponReceiving('Get file info of public share' + ' ' + data.description)
             .withRequest({
@@ -624,7 +624,7 @@ describe('oc.publicFiles', function () {
               dProp
                 .appendElement('oc:public-link-item-type', '', 'folder')
                 .appendElement('oc:public-link-permission', '', permission)
-                .appendElement('oc:public-link-share-owner', '', config.username)
+                .appendElement('oc:public-link-share-owner', '', config.adminUsername)
             })
               .appendElement('d:status', '', 'HTTP/1.1 200 OK')
           })

@@ -9,8 +9,8 @@ describe('oc.shares', function () {
     applicationFormUrlEncoded,
     ocsMeta,
     shareResponseOcsData,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
@@ -70,8 +70,8 @@ describe('oc.shares', function () {
 
   it('shall share with permissions in attributes', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await sharingWithAttributes(provider)
 
     return provider.executeTest(async () => {

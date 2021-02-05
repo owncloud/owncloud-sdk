@@ -8,15 +8,14 @@ describe('oc.fileTrash', function () {
   const config = require('./config/config.json')
 
   const trashEnabled = true
-  const userId = config.username
 
   const {
     origin,
     validAuthHeaders,
     accessControlAllowHeaders,
     accessControlAllowMethods,
-    GETRequestToCloudUserEndpoint,
-    capabilitiesGETRequestValidAuth,
+    getCurrentUserInformationInteraction,
+    getCapabilitiesInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
@@ -25,13 +24,13 @@ describe('oc.fileTrash', function () {
   const deletedFileId = '2147596419'
 
   const trashbinPath = MatchersV3.regex(
-    '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/\\/$',
-    '/remote.php/dav/trash-bin/admin//'
+    '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + config.adminUsername + '\\/\\/$',
+    '/remote.php/dav/trash-bin/' + config.adminUsername + '//'
   )
 
   const trashbinFolderPath = MatchersV3.regex(
-    '.*\\/remote\\.php\\/dav\\/trash-bin\\/admin\\/' + deletedFolderId,
-    '/remote.php/dav/trash-bin/admin/' + deletedFolderId
+    '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + config.adminUsername + '\\/' + deletedFolderId,
+    '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFolderId
   )
 
   const responseHeader = function (contentType) {
@@ -71,7 +70,7 @@ describe('oc.fileTrash', function () {
           'xmlns:oc': 'http://owncloud.org/ns'
         })
         const body = dMultistatus.appendElement('d:response', '', dResponse => {
-          dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+          dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
             .appendElement('d:propstat', '', dPropstat => {
               dPropstat.appendElement('d:prop', '', dProp => {
                 dProp
@@ -101,7 +100,7 @@ describe('oc.fileTrash', function () {
       return xmlResponseBody()
     } else {
       return xmlResponseBody(dResponse => {
-        dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/admin/' + deletedFolderId + '/')
+        dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFolderId + '/')
           .appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
@@ -142,8 +141,8 @@ describe('oc.fileTrash', function () {
   describe('when deleting files and folders', function () {
     it('should have the trashbin capability set', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -163,8 +162,8 @@ describe('oc.fileTrash', function () {
   describe.skip('and when empty', function () {
     it('should list no items ', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('PROPFIND empty trash')
         .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
@@ -185,7 +184,7 @@ describe('oc.fileTrash', function () {
         }
         return oc.fileTrash.list('/').then(trashItems => {
           expect(trashItems.length).toEqual(1)
-          expect(trashItems[0].getName()).toEqual(userId)
+          expect(trashItems[0].getName()).toEqual(config.adminUsername)
         })
       })
     })
@@ -220,7 +219,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -239,7 +238,7 @@ describe('oc.fileTrash', function () {
                   })
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/admin/' + deletedFolderId + '/' + deletedFileId)
+                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFolderId + '/' + deletedFileId)
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -258,8 +257,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list a deleted folder', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await propfindForTrashbinWithItems(provider)
 
         return provider.executeTest(async () => {
@@ -274,8 +273,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list an item within a deleted folder', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await listItemWithinADeletedFolder(provider)
         await propfindForTrashbinWithItems(provider)
 
@@ -309,7 +308,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.owncloudURL + 'remote.php/dav/files/admin/' + config.testFolder
+              Destination: config.owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder
             }
           })
           .willRespondWith(responseMethod(
@@ -351,7 +350,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -372,8 +371,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list the folder in the original location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await moveFolderFromTrashbinToFilesList(provider)
         await propfindForTrashbinWithItems(provider)
         await propfindToARestoredFolderInOriginalLocation(provider)
@@ -384,7 +383,7 @@ describe('oc.fileTrash', function () {
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(userId)
+              expect(trashItems[0].getName()).toEqual(config.adminUsername)
               oc.files.fileInfo(testFolder).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(testFolder)
               })
@@ -406,7 +405,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.owncloudURL + 'remote.php/dav/files/admin/' + config.testFolder + '%20(restored%20to%20a%20different%20location)'
+              Destination: config.owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)'
             }
           })
           .willRespondWith(responseMethod(
@@ -448,7 +447,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -468,8 +467,8 @@ describe('oc.fileTrash', function () {
       }
       it.skip('should list the folder in the different location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
         await PropfindToAnEmptytrashbinAfterRestoring(provider)
         await PropfindToARestoredFolderInNewLocation(provider)
@@ -480,7 +479,7 @@ describe('oc.fileTrash', function () {
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(userId)
+              expect(trashItems[0].getName()).toEqual(config.adminUsername)
               return oc.files.fileInfo(originalLocation).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(originalLocation)
               })
@@ -512,7 +511,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/')
+                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -532,7 +531,7 @@ describe('oc.fileTrash', function () {
                       .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
                   })
               }).appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/admin/' + deletedFileId + '/' + deletedFileId)
+                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFileId + '/' + deletedFileId)
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -551,8 +550,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list the deleted file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await propfindTrashItemsBeforeDeletingFile(provider)
 
         return provider.executeTest(async () => {
@@ -579,7 +578,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.owncloudURL + 'remote.php/dav/files/admin/' + testFile
+              Destination: config.owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/' + testFile
             }
           })
           .willRespondWith({
@@ -617,7 +616,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/admin/' + deletedFileId + '/' + deletedFileId)
+                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFileId + '/' + deletedFileId)
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -638,8 +637,8 @@ describe('oc.fileTrash', function () {
 
       it.skip('should list the folder in the original location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
         await propfindTrashItemsAfterRestoringDeletingFile(provider)
         await propfindToARestoredFileInOriginalLocation(provider)
@@ -650,7 +649,7 @@ describe('oc.fileTrash', function () {
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(userId)
+              expect(trashItems[0].getName()).toEqual(config.adminUsername)
               return oc.files.fileInfo(testFolder).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(testFolder)
               })
@@ -672,7 +671,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.owncloudURL + 'remote.php/dav/files/admin/file%20(restored%20to%20a%20different%20location).txt'
+              Destination: config.owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/file%20(restored%20to%20a%20different%20location).txt'
             }
           })
           .willRespondWith({
@@ -738,8 +737,8 @@ describe('oc.fileTrash', function () {
       }
       it.skip('should list the folder in the different location and no longer in trash-bin', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
         await propfindToARestoredFileInNewLocationEmpty(provider)
         await propfindToARestoredFileInNewLocation(provider)
@@ -750,7 +749,7 @@ describe('oc.fileTrash', function () {
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(userId)
+              expect(trashItems[0].getName()).toEqual(config.adminUsername)
               return oc.files.fileInfo(originalLocation).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(originalLocation)
               })

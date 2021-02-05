@@ -24,8 +24,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
     accessControlAllowMethods,
     validAuthHeaders,
     xmlResponseHeaders,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     createOwncloud,
     ocsMeta,
     shareResponseOcsData,
@@ -59,7 +59,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   const OCS_PERMISSION_CREATE = 4
   const OCS_PERMISSION_SHARE = 16
 
-  const aGetRequestForAShareWithShareName = function (provider, name, shareType, file) {
+  const getSharesInteraction = function (provider, name, shareType, file) {
     const iteration = testFiles.indexOf(file)
     const fileId = config.testFilesId[iteration]
     const fileToken = config.testFilesToken[iteration]
@@ -93,7 +93,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
   }
 
-  const aGetRequestForPublicLinkShare = function (provider, name, permissions, additionalBodyElem) {
+  const getPublicLinkShareInteraction = function (provider, name, permissions, additionalBodyElem) {
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
       ocs.appendElement('meta', '', (meta) => {
         ocsMeta(meta, 'ok', '100')
@@ -128,7 +128,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
   }
 
-  const aGETRequestForExistingShareWithId = (provider, fileid) => {
+  const getShareInteraction = (provider, fileid) => {
     return provider
       .uponReceiving('a GET request for an existent share with id ' + fileid)
       .withRequest({
@@ -159,9 +159,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('updating share permissions,', function () {
       it('confirms not changed permissions', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
-        await aGetRequestForPublicLinkShare(provider, 'to confirm the permissions is not changed', 1, '')
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
+        await getPublicLinkShareInteraction(provider, 'to confirm the permissions is not changed', 1, '')
 
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -180,9 +180,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('making publicUpload true,', function () {
       it('confirms publicUpload true', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
-        await aGetRequestForPublicLinkShare(provider, 'after making publicupload true', 15, '')
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
+        await getPublicLinkShareInteraction(provider, 'after making publicupload true', 15, '')
 
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -205,9 +205,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }
       it('confirms added password', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
-        await aGetRequestForPublicLinkShare(provider, 'after password is added', 1, additionalBodyElement)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
+        await getPublicLinkShareInteraction(provider, 'after password is added', 1, additionalBodyElement)
 
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -228,10 +228,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('checking the shared files,', function () {
         it('checking method : isShared with shared file', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           for (let i = 0; i < testFiles.length; i++) {
-            await aGetRequestForAShareWithShareName(provider, 'public link share for isShared', 3, testFiles[i])
+            await getSharesInteraction(provider, 'public link share for isShared', 3, testFiles[i])
           }
 
           await provider.executeTest(async () => {
@@ -255,10 +255,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
           }
 
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           for (let i = 0; i < testFiles.length; i++) {
-            await aGetRequestForAShareWithShareName(provider, 'public link share for getShares', 3, testFiles[i])
+            await getSharesInteraction(provider, 'public link share for getShares', 3, testFiles[i])
           }
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -284,10 +284,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('checking method : getShare with existent share', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         for (let i = 0; i < config.testFiles.length; i++) {
-          await aGETRequestForExistingShareWithId(provider, config.testFilesId[i])
+          await getShareInteraction(provider, config.testFilesId[i])
         }
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -310,9 +310,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const maxPerms = OCS_PERMISSION_READ + OCS_PERMISSION_UPDATE + OCS_PERMISSION_SHARE
 
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
-          await aGetRequestForPublicLinkShare(provider, 'after confirming updated permission', maxPerms, '')
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
+          await getPublicLinkShareInteraction(provider, 'after confirming updated permission', maxPerms, '')
           return provider.executeTest(async () => {
             const oc = createOwncloud()
             await oc.login()
@@ -330,10 +330,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('checking method :', function () {
         it('isShared with shared file', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           for (const file of testFiles) {
-            await aGetRequestForAShareWithShareName(provider, 'user share ', 0, file)
+            await getSharesInteraction(provider, 'user share ', 0, file)
           }
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -350,10 +350,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
         it('getShare with existent share', async function () {
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
 
-          await aGetRequestForPublicLinkShare(provider, 'to confirm the share', OCS_PERMISSION_READ, '')
+          await getPublicLinkShareInteraction(provider, 'to confirm the share', OCS_PERMISSION_READ, '')
           return provider.executeTest(async () => {
             const oc = createOwncloud()
             await oc.login()
@@ -375,10 +375,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
             allIDs.push(sharedFiles[file])
           }
           const provider = createProvider()
-          await capabilitiesGETRequestValidAuth(provider)
-          await GETRequestToCloudUserEndpoint(provider)
+          await getCapabilitiesInteraction(provider)
+          await getCurrentUserInformationInteraction(provider)
           for (let i = 0; i < testFiles.length; i++) {
-            await aGetRequestForAShareWithShareName(provider, 'public link share: getShares for shared file', 3, testFiles[i])
+            await getSharesInteraction(provider, 'public link share: getShares for shared file', 3, testFiles[i])
           }
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -406,10 +406,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('sharedFilesWithGroup,', function () {
       it('checking method : isShared with shared file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         for (const file of config.testFiles) {
-          await aGetRequestForAShareWithShareName(provider, 'group share ', 1, file)
+          await getSharesInteraction(provider, 'group share ', 1, file)
         }
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -426,10 +426,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('checking method : getShare with existent share', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         for (let i = 0; i < config.testFiles.length; i++) {
-          await aGETRequestForExistingShareWithId(provider, config.testFilesId[i])
+          await getShareInteraction(provider, config.testFilesId[i])
         }
 
         return provider.executeTest(async () => {
@@ -453,10 +453,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
         }
 
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         for (let i = 0; i < testFiles.length; i++) {
-          await aGetRequestForAShareWithShareName(provider, 'public link share: getShares shared file', 3, testFiles[i])
+          await getSharesInteraction(provider, 'public link share: getShares shared file', 3, testFiles[i])
         }
 
         return provider.executeTest(async () => {
@@ -677,8 +677,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('shareFileWithLink with non-existent file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await linkSharePOSTNonExistentFile(provider)
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -693,8 +693,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('shareFileWithGroup with non existent file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await groupSharePOSTNonExistentFile(provider)
 
         return provider.executeTest(async () => {
@@ -710,8 +710,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('isShared with non existent file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await shareGETNonExistentFile(provider, 'for testing isShared')
 
         return provider.executeTest(async () => {
@@ -727,8 +727,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('isShared with existent but non shared file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await putFileWithExmptyContent(provider)
         await shareGETExistingNonSharedFile(provider)
 
@@ -749,8 +749,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('getShare with non existent share', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await shareGetNonExistentShare(provider)
 
         return provider.executeTest(async () => {
@@ -769,8 +769,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('getShares for non existent file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await shareGETNonExistentFile(provider, 'for testing getShares')
 
         return provider.executeTest(async () => {
@@ -786,8 +786,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('getShares for existent but non shared file', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await putFileWithExmptyContent(provider)
         await shareGETExistingNonSharedFile(provider, 'testing getShares')
 
@@ -809,8 +809,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('updateShare for non existent share', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await updateDeleteShareNonExistent(provider, 'PUT')
 
         return provider.executeTest(async () => {
@@ -829,8 +829,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('deleteShare with non existent share', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
         await updateDeleteShareNonExistent(provider, 'DELETE')
 
         return provider.executeTest(async () => {
@@ -849,8 +849,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       it('should share a file with another user when expiration date is set', async function () {
         const provider = createProvider()
-        await capabilitiesGETRequestValidAuth(provider)
-        await GETRequestToCloudUserEndpoint(provider)
+        await getCapabilitiesInteraction(provider)
+        await getCurrentUserInformationInteraction(provider)
 
         await Promise.all(config.testFilesPath.map(file => sharePOSTRequestWithExpirationDateSet(provider, file)))
         return provider.executeTest(async () => {

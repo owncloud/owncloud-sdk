@@ -5,13 +5,13 @@ describe('Main: Currently testing share recipient,', function () {
 
   const {
     validAuthHeaders,
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
 
-  const getShareesRequest = (provider) => {
+  const getShareesInteraction = (provider) => {
     return provider
       .uponReceiving('a request to get share recipients (both users and groups)')
       .withRequest({
@@ -85,9 +85,9 @@ describe('Main: Currently testing share recipient,', function () {
 
   it('testing behavior : searching for users and groups', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await getShareesRequest(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getShareesInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()

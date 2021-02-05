@@ -196,7 +196,8 @@ def pactProviderTests(version):
             'PACTFLOW_TOKEN': {
                 'from_secret': 'pactflow_token'
             },
-            'PROVIDER_VERSION': version
+            'PROVIDER_VERSION': version,
+            'LOG_LEVEL': 'info'
         },
         'commands': [
             'yarn test-provider'

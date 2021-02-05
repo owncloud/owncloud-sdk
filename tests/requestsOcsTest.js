@@ -4,10 +4,10 @@ describe('Main: Currently testing low level OCS', function () {
   const config = require('./config/config.json')
 
   const {
-    capabilitiesGETRequestValidAuth,
-    GETRequestToCloudUserEndpoint,
+    getCapabilitiesInteraction,
+    getCurrentUserInformationInteraction,
     validAuthHeaders,
-    GETSingleUserEndpoint,
+    getUserInformationAsAdminInteraction,
     createOwncloud,
     createProvider,
     origin
@@ -15,8 +15,8 @@ describe('Main: Currently testing low level OCS', function () {
 
   it('checking : capabilities', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -45,8 +45,8 @@ describe('Main: Currently testing low level OCS', function () {
 
   it('checking : error behavior', async function () {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
 
     await provider
       .uponReceiving('an update request for an unknown user')
@@ -94,9 +94,9 @@ describe('Main: Currently testing low level OCS', function () {
 
   it('checking : PUT email', async function (done) {
     const provider = createProvider()
-    await capabilitiesGETRequestValidAuth(provider)
-    await GETRequestToCloudUserEndpoint(provider)
-    await GETSingleUserEndpoint(provider)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await getUserInformationAsAdminInteraction(provider)
     await provider
       .uponReceiving('an update user request that sets email')
       .given(setup => {

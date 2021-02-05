@@ -7,7 +7,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     unauthorizedXmlResponseBody,
     createOwncloud,
     createProvider,
-    capabilitiesGETRequestInvalidAuth,
+    getCapabilitiesWithInvalidAuthInteraction,
     invalidAuthHeader
   } = require('../pactHelper.js')
 
@@ -23,7 +23,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     authorization: invalidAuthHeader
   }
 
-  const groupsRequest = (provider, method) => {
+  const groupsInteraction = (provider, method) => {
     return provider
       .uponReceiving(`a ${method} group(s) request with invalid auth`)
       .withRequest({
@@ -37,7 +37,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
-  const DELETEGroupRequest = (provider) => {
+  const deleteGroupInteraction = (provider) => {
     return provider
       .uponReceiving('a DELETE group request with invalid auth')
       .withRequest({
@@ -51,7 +51,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
-  const GETGroupMemberRequest = (provider) => {
+  const getGroupMembersInteraction = (provider) => {
     return provider
       .uponReceiving('a GET group member request with invalid auth')
       .withRequest({
@@ -68,11 +68,11 @@ describe('Unauthorized: Currently testing group management,', function () {
   it('checking method : getGroups', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await groupsRequest(provider, 'GET')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await groupsInteraction(provider, 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -91,11 +91,11 @@ describe('Unauthorized: Currently testing group management,', function () {
   it('checking method : createGroup', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await groupsRequest(provider, 'POST')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await groupsInteraction(provider, 'POST')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -114,11 +114,11 @@ describe('Unauthorized: Currently testing group management,', function () {
   it('checking method : groupExists', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await groupsRequest(provider, 'GET')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await groupsInteraction(provider, 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -137,11 +137,11 @@ describe('Unauthorized: Currently testing group management,', function () {
   it('checking method : deleteGroup', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await DELETEGroupRequest(provider)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await deleteGroupInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -160,11 +160,11 @@ describe('Unauthorized: Currently testing group management,', function () {
   it('checking method : getGroupMembers', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await GETGroupMemberRequest(provider)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getGroupMembersInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')

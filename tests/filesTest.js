@@ -8,8 +8,8 @@ describe('Main: Currently testing files management,', function () {
   const config = require('./config/config.json')
 
   const {
-    getContentsOfFile,
-    deleteResource,
+    getContentsOfFileInteraction,
+    deleteResourceInteraction,
     webdavExceptionResponseBody,
     resourceNotFoundExceptionMessage,
     webdavPath,
@@ -18,10 +18,10 @@ describe('Main: Currently testing files management,', function () {
     validAuthHeaders,
     applicationXmlResponseHeaders,
     htmlResponseHeaders,
-    GETRequestToCloudUserEndpoint,
-    capabilitiesGETRequestValidAuth,
-    createAFolder,
-    updateFile,
+    getCurrentUserInformationInteraction,
+    getCapabilitiesInteraction,
+    createFolderInteraction,
+    updateFileInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
@@ -30,7 +30,7 @@ describe('Main: Currently testing files management,', function () {
   const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL } = config
   const testSubDir = testFolder + '/' + 'subdir'
 
-  const aMoveRequest = function (provider, name, header, response) {
+  const moveFileInteraction = function (provider, name, header, response) {
     return provider
       .uponReceiving('move existent file into same folder, ' + name)
       .withRequest({
@@ -40,7 +40,7 @@ describe('Main: Currently testing files management,', function () {
       }).willRespondWith(response)
   }
 
-  const aPropfindRequestToListContentOfFolder = function (provider, name, parentFolder, items, depth) {
+  const listFolderContentInteraction = function (provider, name, parentFolder, items, depth) {
     let response
     if (name.includes('non existing')) {
       response = {
@@ -123,7 +123,7 @@ describe('Main: Currently testing files management,', function () {
     return response
   }
 
-  const favoriteFile = (provider, value) => {
+  const favoriteFileInteraction = (provider, value) => {
     return provider.uponReceiving(value === true ? 'favorite' : 'unfavorite')
       .withRequest({
         method: 'PROPPATCH',
@@ -156,7 +156,7 @@ describe('Main: Currently testing files management,', function () {
       })
   }
 
-  const propfindFavoriteFileInfo = (provider, value) => {
+  const getFavoriteStatusInteraction = (provider, value) => {
     return provider.uponReceiving('propfind file info, favorite ' + value)
       .withRequest({
         method: 'PROPFIND',
@@ -190,9 +190,9 @@ describe('Main: Currently testing files management,', function () {
   describe('file/folder creation and deletion', function () {
     it('creates the testFolder at instance', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await createAFolder(provider, testFolder)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await createFolderInteraction(provider, testFolder)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -207,9 +207,9 @@ describe('Main: Currently testing files management,', function () {
 
     it('creates subfolder at instance', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await createAFolder(provider, testSubDir)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await createFolderInteraction(provider, testSubDir)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -224,10 +224,10 @@ describe('Main: Currently testing files management,', function () {
 
     it('creates subfiles at instance', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       for (let i = 0; i < uriEncodedTestSubFiles.length; i++) {
-        await updateFile(provider, uriEncodedTestSubFiles[i])
+        await updateFileInteraction(provider, uriEncodedTestSubFiles[i])
       }
 
       return provider.executeTest(async () => {
@@ -248,9 +248,9 @@ describe('Main: Currently testing files management,', function () {
 
     it('deletes the test folder at instance', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await deleteResource(provider, testFolder)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await deleteResourceInteraction(provider, testFolder)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -267,9 +267,9 @@ describe('Main: Currently testing files management,', function () {
   describe('list, get content and move file/folder', function () {
     it.skip('checking method : list with no depth specified', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aPropfindRequestToListContentOfFolder(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await listFolderContentInteraction(
         provider,
         'test folder, with no depth specified',
         testFolder,
@@ -294,9 +294,9 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : list with Infinity depth', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aPropfindRequestToListContentOfFolder(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await listFolderContentInteraction(
         'test folder, with infinity depth',
         testFolder,
         ['abc.txt', 'file one.txt', 'subdir', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], 'infinity'
@@ -318,9 +318,9 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : list with 2 depth', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aPropfindRequestToListContentOfFolder(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await listFolderContentInteraction(
         provider,
         'test folder, with 2 depth',
         testFolder,
@@ -341,9 +341,9 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : list with non existent file', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aPropfindRequestToListContentOfFolder(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await listFolderContentInteraction(
         provider,
         'non existing file',
         nonExistentFile,
@@ -363,10 +363,10 @@ describe('Main: Currently testing files management,', function () {
       const provider = createProvider()
 
       for (const file of uriEncodedTestSubFiles) {
-        await getContentsOfFile(provider, file)
+        await getContentsOfFileInteraction(provider, file)
       }
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -384,9 +384,9 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : getFileContents for non existent file', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await getContentsOfFile(provider, nonExistentFile)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await getContentsOfFileInteraction(provider, nonExistentFile)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -409,9 +409,9 @@ describe('Main: Currently testing files management,', function () {
         }
       }
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await updateFile(provider, newFile)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await updateFileInteraction(provider, newFile)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -428,9 +428,9 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('fails with error when uploading to a non-existent parent path', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await updateFile(provider, nonExistentDir + '/' + 'file.txt')
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await updateFileInteraction(provider, nonExistentDir + '/' + 'file.txt')
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -452,23 +452,23 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method: getFileUrlV2', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
         const url = oc.files.getFileUrlV2('/foo/bar')
-        expect(url).toBe(owncloudURL + 'remote.php/dav/files/admin/foo/bar')
+        expect(url).toBe(owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/foo/bar')
       })
     })
 
     it('checking method : mkdir for an existing parent path', async function () {
       const newFolder = testFolder + '/' + 'new folder'
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await createAFolder(provider, encodeURI(newFolder))
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await createFolderInteraction(provider, encodeURI(newFolder))
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -484,8 +484,8 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : mkdir for a non-existent parent path', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('creating a folder in a not existing root')
         .withRequest({
@@ -513,9 +513,9 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : delete for an existing file', async function () {
       const newFolder = testSubDir
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await deleteResource(provider, encodeURI(newFolder))
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await deleteResourceInteraction(provider, encodeURI(newFolder))
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -531,9 +531,9 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : delete for a non-existent file', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await deleteResource(provider, encodeURI(nonExistentDir))
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await deleteResourceInteraction(provider, encodeURI(nonExistentDir))
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -548,9 +548,9 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : move existent file into same folder, same name', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aMoveRequest(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await moveFileInteraction(
         provider,
         'same name',
         {
@@ -575,8 +575,8 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : move existent file into different folder', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('move existent file into different folder')
         .withRequest({
@@ -604,8 +604,8 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : move non existent file', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('move non existent file')
         .withRequest({
@@ -635,8 +635,8 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : copy existent file into same folder, same name', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('copy existent file into same folder, same name')
         .withRequest({
@@ -666,8 +666,8 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method : copy non existent file', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('copy non existent file')
         .withRequest({
@@ -696,8 +696,8 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('resolved the path of a file identified by its fileId', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('PROPFIND path for fileId')
         .withRequest({
@@ -838,8 +838,8 @@ describe('Main: Currently testing files management,', function () {
 
     it('returns TUS support information when TUS headers are set for a list call', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await tusSupportRequest(provider)
 
       return provider.executeTest(async () => {
@@ -861,8 +861,8 @@ describe('Main: Currently testing files management,', function () {
 
     it('returns TUS support information when TUS headers are set for a fileinfo call', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await tusSupportRequest(provider)
 
       return provider.executeTest(async () => {
@@ -881,8 +881,8 @@ describe('Main: Currently testing files management,', function () {
 
     it('returns null when TUS headers are not set for a list call', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await tusSupportRequest(provider, false)
 
       return provider.executeTest(async () => {
@@ -900,9 +900,9 @@ describe('Main: Currently testing files management,', function () {
   describe('move existent file into same folder, different name', function () {
     it('checking method : move existent file into same folder, different name', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await aMoveRequest(
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await moveFileInteraction(
         provider,
         'different name',
         {
@@ -929,8 +929,8 @@ describe('Main: Currently testing files management,', function () {
   describe('copy existent file', function () {
     it('checking method : copy existent file into same folder, different name', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('copy existent file into same folder, different name')
         .withRequest({
@@ -959,8 +959,8 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : copy existent file into different folder', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('copy existent file into different folder')
         .withRequest({
@@ -991,10 +991,10 @@ describe('Main: Currently testing files management,', function () {
   describe.skip('unfavorite a file', function () {
     it('checking method: unfavorite', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await favoriteFile(provider, false)
-      await propfindFavoriteFileInfo(provider, 0)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await favoriteFileInteraction(provider, false)
+      await getFavoriteStatusInteraction(provider, 0)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -1018,10 +1018,10 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method: favorite', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
-      await favoriteFile(provider, true)
-      await propfindFavoriteFileInfo(provider, 1)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+      await favoriteFileInteraction(provider, true)
+      await getFavoriteStatusInteraction(provider, 1)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -1040,15 +1040,15 @@ describe('Main: Currently testing files management,', function () {
 
     it.skip('checking method: favorite filter', async function () {
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('get favorite file')
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/$',
-            generate: '/remote.php/dav/files/admin/'
+            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
           headers: validAuthHeaders,
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
@@ -1070,7 +1070,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp.appendElement('oc:favorite', '', '1')
@@ -1107,16 +1107,16 @@ describe('Main: Currently testing files management,', function () {
       ]
 
       const provider = createProvider()
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       await provider
         .uponReceiving('searches in the instance')
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/$',
-            generate: '/remote.php/dav/files/admin/'
+            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
           headers: validAuthHeaders,
           body: new XmlBuilder('1.0', '', 'oc:search-files').build(ocSearchFiles => {
@@ -1143,7 +1143,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/testFile.txt')
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
@@ -1188,7 +1188,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', `/remote.php/${data === fileId ? 'webdav' : 'dav/files/admin'}/${testFolder}/${testFile}`)
+              dResponse.appendElement('d:href', '', `/remote.php/${data === fileId ? 'webdav' : 'dav/files/' + config.adminUsername}/${testFolder}/${testFile}`)
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
@@ -1259,8 +1259,8 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/admin\\/$',
-            generate: '/remote.php/dav/files/admin/'
+            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
           headers: validAuthHeaders,
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
@@ -1274,8 +1274,8 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith(getFileInfoBy('tag'))
 
-      await capabilitiesGETRequestValidAuth(provider)
-      await GETRequestToCloudUserEndpoint(provider)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()

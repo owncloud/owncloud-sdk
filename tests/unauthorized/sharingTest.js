@@ -6,7 +6,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   const {
     invalidAuthHeader,
     unauthorizedXmlResponseBody,
-    capabilitiesGETRequestInvalidAuth,
+    getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
     createProvider
   } = require('../pactHelper.js')
@@ -32,7 +32,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     body: unauthorizedXmlResponseBody
   }
 
-  const aPOSTShareRequest = (provider, requestName) => {
+  const createShareInteraction = (provider, requestName) => {
     return provider
       .uponReceiving(requestName)
       .withRequest({
@@ -46,7 +46,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
-  const aGETShareRequest = (provider, requestName, path) => {
+  const getSharesInteraction = (provider, requestName, path) => {
     return provider
       .uponReceiving(requestName)
       .withRequest({
@@ -61,7 +61,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
-  const requestOnAShare = (provider, requestName, method) => {
+  const getShareInteraction = (provider, requestName, method) => {
     return provider
       .uponReceiving(requestName)
       .withRequest({
@@ -78,8 +78,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : shareFileWithLink', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await aPOSTShareRequest(provider, 'a link share POST request with invalid auth')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await createShareInteraction(provider, 'a link share POST request with invalid auth')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -101,8 +101,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : shareFileWithUser', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await aPOSTShareRequest(provider, 'a user share POST request with invalid auth')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await createShareInteraction(provider, 'a user share POST request with invalid auth')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -124,8 +124,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : shareFileWithGroup', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await aPOSTShareRequest(provider, 'a group share POST request with invalid auth')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await createShareInteraction(provider, 'a group share POST request with invalid auth')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -149,8 +149,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : isShared', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await aGETShareRequest(provider, 'a GET request to get share info of a share with invalid auth', testFile)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getSharesInteraction(provider, 'a GET request to get share info of a share with invalid auth', testFile)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -172,8 +172,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : getShare', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await requestOnAShare(provider, 'a GET request to get a share with invalid auth', 'GET')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getShareInteraction(provider, 'a GET request to get a share with invalid auth', 'GET')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -195,8 +195,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : getShares', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await aGETShareRequest(provider, 'a GET request for existent shares with invalid auth', testFile)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getSharesInteraction(provider, 'a GET request for existent shares with invalid auth', testFile)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -218,8 +218,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : updateShare', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await requestOnAShare(provider, 'a PUT request to update a share with invalid auth', 'PUT')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getShareInteraction(provider, 'a PUT request to update a share with invalid auth', 'PUT')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)
@@ -241,8 +241,8 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   it('checking method : deleteShare', async () => {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await requestOnAShare(provider, 'a DELETE request to delete a share with invalid auth', 'DELETE')
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await getShareInteraction(provider, 'a DELETE request to delete a share with invalid auth', 'DELETE')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(username, invalidPassword)

@@ -8,7 +8,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   const {
     invalidAuthHeader,
     xmlResponseHeaders,
-    capabilitiesGETRequestInvalidAuth,
+    getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud
   } = require('../pactHelper.js')
   const {
@@ -16,7 +16,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     createProvider
   } = require('../pactHelper.js')
 
-  const addInvalidAuthInteraction = (provider, requestName, method, path, query) => {
+  const invalidAuthInteraction = (provider, requestName, method, path, query) => {
     return provider
       .uponReceiving(requestName)
       .withRequest({
@@ -35,8 +35,8 @@ describe('Unauthorized: Currently testing user management,', function () {
   }
 
   const adminUserEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/admin$',
-    '/ocs/v1.php/cloud/users/admin'
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.adminUsername + '$',
+    '/ocs/v1.php/cloud/users/' + config.adminUsername
   )
 
   const usersEndpointPath = MatchersV3.regex(
@@ -70,17 +70,17 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : getUser', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to check for user admin', 'GET', adminUserEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check for user admin', 'GET', adminUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUser(config.username).then(data => {
+      return oc.users.getUser(config.adminUsername).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -91,11 +91,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : createUser', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a create user POST request with invalid auth', 'POST', usersEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a create user POST request with invalid auth', 'POST', usersEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -112,11 +112,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : searchUsers', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to search user', 'GET', usersEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to search user', 'GET', usersEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -132,19 +132,19 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   it('checking method : userExists', async function () {
     const provider = createProvider()
-    const query = { search: 'admin' }
+    const query = { search: config.adminUsername }
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a admin GET request with invalid auth', 'GET', usersEndpointPath, query)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a admin GET request with invalid auth', 'GET', usersEndpointPath, query)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.userExists(config.username).then(status => {
+      return oc.users.userExists(config.adminUsername).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -155,11 +155,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : setUserAttribute', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a user PUT request with invalid auth to add user to group', 'PUT', testUserEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a user PUT request with invalid auth to add user to group', 'PUT', testUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -176,11 +176,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : addUserToGroup', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a user POST request with invalid auth', 'POST', groupsEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a user POST request with invalid auth', 'POST', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -197,11 +197,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : getUserGroups', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to get user in group', 'GET', groupsEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to get user in group', 'GET', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -218,11 +218,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : userIsInGroup', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to check for user', 'GET', groupsEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check for user', 'GET', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -239,11 +239,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : getUser', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to check for user endpoint', 'GET', testUserEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check for user endpoint', 'GET', testUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -260,11 +260,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : removeUserFromGroup', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a DELETE request with invalid auth to remove user from group', 'DELETE', groupsEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a DELETE request with invalid auth to remove user from group', 'DELETE', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -281,11 +281,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : addUserToSubadminGroup', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a POST request with invalid auth to add user to subadmin group', 'POST', subadminsUserEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a POST request with invalid auth to add user to subadmin group', 'POST', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -302,11 +302,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : getUserSubadminGroups', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to get user of subadmin group', 'GET', subadminsUserEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to get user of subadmin group', 'GET', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -323,11 +323,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : userIsInSubadminGroup', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a GET request with invalid auth to check user is in subadmin group', 'GET', subadminsUserEndpointPath)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check user is in subadmin group', 'GET', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -344,11 +344,11 @@ describe('Unauthorized: Currently testing user management,', function () {
   it('checking method : deleteUser', async function () {
     const provider = createProvider()
 
-    await capabilitiesGETRequestInvalidAuth(provider)
-    await addInvalidAuthInteraction(provider, 'a request to DELETE a non-existent user with invalid auth', 'DELETE', nonExistingUserEndpoint)
+    await getCapabilitiesWithInvalidAuthInteraction(provider)
+    await invalidAuthInteraction(provider, 'a request to DELETE a non-existent user with invalid auth', 'DELETE', nonExistingUserEndpoint)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.username, config.invalidPassword)
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

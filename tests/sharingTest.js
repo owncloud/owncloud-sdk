@@ -22,7 +22,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     applicationFormUrlEncoded,
     accessControlAllowHeaders,
     accessControlAllowMethods,
-    validAuthHeaders,
+    validAdminAuthHeaders,
     xmlResponseHeaders,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
@@ -71,7 +71,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
         query: { path: '/' + file },
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       }).willRespondWith({
         status: 200,
         headers: {
@@ -116,7 +116,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/\\d+$',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares/9'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       }).willRespondWith({
         status: 200,
         headers: {
@@ -137,7 +137,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/' + fileid + '$',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares/' + fileid
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -491,7 +491,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
             headers: {
-              ...validAuthHeaders,
+              ...validAdminAuthHeaders,
               ...applicationFormUrlEncoded
             },
             body: 'shareType=3' + '&path=%2F' + config.nonExistentFile + '&password=' + config.testUserPassword
@@ -519,7 +519,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
             headers: {
-              ...validAuthHeaders,
+              ...validAdminAuthHeaders,
               ...applicationFormUrlEncoded
             },
             body: 'shareType=1&shareWith=' + config.testGroup + '&path=%2F' + config.nonExistentFile + '&permissions=19'
@@ -542,7 +542,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
             query: { path: '/' + config.nonExistentFile },
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           }).willRespondWith({
             status: 200,
             headers: {
@@ -567,7 +567,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
             query: { path: '/newFileCreated123' }, // 'path=%2FnewFileCreated123',
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           .willRespondWith({
             status: 200,
@@ -592,7 +592,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
             ),
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           .willRespondWith({
             status: 200,
@@ -612,7 +612,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/remote\\.php\\/webdav\\/newFileCreated123$',
               '/remote.php/webdav/newFileCreated123'
             ),
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           .willRespondWith({
             status: 200,
@@ -631,7 +631,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
             headers: {
-              ...validAuthHeaders,
+              ...validAdminAuthHeaders,
               ...applicationFormUrlEncoded
             },
             body: 'shareType=0&shareWith=' + config.testUser + '&path=' + file + '&expireDate=' + config.expirationDate
@@ -659,7 +659,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
             ),
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           .willRespondWith({
             status: 200,

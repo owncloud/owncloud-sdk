@@ -1,7 +1,7 @@
 const fetch = require('sync-fetch')
 const path = require('path')
 const {
-  validAuthHeaders
+  validAdminAuthHeaders
 } = require('./pactHelper.js')
 
 /**
@@ -41,7 +41,7 @@ const createFolderRecrusive = function (user, folderName) {
     }
     results[i] = fetch(createFullDavUrl(user, recrusivePath), {
       method: 'MKCOL',
-      headers: validAuthHeaders
+      headers: validAdminAuthHeaders
     })
   }
   return results
@@ -58,7 +58,7 @@ const createFolderRecrusive = function (user, folderName) {
 const createFile = function (user, fileName, contents = '') {
   return fetch(createFullDavUrl(user, fileName), {
     method: 'PUT',
-    headers: validAuthHeaders,
+    headers: validAdminAuthHeaders,
     body: contents
   })
 }
@@ -73,7 +73,7 @@ const createFile = function (user, fileName, contents = '') {
 const deleteItem = function (user, itemName) {
   return fetch(createFullDavUrl(user, itemName), {
     method: 'DELETE',
-    headers: validAuthHeaders
+    headers: validAdminAuthHeaders
   })
 }
 

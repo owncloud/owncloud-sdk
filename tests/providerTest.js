@@ -8,7 +8,7 @@ describe('provider testing', () => {
   const fetch = require('sync-fetch')
 
   const {
-    validAuthHeaders
+    validAdminAuthHeaders
   } = require('./pactHelper.js')
 
   const {
@@ -49,7 +49,7 @@ describe('provider testing', () => {
             method: 'POST',
             body: 'groupid=' + parameters.groupName,
             headers: {
-              ...validAuthHeaders,
+              ...validAdminAuthHeaders,
               ...{ 'Content-Type': 'application/x-www-form-urlencoded' }
             }
           })
@@ -57,7 +57,7 @@ describe('provider testing', () => {
         } else {
           fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
             method: 'DELETE',
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           return Promise.resolve({ description: 'group deleted' })
         }
@@ -65,7 +65,7 @@ describe('provider testing', () => {
       'group does not exist': (setup, parameters) => {
         fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
           method: 'DELETE',
-          headers: validAuthHeaders
+          headers: validAdminAuthHeaders
         })
         return Promise.resolve({ description: 'group deleted' })
       },

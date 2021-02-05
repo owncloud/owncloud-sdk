@@ -5,7 +5,7 @@ describe('Main: Currently testing apps management,', function () {
 
   // PACT setup
   const {
-    validAuthHeaders,
+    validAdminAuthHeaders,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     xmlResponseHeaders,
@@ -38,7 +38,7 @@ describe('Main: Currently testing apps management,', function () {
           /.*\/ocs\/v1\.php\/cloud\/apps\/.+$/,
           '/ocs/v1.php/cloud/apps/files'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -57,7 +57,7 @@ describe('Main: Currently testing apps management,', function () {
           '/ocs/v1.php/cloud/apps'
         ),
         query: query,
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,

@@ -6,7 +6,7 @@ describe('Main: Currently testing low level OCS', function () {
   const {
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
-    validAuthHeaders,
+    validAdminAuthHeaders,
     getUserInformationAsAdminInteraction,
     createOwncloud,
     createProvider,
@@ -57,7 +57,7 @@ describe('Main: Currently testing low level OCS', function () {
           '/ocs/v2.php/cloud/users/unknown-user'
         ),
         query: { format: 'json' },
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 401,
@@ -109,7 +109,7 @@ describe('Main: Currently testing low level OCS', function () {
           '/ocs/v1.php/cloud/users/' + config.testUser
         ),
         query: { format: 'json' },
-        headers: validAuthHeaders,
+        headers: validAdminAuthHeaders,
         body: {
           key: 'email',
           value: 'foo@bar.net'

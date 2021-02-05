@@ -53,7 +53,7 @@ describe('Main: Currently testing low level OCS', function () {
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/unknown-user$',
+          '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/unknown-user$',
           '/ocs/v2.php/cloud/users/unknown-user'
         ),
         query: { format: 'json' },
@@ -105,7 +105,7 @@ describe('Main: Currently testing low level OCS', function () {
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users\\/.+',
+          '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
           '/ocs/v1.php/cloud/users/' + config.testUser
         ),
         query: { format: 'json' },

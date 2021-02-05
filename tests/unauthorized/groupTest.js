@@ -29,7 +29,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       .withRequest({
         method: method,
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/groups$',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/groups$',
           '/ocs/v1.php/cloud/groups'
         ),
         headers: invalidAuthHeaderObject
@@ -43,7 +43,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/groups\\/.*',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/.*',
           `/ocs/v1.php/cloud/groups/${config.testGroup}`
         ),
         headers: invalidAuthHeaderObject
@@ -57,7 +57,7 @@ describe('Unauthorized: Currently testing group management,', function () {
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/groups\\/.*',
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/.*',
           `/ocs/v1.php/cloud/groups/${config.testGroup}`
         ),
         headers: invalidAuthHeaderObject

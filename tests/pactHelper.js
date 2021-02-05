@@ -195,7 +195,7 @@ async function GETRequestToCloudUserEndpoint (provider) {
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
-        /.*\/ocs\/v(1|2)\.php\/cloud\/user$/,
+        /.*\/ocs\/v1\.php\/cloud\/user$/,
         '/ocs/v1.php/cloud/user'
       ),
       headers: validAuthHeaders
@@ -309,7 +309,7 @@ const capabilitiesGETRequestInvalidAuth = function (provider, username = config.
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
-        '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/capabilities',
+        '.*\\/ocs\\/v1\\.php\\/cloud\\/capabilities',
         '/ocs/v1.php/cloud/capabilities'
       ),
       query: { format: 'json' },
@@ -338,7 +338,7 @@ const createAUser = function (provider) {
     .withRequest({
       method: 'POST',
       path: MatchersV3.regex(
-        '.*\\/ocs\\/v(1|2)\\.php\\/cloud\\/users',
+        '.*\\/ocs\\/v1\\.php\\/cloud\\/users',
         '/ocs/v1.php/cloud/users'
       ),
       headers: {

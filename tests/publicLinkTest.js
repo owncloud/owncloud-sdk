@@ -36,7 +36,7 @@ describe('oc.publicFiles', function () {
       .withRequest({
         method: method,
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v(1|2)\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+          '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
         headers: validAuthHeaders

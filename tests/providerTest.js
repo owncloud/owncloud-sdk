@@ -115,6 +115,27 @@ describe('provider testing', () => {
           )
         }
         return Promise.resolve({ description: 'file created' })
+      },
+      'the user is recreated': (setup, parameters) => {
+        if (setup) {
+          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users/' + parameters.username, {
+            method: 'DELETE',
+            headers: validAdminAuthHeaders
+          })
+          const result = fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users',
+            {
+              method: 'POST',
+              body: `userid=${parameters.username}&password=${parameters.username}`,
+              headers: {
+                ...validAdminAuthHeaders,
+                ...{ 'Content-Type': 'application/x-www-form-urlencoded' }
+              }
+            })
+          chai.assert.strictEqual(
+            result.status, 200, `creating user '${parameters.username}' failed`
+          )
+          return Promise.resolve({ description: 'user created' })
+        }
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

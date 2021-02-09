@@ -22,7 +22,6 @@ describe('provider testing', () => {
   it('verifies the provider', () => {
     const opts = {
       provider: 'oc-server',
-      logLevel: 'debug',
       providerBaseUrl: process.env.PROVIDER_BASE_URL || 'http://localhost/',
       disableSSLVerification: true
     }

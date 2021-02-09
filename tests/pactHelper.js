@@ -134,17 +134,28 @@ const createOwncloud = function (username = config.adminUsername, password = con
   return oc
 }
 
-const getContentsOfFileInteraction = (provider, file) => {
+const getContentsOfFileInteraction = (
+  provider, file,
+  user = config.adminUsername,
+  password = config.adminPassword
+) => {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   if (file !== config.nonExistentFile) {
     provider
-      .given('file exists', { fileName: file })
+      .given('file exists', {
+        fileName: file,
+        username: user,
+        password: password
+      })
   }
   return provider
     .uponReceiving('GET contents of file ' + file)
     .withRequest({
       method: 'GET',
       path: webdavPath(file),
-      headers: validAdminAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith(file !== config.nonExistentFile ? {
       status: 200,
       headers: textPlainResponseHeaders,

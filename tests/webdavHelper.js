@@ -34,6 +34,8 @@ const createFullDavUrl = function (userId, resource) {
  */
 const createFolderRecrusive = function (user, password, folderName) {
   const results = []
+  folderName = folderName.replace(/\/$/, '')
+  folderName = folderName.replace(/^\//, '')
   const folders = folderName.split(path.sep)
   for (let i = 0; i < folders.length; i++) {
     let recrusivePath = ''

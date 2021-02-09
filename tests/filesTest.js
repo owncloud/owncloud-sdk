@@ -373,13 +373,13 @@ describe('Main: Currently testing files management,', function () {
       const provider = createProvider()
 
       for (const file of uriEncodedTestSubFiles) {
-        await getContentsOfFileInteraction(provider, file)
+        await getContentsOfFileInteraction(provider, file, config.testUser, config.testUserPassword)
       }
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
+      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         for (let i = 0; i < testSubFiles.length; i++) {
           await oc.files.getFileContents(testSubFiles[i], { resolveWithResponseObject: true }).then((resp) => {
@@ -476,12 +476,12 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : mkdir for an existing parent path', async function () {
       const newFolder = testFolder + '/' + 'new folder'
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await createFolderInteraction(provider, encodeURI(newFolder))
+      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+      await createFolderInteraction(provider, encodeURI(newFolder), config.testUser, config.testUserPassword)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
 
         return oc.files.mkdir(newFolder).then(status => {
@@ -520,15 +520,21 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it('checking method : delete for an existing file', async function () {
+    it('checking method : delete for an existing folder', async function () {
       const newFolder = testSubDir
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await deleteResourceInteraction(provider, encodeURI(newFolder))
+      await getCapabilitiesInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await getCurrentUserInformationInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await deleteResourceInteraction(
+        provider, encodeURI(newFolder), 'folder', config.testUser, config.testUserPassword
+      )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         return oc.files.delete(newFolder)
           .then(status2 => {
@@ -539,14 +545,20 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : delete for a non-existent file', async function () {
+    it.skip('checking method : delete for a non-existent folder', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await deleteResourceInteraction(provider, encodeURI(nonExistentDir))
+      await getCapabilitiesInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await getCurrentUserInformationInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await deleteResourceInteraction(
+        provider, encodeURI(nonExistentDir), 'folder', config.testUser, config.testUserPassword
+      )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         return oc.files.delete(nonExistentDir).then(status => {
           expect(status).toBe(null)

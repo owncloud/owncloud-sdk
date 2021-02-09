@@ -161,6 +161,9 @@ const deleteResourceInteraction = (
   user = config.adminUsername, password = config.adminPassword
 ) => {
   let response
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   if (resource.includes('nonExistent')) {
     response = {
       status: 404,
@@ -203,6 +206,9 @@ const deleteResourceInteraction = (
 async function getCurrentUserInformationInteraction (
   provider, user = config.adminUsername, password = config.adminPassword
 ) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   await provider
     .uponReceiving(`as '${user}' get current user information`)
     .withRequest({
@@ -222,8 +228,8 @@ async function getCurrentUserInformationInteraction (
             .appendElement('statuscode', '', '100')
             .appendElement('message', '', 'OK')
         }).appendElement('data', '', (data) => {
-          data.appendElement('id', '', config.adminUsername)
-          data.appendElement('display-name', '', config.adminUsername)
+          data.appendElement('id', '', user)
+          data.appendElement('display-name', '', user)
           data.appendElement('email', '', '')
         })
       })
@@ -233,6 +239,9 @@ async function getCurrentUserInformationInteraction (
 async function getCapabilitiesInteraction (
   provider, user = config.adminUsername, password = config.adminPassword
 ) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   await provider
     .uponReceiving(`as '${user}' get capabilities with valid authentication`)
     .withRequest({

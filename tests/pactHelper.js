@@ -428,9 +428,28 @@ const deleteUserInteraction = function (provider) {
     })
 }
 
-const createFolderInteraction = function (provider, folderName) {
+const createFolderInteraction = function (
+  provider, folderName, user = config.adminUsername, password = config.adminPassword
+) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
+
+  // if a subfolder is to be created the higher level folder needs to be created in the provider state
+  const folders = folderName.split(path.sep)
+  let recrusivePath = ''
+  for (let i = 0; i < folders.length - 1; i++) {
+    recrusivePath += path.sep + folders[i]
+  }
+  if (recrusivePath !== '') {
+    provider.given('folder exists', {
+      folderName: recrusivePath,
+      username: user,
+      password: password
+    })
+  }
   return provider
-    .uponReceiving('successfully create a folder ' + folderName)
+    .uponReceiving(`create the folder '${folderName}'`)
     .withRequest({
       method: 'MKCOL',
       path: MatchersV3.regex(
@@ -438,7 +457,7 @@ const createFolderInteraction = function (provider, folderName) {
         `.*\\/remote\\.php\\/webdav\\/${folderName}\\/?`,
         '/remote.php/webdav/' + folderName + '/'
       ),
-      headers: validAdminAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith({
       status: 201,
       headers: htmlResponseHeaders

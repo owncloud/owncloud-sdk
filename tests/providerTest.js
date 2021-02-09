@@ -23,7 +23,8 @@ describe('provider testing', () => {
     const opts = {
       provider: 'oc-server',
       providerBaseUrl: process.env.PROVIDER_BASE_URL || 'http://localhost/',
-      disableSSLVerification: true
+      disableSSLVerification: true,
+      callbackTimeout: 10000
     }
     if (process.env.CI === 'true') {
       opts.pactBrokerUrl = 'https://jankaritech.pactflow.io'

@@ -152,5 +152,5 @@ describe('provider testing', () => {
     }).catch(function (error) {
       chai.assert.fail(error.message)
     })
-  }, 120000)
+  }, 600000)
 })

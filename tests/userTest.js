@@ -14,7 +14,7 @@ describe('Main: Currently testing user management,', function () {
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
-  const { validAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
+  const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
 
   const getUserInformationInteraction = function (provider, requestName, username, responseBody) {
     return provider
@@ -25,7 +25,7 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '$',
           '/ocs/v1.php/cloud/users/' + username
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -44,7 +44,7 @@ describe('Main: Currently testing user management,', function () {
           '/ocs/v1.php/cloud/users'
         ),
         query: query,
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -67,7 +67,7 @@ describe('Main: Currently testing user management,', function () {
           '/ocs/v1.php/cloud/users/' + username
         ),
         headers: {
-          ...validAuthHeaders,
+          ...validAdminAuthHeaders,
           ...applicationFormUrlEncoded
         },
         body: requestBody
@@ -96,7 +96,7 @@ describe('Main: Currently testing user management,', function () {
         ),
         headers:
           {
-            ...validAuthHeaders,
+            ...validAdminAuthHeaders,
             ...applicationFormUrlEncoded
           },
         body: 'groupid=' + group
@@ -124,7 +124,7 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/groups$',
           '/ocs/v1.php/cloud/users/' + username + '/groups'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -144,7 +144,7 @@ describe('Main: Currently testing user management,', function () {
         ),
         headers:
           {
-            ...validAuthHeaders,
+            ...validAdminAuthHeaders,
             ...applicationFormUrlEncoded
           },
         body: 'groupid=' + group
@@ -174,7 +174,7 @@ describe('Main: Currently testing user management,', function () {
         ),
         headers:
           {
-            ...validAuthHeaders,
+            ...validAdminAuthHeaders,
             ...applicationFormUrlEncoded
           },
         body: 'groupid=' + group
@@ -199,7 +199,7 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + username + '\\/subadmins$',
           '/ocs/v1.php/cloud/users/' + username + '/subadmins'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -1055,7 +1055,7 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '$',
           '/ocs/v1.php/cloud/users/' + config.nonExistentUser
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,

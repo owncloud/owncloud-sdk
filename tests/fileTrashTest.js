@@ -11,7 +11,7 @@ describe('oc.fileTrash', function () {
 
   const {
     origin,
-    validAuthHeaders,
+    validAdminAuthHeaders,
     accessControlAllowHeaders,
     accessControlAllowMethods,
     getCurrentUserInformationInteraction,
@@ -166,7 +166,7 @@ describe('oc.fileTrash', function () {
       await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving('PROPFIND empty trash')
-        .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+        .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
         .willRespondWith({
           status: 207,
           headers: {
@@ -198,7 +198,7 @@ describe('oc.fileTrash', function () {
       const propfindForTrashbinWithItems = provider => {
         return provider
           .uponReceiving('PROPFIND to trashbin with items')
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(
             207,
             responseHeader('application/xml; charset=utf-8'),
@@ -208,7 +208,7 @@ describe('oc.fileTrash', function () {
       const listItemWithinADeletedFolder = provider => {
         return provider
           .uponReceiving('list item within a deleted folder')
-          .withRequest(requestMethod('PROPFIND', trashbinFolderPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod('PROPFIND', trashbinFolderPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith({
             status: 207,
             headers: responseHeader('application/xml; charset=utf-8'),
@@ -320,7 +320,7 @@ describe('oc.fileTrash', function () {
       const propfindForTrashbinWithItems = provider => {
         return provider
           .uponReceiving('PROPFIND to trashbin with items')
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(
             207,
             responseHeader('application/xml; charset=utf-8'),
@@ -337,7 +337,7 @@ describe('oc.fileTrash', function () {
               '.*\\/remote\\.php\\/webdav\\/' + testFolder,
               '/remote.php/webdav/' + testFolder
             ),
-            headers: validAuthHeaders,
+            headers: validAdminAuthHeaders,
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -417,7 +417,7 @@ describe('oc.fileTrash', function () {
       const PropfindToAnEmptytrashbinAfterRestoring = provider => {
         return provider
           .uponReceiving('PROPFIND to an empty trashbin after restoring')
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(
             207,
             responseHeader('text/html; charset=utf-8'),
@@ -434,7 +434,7 @@ describe('oc.fileTrash', function () {
               '.*\\/remote\\.php\\/webdav\\/' + testFolder + '.*$',
               '/remote.php/webdav/' + testFolder + '.*$'
             ),
-            headers: validAuthHeaders,
+            headers: validAdminAuthHeaders,
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -500,7 +500,7 @@ describe('oc.fileTrash', function () {
       const propfindTrashItemsBeforeDeletingFile = provider => {
         return provider
           .uponReceiving('PROPFIND trash items before deleting file')
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith({
             status: 207,
             headers: responseHeader('application/xml; charset=utf-8'),
@@ -590,7 +590,7 @@ describe('oc.fileTrash', function () {
       const propfindTrashItemsAfterRestoringDeletingFile = provider => {
         return provider
           .uponReceiving('PROPFIND trash items after restoring deleting file')
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(207, responseHeader('application/xml; charset=utf-8'), trashbinXmlResponseBody()))
       }
 
@@ -603,7 +603,7 @@ describe('oc.fileTrash', function () {
               '.*\\/remote\\.php\\/webdav\\/' + testFolder + '.*$',
               '/remote.php/webdav/' + testFolder + '.*$'
             ),
-            headers: validAuthHeaders,
+            headers: validAdminAuthHeaders,
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -685,7 +685,7 @@ describe('oc.fileTrash', function () {
           .withRequest({
             method: 'PROPFIND',
             path: trashbinPath,
-            headers: validAuthHeaders,
+            headers: validAdminAuthHeaders,
             body: emptyTrashbinXmlRequestBody
           })
           .willRespondWith({
@@ -704,7 +704,7 @@ describe('oc.fileTrash', function () {
               '.*\\/remote\\.php\\/webdav\\/.*',
               '/remote.php/webdav/.*$'
             ),
-            headers: validAuthHeaders,
+            headers: validAdminAuthHeaders,
             body: filesListXmlRequestBody
           })
           .willRespondWith({

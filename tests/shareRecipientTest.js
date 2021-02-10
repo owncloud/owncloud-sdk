@@ -4,7 +4,7 @@ describe('Main: Currently testing share recipient,', function () {
   var config = require('./config/config.json')
 
   const {
-    validAuthHeaders,
+    validAdminAuthHeaders,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     createOwncloud,
@@ -21,7 +21,7 @@ describe('Main: Currently testing share recipient,', function () {
           '/ocs/v2.php/apps/files_sharing/api/v1/sharees'
         ),
         query: { search: 'test', itemType: 'folder', page: '1', perPage: '200', format: 'json' },
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       }).willRespondWith({
         status: 200,
         headers: {

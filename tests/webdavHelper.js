@@ -1,7 +1,7 @@
 const fetch = require('sync-fetch')
 const path = require('path')
 const {
-  validAuthHeaders
+  getAuthHeaders
 } = require('./pactHelper.js')
 
 /**
@@ -28,11 +28,14 @@ const createFullDavUrl = function (userId, resource) {
  * Create a folder using webDAV api.
  *
  * @param {string} user
+ * @param {string} password
  * @param {string} folderName
  * @returns {[]} all fetch results
  */
-const createFolderRecrusive = function (user, folderName) {
+const createFolderRecrusive = function (user, password, folderName) {
   const results = []
+  folderName = folderName.replace(/\/$/, '')
+  folderName = folderName.replace(/^\//, '')
   const folders = folderName.split(path.sep)
   for (let i = 0; i < folders.length; i++) {
     let recrusivePath = ''
@@ -41,7 +44,7 @@ const createFolderRecrusive = function (user, folderName) {
     }
     results[i] = fetch(createFullDavUrl(user, recrusivePath), {
       method: 'MKCOL',
-      headers: validAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     })
   }
   return results
@@ -51,14 +54,15 @@ const createFolderRecrusive = function (user, folderName) {
  * Create a file using webDAV api.
  *
  * @param {string} user
+ * @param {string} password
  * @param {string} fileName
  * @param {string} contents
  * @returns {*} result of the fetch request
  */
-const createFile = function (user, fileName, contents = '') {
+const createFile = function (user, password, fileName, contents = '') {
   return fetch(createFullDavUrl(user, fileName), {
     method: 'PUT',
-    headers: validAuthHeaders,
+    headers: { authorization: getAuthHeaders(user, password) },
     body: contents
   })
 }
@@ -67,13 +71,14 @@ const createFile = function (user, fileName, contents = '') {
  * Delete a file or folder using webDAV api.
  *
  * @param {string} user
+ * @param {string} password
  * @param {string} itemName
  * @returns {*} result of the fetch request
  */
-const deleteItem = function (user, itemName) {
+const deleteItem = function (user, password, itemName) {
   return fetch(createFullDavUrl(user, itemName), {
     method: 'DELETE',
-    headers: validAuthHeaders
+    headers: { authorization: getAuthHeaders(user, password) }
   })
 }
 

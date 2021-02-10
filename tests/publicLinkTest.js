@@ -7,7 +7,7 @@ describe('oc.publicFiles', function () {
   const using = require('jasmine-data-provider')
 
   const {
-    validAuthHeaders,
+    validAdminAuthHeaders,
     origin,
     xmlResponseAndAccessControlCombinedHeader,
     htmlResponseAndAccessControlCombinedHeader,
@@ -39,7 +39,7 @@ describe('oc.publicFiles', function () {
           '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       }).willRespondWith({
         status: 200,
         headers: xmlResponseAndAccessControlCombinedHeader,

@@ -8,7 +8,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
     createOwncloud,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
-    validAuthHeaders,
+    validAdminAuthHeaders,
     applicationXmlResponseHeaders
   } = require('./pactHelper.js')
 
@@ -24,7 +24,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
           /.*\/ocs\/v1\.php\/config/,
           '/ocs/v1.php/config'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,

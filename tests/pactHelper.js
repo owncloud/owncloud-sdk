@@ -1,7 +1,7 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 const config = require('./config/config.json')
-var validUserPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
+var adminPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
 
 const path = require('path')
 const OwnCloud = require('../src/owncloud')
@@ -9,8 +9,8 @@ const OwnCloud = require('../src/owncloud')
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE,HEAD,LOCK,UNLOCK'
 const origin = 'http://localhost:9876'
-const validAuthHeaders = {
-  authorization: 'Basic ' + validUserPasswordHash
+const validAdminAuthHeaders = {
+  authorization: 'Basic ' + adminPasswordHash
 }
 
 const testSubFiles = [
@@ -134,17 +134,28 @@ const createOwncloud = function (username = config.adminUsername, password = con
   return oc
 }
 
-const getContentsOfFileInteraction = (provider, file) => {
+const getContentsOfFileInteraction = (
+  provider, file,
+  user = config.adminUsername,
+  password = config.adminPassword
+) => {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   if (file !== config.nonExistentFile) {
     provider
-      .given('file exists', { fileName: file })
+      .given('file exists', {
+        fileName: file,
+        username: user,
+        password: password
+      })
   }
   return provider
     .uponReceiving('GET contents of file ' + file)
     .withRequest({
       method: 'GET',
       path: webdavPath(file),
-      headers: validAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith(file !== config.nonExistentFile ? {
       status: 200,
       headers: textPlainResponseHeaders,
@@ -156,8 +167,14 @@ const getContentsOfFileInteraction = (provider, file) => {
     })
 }
 
-const deleteResourceInteraction = (provider, resource, type = 'folder') => {
+const deleteResourceInteraction = (
+  provider, resource, type = 'folder',
+  user = config.adminUsername, password = config.adminPassword
+) => {
   let response
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   if (resource.includes('nonExistent')) {
     response = {
       status: 404,
@@ -165,7 +182,11 @@ const deleteResourceInteraction = (provider, resource, type = 'folder') => {
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
-    provider.given('file exists', { fileName: resource })
+    provider.given('file exists', {
+      fileName: resource,
+      username: user,
+      password: password
+    })
     response = {
       status: 200,
       headers: xmlResponseHeaders,
@@ -176,29 +197,38 @@ const deleteResourceInteraction = (provider, resource, type = 'folder') => {
       })
     }
   } else {
-    provider.given('folder exists', { folderName: resource })
+    provider.given('folder exists', {
+      folderName: resource,
+      username: user,
+      password: password
+    })
     response = {
       status: 204
     }
   }
-  return provider.uponReceiving(`a request to delete a ${type},  ${resource}`)
+  return provider.uponReceiving(`as '${user}' delete a ${type} called '${resource}'`)
     .withRequest({
       method: 'DELETE',
       path: webdavPath(resource),
-      headers: validAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith(response)
 }
 
-async function getCurrentUserInformationInteraction (provider) {
+async function getCurrentUserInformationInteraction (
+  provider, user = config.adminUsername, password = config.adminPassword
+) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   await provider
-    .uponReceiving('a GET request to the cloud user endpoint')
+    .uponReceiving(`as '${user}' get current user information`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
         /.*\/ocs\/v1\.php\/cloud\/user$/,
         '/ocs/v1.php/cloud/user'
       ),
-      headers: validAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     })
     .willRespondWith({
       status: 200,
@@ -209,17 +239,22 @@ async function getCurrentUserInformationInteraction (provider) {
             .appendElement('statuscode', '', '100')
             .appendElement('message', '', 'OK')
         }).appendElement('data', '', (data) => {
-          data.appendElement('id', '', config.adminUsername)
-          data.appendElement('display-name', '', config.adminUsername)
+          data.appendElement('id', '', user)
+          data.appendElement('display-name', '', user)
           data.appendElement('email', '', '')
         })
       })
     })
 }
 
-async function getCapabilitiesInteraction (provider) {
+async function getCapabilitiesInteraction (
+  provider, user = config.adminUsername, password = config.adminPassword
+) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
   await provider
-    .uponReceiving('a capabilities GET request with valid authentication')
+    .uponReceiving(`as '${user}' get capabilities with valid authentication`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -227,7 +262,7 @@ async function getCapabilitiesInteraction (provider) {
         '/ocs/v1.php/cloud/capabilities'
       ),
       query: { format: 'json' },
-      headers: validAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     })
     .willRespondWith({
       status: 200,
@@ -282,7 +317,7 @@ const getUserInformationAsAdminInteraction = function (provider) {
         '/ocs/v2.php/cloud/users/' + config.testUser
       ),
       query: { format: 'json' },
-      headers: validAuthHeaders
+      headers: validAdminAuthHeaders
     })
     .willRespondWith({
       status: 200,
@@ -342,7 +377,7 @@ const createUserInteraction = function (provider) {
         '/ocs/v1.php/cloud/users'
       ),
       headers: {
-        ...validAuthHeaders,
+        ...validAdminAuthHeaders,
         ...applicationFormUrlEncoded
       },
       body: `password=${config.testUserPassword}&userid=${config.testUser}`
@@ -364,7 +399,7 @@ const createUserWithGroupMembershipInteraction = function (provider) {
         '/ocs/v1.php/cloud/users'
       ),
       headers: {
-        ...validAuthHeaders,
+        ...validAdminAuthHeaders,
         ...applicationFormUrlEncoded
       },
       body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
@@ -389,7 +424,7 @@ const deleteUserInteraction = function (provider) {
         '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
         '/ocs/v1.php/cloud/users/' + config.testUser
       ),
-      headers: validAuthHeaders
+      headers: validAdminAuthHeaders
     }).willRespondWith({
       status: 200,
       headers: xmlResponseHeaders,
@@ -404,9 +439,28 @@ const deleteUserInteraction = function (provider) {
     })
 }
 
-const createFolderInteraction = function (provider, folderName) {
+const createFolderInteraction = function (
+  provider, folderName, user = config.adminUsername, password = config.adminPassword
+) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
+
+  // if a subfolder is to be created the higher level folder needs to be created in the provider state
+  const folders = folderName.split(path.sep)
+  let recrusivePath = ''
+  for (let i = 0; i < folders.length - 1; i++) {
+    recrusivePath += path.sep + folders[i]
+  }
+  if (recrusivePath !== '') {
+    provider.given('folder exists', {
+      folderName: recrusivePath,
+      username: user,
+      password: password
+    })
+  }
   return provider
-    .uponReceiving('successfully create a folder ' + folderName)
+    .uponReceiving(`create the folder '${folderName}'`)
     .withRequest({
       method: 'MKCOL',
       path: MatchersV3.regex(
@@ -414,7 +468,7 @@ const createFolderInteraction = function (provider, folderName) {
         `.*\\/remote\\.php\\/webdav\\/${folderName}\\/?`,
         '/remote.php/webdav/' + folderName + '/'
       ),
-      headers: validAuthHeaders
+      headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith({
       status: 201,
       headers: htmlResponseHeaders
@@ -428,7 +482,7 @@ const updateFileInteraction = function (provider, file) {
       method: 'PUT',
       path: webdavPath(file),
       headers: {
-        ...validAuthHeaders,
+        ...validAdminAuthHeaders,
         'Content-Type': 'text/plain;charset=utf-8'
       }
       // TODO: uncomment this once the issue is fixed
@@ -449,6 +503,7 @@ const updateFileInteraction = function (provider, file) {
 }
 
 module.exports = {
+  getAuthHeaders,
   getContentsOfFileInteraction,
   deleteResourceInteraction,
   ocsMeta,
@@ -458,7 +513,7 @@ module.exports = {
   resourceNotFoundExceptionMessage,
   webdavPath,
   origin,
-  validAuthHeaders,
+  validAdminAuthHeaders,
   invalidAuthHeader,
   xmlResponseHeaders,
   htmlResponseHeaders,

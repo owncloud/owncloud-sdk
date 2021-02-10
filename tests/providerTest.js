@@ -8,7 +8,7 @@ describe('provider testing', () => {
   const fetch = require('sync-fetch')
 
   const {
-    validAuthHeaders
+    validAdminAuthHeaders
   } = require('./pactHelper.js')
 
   const {
@@ -22,9 +22,9 @@ describe('provider testing', () => {
   it('verifies the provider', () => {
     const opts = {
       provider: 'oc-server',
-      logLevel: 'debug',
       providerBaseUrl: process.env.PROVIDER_BASE_URL || 'http://localhost/',
-      disableSSLVerification: true
+      disableSSLVerification: true,
+      callbackTimeout: 10000
     }
     if (process.env.CI === 'true') {
       opts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
@@ -49,7 +49,7 @@ describe('provider testing', () => {
             method: 'POST',
             body: 'groupid=' + parameters.groupName,
             headers: {
-              ...validAuthHeaders,
+              ...validAdminAuthHeaders,
               ...{ 'Content-Type': 'application/x-www-form-urlencoded' }
             }
           })
@@ -57,7 +57,7 @@ describe('provider testing', () => {
         } else {
           fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
             method: 'DELETE',
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           return Promise.resolve({ description: 'group deleted' })
         }
@@ -65,13 +65,18 @@ describe('provider testing', () => {
       'group does not exist': (setup, parameters) => {
         fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
           method: 'DELETE',
-          headers: validAuthHeaders
+          headers: validAdminAuthHeaders
         })
         return Promise.resolve({ description: 'group deleted' })
       },
       'folder exists': (setup, parameters) => {
         if (setup) {
-          createFolderRecrusive(config.adminUsername, parameters.folderName)
+          const results = createFolderRecrusive(
+            parameters.username, parameters.password, parameters.folderName
+          )
+          chai.assert.isBelow(
+            results[0].status, 300, `creating folder '${parameters.folderName}' failed`
+          )
         }
         return Promise.resolve({ description: 'folder created' })
       },
@@ -79,9 +84,21 @@ describe('provider testing', () => {
         const dirname = path.dirname(parameters.fileName)
         if (setup) {
           if (dirname !== '' && dirname !== '/') {
-            createFolderRecrusive(config.adminUsername, dirname)
+            const results = createFolderRecrusive(
+              parameters.username, parameters.password, dirname
+            )
+            for (let i = 0; i < results.length; i++) {
+              chai.assert.isBelow(
+                results[i].status, 300, `creating folder '${dirname}' failed'`
+              )
+            }
           }
-          createFile(config.adminUsername, parameters.fileName, config.testContent)
+          const result = createFile(
+            parameters.username, parameters.password, parameters.fileName, config.testContent
+          )
+          chai.assert.isBelow(
+            result.status, 300, `creating file '${parameters.fileName}' failed`
+          )
         } else {
           let itemToDelete
           if (dirname !== '' && dirname !== '/') {
@@ -90,9 +107,35 @@ describe('provider testing', () => {
           } else {
             itemToDelete = parameters.fileName
           }
-          deleteItem(config.adminUsername, itemToDelete)
+          const result = deleteItem(
+            parameters.username, parameters.password, itemToDelete
+          )
+          chai.assert.strictEqual(
+            result.status, 204, `deleting '${itemToDelete}' failed`
+          )
         }
         return Promise.resolve({ description: 'file created' })
+      },
+      'the user is recreated': (setup, parameters) => {
+        if (setup) {
+          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users/' + parameters.username, {
+            method: 'DELETE',
+            headers: validAdminAuthHeaders
+          })
+          const result = fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users',
+            {
+              method: 'POST',
+              body: `userid=${parameters.username}&password=${parameters.username}`,
+              headers: {
+                ...validAdminAuthHeaders,
+                ...{ 'Content-Type': 'application/x-www-form-urlencoded' }
+              }
+            })
+          chai.assert.strictEqual(
+            result.status, 200, `creating user '${parameters.username}' failed`
+          )
+          return Promise.resolve({ description: 'user created' })
+        }
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {
@@ -101,5 +144,5 @@ describe('provider testing', () => {
     }).catch(function (error) {
       chai.assert.fail(error.message)
     })
-  }, 60000)
+  }, 120000)
 })

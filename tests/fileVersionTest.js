@@ -6,7 +6,7 @@ describe('Main: Currently testing file versions management,', function () {
   const config = require('./config/config.json')
 
   const {
-    validAuthHeaders,
+    validAdminAuthHeaders,
     accessControlAllowHeaders,
     accessControlAllowMethods,
     applicationXmlResponseHeaders,
@@ -38,7 +38,7 @@ describe('Main: Currently testing file versions management,', function () {
       matcher: `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v$`,
       generate: `/remote.php/dav/meta/${fileInfo.id}/v`
     }),
-    headers: validAuthHeaders,
+    headers: validAdminAuthHeaders,
     body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
       dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
       dPropfind.appendElement('d:prop', '', '')
@@ -147,7 +147,7 @@ describe('Main: Currently testing file versions management,', function () {
           .withRequest({
             method: 'GET',
             path: fileVersionPath(i),
-            headers: validAuthHeaders
+            headers: validAdminAuthHeaders
           })
           .willRespondWith({
             status: 200,
@@ -163,7 +163,7 @@ describe('Main: Currently testing file versions management,', function () {
         .withRequest({
           method: 'COPY',
           path: fileVersionPath(0),
-          headers: validAuthHeaders
+          headers: validAdminAuthHeaders
         })
         .willRespondWith({
           status: 204,

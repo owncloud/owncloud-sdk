@@ -4,7 +4,7 @@ describe('oc.shares', function () {
   const config = require('./config/config.json')
 
   const {
-    validAuthHeaders,
+    validAdminAuthHeaders,
     applicationXmlResponseHeaders,
     applicationFormUrlEncoded,
     ocsMeta,
@@ -46,7 +46,7 @@ describe('oc.shares', function () {
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
         headers: {
-          ...validAuthHeaders,
+          ...validAdminAuthHeaders,
           ...applicationFormUrlEncoded
         },
         body: `shareType=0&shareWith=${testUser}&path=%2F${testFile}&attributes%5B0%5D%5Bscope%5D=${shareAttributes.attributes[0].scope}&attributes%5B0%5D%5Bkey%5D=${shareAttributes.attributes[0].key}&attributes%5B0%5D%5Bvalue%5D=${shareAttributes.attributes[0].value}&attributes%5B1%5D%5Bscope%5D=${shareAttributes.attributes[1].scope}&attributes%5B1%5D%5Bkey%5D=${shareAttributes.attributes[1].key}&attributes%5B1%5D%5Bvalue%5D=${shareAttributes.attributes[1].value}`

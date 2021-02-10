@@ -9,7 +9,7 @@ describe('Signed urls', function () {
     createOwncloud,
     accessControlAllowHeaders,
     accessControlAllowMethods,
-    validAuthHeaders,
+    validAdminAuthHeaders,
     origin,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
@@ -25,7 +25,7 @@ describe('Signed urls', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/user\\/signing-key',
           '/ocs/v1.php/cloud/user/signing-key'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       }).willRespondWith({
         status: 200,
         headers: {

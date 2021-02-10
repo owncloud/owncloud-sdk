@@ -6,7 +6,7 @@ describe('Main: Currently testing group management,', function () {
 
   const {
     createProvider,
-    validAuthHeaders,
+    validAdminAuthHeaders,
     xmlResponseHeaders,
     ocsMeta,
     getCapabilitiesInteraction,
@@ -24,7 +24,7 @@ describe('Main: Currently testing group management,', function () {
           /.*\/ocs\/v1\.php\/cloud\/groups$/,
           '/ocs/v1.php/cloud/groups'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -60,7 +60,7 @@ describe('Main: Currently testing group management,', function () {
           new RegExp('.*\\/ocs\\/v1\\.php\\/cloud\\/groups\\/' + group + '$'),
           '/ocs/v1.php/cloud/groups/' + group
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -130,7 +130,7 @@ describe('Main: Currently testing group management,', function () {
           /.*\/ocs\/v1\.php\/cloud\/groups\/admin$/,
           '/ocs/v1.php/cloud/groups/admin'
         ),
-        headers: validAuthHeaders
+        headers: validAdminAuthHeaders
       })
       .willRespondWith({
         status: 200,
@@ -172,7 +172,7 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : createGroup', async function () {
-    const headers = { ...validAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
+    const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
     await provider
       .given('group does not exist', { groupName: config.testGroup })
       .uponReceiving('a create group POST request')

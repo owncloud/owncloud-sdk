@@ -20,6 +20,7 @@ describe('Main: Currently testing files management,', function () {
     htmlResponseHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
+    getAuthHeaders,
     createFolderInteraction,
     updateFileInteraction,
     createOwncloud,
@@ -230,14 +231,20 @@ describe('Main: Currently testing files management,', function () {
 
     it('creates subfiles at instance', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
+      await getCapabilitiesInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await getCurrentUserInformationInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
       for (let i = 0; i < uriEncodedTestSubFiles.length; i++) {
-        await updateFileInteraction(provider, uriEncodedTestSubFiles[i])
+        await updateFileInteraction(
+          provider, uriEncodedTestSubFiles[i], config.testUser, config.testUserPassword
+        )
       }
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         const promises = testSubFiles.map(file => {
           return oc.files.putFileContents(file, testContent).then(status => {

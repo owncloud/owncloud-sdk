@@ -475,14 +475,26 @@ const createFolderInteraction = function (
     })
 }
 
-const updateFileInteraction = function (provider, file) {
+const updateFileInteraction = function (provider, file, user = config.adminUsername, password = config.adminPassword
+) {
+  if (user !== config.adminUsername) {
+    provider.given('the user is recreated', { username: user, password: password })
+  }
+  if (!file.includes('nonExistent')) {
+    provider.given('folder exists', {
+      folderName: path.dirname(file),
+      username: user,
+      password: password
+    })
+  }
+
   const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)
-  return provider.uponReceiving('Put file contents to file ' + file)
+  return provider.uponReceiving(`as '${user}' upload file to '${file}'`)
     .withRequest({
       method: 'PUT',
       path: webdavPath(file),
       headers: {
-        ...validAdminAuthHeaders,
+        authorization: getAuthHeaders(user, password),
         'Content-Type': 'text/plain;charset=utf-8'
       }
       // TODO: uncomment this once the issue is fixed

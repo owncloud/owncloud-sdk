@@ -604,26 +604,45 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : move existent file into different folder', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await provider
+      await getCapabilitiesInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await getCurrentUserInformationInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
+      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      provider
+        .given('the user is recreated', {
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('file exists', {
+          fileName: encodedSrcFilePath,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('provider base url is returned')
         .uponReceiving('move existent file into different folder')
         .withRequest({
           method: 'MOVE',
-          path: webdavPath(`${testFolder}/${encodeURI('中文123.txt')}`),
+          path: webdavPath(encodedSrcFilePath),
           headers: {
-            ...validAuthHeaders,
-            Destination: `${owncloudURL}remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
+            authorization: getAuthHeaders(config.testUser, config.testUserPassword),
+            Destination: MatchersV3.fromProviderState(
+              `\${providerBaseURL}${destinationWebDavPath}`,
+              `${config.owncloudURL}${destinationWebDavPath}`
+            )
           }
         })
         .willRespondWith({
           status: 201,
-          headers: applicationXmlResponseHeaders
+          headers: htmlResponseHeaders
         })
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.move(testFolder + '/中文123.txt', testFolder + '/中文.txt').then(status => {
+        return oc.files.move(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -926,25 +945,45 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  describe('move existent file into same folder, different name', function () {
-    it('checking method : move existent file into same folder, different name', async function () {
+  describe('rename existing file', function () {
+    it('rename existing file', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
+      await getCapabilitiesInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await getCurrentUserInformationInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
+      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      provider
+        .given('the user is recreated', {
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('file exists', {
+          fileName: encodedSrcFilePath,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('provider base url is returned')
       await moveFileInteraction(
         provider,
         'different name',
         {
-          ...validAuthHeaders,
-          Destination: `${owncloudURL}remote.php/webdav/testFolder/%E4%B8%AD%E6%96%87123.txt`
+          authorization: getAuthHeaders(config.testUser, config.testUserPassword),
+          Destination: MatchersV3.fromProviderState(
+            `\${providerBaseURL}${destinationWebDavPath}`,
+            `${config.owncloudURL}${destinationWebDavPath}`
+          )
         },
         {
           status: 201,
-          headers: applicationXmlResponseHeaders
+          headers: htmlResponseHeaders
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         return oc.files.move(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
           expect(status).toBe(true)

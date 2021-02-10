@@ -19,6 +19,17 @@ describe('provider testing', () => {
 
   chai.use(chaiAsPromised)
 
+  const assertFoldersCreatedSuccessfully = function (results, folderName) {
+    for (let i = 0; i < results.length; i++) {
+      // 405 means that the folder already exists
+      if (results[i].status !== 405) {
+        chai.assert.isBelow(
+          results[i].status, 300, `creating folder '${folderName}' failed`
+        )
+      }
+    }
+  }
+
   it('verifies the provider', () => {
     const opts = {
       provider: 'oc-server',
@@ -74,9 +85,7 @@ describe('provider testing', () => {
           const results = createFolderRecrusive(
             parameters.username, parameters.password, parameters.folderName
           )
-          chai.assert.isBelow(
-            results[0].status, 300, `creating folder '${parameters.folderName}' failed`
-          )
+          assertFoldersCreatedSuccessfully(results, parameters.folderName)
         }
         return Promise.resolve({ description: 'folder created' })
       },
@@ -87,11 +96,7 @@ describe('provider testing', () => {
             const results = createFolderRecrusive(
               parameters.username, parameters.password, dirname
             )
-            for (let i = 0; i < results.length; i++) {
-              chai.assert.isBelow(
-                results[i].status, 300, `creating folder '${dirname}' failed'`
-              )
-            }
+            assertFoldersCreatedSuccessfully(results, dirname)
           }
           const result = createFile(
             parameters.username, parameters.password, parameters.fileName, config.testContent

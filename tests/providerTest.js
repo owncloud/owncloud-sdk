@@ -141,6 +141,9 @@ describe('provider testing', () => {
           )
           return Promise.resolve({ description: 'user created' })
         }
+      },
+      'provider base url is returned': () => {
+        return { providerBaseURL: process.env.PROVIDER_BASE_URL }
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

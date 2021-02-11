@@ -496,10 +496,8 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
       headers: {
         authorization: getAuthHeaders(user, password),
         'Content-Type': 'text/plain;charset=utf-8'
-      }
-      // TODO: uncomment this once the issue is fixed
-      // https://github.com/pact-foundation/pact-js/issues/589
-      // body: config.testContent
+      },
+      body: config.testContent
     }).willRespondWith(file.includes('nonExistent') ? {
       status: 404,
       headers: applicationXmlResponseHeaders,

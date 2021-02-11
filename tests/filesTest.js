@@ -68,8 +68,8 @@ describe('Main: Currently testing files management,', function () {
                       .appendElement('d:quota-available-bytes', '', '3')
                       .appendElement('d:getetag', '', '&quot;5f8d0ce8c62b5&quot;')
                   })
+                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                 })
-                .appendElement('d:status', '', 'HTTP/1.1 200 OK')
             })
           listFolderContentResponse(items).map(item => {
             dMultistatus.appendElement('d:response', '', item)
@@ -129,12 +129,15 @@ describe('Main: Currently testing files management,', function () {
       .withRequest({
         method: 'PROPPATCH',
         path: webdavPath(`${testFolder}/${testFile}`),
-        headers: validAuthHeaders,
+        headers: {
+          ...validAuthHeaders,
+          ...applicationXmlResponseHeaders
+        },
         body: new XmlBuilder('1.0', '', 'd:propertyupdate').build(dPropUpdate => {
           dPropUpdate.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
           dPropUpdate.appendElement('d:set', '', dSet => {
             dSet.appendElement('d:prop', '', dProp => {
-              dProp.appendElement('oc:favorite', '', value)
+              dProp.appendElement('oc:favorite', '', '' + value)
             })
           })
         })
@@ -162,7 +165,10 @@ describe('Main: Currently testing files management,', function () {
       .withRequest({
         method: 'PROPFIND',
         path: webdavPath(`${testFolder}/${testFile}`),
-        headers: validAuthHeaders,
+        headers: {
+          ...validAuthHeaders,
+          ...applicationXmlResponseHeaders
+        },
         body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
           dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
           dPropfind.appendElement('d:prop', '', dProp => {
@@ -179,10 +185,10 @@ describe('Main: Currently testing files management,', function () {
               dResponse.appendElement('d:href', '', `/remote.php/webdav/${testFolder}/${testFile}`)
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
-                    dProp.appendElement('oc:favorite', '', value)
+                    dProp.appendElement('oc:favorite', '', '' + value)
                   })
+                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                 })
-                .appendElement('d:status', '', 'HTTP/1.1 200 OK')
             })
         })
       })
@@ -282,7 +288,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('list, get content and move file/folder', function () {
-    it.skip('checking method : list with no depth specified', async function () {
+    it('checking method : list with no depth specified', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -309,11 +315,12 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : list with Infinity depth', async function () {
+    it('checking method : list with Infinity depth', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await listFolderContentInteraction(
+        provider,
         'test folder, with infinity depth',
         testFolder,
         ['abc.txt', 'file one.txt', 'subdir', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], 'infinity'
@@ -333,7 +340,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : list with 2 depth', async function () {
+    it('checking method : list with 2 depth', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -345,6 +352,7 @@ describe('Main: Currently testing files management,', function () {
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
+        await oc.login()
         return oc.files.list(testFolder, 2).then(files => {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(7)
@@ -356,7 +364,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : list with non existent file', async function () {
+    it('checking method : list with non existent file', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -443,7 +451,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('fails with error when uploading to a non-existent parent path', async function () {
+    it('fails with error when uploading to a non-existent parent path', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -498,7 +506,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : mkdir for a non-existent parent path', async function () {
+    it('checking method : mkdir for a non-existent parent path', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -511,7 +519,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 409,
-          headers: htmlResponseHeaders,
+          headers: applicationXmlResponseHeaders,
           body: webdavExceptionResponseBody('Conflict', 'Parent node does not exist')
         })
 
@@ -551,7 +559,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : delete for a non-existent folder', async function () {
+    it('checking method : delete for a non-existent folder', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
@@ -574,7 +582,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : move existent file into same folder, same name', async function () {
+    it('checking method : move existent file into same folder, same name', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -648,7 +656,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : move non existent file', async function () {
+    it('checking method : move non existent file', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -679,7 +687,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : copy existent file into same folder, same name', async function () {
+    it('checking method : copy existent file into same folder, same name', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -710,7 +718,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method : copy non existent file', async function () {
+    it('checking method : copy non existent file', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -740,7 +748,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('resolved the path of a file identified by its fileId', async function () {
+    it('resolved the path of a file identified by its fileId', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -748,15 +756,18 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a PROPFIND request to path for fileId`)
         .withRequest({
           method: 'PROPFIND',
-          path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/meta\\/123456789',
-            generate: '/remote.php/dav/meta/123456789'
-          }),
-          headers: validAuthHeaders,
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/webdav\\/meta\\/123456789',
+            '/remote.php/webdav/meta/123456789'
+          ),
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
-              dPropfind.appendElement('oc:meta-path-for-user', '', '')
+              dProp.appendElement('oc:meta-path-for-user', '', '')
             })
           })
         })
@@ -786,7 +797,10 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'PROPFIND',
           path: webdavPath(`${testFolder}/${testFile}`),
-          headers: validAuthHeaders,
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
@@ -832,13 +846,13 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  describe.skip('TUS detection', function () {
-    const tusSupportRequest = (provider, enabled = true) => {
+  describe('TUS detection', function () {
+    const tusSupportRequest = (provider, enabled = true, path = '/') => {
       let respHeaders = applicationXmlResponseHeaders
       if (enabled) {
         respHeaders = {
           ...respHeaders,
-          'Content-Type': 'application/xml',
+          'Content-Type': 'application/xml; charset=utf-8',
           'Tus-Resumable': '1.0.0',
           'Tus-Version': '1.0.0,0.2.1,0.1.1',
           'Tus-Extension': 'create,create-with-upload',
@@ -849,7 +863,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a PROPFIND request for tus support`)
         .withRequest({
           method: 'PROPFIND',
-          path: webdavPath('/'),
+          path: webdavPath(path),
           headers: {
             ...validAuthHeaders,
             ...applicationXmlResponseHeaders
@@ -869,7 +883,15 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/')
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin' + path)
+                .appendElement('d:propstat', '', dPropstat => {
+                  dPropstat.appendElement('d:prop', '', dProp => {
+                    dProp.appendElement('d:quota-available-bytes', '', '-3')
+                  })
+                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                })
+            }).appendElement('d:response', '', dResponse => {
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/' + path + 'file1')
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp.appendElement('oc:fileid', '', '123456789')
@@ -908,7 +930,7 @@ describe('Main: Currently testing files management,', function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
-      await tusSupportRequest(provider)
+      await tusSupportRequest(provider, true, 'somedir')
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
@@ -1094,7 +1116,7 @@ describe('Main: Currently testing files management,', function () {
     })
   })
 
-  describe.skip('unfavorite a file', function () {
+  describe('unfavorite a file', function () {
     it('checking method: unfavorite', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
@@ -1122,7 +1144,7 @@ describe('Main: Currently testing files management,', function () {
     let fileId = 123456789
     let tagId = 6789
 
-    it.skip('checking method: favorite', async function () {
+    it('checking method: favorite', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -1144,19 +1166,23 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method: favorite filter', async function () {
+    it('checking method: favorite filter', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
+      await favoriteFileInteraction(provider, true)
       await provider
         .uponReceiving(`as '${username}', a REPORT request to get favorite file`)
         .withRequest({
           method: 'REPORT',
-          path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
-            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
-          }),
-          headers: validAuthHeaders,
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            '/remote.php/dav/files/' + config.adminUsername + '/'
+          ),
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
             ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocFilterFiles.appendElement('d:prop', '', dProp => {
@@ -1203,7 +1229,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('searches in the instance', async function () {
+    it('searches in the instance', async function () {
       const davProperties = [
         '{http://owncloud.org/ns}favorite',
         '{DAV:}getcontentlength',
@@ -1220,11 +1246,14 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a REPORT request to search in the instance`)
         .withRequest({
           method: 'REPORT',
-          path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
-            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
-          }),
-          headers: validAuthHeaders,
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            '/remote.php/dav/files/' + config.adminUsername + '/'
+          ),
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
           body: new XmlBuilder('1.0', '', 'oc:search-files').build(ocSearchFiles => {
             ocSearchFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocSearchFiles.appendElement('d:prop', '', dProp => {
@@ -1249,7 +1278,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
+              dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/' + testFolder + '/abc.txt')
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
@@ -1312,10 +1341,10 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a POST request to create tag`)
         .withRequest({
           method: 'POST',
-          path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/systemtags',
-            generate: '/remote.php/dav/systemtags'
-          }),
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/systemtags',
+            '/remote.php/dav/systemtags'
+          ),
           headers: {
             ...validAuthHeaders,
             'Content-Type': 'application/json'
@@ -1349,10 +1378,10 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a PUT request to tag file`)
         .withRequest({
           method: 'PUT',
-          path: MatchersV3.regex({
-            matcher: `.*\\/remote\\.php\\/dav\\/systemtags-relations\\/files\\/${fileId}\\/${tagId}`,
-            generate: `/remote.php/dav/systemtags-relations/files/${fileId}/${tagId}`
-          }),
+          path: MatchersV3.regex(
+            `.*\\/remote\\.php\\/dav\\/systemtags-relations\\/files\\/${fileId}\\/${tagId}`,
+            `/remote.php/dav/systemtags-relations/files/${fileId}/${tagId}`
+          ),
           headers: validAuthHeaders
         })
         .willRespondWith({
@@ -1368,7 +1397,10 @@ describe('Main: Currently testing files management,', function () {
             matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
             generate: '/remote.php/dav/files/' + config.adminUsername + '/'
           }),
-          headers: validAuthHeaders,
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
             ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocFilterFiles.appendElement('d:prop', '', dProp => {

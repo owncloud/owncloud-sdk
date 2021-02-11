@@ -4,6 +4,7 @@
     "adminPassword": "admin",
     "testUser": "test123",
     "testUserPassword": "test123",
+    "testUser2": "testABC",
     "testGroup": "testGroup",
     "nonExistentUser": "thisUserShouldNotExist",
     "nonExistentGroup": "thisGroupShouldNotExist",

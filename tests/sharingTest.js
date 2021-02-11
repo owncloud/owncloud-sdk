@@ -3,20 +3,6 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 describe('Main: Currently testing file/folder sharing,', function () {
   const config = require('./config/config.json')
 
-  // TODO: Remove these once the issue is fixed
-  // https://github.com/pact-foundation/pact-js/issues/589
-  config.testFiles = [
-    'test space and + and #.txt',
-    'test.txt',
-    'hello world.txt'
-  ]
-
-  config.testFilesPath = [
-    '%2Ftest+space+and+%2B+and+%23.txt',
-    '%2Ftest.txt',
-    '%2Fhello+world.txt'
-  ]
-
   const {
     applicationXmlResponseHeaders,
     applicationFormUrlEncoded,
@@ -46,10 +32,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   const sharedFiles = {
     'test space and + and #.txt': 18,
     'test.txt': 14,
-    'hello world.txt': 19
-    // TODO: uncomment this once the issue is fixed
-    // https://github.com/pact-foundation/pact-js/issues/589
-    // '%2F%E6%96%87%E4%BB%B6.txt': 19
+    '文件.txt': 19
   }
   const testFolderShareID = 9
 

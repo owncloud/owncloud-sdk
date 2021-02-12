@@ -10,7 +10,6 @@ describe('Main: Currently testing file versions management,', function () {
     accessControlAllowHeaders,
     accessControlAllowMethods,
     applicationXmlResponseHeaders,
-    getContentsOfFileInteraction,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     createOwncloud,
@@ -201,32 +200,19 @@ describe('Main: Currently testing file versions management,', function () {
       })
     })
 
-    it.skip('restore file version', async function (done) {
+    it('restore file version', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
-      await provider.addInteraction(getContentsOfFileInteraction(versionedFile))
-      await PropfindFileVersionOfExistentFiles(provider)
-      await getFileVersionContents(provider)
       await restoreFileVersion(provider)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
-        return oc.fileVersions.listVersions(fileInfo.id).then(versions => {
-          expect(versions.length).toEqual(2)
-          expect(versions[0].getSize()).toEqual(2)
-          expect(versions[1].getSize()).toEqual(1)
-          oc.fileVersions.restoreFileVersion(fileInfo.id, fileInfo.versions[0].versionId, versionedFile).then(status => {
-            expect(status).toBe(true)
-            oc.files.getFileContents(versionedFile).then(content => {
-              expect(content).toBe(fileInfo.versions[0].content)
-              done()
-            })
-          }).catch(reason => {
-            fail(reason)
-            done()
-          })
+        return oc.fileVersions.restoreFileVersion(fileInfo.id, fileInfo.versions[0].versionId, versionedFile).then(status => {
+          expect(status).toBe(true)
+        }).catch(reason => {
+          fail(reason)
         })
       })
     })

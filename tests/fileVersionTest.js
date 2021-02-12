@@ -74,10 +74,10 @@ describe('Main: Currently testing file versions management,', function () {
     })
   }
 
-  const fileVersionPath = version => MatchersV3.regex({
-    matcher: `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v\\/${fileInfo.versions[version].versionId}$`,
-    generate: `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
-  })
+  const fileVersionPath = version => MatchersV3.regex(
+   `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v\\/${fileInfo.versions[version].versionId}$`,
+   `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
+  )
 
   describe.skip('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {

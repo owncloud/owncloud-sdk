@@ -13,8 +13,7 @@ describe('provider testing', () => {
 
   const {
     createFolderRecrusive,
-    createFile,
-    deleteItem
+    createFile
   } = require('./webdavHelper.js')
 
   chai.use(chaiAsPromised)
@@ -103,20 +102,6 @@ describe('provider testing', () => {
           )
           chai.assert.isBelow(
             result.status, 300, `creating file '${parameters.fileName}' failed`
-          )
-        } else {
-          let itemToDelete
-          if (dirname !== '' && dirname !== '/') {
-            const folders = dirname.split(path.sep)
-            itemToDelete = folders[0]
-          } else {
-            itemToDelete = parameters.fileName
-          }
-          const result = deleteItem(
-            parameters.username, parameters.password, itemToDelete
-          )
-          chai.assert.strictEqual(
-            result.status, 204, `deleting '${itemToDelete}' failed`
           )
         }
         return Promise.resolve({ description: 'file created' })

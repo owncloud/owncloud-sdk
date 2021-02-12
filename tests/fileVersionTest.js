@@ -7,8 +7,6 @@ describe('Main: Currently testing file versions management,', function () {
 
   const {
     validAdminAuthHeaders,
-    accessControlAllowHeaders,
-    accessControlAllowMethods,
     applicationXmlResponseHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
@@ -42,12 +40,6 @@ describe('Main: Currently testing file versions management,', function () {
       dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
       dPropfind.appendElement('d:prop', '', '')
     })
-  }
-
-  const header = {
-    ...applicationXmlResponseHeaders,
-    'Access-Control-Allow-Headers': accessControlAllowHeaders,
-    'Access-Control-Allow-Methods': accessControlAllowMethods
   }
 
   const propfindFileVersionsResponse = (node, version, contentLength) => {
@@ -115,7 +107,7 @@ describe('Main: Currently testing file versions management,', function () {
         .withRequest(propfindFileVersionsRequestData)
         .willRespondWith({
           status: 207,
-          headers: header,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -150,7 +142,6 @@ describe('Main: Currently testing file versions management,', function () {
           })
           .willRespondWith({
             status: 200,
-            headers: header,
             body: fileInfo.versions[i].content
           })
       }
@@ -166,7 +157,7 @@ describe('Main: Currently testing file versions management,', function () {
         })
         .willRespondWith({
           status: 204,
-          headers: header
+          headers: applicationXmlResponseHeaders
         })
     }
 

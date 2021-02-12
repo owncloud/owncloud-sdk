@@ -154,25 +154,8 @@ module.exports = {
   //   "**/?(*.)+(spec|test).[tj]s?(x)"
   // ],
   testMatch: [
-    '**/tests/capabilitiesTest.js',
-    '**/tests/groupTest.js',
-    '**/tests/appsTest.js',
-    '**/tests/userTest.js',
-    '**/tests/unauthenticated/*.js',
-    '**/tests/unauthorized/*.js',
-    '**/tests/loginTest.js',
-    '**/tests/sharingWithAttributesTest.js',
-    '**/tests/shareRecipientTest.js',
-    '**/tests/signedUrlIntegrationTest.js',
-    '**/tests/XmlParserTest.js',
-    '**/tests/signedUrlTest.js',
-    '**/tests/requestsOcsTest.js',
-    '**/tests/sharingTest.js',
-    '**/tests/publicLinkTest.js',
-    '**/tests/fileTrashTest.js',
-    '**/tests/fileVersionTest.js',
-    '**/tests/filesTest.js',
-    '**/tests/providerTest.js'
+    '**/tests/*Test.js',
+    '**/tests/**/*Test.js'
   ]
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

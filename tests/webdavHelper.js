@@ -114,11 +114,26 @@ const listVersionsFolder = function (user, password, fileId) {
   return listResult.text()
 }
 
+const getSignKey = function (username, password) {
+  const endpoint = process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/user/signing-key?format=json'
+  const response = fetch(endpoint, {
+    method: 'GET',
+    headers: {
+      authorization: getAuthHeaders(username, password)
+    }
+  })
+  if (response.status !== 200) {
+    throw new Error(`Could not get signed Key for username ${username}`)
+  }
+  return response.json().ocs.data['signing-key']
+}
+
 module.exports = {
   createFolderRecrusive,
   createFile,
   deleteItem,
   getFileId,
   listVersionsFolder,
-  createDavPath
+  createDavPath,
+  getSignKey
 }

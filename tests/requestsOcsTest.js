@@ -9,8 +9,7 @@ describe('Main: Currently testing low level OCS', function () {
     validAdminAuthHeaders,
     getUserInformationAsAdminInteraction,
     createOwncloud,
-    createProvider,
-    origin
+    createProvider
   } = require('./pactHelper.js')
 
   it('checking : capabilities', async function () {
@@ -61,9 +60,6 @@ describe('Main: Currently testing low level OCS', function () {
       })
       .willRespondWith({
         status: 401,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        },
         body: {
           ocs: {
             meta: {
@@ -93,23 +89,24 @@ describe('Main: Currently testing low level OCS', function () {
   })
 
   it('checking : PUT email', async function (done) {
+    const { testUser, testUserPassword } = config
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
-    await getUserInformationAsAdminInteraction(provider)
     await provider
+      .given('the user is recreated', { username: testUser, password: testUserPassword })
       .uponReceiving('an update user request that sets email')
-      .given(setup => {
-        return 'my state'
-      })
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-          '/ocs/v1.php/cloud/users/' + config.testUser
+          '/ocs/v2.php/cloud/users/' + testUser
         ),
         query: { format: 'json' },
-        headers: validAdminAuthHeaders,
+        headers: {
+          ...validAdminAuthHeaders,
+          'content-type': 'application/json'
+        },
         body: {
           key: 'email',
           value: 'foo@bar.net'
@@ -117,9 +114,6 @@ describe('Main: Currently testing low level OCS', function () {
       })
       .willRespondWith({
         status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': origin
-        },
         body: {
           ocs: {
             meta: {
@@ -131,11 +125,11 @@ describe('Main: Currently testing low level OCS', function () {
           }
         }
       })
+    await getUserInformationAsAdminInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      const testUser = config.testUser
       return oc.requests.ocs({
         method: 'PUT',
         service: 'cloud',

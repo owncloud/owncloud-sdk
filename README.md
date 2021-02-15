@@ -6,9 +6,9 @@
   <img src="https://i.imgur.com/9mKra3O.png" />
 </p>
 
-Use this light-weight JS library with a promise based interface for seamless communication with your ownCloud instance.<br>
-Supports only browser JS but requires Javascript techniques like webpack to compile it properly
-For Node.js please have a look at [this tag](https://github.com/owncloud/owncloud-sdk/releases/tag/last-nodejs)
+Use this light-weight JS library with a promise-based interface for seamless communication with your ownCloud instance.<br>
+Supports only browser JS but requires JavaScript techniques like webpack to compile it properly.<br>
+For Node.js please have a look at [this tag](https://github.com/owncloud/owncloud-sdk/releases/tag/last-nodejs).
 
 
 ## Install
@@ -56,9 +56,9 @@ oc.files.list('/path/to/file/folder').then(files => {
 
 ## Example Projects
 
-### ownCloud Phoenix
+### ownCloud web
 
-[ownCloud Phoenix](https://github.com/owncloud/phoenix) will be the next generation Web frontend for ownCloud. It uses owncloud-sdk.
+[ownCloud web](https://github.com/owncloud/web) will be the next generation web frontend for ownCloud. It uses owncloud-sdk.
 
 ## All Methods Available
 
@@ -68,7 +68,7 @@ Full API documentation is available at [![docs](https://img.shields.io/badge/api
 
 ### JSDocs
 
-To build the jsdocs, type this command and follow the instructions on the terminal :
+To build the jsdocs, type this command and follow the instructions on the terminal:
 
 ```
 $ yarn build:docs

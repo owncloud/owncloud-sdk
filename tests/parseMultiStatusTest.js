@@ -200,7 +200,7 @@ describe('Main: Currently testing XmlParser,', function () {
             '{DAV:}getlastmodified': 'Fri, 12 Feb 2021 10:49:45 GMT',
             '{DAV:}getetag': '"602a478aa2726"',
             '{DAV:}resourcetype': [
-              {}
+              'd:collection'
             ]
           }
         },
@@ -224,14 +224,14 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              {}
+              'oc:share-type'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500913',
             '{http://owncloud.org/ns}size': '699',
             '{DAV:}getlastmodified': 'Mon, 15 Feb 2021 10:06:02 GMT',
             '{DAV:}getetag': '"602a478aa2726"',
             '{DAV:}resourcetype': [
-              {}
+              'd:collection'
             ]
           }
         },
@@ -255,14 +255,14 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              {}
+              'oc:share-type'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500892',
             '{http://owncloud.org/ns}size': '11',
             '{DAV:}getlastmodified': 'Wed, 10 Feb 2021 12:31:35 GMT',
             '{DAV:}getetag': '"6023d2270b66a"',
             '{DAV:}resourcetype': [
-              {}
+              'd:collection'
             ]
           }
         },
@@ -286,14 +286,14 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              {}
+              'oc:share-type'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500914',
             '{http://owncloud.org/ns}size': '0',
             '{DAV:}getlastmodified': 'Thu, 11 Feb 2021 08:08:51 GMT',
             '{DAV:}getetag': '"6024e613d85a2"',
             '{DAV:}resourcetype': [
-              {}
+              'd:collection'
             ]
           }
         },
@@ -339,7 +339,7 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              {}
+              'oc:share-type'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147490159',
             '{DAV:}getcontentlength': '64',

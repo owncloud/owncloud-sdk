@@ -12,12 +12,14 @@ describe('Main: Currently testing share recipient,', function () {
   } = require('./pactHelper.js')
 
   const sharer = config.testUser
+  const sharerPassword = config.testUserPassword
   const receiver = config.testUser2
+  const receiverPassword = config.testUser2Password
 
   const getShareesInteraction = (provider, folder = config.testFolder) => {
     provider
-      .given('the user is recreated', { username: sharer })
-      .given('the user is recreated', { username: receiver })
+      .given('the user is recreated', { username: sharer, password: sharerPassword })
+      .given('the user is recreated', { username: receiver, password: receiverPassword })
       .given('group exists', { groupName: config.testGroup })
     return provider
       .uponReceiving('a request to get share recipients (both users and groups)')
@@ -28,7 +30,7 @@ describe('Main: Currently testing share recipient,', function () {
           '/ocs/v2.php/apps/files_sharing/api/v1/sharees'
         ),
         query: { search: 'test', itemType: 'folder', page: '1', perPage: '200', format: 'json' },
-        headers: { authorization: getAuthHeaders(sharer, sharer) }
+        headers: { authorization: getAuthHeaders(sharer, sharerPassword) }
       }).willRespondWith({
         status: 200,
         headers: {
@@ -52,7 +54,7 @@ describe('Main: Currently testing share recipient,', function () {
     const provider = createProvider()
 
     return provider.executeTest(() => {
-      const oc = createOwncloud(sharer, sharer)
+      const oc = createOwncloud(sharer, sharerPassword)
 
       return oc.shares.getRecipients('test', 'folder', 'a', 'b').then(status => {
         fail('share.getRecipients should have thrown an error.')
@@ -66,7 +68,7 @@ describe('Main: Currently testing share recipient,', function () {
     const provider = createProvider()
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(sharer, sharer)
+      const oc = createOwncloud(sharer, sharerPassword)
 
       return oc.shares.getRecipients('test', 'folder', 2, 'b').then(status => {
         fail('share.getRecipients should have thrown an error.')
@@ -80,7 +82,7 @@ describe('Main: Currently testing share recipient,', function () {
     const provider = createProvider()
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(sharer, sharer)
+      const oc = createOwncloud(sharer, sharerPassword)
 
       return oc.shares.getRecipients('test', 'folder', -1, 'b').then(status => {
         fail('share.getRecipients should have thrown an error.')
@@ -92,12 +94,12 @@ describe('Main: Currently testing share recipient,', function () {
 
   it('testing behavior : searching for users and groups', async function () {
     const provider = createProvider()
-    await getCapabilitiesInteraction(provider, sharer, sharer)
-    await getCurrentUserInformationInteraction(provider, sharer, sharer)
+    await getCapabilitiesInteraction(provider, sharer, sharerPassword)
+    await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
     await getShareesInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(sharer, sharer)
+      const oc = createOwncloud(sharer, sharerPassword)
       await oc.login()
 
       return oc.shares.getRecipients('test', 'folder', 1, 200).then(resp => {

@@ -11,9 +11,11 @@ describe('Main: Currently testing file versions management,', function () {
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     createOwncloud,
-    createProvider
+    createProvider,
+    getAuthHeaders
   } = require('./pactHelper.js')
 
+  const { createDavPath } = require('./webdavHelper.js')
   // TESTING CONFIGS
   const versionedFile = config.testFile
   const fileInfo = {
@@ -65,9 +67,9 @@ describe('Main: Currently testing file versions management,', function () {
     })
   }
 
-  const fileVersionPath = version => MatchersV3.regex(
-   `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v\\/${fileInfo.versions[version].versionId}$`,
-   `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
+  const fileVersionPath = (fileId, versionId) => MatchersV3.regex(
+   `.*\\/remote\\.php\\/dav\\/meta\\/${fileId}\\/v\\/${versionId}$`,
+   `/remote.php/dav/meta/${fileId}/v/${versionId}`
   )
 
   describe.skip('file versions of non existing file', () => {
@@ -137,7 +139,7 @@ describe('Main: Currently testing file versions management,', function () {
           .uponReceiving('GET file version contents')
           .withRequest({
             method: 'GET',
-            path: fileVersionPath(i),
+            path: fileVersionPath(fileInfo.id, fileInfo.versions[i].versionId),
             headers: validAdminAuthHeaders
           })
           .willRespondWith({
@@ -145,20 +147,6 @@ describe('Main: Currently testing file versions management,', function () {
             body: fileInfo.versions[i].content
           })
       }
-    }
-
-    const restoreFileVersion = provider => {
-      return provider
-        .uponReceiving('Restore file versions')
-        .withRequest({
-          method: 'COPY',
-          path: fileVersionPath(0),
-          headers: validAdminAuthHeaders
-        })
-        .willRespondWith({
-          status: 204,
-          headers: applicationXmlResponseHeaders
-        })
     }
 
     it('checking method: getFileVersionUrl', function () {
@@ -192,13 +180,56 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     it('restore file version', async function () {
+      const destinationWebDavPath = createDavPath(config.testUser, versionedFile)
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await restoreFileVersion(provider)
+      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+      provider
+        .given('the user is recreated', {
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        // re-upload the same file to create a new version
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('file version link is returned', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          number: 1
+        })
+        .given('provider base url is returned')
+      provider
+        .uponReceiving('Restore file versions')
+        .withRequest({
+          method: 'COPY',
+          path: MatchersV3.fromProviderState(
+            // eslint-disable-next-line no-useless-escape,no-template-curly-in-string
+            '\${versionLink}',
+            `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[0].versionId}`
+          ),
+          headers: {
+            authorization: getAuthHeaders(config.testUser, config.testUserPassword),
+            Destination: MatchersV3.fromProviderState(
+              `\${providerBaseURL}${destinationWebDavPath}`,
+              `${config.owncloudURL}${destinationWebDavPath}`
+            )
+          }
+        })
+        .willRespondWith({
+          status: 204
+        })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         return oc.fileVersions.restoreFileVersion(fileInfo.id, fileInfo.versions[0].versionId, versionedFile).then(status => {
           expect(status).toBe(true)

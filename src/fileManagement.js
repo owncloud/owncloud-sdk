@@ -51,7 +51,7 @@ class Files {
 
     const headers = this.helpers.buildHeaders()
     return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
-			console.log(JSON.stringify(result))
+      console.log(result)
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {

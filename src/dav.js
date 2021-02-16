@@ -293,8 +293,9 @@ export class Dav {
         return ''
       }
       var subNodes = []
-      for (var key in propNode) {
-        var node = propNode[key]
+      // for (var key in propNode) {
+      for (var i = 0; i < Object.keys(propNode).length; i++) {
+        // var node = propNode[key]
         subNodes.push({})
       }
       if (subNodes.length) {

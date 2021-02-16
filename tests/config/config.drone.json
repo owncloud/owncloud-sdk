@@ -3,6 +3,7 @@
     "adminUsername": "admin",
     "adminPassword": "admin",
     "testUser": "test123",
+    "testUser2": "testABC",
     "testUserPassword": "test123",
     "testGroup": "testGroup",
     "nonExistentUser": "thisUserShouldNotExist",

@@ -388,7 +388,7 @@ class Shares {
   }
 
   /**
-   * Deletes a share
+   * Get share Recipients
    * @param {string} search
    * @param {string} itemType
    * @param {number} page

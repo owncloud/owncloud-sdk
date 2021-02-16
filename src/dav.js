@@ -289,15 +289,13 @@ export class Dav {
   _parsePropNode (propNode) {
     var content = null
     if (propNode.constructor === Object) {
+      if (Object.keys(propNode).length === 0) {
+        return ''
+      }
       var subNodes = []
-      // filter out text nodes
       for (var key in propNode) {
         var node = propNode[key]
-        if (typeof node === 'string') {
-          subNodes.push(node)
-        } else {
-          subNodes.push()
-        }
+        subNodes.push({})
       }
       if (subNodes.length) {
         content = subNodes

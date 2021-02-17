@@ -112,6 +112,7 @@ describe('provider testing', () => {
         }
       },
       'the user is recreated': (setup, parameters) => {
+        const email = `${parameters.username}@example.com`
         if (setup) {
           fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users/' + parameters.username, {
             method: 'DELETE',
@@ -120,7 +121,7 @@ describe('provider testing', () => {
           const result = fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users',
             {
               method: 'POST',
-              body: `userid=${parameters.username}&password=${parameters.password}`,
+              body: `userid=${parameters.username}&password=${parameters.password}&email=${email}`,
               headers: {
                 ...validAdminAuthHeaders,
                 ...applicationFormUrlEncoded

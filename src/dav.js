@@ -37,13 +37,6 @@ export class Dav {
     })
   };
 
-  Client (options) {
-    var i
-    for (i in options) {
-      this[i] = options[i]
-    }
-  };
-
   /**
    * Generates a propFind request.
    *

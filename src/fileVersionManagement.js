@@ -1,5 +1,4 @@
 const Promise = require('promise')
-// const dav = require('davclient.js')\
 const { Dav } = require('./dav')
 
 /**
@@ -25,13 +24,6 @@ class FilesVersions {
   constructor (helperFile) {
     this.helpers = helperFile
     this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
-    // this.davClient = new dav.Client({
-    //   baseUrl: this.helpers._webdavUrl,
-    //   xmlNamespaces: {
-    //     'DAV:': 'd',
-    //     'http://owncloud.org/ns': 'oc'
-    //   }
-    // })
   }
 
   /**

@@ -1,5 +1,5 @@
 var Promise = require('promise')
-const dav = require('davclient.js')
+const { Dav } = require('./dav')
 
 /**
  * @class SystemTags
@@ -12,13 +12,7 @@ const dav = require('davclient.js')
 class SystemTags {
   constructor (helperFile) {
     this.helpers = helperFile
-    this.davClient = new dav.Client({
-      baseUrl: this.helpers._webdavUrl,
-      xmlNamespaces: {
-        'DAV:': 'd',
-        'http://owncloud.org/ns': 'oc'
-      }
-    })
+    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
   }
 
   /**

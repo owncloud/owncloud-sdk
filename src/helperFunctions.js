@@ -424,12 +424,10 @@ class helpers {
   }
 
   _buildFullWebDAVPath (path) {
-    // return this._webdavUrl + this._encodeUri(path)
     return this._encodeUri(path)
   }
 
   _buildFullWebDAVPathV2 (path) {
-    // return this._davPath + this._encodeUri(path)
     return this._encodeUri(path)
   }
 

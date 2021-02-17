@@ -69,7 +69,7 @@ class FilesTrash {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
       }
     })
   }
@@ -99,7 +99,7 @@ class FilesTrash {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
       }
     })
   }

@@ -52,7 +52,7 @@ class SystemTags {
       if (result.status !== 201) {
         return Promise.reject(new Error('Error: ' + result.status))
       } else {
-        const contentLocation = result.xhr.getResponseHeader('Content-Location')
+        const contentLocation = result.res.getResponseHeader('Content-Location')
         return Promise.resolve(parseInt(contentLocation.substr(contentLocation.lastIndexOf('/') + 1), 10))
       }
     })

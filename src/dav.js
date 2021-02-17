@@ -98,13 +98,13 @@ export class Dav {
           return {
             status: result.status,
             body: result.body[0],
-            xhr: result
+            res: result
           }
         } else {
           return {
             status: result.status,
             body: result.body,
-            xhr: result
+            res: result
           }
         }
       }
@@ -176,7 +176,7 @@ export class Dav {
         return {
           status: result.status,
           body: result.body,
-          xhr: result
+          res: result
         }
       }
     )
@@ -213,7 +213,7 @@ export class Dav {
         return {
           status: result.status,
           body: result.body,
-          xhr: result.xhr
+          res: result
         }
       }
     )
@@ -249,7 +249,7 @@ export class Dav {
         resolve({
           body: resultBody,
           status: res.status,
-          res: res
+          res
         })
       }).catch(error => {
         const res = error.response
@@ -261,20 +261,6 @@ export class Dav {
         })
       })
     })
-  }
-
-  /**
-   * Returns an XMLHttpRequest object.
-   *
-   * This is in its own method, so it can be easily overridden.
-   *
-   * @return {XMLHttpRequest|null}
-   */
-  xhrProvider () {
-    if (global.XMLHttpRequest) {
-      return new XMLHttpRequest()
-    }
-    return null
   }
 
   /**

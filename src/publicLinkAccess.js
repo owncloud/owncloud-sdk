@@ -59,7 +59,7 @@ class PublicFiles {
       return this.helpers._parseBody(result.body, 1)
     }
 
-    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
   }
 
   /**

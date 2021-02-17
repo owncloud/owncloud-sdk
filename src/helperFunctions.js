@@ -549,12 +549,12 @@ class helpers {
     return new FileInfo(name, fileType, props)
   }
 
-  _parseTusHeaders (xhr) {
+  _parseTusHeaders (response) {
     const result = {}
 
-    const resHeaders = xhr.res.headers
+    const resHeaders = response.res.headers
     // hack to avoid logging the uncatchable "refused to get unsafe header"
-    const allHeaders = Object.keys(xhr.res.headers).map(header => header.toLowerCase())
+    const allHeaders = Object.keys(response.res.headers).map(header => header.toLowerCase())
     if (allHeaders.indexOf('tus-version') < 0) {
       // backend did not expose TUS headers, unsupported
       return null

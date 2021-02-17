@@ -51,12 +51,11 @@ class Files {
 
     const headers = this.helpers.buildHeaders()
     return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
-      console.log(result)
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
         const entries = this.helpers._parseBody(result.body)
-        entries[0].tusSupport = this.helpers._parseTusHeaders(result.xhr)
+        entries[0].tusSupport = this.helpers._parseTusHeaders(result.res)
         return Promise.resolve(entries)
       }
     })

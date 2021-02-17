@@ -7,16 +7,15 @@ describe('Main: Currently testing file versions management,', function () {
 
   const {
     validAdminAuthHeaders,
-    accessControlAllowHeaders,
-    accessControlAllowMethods,
     applicationXmlResponseHeaders,
-    getContentsOfFileInteraction,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     createOwncloud,
-    createProvider
+    createProvider,
+    getAuthHeaders
   } = require('./pactHelper.js')
 
+  const { createDavPath } = require('./webdavHelper.js')
   // TESTING CONFIGS
   const versionedFile = config.testFile
   const fileInfo = {
@@ -45,12 +44,6 @@ describe('Main: Currently testing file versions management,', function () {
     })
   }
 
-  const header = {
-    ...applicationXmlResponseHeaders,
-    'Access-Control-Allow-Headers': accessControlAllowHeaders,
-    'Access-Control-Allow-Methods': accessControlAllowMethods
-  }
-
   const propfindFileVersionsResponse = (node, version, contentLength) => {
     return node.appendElement('d:response', '', dResponse => {
       dResponse.appendElement('d:href', '', `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`)
@@ -74,10 +67,10 @@ describe('Main: Currently testing file versions management,', function () {
     })
   }
 
-  const fileVersionPath = version => MatchersV3.regex({
-    matcher: `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v\\/${fileInfo.versions[version].versionId}$`,
-    generate: `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`
-  })
+  const fileVersionPath = (fileId, versionId) => MatchersV3.regex(
+   `.*\\/remote\\.php\\/dav\\/meta\\/${fileId}\\/v\\/${versionId}$`,
+   `/remote.php/dav/meta/${fileId}/v/${versionId}`
+  )
 
   describe.skip('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {
@@ -116,7 +109,7 @@ describe('Main: Currently testing file versions management,', function () {
         .withRequest(propfindFileVersionsRequestData)
         .willRespondWith({
           status: 207,
-          headers: header,
+          headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
               'xmlns:d': 'DAV:',
@@ -146,29 +139,14 @@ describe('Main: Currently testing file versions management,', function () {
           .uponReceiving('GET file version contents')
           .withRequest({
             method: 'GET',
-            path: fileVersionPath(i),
+            path: fileVersionPath(fileInfo.id, fileInfo.versions[i].versionId),
             headers: validAdminAuthHeaders
           })
           .willRespondWith({
             status: 200,
-            headers: header,
             body: fileInfo.versions[i].content
           })
       }
-    }
-
-    const restoreFileVersion = provider => {
-      return provider
-        .uponReceiving('Restore file versions')
-        .withRequest({
-          method: 'COPY',
-          path: fileVersionPath(0),
-          headers: validAdminAuthHeaders
-        })
-        .willRespondWith({
-          status: 204,
-          headers: header
-        })
     }
 
     it('checking method: getFileVersionUrl', function () {
@@ -201,32 +179,62 @@ describe('Main: Currently testing file versions management,', function () {
       })
     })
 
-    it.skip('restore file version', async function (done) {
+    it('restore file version', async function () {
+      const destinationWebDavPath = createDavPath(config.testUser, versionedFile)
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await provider.addInteraction(getContentsOfFileInteraction(versionedFile))
-      await PropfindFileVersionOfExistentFiles(provider)
-      await getFileVersionContents(provider)
-      await restoreFileVersion(provider)
+      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+      provider
+        .given('the user is recreated', {
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        // re-upload the same file to create a new version
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('file version link is returned', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          number: 1
+        })
+        .given('provider base url is returned')
+      provider
+        .uponReceiving('Restore file versions')
+        .withRequest({
+          method: 'COPY',
+          path: MatchersV3.fromProviderState(
+            // eslint-disable-next-line no-useless-escape,no-template-curly-in-string
+            '\${versionLink}',
+            `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[0].versionId}`
+          ),
+          headers: {
+            authorization: getAuthHeaders(config.testUser, config.testUserPassword),
+            Destination: MatchersV3.fromProviderState(
+              `\${providerBaseURL}${destinationWebDavPath}`,
+              `${config.owncloudURL}${destinationWebDavPath}`
+            )
+          }
+        })
+        .willRespondWith({
+          status: 204
+        })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.fileVersions.listVersions(fileInfo.id).then(versions => {
-          expect(versions.length).toEqual(2)
-          expect(versions[0].getSize()).toEqual(2)
-          expect(versions[1].getSize()).toEqual(1)
-          oc.fileVersions.restoreFileVersion(fileInfo.id, fileInfo.versions[0].versionId, versionedFile).then(status => {
-            expect(status).toBe(true)
-            oc.files.getFileContents(versionedFile).then(content => {
-              expect(content).toBe(fileInfo.versions[0].content)
-              done()
-            })
-          }).catch(reason => {
-            fail(reason)
-            done()
-          })
+        return oc.fileVersions.restoreFileVersion(fileInfo.id, fileInfo.versions[0].versionId, versionedFile).then(status => {
+          expect(status).toBe(true)
+        }).catch(reason => {
+          fail(reason)
         })
       })
     })

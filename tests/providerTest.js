@@ -6,6 +6,7 @@ describe('provider testing', () => {
   const chaiAsPromised = require('chai-as-promised')
   const path = require('path')
   const fetch = require('sync-fetch')
+  const { parseString } = require('xml2js')
 
   const {
     validAdminAuthHeaders
@@ -14,7 +15,8 @@ describe('provider testing', () => {
   const {
     createFolderRecrusive,
     createFile,
-    deleteItem
+    getFileId,
+    listVersionsFolder
   } = require('./webdavHelper.js')
 
   chai.use(chaiAsPromised)
@@ -104,22 +106,8 @@ describe('provider testing', () => {
           chai.assert.isBelow(
             result.status, 300, `creating file '${parameters.fileName}' failed`
           )
-        } else {
-          let itemToDelete
-          if (dirname !== '' && dirname !== '/') {
-            const folders = dirname.split(path.sep)
-            itemToDelete = folders[0]
-          } else {
-            itemToDelete = parameters.fileName
-          }
-          const result = deleteItem(
-            parameters.username, parameters.password, itemToDelete
-          )
-          chai.assert.strictEqual(
-            result.status, 204, `deleting '${itemToDelete}' failed`
-          )
+          return { fileId: result.headers.get('oc-fileid') }
         }
-        return Promise.resolve({ description: 'file created' })
       },
       'the user is recreated': (setup, parameters) => {
         if (setup) {
@@ -144,6 +132,26 @@ describe('provider testing', () => {
       },
       'provider base url is returned': () => {
         return { providerBaseURL: process.env.PROVIDER_BASE_URL }
+      },
+      'file version link is returned': (setup, parameters) => {
+        if (setup) {
+          const fileId = getFileId(parameters.username, parameters.password, parameters.fileName)
+          const versionsResult = listVersionsFolder(parameters.username, parameters.password, fileId)
+          let nodeValue = ''
+          parseString(versionsResult, function (err, result) {
+            if (
+              err ||
+              typeof result['d:multistatus']['d:response'][parameters.number]['d:href'][0] !== 'string'
+            ) {
+              throw new Error('could not parse PROPFIND response ' +
+                              `to list versions of '${parameters.fileName}' ${err}`)
+            }
+            nodeValue = result['d:multistatus']['d:response'][parameters.number]['d:href'][0]
+          })
+          // strip away any subfolder, pact will add it again if neededq
+          const link = nodeValue.replace(/^.*(\/remote\.php\/dav\/meta\/.*)$/, '$1')
+          return { versionLink: link }
+        }
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

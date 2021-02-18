@@ -37,7 +37,7 @@ class Shares {
   /**
    * Shares a remote file with link
    * @param   {string}    path             path to the remote file share
-   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string, attributes: array}
+   * @param   {object}    optionalParams   {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string, attributes: assoc array (at free disposal)}
    * @returns {Promise.<shareInfo>}        instance of class shareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -83,7 +83,7 @@ class Shares {
    * Shares a remote file with specified user
    * @param   {string}    path             path to the remote file share
    * @param   {string}    username         name of the user to share with
-   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: array}
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: assoc array (at free disposal)}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -127,7 +127,7 @@ class Shares {
    * Shares a remote file with specified group
    * @param   {string}    path             path to the remote file share
    * @param   {string}    groupName        name of group to share with
-   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, attributes: array}
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, attributes: assoc array (at free disposal)}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -329,7 +329,7 @@ class Shares {
   /**
    * Updates a given share
    * @param  {number}  shareId         ID of the share to update
-   * @param  {object}  optionalParams  {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string, attributes: array}
+   * @param  {object}  optionalParams  {permissions: integer, publicUpload: boolean, password: string, expireDate: string, name: string, attributes: assoc array (at free disposal)}
    * @return {Promise.<status>}        boolean: true if successful
    * @return {Promise.<error>}         string: error message, if any.
    */

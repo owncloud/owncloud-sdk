@@ -11,7 +11,8 @@ describe('provider testing', () => {
 
   const {
     validAdminAuthHeaders,
-    applicationFormUrlEncoded
+    applicationFormUrlEncoded,
+    getAuthHeaders
   } = require('./pactHelper.js')
 
   const {
@@ -130,6 +131,12 @@ describe('provider testing', () => {
           chai.assert.strictEqual(
             result.status, 200, `creating user '${parameters.username}' failed`
           )
+          // a hack for https://github.com/owncloud/ocis/issues/1675
+          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/capabilities',
+            {
+              method: 'GET',
+              headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
+            })
           return Promise.resolve({ description: 'user created' })
         }
       },

@@ -8,19 +8,25 @@ const {
  *
  * @param {string} userId
  * @param {string} element
+ * @param {string} type (files|versions)
  */
-const createDavPath = function (userId, element) {
-  return `/remote.php/dav/files/${userId}/${element}`
+const createDavPath = function (userId, element, type = 'files') {
+  if (type === 'files') {
+    return `/remote.php/dav/files/${userId}/${element}`
+  } else if (type === 'versions') {
+    return `/remote.php/dav/meta/${element}/v`
+  }
 }
 
 /**
  * returns the full and sanitized URL of the dav resource
  * @param {string} userId
  * @param {string} resource
+ * @param {string} type (files|versions)
  * @returns {string}
  */
-const createFullDavUrl = function (userId, resource) {
-  return (process.env.PROVIDER_BASE_URL + createDavPath(userId, resource))
+const createFullDavUrl = function (userId, resource, type = 'files') {
+  return (process.env.PROVIDER_BASE_URL + createDavPath(userId, resource, type))
     .replace(/([^:])\/{2,}/g, '$1/')
 }
 
@@ -82,8 +88,37 @@ const deleteItem = function (user, password, itemName) {
   })
 }
 
+const getFileId = function (user, password, itemName) {
+  const fileIdResult = fetch(createFullDavUrl(user, itemName), {
+    method: 'PROPFIND',
+    body: '<?xml version="1.0"?>' +
+          '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
+          '<d:prop><oc:fileid /></d:prop>' +
+          '</d:propfind>',
+    headers: { authorization: getAuthHeaders(user, password) }
+  })
+  if (fileIdResult.status !== 207) {
+    throw new Error(`could not get fileId for '${itemName}'`)
+  }
+  return fileIdResult.text().match(/<oc:fileid>([^<]*)<\/oc:fileid>/)[1]
+}
+
+const listVersionsFolder = function (user, password, fileId) {
+  const listResult = fetch(createFullDavUrl(user, fileId, 'versions'), {
+    method: 'PROPFIND',
+    headers: { authorization: getAuthHeaders(user, password) }
+  })
+  if (listResult.status !== 207) {
+    throw new Error(`could not list versions folder of fileId '${fileId}'`)
+  }
+  return listResult.text()
+}
+
 module.exports = {
   createFolderRecrusive,
   createFile,
-  deleteItem
+  deleteItem,
+  getFileId,
+  listVersionsFolder,
+  createDavPath
 }

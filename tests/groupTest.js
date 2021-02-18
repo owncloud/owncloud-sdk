@@ -35,7 +35,7 @@ describe('Main: Currently testing group management,', function () {
           })
             .appendElement('data', '', (data) => {
               data.appendElement('groups', '', (groups) => {
-                groups.appendElement('element', '', 'admin')
+                groups.appendElement('element', '', config.adminUsername)
                 groups.appendElement('element', '', config.testGroup)
               })
             })

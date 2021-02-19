@@ -11,7 +11,8 @@ describe('provider testing', () => {
 
   const {
     validAdminAuthHeaders,
-    applicationFormUrlEncoded
+    applicationFormUrlEncoded,
+    getAuthHeaders
   } = require('./pactHelper.js')
 
   const {
@@ -112,6 +113,7 @@ describe('provider testing', () => {
         }
       },
       'the user is recreated': (setup, parameters) => {
+        const email = `${parameters.username}@example.com`
         if (setup) {
           fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users/' + parameters.username, {
             method: 'DELETE',
@@ -120,7 +122,7 @@ describe('provider testing', () => {
           const result = fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users',
             {
               method: 'POST',
-              body: `userid=${parameters.username}&password=${parameters.password}`,
+              body: `userid=${parameters.username}&password=${parameters.password}&email=${email}`,
               headers: {
                 ...validAdminAuthHeaders,
                 ...applicationFormUrlEncoded
@@ -129,6 +131,12 @@ describe('provider testing', () => {
           chai.assert.strictEqual(
             result.status, 200, `creating user '${parameters.username}' failed`
           )
+          // a hack for https://github.com/owncloud/ocis/issues/1675
+          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/capabilities',
+            {
+              method: 'GET',
+              headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
+            })
           return Promise.resolve({ description: 'user created' })
         }
       },
@@ -156,7 +164,9 @@ describe('provider testing', () => {
         }
       },
       'user is made group subadmin': (setup, parameters) => {
-        if (setup) {
+        // don't try to make users subadmins on OCIS because of
+        // https://github.com/owncloud/product/issues/289
+        if (setup && process.env.RUN_ON_OCIS !== 'true') {
           const response = fetch(process.env.PROVIDER_BASE_URL +
                           '/ocs/v1.php/cloud/users/' + parameters.username +
                           '/subadmins?format=json', {

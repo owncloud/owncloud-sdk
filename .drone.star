@@ -11,7 +11,7 @@ config = {
 }
 
 def main(ctx):
-    return [ consumerTestPipeline(), consumerTestPipeline('/sub/'), providerTestPipeline(), publish() ]
+    return [ consumerTestPipeline(), consumerTestPipeline('/sub/'), oc10ProviderTestPipeline(),  ocisProviderTestPipeline(), publish() ]
 
 def incrementVersion():
     return [{
@@ -116,6 +116,86 @@ def setupServerAndApp(logLevel):
         ]
     }]
 
+def cloneOCIS():
+    return[{
+        'name': 'clone-ocis',
+        'image': 'webhippie/golang:1.15',
+        'pull': 'always',
+        'commands': [
+            'source .drone.env',
+            'mkdir -p /srv/app/src',
+            'cd $GOPATH/src',
+            'mkdir -p github.com/owncloud/',
+            'cd github.com/owncloud/',
+            'git clone -b $OCIS_BRANCH --single-branch --no-tags https://github.com/owncloud/ocis',
+        ],
+        'volumes': [{
+            'name': 'gopath',
+            'path': '/srv/app',
+        }, {
+            'name': 'configs',
+            'path': '/srv/config'
+        }],
+    }]
+
+def buildOCIS():
+    return[{
+        'name': 'build-ocis',
+        'image': 'webhippie/golang:1.15',
+        'pull': 'always',
+        'commands': [
+            'source .drone.env',
+            'cd $GOPATH/src/github.com/owncloud/ocis',
+            'git checkout $OCIS_COMMITID',
+            'cd ocis',
+            'make build',
+            'cp bin/ocis /var/www/owncloud'
+        ],
+        'volumes': [{
+            'name': 'gopath',
+            'path': '/srv/app',
+        }, {
+            'name': 'configs',
+            'path': '/srv/config'
+        }],
+    }]
+
+def ocisService():
+    return[{
+        'name': 'ocis',
+        'image': 'webhippie/golang:1.15',
+        'pull': 'always',
+        'detach': True,
+        'environment' : {
+            'OCIS_URL': 'https://ocis:9200',
+            'STORAGE_HOME_DRIVER': 'owncloud',
+            'STORAGE_USERS_DRIVER': 'owncloud',
+            'STORAGE_DRIVER_OCIS_ROOT': '/srv/app/tmp/ocis/storage/users',
+            'STORAGE_DRIVER_LOCAL_ROOT': '/srv/app/tmp/ocis/local/root',
+            'STORAGE_DRIVER_OWNCLOUD_DATADIR': '/srv/app/tmp/ocis/owncloud/data',
+            'STORAGE_METADATA_ROOT': '/srv/app/tmp/ocis/metadata',
+            'STORAGE_DRIVER_OWNCLOUD_REDIS_ADDR': 'redis:6379',
+            'PROXY_OIDC_INSECURE': 'true',
+            'STORAGE_HOME_DATA_SERVER_URL': 'http://ocis:9155/data',
+            'STORAGE_USERS_DATA_SERVER_URL': 'http://ocis:9158/data',
+            'ACCOUNTS_DATA_PATH': '/srv/app/tmp/ocis-accounts/',
+            'PROXY_ENABLE_BASIC_AUTH': True,
+        },
+        'commands': [
+            'cd /var/www/owncloud',
+            'mkdir -p /srv/app/tmp/ocis/owncloud/data/',
+            'mkdir -p /srv/app/tmp/ocis/storage/users/',
+            './ocis --log-level debug server'
+        ],
+        'volumes': [{
+            'name': 'gopath',
+            'path': '/srv/app',
+        }, {
+            'name': 'configs',
+            'path': '/srv/config'
+        }],
+    }]
+
 def fixPermissions():
     return [{
         'name': 'fix-permissions',
@@ -168,6 +248,17 @@ def databaseService():
         }
     }]
 
+
+def redisService():
+    return[{
+        'name': 'redis',
+        'image': 'webhippie/redis',
+        'pull': 'always',
+        'environment': {
+            'REDIS_DATABASES': 1
+        },
+    }]
+
 def pactConsumerTests(uploadPact):
     return [{
         'name': 'test',
@@ -186,18 +277,24 @@ def pactConsumerTests(uploadPact):
         ] if uploadPact else [])
     }]
 
-def pactProviderTests(version):
+def pactProviderTests(version, baseUrl, extraEnvironment = {}):
+    environment = {}
+    environment['PROVIDER_BASE_URL'] = baseUrl
+    environment['PACTFLOW_TOKEN'] = {
+        'from_secret': 'pactflow_token'
+    }
+    environment['PROVIDER_VERSION'] = version
+    environment['PROVIDER_BASE_URL'] = baseUrl
+
+
+    for env in extraEnvironment:
+        environment[env] = extraEnvironment[env]
+
     return [{
         'name': 'test',
         'image': 'owncloudci/nodejs:12',
         'pull': 'always',
-        'environment': {
-            'PROVIDER_BASE_URL': 'http://owncloud/',
-            'PACTFLOW_TOKEN': {
-                'from_secret': 'pactflow_token'
-            },
-            'PROVIDER_VERSION': version
-        },
+        'environment': environment,
         'commands': [
             'yarn test-provider'
         ]
@@ -271,10 +368,50 @@ def consumerTestPipeline(subFolderPath = '/'):
             pactConsumerTests(True if subFolderPath == '/' else False),
     }
 
-def providerTestPipeline():
+def ocisProviderTestPipeline():
+    extraEnvironment = {
+        'NODE_TLS_REJECT_UNAUTHORIZED': 0,
+        'NODE_NO_WARNINGS': '1',
+        'RUN_ON_OCIS': 'true'
+    }
     return {
         'kind': 'pipeline',
-        'name': 'testProvider',
+        'name': 'testOCISProvider',
+        'platform': {
+            'os': 'linux',
+            'arch': 'amd64'
+        },
+        'workspace': {
+            'base': '/var/www/owncloud',
+            'path': 'owncloud-sdk'
+        },
+        'trigger': {
+            'branch': 'master'
+        },
+        'depends_on': [ 'testConsumer-root', 'testConsumer-subfolder' ],
+        'steps':
+            buildSystem() +
+            pactLog() +
+            prepareTestConfig() +
+            cloneOCIS() +
+            buildOCIS() +
+            ocisService() +
+            pactProviderTests('ocis-master', 'https://ocis:9200', extraEnvironment),
+         'services':
+            redisService(),
+         'volumes': [{
+            'name': 'configs',
+                'temp': {}
+            }, {
+                'name': 'gopath',
+                'temp': {}
+            }]
+    }
+
+def oc10ProviderTestPipeline():
+    return {
+        'kind': 'pipeline',
+        'name': 'testOc10Provider',
         'platform': {
             'os': 'linux',
             'arch': 'amd64'
@@ -295,12 +432,11 @@ def providerTestPipeline():
             owncloudLog() +
             setupServerAndApp('2') +
             fixPermissions()+
-            pactProviderTests('daily-master-qa'),
+            pactProviderTests('daily-master-qa', 'http://owncloud/'),
          'services':
             owncloudService() +
             databaseService()
     }
-
 
 def publish():
     return {
@@ -314,7 +450,7 @@ def publish():
             'base': '/var/www/owncloud',
             'path': 'owncloud-sdk'
         },
-        'depends_on': [ 'testConsumer-root', 'testConsumer-subfolder', 'testProvider' ],
+        'depends_on': [ 'testConsumer-root', 'testConsumer-subfolder', 'testOc10Provider', 'testOCISProvider' ],
         'trigger': {
             'branch': 'master'
         },

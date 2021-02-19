@@ -369,6 +369,11 @@ def consumerTestPipeline(subFolderPath = '/'):
     }
 
 def ocisProviderTestPipeline():
+    extraEnvironment = {
+        'NODE_TLS_REJECT_UNAUTHORIZED': 0,
+        'NODE_NO_WARNINGS': '1',
+        'RUN_ON_OCIS': 'true'
+    }
     return {
         'kind': 'pipeline',
         'name': 'testOCISProvider',
@@ -391,7 +396,7 @@ def ocisProviderTestPipeline():
             cloneOCIS() +
             buildOCIS() +
             ocisService() +
-            pactProviderTests('ocis-master', 'https://ocis:9200', {'NODE_TLS_REJECT_UNAUTHORIZED': 0, 'RUN_ON_OCIS': 'true'}),
+            pactProviderTests('ocis-master', 'https://ocis:9200', extraEnvironment),
          'services':
             redisService(),
          'volumes': [{

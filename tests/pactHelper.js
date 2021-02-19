@@ -65,7 +65,9 @@ const textPlainResponseHeaders = {
 const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urlencoded' }
 
 const xmlResponseHeaders = {
-  'Content-Type': 'text/xml; charset=utf-8'
+  'Content-Type': MatchersV3.regex(
+    /(application|text)\/xml; charset=utf-8/, 'text/xml; charset=utf-8'
+  )
 }
 
 const htmlResponseHeaders = {

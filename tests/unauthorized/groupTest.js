@@ -8,14 +8,13 @@ describe('Unauthorized: Currently testing group management,', function () {
     createOwncloud,
     createProvider,
     getCapabilitiesWithInvalidAuthInteraction,
-    invalidAuthHeader
+    invalidAuthHeader,
+    xmlResponseHeaders
   } = require('../pactHelper.js')
 
   const unauthorizedResponseObject = {
     status: 401,
-    headers: {
-      'Content-Type': 'text/xml; charset=utf-8'
-    },
+    headers: xmlResponseHeaders,
     body: unauthorizedXmlResponseBody
   }
 

@@ -84,9 +84,7 @@ describe('Main: Currently testing user management,', function () {
       })
       .willRespondWith({
         status: 200,
-        headers: {
-          'Content-Type': 'text/xml; charset=utf-8'
-        },
+        headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs
             .appendElement('meta', '', response)

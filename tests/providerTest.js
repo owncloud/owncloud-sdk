@@ -164,7 +164,9 @@ describe('provider testing', () => {
         }
       },
       'user is made group subadmin': (setup, parameters) => {
-        if (setup) {
+        // don't try to make users subadmins on OCIS because of
+        // https://github.com/owncloud/product/issues/289
+        if (setup && process.env.RUN_ON_OCIS !== 'true') {
           const response = fetch(process.env.PROVIDER_BASE_URL +
                           '/ocs/v1.php/cloud/users/' + parameters.username +
                           '/subadmins?format=json', {

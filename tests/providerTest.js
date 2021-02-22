@@ -47,12 +47,7 @@ describe('provider testing', () => {
       opts.publishVerificationResult = true
       opts.pactBrokerToken = process.env.PACTFLOW_TOKEN
       opts.enablePending = true
-      opts.consumerVersionSelectors = [
-        {
-          tag: process.env.DRONE_SOURCE_BRANCH,
-          latest: true
-        }
-      ]
+      opts.consumerVersionTags = process.env.DRONE_SOURCE_BRANCH
       opts.providerVersion = process.env.PROVIDER_VERSION
     } else {
       opts.pactUrls = [path.resolve(process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server.json')]

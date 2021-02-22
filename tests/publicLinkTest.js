@@ -5,7 +5,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 describe('oc.publicFiles', function () {
   const config = require('./config/config.json')
   const using = require('jasmine-data-provider')
-  const { adminUsername, testUser, testUserPassword, testFolder, testFile } = config
+  const { testUser, testUserPassword, testFolder, testFile } = config
 
   const {
     validAdminAuthHeaders,
@@ -51,8 +51,18 @@ describe('oc.publicFiles', function () {
   const folderInPublicShareInteraction = (provider, description, method, statusCode) => {
     return provider
       .given('the user is recreated', { username: testUser, password: testUserPassword })
-      .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-      .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
+      .given('folder exists', {
+        username: testUser,
+        password: testUserPassword,
+        folderName: testFolder
+      })
+      .given('resource is shared', {
+        username: testUser,
+        password: testUserPassword,
+        resource: testFolder,
+        shareType: 3,
+        permissions: 15
+      })
       .uponReceiving(description)
       .withRequest({
         method: method,
@@ -70,8 +80,18 @@ describe('oc.publicFiles', function () {
   const publicShareContentInteraction = (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined) => {
     return provider
       .given('the user is recreated', { username: testUser, password: testUserPassword })
-      .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-      .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
+      .given('folder exists', {
+        username: testUser,
+        password: testUserPassword,
+        folderName: testFolder
+      })
+      .given('resource is shared', {
+        username: testUser,
+        password: testUserPassword,
+        resource: testFolder,
+        shareType: 3,
+        permissions: 15
+      })
       .given('file exists in last shared public share', { fileName: testFile })
       .uponReceiving(description)
       .withRequest({
@@ -220,7 +240,7 @@ describe('oc.publicFiles', function () {
                 expect(files[0].getName()).toBe(testFolderShare.getToken())
                 expect(files[0].getPath()).toBe('/')
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
-                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(adminUsername)
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(config.adminUsername)
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
 
                 // test folder elements
@@ -636,7 +656,7 @@ describe('oc.publicFiles', function () {
               dProp
                 .appendElement('oc:public-link-item-type', '', 'folder')
                 .appendElement('oc:public-link-permission', '', permission)
-                .appendElement('oc:public-link-share-owner', '', adminUsername)
+                .appendElement('oc:public-link-share-owner', '', config.adminUsername)
             })
               .appendElement('d:status', '', 'HTTP/1.1 200 OK')
           })

@@ -26,6 +26,7 @@ describe('provider testing', () => {
 
   const {
     shareResource,
+    getShareInfoByPath,
     createFolderInLastPublicShare,
     createFileInLastPublicShare
   } = require('./helpers/sharingHelper.js')
@@ -213,25 +214,31 @@ describe('provider testing', () => {
           const { username, password, resource, shareType, shareWith } = parameters
           const response = shareResource(username, password, resource, shareType, shareWith, parameters.permissions)
 
-          const { status } = getOCSMeta(response)
-          /* eslint-disable-next-line camelcase */
-          const { id, share_type, uid_owner, token, path, file_target, permissions, stime, item_type } = getOCSData(response)
-          const shareResponse = {
-            id,
-            share_type,
-            uid_owner,
-            token,
-            path,
-            file_target,
-            permissions,
-            stime,
-            item_type
+          const { status, statuscode, message } = getOCSMeta(response)
+
+          if (process.env.RUN_ON_OCIS === 'true') {
+            if (status === 'ok') {
+              const { token } = getOCSData(response)
+              lastSharedToken = token
+              return getOCSData(response)
+            } /* eslint brace-style: "off" */
+            // TODO: refactor accordingly after the issue has been fixed
+            // status 'error' and statuscode '996' means file/folder has already been shared with user or group
+            // oCIS issue: https://github.com/owncloud/ocis/issues/1710
+            else if (status === 'error' && statuscode === 996 && message === 'grpc create share request failed') {
+              const res = getShareInfoByPath(username, password, resource)
+              const { token } = getOCSData(res)[0]
+              lastSharedToken = token
+              return getOCSData(res)[0]
+            } else {
+              chai.assert.fail(`sharing file/folder '${parameters.resource}' failed`)
+            }
+          } else {
+            chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.resource}' failed`)
+            const { token } = getOCSData(response)
+            lastSharedToken = token
+            return getOCSData(response)
           }
-
-          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.resource}' failed`)
-
-          lastSharedToken = token
-          return shareResponse
         }
         return Promise.resolve({ description: 'file/folder shared' })
       },
@@ -241,7 +248,10 @@ describe('provider testing', () => {
           const response = createFolderInLastPublicShare(lastSharedToken, folderName)
 
           const { status } = response
-          chai.assert.strictEqual(status, 201, 'creating folder in last public share failed')
+          // 405 means that the folder already exists
+          if (status !== 201 && status !== 405) {
+            chai.assert.fail('creating folder in last public share failed')
+          }
         }
         return Promise.resolve({ description: 'folder created in last shared public share' })
       },
@@ -251,7 +261,9 @@ describe('provider testing', () => {
           const response = createFileInLastPublicShare(lastSharedToken, fileName)
 
           const { status } = response
-          chai.assert.strictEqual(status, 201, 'creating file in last public share failed')
+          if (status !== 201 && status !== 204) {
+            chai.assert.fail('creating file in last public share failed')
+          }
         }
         return Promise.resolve({ description: 'file created in last shared public share' })
       }

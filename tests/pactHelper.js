@@ -66,7 +66,7 @@ const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urle
 
 const xmlResponseHeaders = {
   'Content-Type': MatchersV3.regex(
-    /(application|text)\/xml; charset=utf-8/, 'text/xml; charset=utf-8'
+    /(application|text)\/xml; charset=(utf|UTF)-8/, 'text/xml; charset=utf-8'
   )
 }
 

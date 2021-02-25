@@ -4,6 +4,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing file versions management,', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
 
   const {
     validAdminAuthHeaders,
@@ -78,7 +79,7 @@ describe('Main: Currently testing file versions management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('PROPFIND file versions of non existent file')
+        .uponReceiving(`as '${username}', a PROPFIND request to get file versions of non existent file`)
         .withRequest(propfindFileVersionsRequestData)
         .willRespondWith({
           status: 404,
@@ -105,7 +106,7 @@ describe('Main: Currently testing file versions management,', function () {
   describe('file versions for existing files', () => {
     const PropfindFileVersionOfExistentFiles = provider => {
       return provider
-        .uponReceiving('PROPFIND file versions of existent file')
+        .uponReceiving(`as '${username}', a PROPFIND request to get file versions of existent file`)
         .withRequest(propfindFileVersionsRequestData)
         .willRespondWith({
           status: 207,
@@ -136,7 +137,7 @@ describe('Main: Currently testing file versions management,', function () {
     const getFileVersionContents = async provider => {
       for (let i = 0; i < fileInfo.versions.length; i++) {
         await provider
-          .uponReceiving('GET file version contents')
+          .uponReceiving(`as '${username}', a GET request to get file version contents`)
           .withRequest({
             method: 'GET',
             path: fileVersionPath(fileInfo.id, fileInfo.versions[i].versionId),
@@ -208,7 +209,7 @@ describe('Main: Currently testing file versions management,', function () {
         })
         .given('provider base url is returned')
       provider
-        .uponReceiving('Restore file versions')
+        .uponReceiving(`as '${username}', a COPY request to restore file versions`)
         .withRequest({
           method: 'COPY',
           path: MatchersV3.fromProviderState(

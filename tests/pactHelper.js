@@ -157,7 +157,7 @@ const getContentsOfFileInteraction = (
       })
   }
   return provider
-    .uponReceiving('GET contents of file ' + file)
+    .uponReceiving(`as '${user}', a GET request to get contents of a file '${file}'`)
     .withRequest({
       method: 'GET',
       path: webdavPath(file),
@@ -212,7 +212,7 @@ const deleteResourceInteraction = (
       status: 204
     }
   }
-  return provider.uponReceiving(`as '${user}' delete a ${type} called '${resource}'`)
+  return provider.uponReceiving(`as '${user}', a DELETE request to delete a ${type} '${resource}'`)
     .withRequest({
       method: 'DELETE',
       path: webdavPath(resource),
@@ -227,7 +227,7 @@ async function getCurrentUserInformationInteraction (
     provider.given('the user is recreated', { username: user, password: password })
   }
   await provider
-    .uponReceiving(`as '${user}' get current user information`)
+    .uponReceiving(`as '${user}', a GET to get current user information`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -260,7 +260,7 @@ async function getCapabilitiesInteraction (
     provider.given('the user is recreated', { username: user, password: password })
   }
   await provider
-    .uponReceiving(`as '${user}' get capabilities with valid authentication`)
+    .uponReceiving(`as '${user}', a GET request to get capabilities with valid authentication`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -315,7 +315,7 @@ async function getCapabilitiesInteraction (
 }
 
 const getUserInformationAsAdminInteraction = function (provider) {
-  return provider.uponReceiving('a single user GET request to the cloud users endpoint')
+  return provider.uponReceiving(`as '${config.adminUsername}', a GET request to user information`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -346,7 +346,7 @@ const getUserInformationAsAdminInteraction = function (provider) {
 }
 
 const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.adminUsername, password = config.invalidPassword) {
-  return provider.uponReceiving(`a capabilities GET request with invalid authentication by ${username} with ${password}`)
+  return provider.uponReceiving(`as '${username}', a GET request to get capabilities with invalid auth`)
     .withRequest({
       method: 'GET',
       path: MatchersV3.regex(
@@ -375,7 +375,7 @@ const getCapabilitiesWithInvalidAuthInteraction = function (provider, username =
 }
 
 const createUserInteraction = function (provider) {
-  provider.uponReceiving('a create user request')
+  provider.uponReceiving(`as '${config.adminUsername}', a POST request to create a user`)
     .withRequest({
       method: 'POST',
       path: MatchersV3.regex(
@@ -396,7 +396,7 @@ const createUserInteraction = function (provider) {
 const createUserWithGroupMembershipInteraction = function (provider) {
   return provider
     .given('group exists', { groupName: config.testGroup })
-    .uponReceiving('a create user request including group membership')
+    .uponReceiving(`as '${config.adminUsername}', a POST request to create a user with group membership`)
     .withRequest({
       method: 'POST',
       path: MatchersV3.regex(
@@ -422,7 +422,7 @@ const createUserWithGroupMembershipInteraction = function (provider) {
 }
 
 const deleteUserInteraction = function (provider) {
-  provider.uponReceiving('a request to delete a user')
+  provider.uponReceiving(`as '${config.adminUsername}', a DELETE request to delete a user`)
     .withRequest({
       method: 'DELETE',
       path: MatchersV3.regex(
@@ -465,7 +465,7 @@ const createFolderInteraction = function (
     })
   }
   return provider
-    .uponReceiving(`create the folder '${folderName}'`)
+    .uponReceiving(`as '${user}', a MKCOL request to create a folder '${folderName}'`)
     .withRequest({
       method: 'MKCOL',
       path: MatchersV3.regex(
@@ -494,7 +494,7 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
   }
 
   const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)
-  return provider.uponReceiving(`as '${user}' upload file to '${file}'`)
+  return provider.uponReceiving(`as '${user}', a PUT request to upload a file to '${file}'`)
     .withRequest({
       method: 'PUT',
       path: webdavPath(file),

@@ -33,7 +33,7 @@ describe('oc.publicFiles', function () {
 
   const publicShareInteraction = (provider, description, method, responseBody) => {
     return provider
-      .uponReceiving(description)
+      .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
         path: MatchersV3.regex(
@@ -63,7 +63,7 @@ describe('oc.publicFiles', function () {
         shareType: 3,
         permissions: 15
       })
-      .uponReceiving(description)
+      .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
         path: MatchersV3.fromProviderState(
@@ -93,7 +93,7 @@ describe('oc.publicFiles', function () {
         permissions: 15
       })
       .given('file exists in last shared public share', { fileName: testFile })
-      .uponReceiving(description)
+      .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
         path: MatchersV3.fromProviderState(
@@ -192,7 +192,7 @@ describe('oc.publicFiles', function () {
           )
           if (data.shallGrantAccess) {
             await provider
-              .uponReceiving('list content of a public link folder')
+              .uponReceiving(`as '${testUser}', a PROPFIND request to list contents of a public link folder`)
               .withRequest({
                 method: 'PROPFIND',
                 path: publicLinkShareTokenPath
@@ -204,7 +204,7 @@ describe('oc.publicFiles', function () {
               })
           } else {
             await provider
-              .uponReceiving('list content of a password protected public link folder using the wrong password')
+              .uponReceiving(`as '${testUser}', a PROPFIND request to list contents of a password protected public link folder using the wrong password`)
               .withRequest({
                 method: 'PROPFIND',
                 path: publicLinkShareTokenPath,
@@ -269,7 +269,7 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
           if (data.shallGrantAccess) {
             await provider
-              .uponReceiving('download files from a public shared folder')
+              .uponReceiving(`as '${testUser}', a GET request to download files from a public shared folder`)
               .withRequest({
                 method: 'GET',
                 path: publicLinkShareTokenPath
@@ -284,7 +284,7 @@ describe('oc.publicFiles', function () {
               })
           } else {
             await provider
-              .uponReceiving('download files from a public shared folder using wrong password')
+              .uponReceiving(`as '${testUser}', a GET request to download files from a public shared folder using wrong password`)
               .withRequest({
                 method: 'GET',
                 path: publicLinkShareTokenPath
@@ -469,7 +469,7 @@ describe('oc.publicFiles', function () {
             .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
             .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
             .given('file exists in last shared public share', { fileName: testFile })
-            .uponReceiving('Move a file' + ' ' + data.description)
+            .uponReceiving(`as '${testUser}', a MOVE request to move a file in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
               path: MatchersV3.fromProviderState(
@@ -508,7 +508,7 @@ describe('oc.publicFiles', function () {
             .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
             .given('folder exists in last shared public share', { folderName: 'foo' })
             .given('file exists in last shared public share', { fileName: testFile })
-            .uponReceiving('Move a file to subfolder' + ' ' + data.description)
+            .uponReceiving(`as '${testUser}', a MOVE request to move a file to subfolder in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
               path: MatchersV3.fromProviderState(
@@ -542,7 +542,7 @@ describe('oc.publicFiles', function () {
             .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
             .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
             .given('folder exists in last shared public share', { folderName: 'foo' })
-            .uponReceiving('Move a folder to different name' + ' ' + data.description)
+            .uponReceiving(`as '${testUser}', a MOVE request to move a folder to different name in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
               path: MatchersV3.fromProviderState(
@@ -575,7 +575,7 @@ describe('oc.publicFiles', function () {
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           await provider
-            .uponReceiving('Get file info of public share' + ' ' + data.description)
+            .uponReceiving(`as '${testUser}', a PROPFIND request to get file info of public share ${data.description}`)
             .withRequest({
               method: 'PROPFIND',
               path: publicLinkShareTokenPath,

@@ -2,6 +2,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Unauthorized: Currently testing group management,', function () {
   const config = require('../config/config.json')
+  const username = config.adminUsername
 
   const {
     unauthorizedXmlResponseBody,
@@ -22,9 +23,9 @@ describe('Unauthorized: Currently testing group management,', function () {
     authorization: invalidAuthHeader
   }
 
-  const groupsInteraction = (provider, method) => {
+  const groupsInteraction = (provider, requestName, method) => {
     return provider
-      .uponReceiving(`a ${method} group(s) request with invalid auth`)
+      .uponReceiving(`as '${username}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
         method: method,
         path: MatchersV3.regex(
@@ -38,7 +39,7 @@ describe('Unauthorized: Currently testing group management,', function () {
 
   const deleteGroupInteraction = (provider) => {
     return provider
-      .uponReceiving('a DELETE group request with invalid auth')
+      .uponReceiving(`as '${username}', a DELETE request to delete a group with invalid auth`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -52,7 +53,7 @@ describe('Unauthorized: Currently testing group management,', function () {
 
   const getGroupMembersInteraction = (provider) => {
     return provider
-      .uponReceiving('a GET group member request with invalid auth')
+      .uponReceiving(`as '${username}', a GET request to get members of a group with invalid auth`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -68,7 +69,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await groupsInteraction(provider, 'GET')
+    await groupsInteraction(provider, 'get all groups', 'GET')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -91,7 +92,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await groupsInteraction(provider, 'POST')
+    await groupsInteraction(provider, 'create a group', 'POST')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -114,7 +115,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await groupsInteraction(provider, 'GET')
+    await groupsInteraction(provider, 'check group existence', 'GET')
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)

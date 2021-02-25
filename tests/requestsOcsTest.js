@@ -2,6 +2,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing low level OCS', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
 
   const {
     getCapabilitiesInteraction,
@@ -48,7 +49,7 @@ describe('Main: Currently testing low level OCS', function () {
     await getCurrentUserInformationInteraction(provider)
 
     await provider
-      .uponReceiving('an update request for an unknown user')
+      .uponReceiving(`as '${username}', a PUT request to update an unknown user using OCS`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
@@ -95,7 +96,7 @@ describe('Main: Currently testing low level OCS', function () {
     await getCurrentUserInformationInteraction(provider)
     await provider
       .given('the user is recreated', { username: testUser, password: testUserPassword })
-      .uponReceiving('an update user request that sets email')
+      .uponReceiving(`as '${username}', a PUT request to update a user using OCS`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(

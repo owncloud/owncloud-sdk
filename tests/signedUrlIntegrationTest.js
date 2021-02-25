@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Signed urls', function () {
   var config = require('./config/config.json')
+  const username = config.adminUsername
 
   const fetch = require('node-fetch')
   const {
@@ -18,7 +19,7 @@ describe('Signed urls', function () {
 
   const getSigningKeyInteraction = (provider) => {
     return provider
-      .uponReceiving('a GET request for a signing key')
+      .uponReceiving(`as '${username}', a GET request to get a signing key`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -48,7 +49,7 @@ describe('Signed urls', function () {
 
   const downloadWithSignedURLInteraction = (provider) => {
     return provider
-      .uponReceiving('a GET request for a file download using signed url')
+      .uponReceiving(`as '${username}', a GET request to download a file using signed url`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(

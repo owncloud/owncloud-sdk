@@ -4,6 +4,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var config = require('../config/config.json')
+  const username = config.adminUsername
 
   const {
     invalidAuthHeader,
@@ -18,7 +19,7 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   const invalidAuthInteraction = (provider, requestName, method, path, query) => {
     return provider
-      .uponReceiving(requestName)
+      .uponReceiving(`as '${username}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
         method: method,
         path: path,
@@ -71,7 +72,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check for user admin', 'GET', adminUserEndpointPath)
+    await invalidAuthInteraction(provider, 'admin user', 'GET', adminUserEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -92,7 +93,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a create user POST request with invalid auth', 'POST', usersEndpointPath)
+    await invalidAuthInteraction(provider, 'create a user', 'POST', usersEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -113,7 +114,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to search user', 'GET', usersEndpointPath)
+    await invalidAuthInteraction(provider, 'search users', 'GET', usersEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -135,7 +136,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const query = { search: config.adminUsername }
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a admin GET request with invalid auth', 'GET', usersEndpointPath, query)
+    await invalidAuthInteraction(provider, 'check user existence', 'GET', usersEndpointPath, query)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -156,7 +157,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a user PUT request with invalid auth to add user to group', 'PUT', testUserEndpointPath)
+    await invalidAuthInteraction(provider, 'edit user', 'PUT', testUserEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -177,7 +178,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a user POST request with invalid auth', 'POST', groupsEndpointPath)
+    await invalidAuthInteraction(provider, 'add user to a group', 'POST', groupsEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -198,7 +199,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to get user in group', 'GET', groupsEndpointPath)
+    await invalidAuthInteraction(provider, 'get users of a group', 'GET', groupsEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -219,7 +220,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check for user', 'GET', groupsEndpointPath)
+    await invalidAuthInteraction(provider, 'check user existence in a group', 'GET', groupsEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -240,7 +241,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check for user endpoint', 'GET', testUserEndpointPath)
+    await invalidAuthInteraction(provider, 'normal user', 'GET', testUserEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -261,7 +262,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a DELETE request with invalid auth to remove user from group', 'DELETE', groupsEndpointPath)
+    await invalidAuthInteraction(provider, 'remove user from a group', 'DELETE', groupsEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -282,7 +283,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a POST request with invalid auth to add user to subadmin group', 'POST', subadminsUserEndpointPath)
+    await invalidAuthInteraction(provider, 'add a user to subadmin group', 'POST', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -303,7 +304,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to get user of subadmin group', 'GET', subadminsUserEndpointPath)
+    await invalidAuthInteraction(provider, 'get users of subadmin group', 'GET', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -324,7 +325,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a GET request with invalid auth to check user is in subadmin group', 'GET', subadminsUserEndpointPath)
+    await invalidAuthInteraction(provider, 'check user existence in subadmin group', 'GET', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -345,7 +346,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     const provider = createProvider()
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await invalidAuthInteraction(provider, 'a request to DELETE a non-existent user with invalid auth', 'DELETE', nonExistingUserEndpoint)
+    await invalidAuthInteraction(provider, 'delete a non-existent user', 'DELETE', nonExistingUserEndpoint)
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)

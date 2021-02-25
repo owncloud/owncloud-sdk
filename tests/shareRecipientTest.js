@@ -22,7 +22,7 @@ describe('Main: Currently testing share recipient,', function () {
       .given('the user is recreated', { username: receiver, password: receiverPassword })
       .given('group exists', { groupName: config.testGroup })
     return provider
-      .uponReceiving('a request to get share recipients (both users and groups)')
+      .uponReceiving(`as '${sharer}', a GET request to get share recipients (both users and groups)`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(

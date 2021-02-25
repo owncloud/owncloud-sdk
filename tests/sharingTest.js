@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing file/folder sharing,', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
 
   const {
     applicationXmlResponseHeaders,
@@ -42,11 +43,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
   const OCS_PERMISSION_CREATE = 4
   const OCS_PERMISSION_SHARE = 16
 
-  const getSharesInteraction = function (provider, name, shareType, file) {
+  const getSharesInteraction = function (provider, requestName, shareType, file) {
     const iteration = testFiles.indexOf(file)
     const fileId = config.testFilesId[iteration]
     const fileToken = config.testFilesToken[iteration]
-    return provider.uponReceiving('a GET request for a ' + name + file)
+    return provider.uponReceiving(`as '${username}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -76,7 +77,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
   }
 
-  const getPublicLinkShareInteraction = function (provider, name, permissions, additionalBodyElem) {
+  const getPublicLinkShareInteraction = function (provider, requestName, permissions, additionalBodyElem) {
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
       ocs.appendElement('meta', '', (meta) => {
         ocsMeta(meta, 'ok', '100')
@@ -92,7 +93,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
       })
     })
-    return provider.uponReceiving('a GET request for a public link share' + name)
+    return provider.uponReceiving(`as '${username}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -113,7 +114,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   const getShareInteraction = (provider, fileid) => {
     return provider
-      .uponReceiving('a GET request for an existent share with id ' + fileid)
+      .uponReceiving(`as '${username}', a GET request to get single existing share of id '${fileid}'`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -144,7 +145,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const provider = createProvider()
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
-        await getPublicLinkShareInteraction(provider, 'to confirm the permissions is not changed', 1, '')
+        await getPublicLinkShareInteraction(provider, 'confirm the permissions is not changed', 1, '')
 
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -165,7 +166,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const provider = createProvider()
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
-        await getPublicLinkShareInteraction(provider, 'after making publicupload true', 15, '')
+        await getPublicLinkShareInteraction(provider, 'check publicupload after update', 15, '')
 
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -190,7 +191,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const provider = createProvider()
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
-        await getPublicLinkShareInteraction(provider, 'after password is added', 1, additionalBodyElement)
+        await getPublicLinkShareInteraction(provider, 'check password is added to share', 1, additionalBodyElement)
 
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -214,7 +215,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           for (let i = 0; i < testFiles.length; i++) {
-            await getSharesInteraction(provider, 'public link share for isShared', 3, testFiles[i])
+            await getSharesInteraction(provider, `check whether '${testFiles[i]}' is shared or not (public link share)`, 3, testFiles[i])
           }
 
           await provider.executeTest(async () => {
@@ -241,7 +242,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           for (let i = 0; i < testFiles.length; i++) {
-            await getSharesInteraction(provider, 'public link share for getShares', 3, testFiles[i])
+            await getSharesInteraction(provider, `get shares of '${testFiles[i]}' (public link share)`, 3, testFiles[i])
           }
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -295,7 +296,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
-          await getPublicLinkShareInteraction(provider, 'after confirming updated permission', maxPerms, '')
+          await getPublicLinkShareInteraction(provider, 'check updated permissions in user share', maxPerms, '')
           return provider.executeTest(async () => {
             const oc = createOwncloud()
             await oc.login()
@@ -316,7 +317,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           for (const file of testFiles) {
-            await getSharesInteraction(provider, 'user share ', 0, file)
+            await getSharesInteraction(provider, `check whether '${file}' is shared or not (user share)`, 0, file)
           }
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -336,7 +337,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
 
-          await getPublicLinkShareInteraction(provider, 'to confirm the share', OCS_PERMISSION_READ, '')
+          await getPublicLinkShareInteraction(provider, 'confirm the share', OCS_PERMISSION_READ, '')
           return provider.executeTest(async () => {
             const oc = createOwncloud()
             await oc.login()
@@ -361,7 +362,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           for (let i = 0; i < testFiles.length; i++) {
-            await getSharesInteraction(provider, 'public link share: getShares for shared file', 3, testFiles[i])
+            await getSharesInteraction(provider, `get shares of '${testFiles[i]}' (user share)`, 0, testFiles[i])
           }
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -392,7 +393,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         for (const file of config.testFiles) {
-          await getSharesInteraction(provider, 'group share ', 1, file)
+          await getSharesInteraction(provider, `check whether '${file}' is shared or not (group share)`, 1, file)
         }
         return provider.executeTest(async () => {
           const oc = createOwncloud()
@@ -439,7 +440,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         for (let i = 0; i < testFiles.length; i++) {
-          await getSharesInteraction(provider, 'public link share: getShares shared file', 3, testFiles[i])
+          await getSharesInteraction(provider, `get shares of '${testFiles[i]}' (group share)`, 1, testFiles[i])
         }
 
         return provider.executeTest(async () => {
@@ -466,7 +467,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     describe('checking method: ', function () {
       function linkSharePOSTNonExistentFile (provider) {
-        return provider.uponReceiving('a link share POST request with a non-existent file')
+        return provider.uponReceiving(`as '${username}', a POST request to create a public link share with non-existent file`)
           .withRequest({
             method: 'POST',
             path: MatchersV3.regex(
@@ -494,7 +495,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       function groupSharePOSTNonExistentFile (provider) {
-        return provider.uponReceiving('a group share POST request with valid auth but non-existent file')
+        return provider.uponReceiving(`as '${username}', a POST request to share non-existent file with existing group`)
           .withRequest({
             method: 'POST',
             path: MatchersV3.regex(
@@ -517,7 +518,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       function shareGETNonExistentFile (provider, name = '') {
-        return provider.uponReceiving('a GET request for a share with non-existent file ' + name)
+        return provider.uponReceiving(`as '${username}', a GET request to get share information of non-existent file '${name}'`)
           .withRequest({
             method: 'GET',
             path: MatchersV3.regex(
@@ -542,7 +543,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       function shareGETExistingNonSharedFile (provider, name) {
-        return provider.uponReceiving('a GET request for an existent but non-shared file ' + name)
+        return provider.uponReceiving(`as '${username}', a GET request to get share information of existent but non-shared file '${name}'`)
           .withRequest({
             method: 'GET',
             path: MatchersV3.regex(
@@ -568,7 +569,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       function shareGetNonExistentShare (provider) {
-        return provider.uponReceiving('a GET request for a non-existent share')
+        return provider.uponReceiving(`as '${username}', a GET request to get non-existent share`)
           .withRequest({
             method: 'GET',
             path: MatchersV3.regex(
@@ -588,7 +589,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       function putFileWithExmptyContent (provider) {
-        return provider.uponReceiving('Put file contents as empty content in files specified')
+        return provider.uponReceiving(`as '${username}', a PUT request to put file contents as empty content in files specified`)
           .withRequest({
             method: 'PUT',
             path: MatchersV3.regex(
@@ -606,7 +607,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }
 
       function sharePOSTRequestWithExpirationDateSet (provider, file) {
-        return provider.uponReceiving('a user share POST request with valid auth and expiration date set to path ' + file)
+        return provider.uponReceiving(`as '${username}', a POST request to share a file '${file}' to user with expiration date set`)
           .withRequest({
             method: 'POST',
             path: MatchersV3.regex(
@@ -635,7 +636,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       function updateDeleteShareNonExistent (provider, method) {
         return provider
-          .uponReceiving('a ' + method + ' request to update/delete a non-existent share')
+          .uponReceiving(`as '${username}', a ${method} request to update/delete a non-existent share`)
           .withRequest({
             method,
             path: MatchersV3.regex(

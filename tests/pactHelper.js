@@ -445,7 +445,7 @@ const deleteUserInteraction = function (provider) {
       body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
         ocs
           .appendElement('meta', '', meta => {
-            ocsMeta(meta, 'ok', 100)
+            ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
           })
           .appendElement('data', '', '')
       })

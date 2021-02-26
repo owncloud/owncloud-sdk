@@ -2,6 +2,7 @@
     "owncloudURL": "http://localhost:1234${SUBFOLDER}",
     "adminUsername": "admin",
     "adminPassword": "admin",
+    "adminDisplayName": "Admin",
     "testUser": "test123",
     "testUserPassword": "test123",
     "testUser2": "testABC",

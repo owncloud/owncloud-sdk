@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing user management,', function () {
   var config = require('./config/config.json')
+  const adminDisplayName = config.adminDisplayName
 
   // PACT setup
   const {
@@ -56,7 +57,7 @@ describe('Main: Currently testing user management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            ocsMeta(meta, 'ok', 100)
+            ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', bodyData)
         })
       })
@@ -88,15 +89,16 @@ describe('Main: Currently testing user management,', function () {
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs
             .appendElement('meta', '', response)
-            .appendElement('data', '', '')
         })
       })
   }
 
   const addUserToGroupInteraction = async function (provider, requestName, username, group) {
     let ocsStatusCode = 102
+    let message = 'The requested group could not be found'
     if (username === config.nonExistentUser) {
       ocsStatusCode = 103
+      message = 'The requested user could not be found'
     }
     if (username !== config.adminUsername && username !== config.nonExistentUser) {
       await provider
@@ -128,9 +130,15 @@ describe('Main: Currently testing user management,', function () {
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs
             .appendElement('meta', '', meta => {
-              ocsMeta(meta, 'failure', ocsStatusCode)
+              // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+              // https://github.com/owncloud/ocis/issues/1777
+              ocsMeta(
+                meta,
+                'failure',
+                ocsStatusCode,
+                MatchersV3.regex(`(${message})?`, '')
+              )
             })
-            .appendElement('data', '', '')
         })
       })
   }
@@ -161,8 +169,10 @@ describe('Main: Currently testing user management,', function () {
 
   const removeUserFromGroupInteraction = async function (provider, requestName, username, group) {
     let ocsStatusCode = 102
+    let message = 'The requested group could not be found'
     if (username === config.nonExistentUser) {
       ocsStatusCode = 103
+      message = 'The requested user could not be found'
     }
     if (username !== config.adminUsername && username !== config.nonExistentUser) {
       await provider
@@ -192,11 +202,13 @@ describe('Main: Currently testing user management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
+            // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+            // https://github.com/owncloud/ocis/issues/1777
             meta
               .appendElement('status', '', 'failure')
               .appendElement('statuscode', '', ocsStatusCode)
-              .appendElement('message', '', '')
-          }).appendElement('data', '', '')
+              .appendElement('message', '', MatchersV3.regex(`(${message})?`, ''))
+          })
         })
       })
   }
@@ -230,7 +242,6 @@ describe('Main: Currently testing user management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', responseOcsMeta)
-            .appendElement('data', '', '')
         })
       })
   }
@@ -267,8 +278,10 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
+            // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+            // https://github.com/owncloud/ocis/issues/1777
             return ocsMeta(meta, 'failure', '998', 'The requested user could not be found')
-          }).appendElement('data', '', '')
+          })
         })
     )
   }
@@ -285,10 +298,14 @@ describe('Main: Currently testing user management,', function () {
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
             ocs.appendElement('meta', '', (meta) => {
-              return ocsMeta(meta, 'ok', '100')
+              return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
             }).appendElement('data', '', data => {
+              // TODO: adjust the following after the issue is resolved
+              // https://github.com/pact-foundation/pact-js/issues/619
               data.appendElement('groups', '', groups => {
-                groups.appendElement('element', '', config.testGroup)
+                groups.eachLike('element', '', group => {
+                  group.appendText(config.testGroup)
+                })
               })
             })
           })
@@ -338,6 +355,8 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // [oCIS] subadmin endpoint not implemented
+  // https://github.com/owncloud/product/issues/289
   describe('made testUser as testGroup subAdmin', function () {
     it('checking method : getUserSubadminGroups with an existent user', async function () {
       const provider = createProvider()
@@ -382,7 +401,7 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', data => {
             data.appendElement('enabled', '', 'true')
               .appendElement('quota', '', quota => {
@@ -390,12 +409,23 @@ describe('Main: Currently testing user management,', function () {
                   .appendElement('free', '', MatchersV3.number(57800708096))
                   .appendElement('used', '', MatchersV3.number(2740027))
                   .appendElement('total', '', MatchersV3.number(57803448123))
-                  .appendElement('relative', '', '0')
+                  .appendElement('relative', '', MatchersV3.number(0))
                   .appendElement('definition', '', 'default')
               })
-              .appendElement('email', '', '')
-              .appendElement('displayname', '', config.adminUsername)
-              .appendElement('two_factor_auth_enabled', '', 'false')
+              .appendElement(
+                'email', '',
+                MatchersV3.regex(
+                  `(${config.adminUsername}@example.org)?`,
+                  `${config.adminUsername}@example.org`
+                )
+              )
+              .appendElement(
+                'displayname', '',
+                MatchersV3.regex(
+                  `(${config.adminUsername}|${adminDisplayName})`,
+                  config.adminUsername
+                )
+              )
           })
         })
     )
@@ -451,39 +481,19 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // 'createUser' doesn't accept email parameter
+  // [oCIS] email is needed for oCIS to create users
   it('checking method : createUser with groups', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
-    await deleteUserInteraction(provider)
     await createUserWithGroupMembershipInteraction(provider)
-    await getGroupOfUserInteraction(
-      provider,
-      'existent user',
-      config.testUser,
-      new XmlBuilder('1.0', '', 'ocs')
-        .build(ocs => {
-          ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
-          }).appendElement('data', '', data => {
-            data.appendElement('groups', '', groups => {
-              groups.appendElement('element', '', config.testGroup)
-            })
-          })
-        })
-    )
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
       return oc.users.createUser(config.testUser, config.testUserPassword, [config.testGroup]).then((data) => {
         expect(data).toEqual(true)
-        return oc.users.userIsInGroup(config.testUser, config.testGroup)
-      }).then((status) => {
-        expect(status).toBe(true)
-        return oc.users.deleteUser(config.testUser)
-      }).then((status) => {
-        expect(status).toBe(true)
       }).catch((error) => {
         expect(error).toBe(null)
       })
@@ -499,9 +509,13 @@ describe('Main: Currently testing user management,', function () {
       'search a user',
       {},
       data => {
+        // TODO: adjust the following after the issue is resolved
+        // https://github.com/pact-foundation/pact-js/issues/619
         data.appendElement('users', '', users => {
           users.appendElement('element', '', config.adminUsername)
-            .appendElement('element', '', config.testUser)
+            .eachLike('element', '', user => {
+              user.appendText(config.testUser)
+            })
         })
       }
     )
@@ -602,7 +616,7 @@ describe('Main: Currently testing user management,', function () {
       config.testUser,
       'key=email&value=asd%40a.com',
       meta => {
-        ocsMeta(meta, 'ok', 100)
+        ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
       }
     )
 
@@ -618,6 +632,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : setUserAttribute of an existent user, not allowed attribute', async function () {
+    const message = 'mail \'Ã¤Ã¶Ã¼Ã¤Ã¤_sfsdf\\+\\$%\\/\\)%&=\' must be a valid email'
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -627,7 +642,14 @@ describe('Main: Currently testing user management,', function () {
       config.testUser,
       'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D',
       meta => {
-        ocsMeta(meta, 'failure', 102)
+        // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+        // https://github.com/owncloud/ocis/issues/1777
+        ocsMeta(
+          meta,
+          'failure',
+          '102',
+          MatchersV3.regex(`(${message})?`, '')
+        )
       }
     )
 
@@ -645,6 +667,8 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // trying to edit non-existing user by admin returns unauthorized response
+  // https://github.com/owncloud/core/issues/38423
   it('checking method : setUserAttribute of a non existent user', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -655,7 +679,14 @@ describe('Main: Currently testing user management,', function () {
       config.nonExistentUser,
       'key=email&value=asd%40a.com',
       meta => {
-        ocsMeta(meta, 'failure', 101)
+        // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+        // https://github.com/owncloud/ocis/issues/1777
+        ocsMeta(
+          meta,
+          'failure',
+          '101',
+          MatchersV3.regex('(The requested user could not be found)?', '')
+        )
       }
     )
 
@@ -730,8 +761,13 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'failure', '998')
-          }).appendElement('data', '', '')
+            return ocsMeta(
+              meta,
+              'failure',
+              '998',
+              MatchersV3.regex('(The requested user could not be found)?', '')
+            )
+          })
         })
     )
     return provider.executeTest(async () => {
@@ -758,10 +794,14 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', data => {
+            // TODO: adjust the following after the issue is resolved
+            // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('groups', '', groups => {
-              groups.appendElement('element', '', config.testGroup)
+              groups.eachLike('element', '', group => {
+                group.appendText(config.testGroup)
+              })
             })
           })
         })
@@ -788,10 +828,14 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', data => {
+            // TODO: adjust the following after the issue is resolved
+            // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('groups', '', groups => {
-              groups.appendElement('element', '', config.testGroup)
+              groups.eachLike('element', '', group => {
+                group.appendText(config.testGroup)
+              })
             })
           })
         })
@@ -819,8 +863,15 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'failure', '998')
-          }).appendElement('data', '', '')
+            // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+            // https://github.com/owncloud/ocis/issues/1777
+            return ocsMeta(
+              meta,
+              'failure',
+              '998',
+              MatchersV3.regex('(The requested user could not be found)?', '')
+            )
+          })
         })
     )
     return provider.executeTest(async () => {
@@ -847,14 +898,13 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', data => {
             data.appendElement('enabled', '', 'true')
               .appendElement('quota', '', quota => {
                 quota.appendElement('definition', '', 'default')
               })
               .appendElement('displayname', '', 'test123')
-              .appendElement('two_factor_auth_enabled', '', 'false')
           })
         })
     )
@@ -934,6 +984,8 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // [oCIS] subadmin endpoint not implemented
+  // https://github.com/owncloud/product/issues/289
   it('checking method : addUserToSubadminGroup with existent user, non existent group', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -960,6 +1012,8 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // [oCIS] subadmin endpoint not implemented
+  // https://github.com/owncloud/product/issues/289
   it('checking method : addUserToSubadminGroup with non existent user, existent group', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -984,6 +1038,8 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // [oCIS] subadmin endpoint not implemented
+  // https://github.com/owncloud/product/issues/289
   it('checking method : getUserSubadminGroups with a non existent user', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -995,8 +1051,8 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'failure', '101', 'User does not exist')
-          }).appendElement('data', '', '')
+            return ocsMeta(meta, 'failure', '998', 'The requested user could not be found')
+          })
         })
     )
 
@@ -1007,11 +1063,13 @@ describe('Main: Currently testing user management,', function () {
         expect(typeof (data)).toBe('object')
         expect(data.length).toEqual(0)
       }).catch(error => {
-        expect(error).toBe('User does not exist')
+        expect(error).toBe('The requested user could not be found')
       })
     })
   })
 
+  // [oCIS] subadmin endpoint not implemented
+  // https://github.com/owncloud/product/issues/289
   it('checking method : userIsInSubadminGroup with existent user, non existent group', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -1041,19 +1099,21 @@ describe('Main: Currently testing user management,', function () {
     })
   })
 
+  // [oCIS] subadmin endpoint not implemented
+  // https://github.com/owncloud/product/issues/289
   it('checking method : userIsInSubadminGroup with non existent user, existent group', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
       provider,
-      'non-existent user',
+      'non-existent user, existing group',
       config.nonExistentUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'failure', '101', 'User does not exist')
-          }).appendElement('data', '', '')
+            return ocsMeta(meta, 'failure', '998', 'The requested user could not be found')
+          })
         })
     )
 
@@ -1064,7 +1124,7 @@ describe('Main: Currently testing user management,', function () {
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
-          expect(error).toBe('User does not exist')
+          expect(error).toBe('The requested user could not be found')
         })
     })
   })
@@ -1088,8 +1148,15 @@ describe('Main: Currently testing user management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            ocsMeta(meta, 'failure', 101)
-          }).appendElement('data', '', '')
+            // [oCIS] Different ocs status-text and status-code in oCIS and oC10
+            // https://github.com/owncloud/ocis/issues/1777
+            ocsMeta(
+              meta,
+              'failure',
+              101,
+              MatchersV3.regex('(The requested user could not be found)?', '')
+            )
+          })
         })
       })
 

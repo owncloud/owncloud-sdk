@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing getConfig, getVersion and getCapabilities', () => {
   let oc
+  const { adminUsername: username } = require('./config/config.json')
 
   const {
     createProvider,
@@ -17,7 +18,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
-      .uponReceiving('GET config request')
+      .uponReceiving(`as '${username}', a GET request to get server config`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(

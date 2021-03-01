@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing group management,', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
   let provider = null
 
   const {
@@ -17,7 +18,7 @@ describe('Main: Currently testing group management,', function () {
   async function getGroupsInteraction (provider) {
     await provider
       .given('group exists', { groupName: config.testGroup })
-      .uponReceiving('a GET groups request')
+      .uponReceiving(`as '${username}', a GET request to get all groups`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -53,7 +54,7 @@ describe('Main: Currently testing group management,', function () {
     }
 
     await provider
-      .uponReceiving('a DELETE request for group, ' + group)
+      .uponReceiving(`as '${username}', a DELETE request to delete a group '${group}'`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -123,7 +124,7 @@ describe('Main: Currently testing group management,', function () {
 
   it('checking method : getGroupMembers', async function () {
     await provider
-      .uponReceiving('a request to GET members of the admin group')
+      .uponReceiving(`as '${username}', a GET request to get all members of admin group`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -175,7 +176,7 @@ describe('Main: Currently testing group management,', function () {
     const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
     await provider
       .given('group does not exist', { groupName: config.testGroup })
-      .uponReceiving('a create group POST request')
+      .uponReceiving(`as '${username}', a POST request to create a group`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(

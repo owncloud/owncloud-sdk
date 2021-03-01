@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing user management,', function () {
   var config = require('./config/config.json')
+  const username = config.adminUsername
 
   // PACT setup
   const {
@@ -22,7 +23,7 @@ describe('Main: Currently testing user management,', function () {
         .given('the user is recreated', { username: username, password: config.testUserPassword })
     }
     return provider
-      .uponReceiving('a request to GET user information ' + requestName)
+      .uponReceiving(`as '${username}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -41,7 +42,7 @@ describe('Main: Currently testing user management,', function () {
   const getUsersInteraction = function (provider, requestName, query, bodyData) {
     return provider
       .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
-      .uponReceiving('a request to list all users ' + requestName)
+      .uponReceiving(`as '${username}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -69,7 +70,7 @@ describe('Main: Currently testing user management,', function () {
     }
 
     return provider
-      .uponReceiving('set user attribute of ' + requestName)
+      .uponReceiving(`as '${username}', a PUT request to set user attribute of ${requestName}`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
@@ -108,7 +109,7 @@ describe('Main: Currently testing user management,', function () {
     }
 
     return provider
-      .uponReceiving('add user to group ' + requestName)
+      .uponReceiving(`as '${username}', a POST request to ${requestName}`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -143,7 +144,7 @@ describe('Main: Currently testing user management,', function () {
         .given('user is added to group', { username: username, groupName: config.testGroup })
     }
     return provider
-      .uponReceiving('a request to GET the groups that a user is a member of ' + requestName)
+      .uponReceiving(`as '${username}', a GET request to get groups of ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -173,7 +174,7 @@ describe('Main: Currently testing user management,', function () {
         .given('group exists', { groupName: group })
     }
     return provider
-      .uponReceiving('Remove user from a group ' + requestName)
+      .uponReceiving(`as '${username}', a DELETE request to remove ${requestName}`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -201,7 +202,7 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const addUserToSubAdminGroupInteraction = async function (provider, request, username, group, responseOcsMeta) {
+  const addUserToSubAdminGroupInteraction = async function (provider, requestName, username, group, responseOcsMeta) {
     if (username !== config.adminUsername && username !== config.nonExistentUser) {
       await provider
         .given('the user is recreated', { username: username, password: config.testUserPassword })
@@ -211,7 +212,7 @@ describe('Main: Currently testing user management,', function () {
         .given('group exists', { groupName: group })
     }
     return provider
-      .uponReceiving('Add user to subadmin group ' + request)
+      .uponReceiving(`as '${username}', a POST request to make ${requestName}`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -243,7 +244,7 @@ describe('Main: Currently testing user management,', function () {
         .given('user is made group subadmin', { username: username, groupName: config.testGroup })
     }
     return provider
-      .uponReceiving('a request to GET groups that a user is a subadmin of ' + requestName)
+      .uponReceiving(`as '${username}', a GET request to get subadmin groups of ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -262,7 +263,7 @@ describe('Main: Currently testing user management,', function () {
   const getUserInformationOfNonExistentUserInteraction = function (provider) {
     return getUserInformationInteraction(
       provider,
-      'of a non-existent user',
+      'get user information of a non-existent user',
       config.nonExistentUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -280,7 +281,7 @@ describe('Main: Currently testing user management,', function () {
       await getCurrentUserInformationInteraction(provider)
       await getGroupOfUserInteraction(
         provider,
-        ' with existent user',
+        'existent user',
         config.testUser,
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
@@ -312,7 +313,7 @@ describe('Main: Currently testing user management,', function () {
 
       await getGroupOfUserInteraction(
         provider,
-        ' with existent user',
+        'existent user',
         config.testUser,
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
@@ -346,7 +347,7 @@ describe('Main: Currently testing user management,', function () {
 
       await getUsersSubAdminGroupsInteraction(
         provider,
-        ' with an existent user',
+        'an existent user',
         config.testUser,
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
@@ -377,7 +378,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationInteraction(
       provider,
-      'of an existing user',
+      'get user information of an existing user',
       config.adminUsername,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -459,7 +460,7 @@ describe('Main: Currently testing user management,', function () {
     await createUserWithGroupMembershipInteraction(provider)
     await getGroupOfUserInteraction(
       provider,
-      ' with existent user',
+      'existent user',
       config.testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -496,7 +497,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
       provider,
-      'to get all users',
+      'search a user',
       {},
       data => {
         data.appendElement('users', '', users => {
@@ -549,7 +550,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
       provider,
-      'search for a user that exists',
+      'check user existence with existing user',
       { search: config.adminUsername },
       data => {
         data.appendElement('users', '', users => {
@@ -575,7 +576,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
       provider,
-      'search for a user that doesn\'t exists',
+      'check user existence with non-existing user',
       { search: config.nonExistentUser },
       data => {
         data.appendElement('users', '', '')
@@ -677,7 +678,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await addUserToGroupInteraction(
       provider,
-      'with an existent user and a non existent group',
+      'add existent user in a non existent group',
       config.testUser,
       config.nonExistentGroup
     )
@@ -702,7 +703,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await addUserToGroupInteraction(
       provider,
-      'with a non-existent user and an existent group',
+      'add non-existent user in an existent group',
       config.nonExistentUser,
       config.testGroup
     )
@@ -725,7 +726,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     getGroupOfUserInteraction(
       provider,
-      ' non existing user',
+      'non-existing user',
       config.nonExistentUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -753,7 +754,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getGroupOfUserInteraction(
       provider,
-      ' with existent user and group that user isn\'t part of ',
+      'existent user and group that user isn\'t part of',
       config.testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -783,7 +784,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getGroupOfUserInteraction(
       provider,
-      ' with existent user and nonexistant group',
+      'existent user and nonexistant group',
       config.testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -814,7 +815,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getGroupOfUserInteraction(
       provider,
-      ' with a non-existent user',
+      'non-existent user',
       config.nonExistentUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -841,7 +842,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationInteraction(
       provider,
-      'to get user attribute of an existent user, ' + config.testUser,
+      `get user attribute of an existent user '${config.testUser}'`,
       config.testUser,
 
       new XmlBuilder('1.0', '', 'ocs')
@@ -893,7 +894,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await removeUserFromGroupInteraction(
       provider,
-      'with existent user and non-existent group',
+      'existent user from a non-existent group',
       config.testUser,
       config.nonExistentGroup
     )
@@ -916,7 +917,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await removeUserFromGroupInteraction(
       provider,
-      'with a non-existent user and an existent group',
+      'non-existent user from an existent group',
       config.nonExistentUser,
       config.testGroup
     )
@@ -940,7 +941,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await addUserToSubAdminGroupInteraction(
       provider,
-      'with existent user non existent group',
+      'existent user subadmin of non-existent group',
       config.testUser,
       config.nonExistentGroup,
       meta => {
@@ -966,7 +967,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await addUserToSubAdminGroupInteraction(
       provider,
-      'with a non-existent user and an existent group',
+      'non-existent user subadmin of an existent group',
       config.nonExistentUser,
       config.testGroup,
       meta => {
@@ -990,7 +991,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
       provider,
-      ' with a non-existent user',
+      'non-existent user',
       config.nonExistentUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -1018,7 +1019,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
       provider,
-      ' with an existent user',
+      'existent user',
       config.testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -1047,7 +1048,7 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
       provider,
-      ' with a non-existent user',
+      'non-existent user',
       config.nonExistentUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -1074,7 +1075,7 @@ describe('Main: Currently testing user management,', function () {
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
-      .uponReceiving('a request to delete a non-existent user')
+      .uponReceiving(`as '${username}', a request to delete a non-existent user`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(

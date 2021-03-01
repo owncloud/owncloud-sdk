@@ -2,6 +2,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Unauthorized: Currently testing apps management,', function () {
   const config = require('../config/config.json')
+  const username = config.adminUsername
 
   const {
     unauthorizedXmlResponseBody,
@@ -24,7 +25,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
 
   const getAppsInvalidAuthInteraction = async (provider, query) => {
     return provider
-      .uponReceiving('an GET app request with invalid auth')
+      .uponReceiving(`as '${username}', a GET request to get all apps with invalid auth`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -37,9 +38,9 @@ describe('Unauthorized: Currently testing apps management,', function () {
       .willRespondWith(unauthorizedResponseObject)
   }
 
-  const appRequestInvalidAuthInteraction = async (provider, method, app) => {
+  const appRequestInvalidAuthInteraction = async (provider, requestName, method, app) => {
     return provider
-      .uponReceiving(`an ${method} app request with invalid auth`)
+      .uponReceiving(`as '${username}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
         method: method,
         path: MatchersV3.regex(
@@ -76,7 +77,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   it('checking method : enableApp when app exists', async function () {
     const provider = createProvider()
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await appRequestInvalidAuthInteraction(provider, 'POST', 'files')
+    await appRequestInvalidAuthInteraction(provider, 'enable app', 'POST', 'files')
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)
@@ -97,7 +98,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   it('checking method : disableApp', async function (done) {
     const provider = createProvider()
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await appRequestInvalidAuthInteraction(provider, 'DELETE', 'files')
+    await appRequestInvalidAuthInteraction(provider, 'disable app', 'DELETE', 'files')
 
     await provider.executeTest(async () => {
       const oc = createOwncloud(config.adminUsername, config.invalidPassword)

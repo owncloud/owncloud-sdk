@@ -2,6 +2,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.shares', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
 
   const {
     validAdminAuthHeaders,
@@ -38,7 +39,7 @@ describe('oc.shares', function () {
 
   const sharingWithAttributes = (provider) => {
     return provider
-      .uponReceiving('Share with permissions in attributes')
+      .uponReceiving(`as '${username}', a POST request to share a file with permissions in attributes`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(

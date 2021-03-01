@@ -6,6 +6,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing files management,', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
 
   const {
     getContentsOfFileInteraction,
@@ -31,9 +32,9 @@ describe('Main: Currently testing files management,', function () {
   const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL } = config
   const testSubDir = testFolder + '/' + 'subdir'
 
-  const moveFileInteraction = function (provider, name, header, response) {
+  const moveFileInteraction = function (provider, requestName, header, response) {
     return provider
-      .uponReceiving('move existent file into same folder, ' + name)
+      .uponReceiving(`as '${username}', a MOVE request to move existent file into same folder, ${requestName}`)
       .withRequest({
         method: 'MOVE',
         path: webdavPath(`${testFolder}/${encodeURI('中文.txt')}`),
@@ -41,9 +42,9 @@ describe('Main: Currently testing files management,', function () {
       }).willRespondWith(response)
   }
 
-  const listFolderContentInteraction = function (provider, name, parentFolder, items, depth) {
+  const listFolderContentInteraction = function (provider, requestName, parentFolder, items, depth) {
     let response
-    if (name.includes('non existing')) {
+    if (requestName.includes('non existing')) {
       response = {
         status: 404,
         headers: applicationXmlResponseHeaders,
@@ -77,8 +78,7 @@ describe('Main: Currently testing files management,', function () {
       }
     }
 
-    console.log(response.body)
-    return provider.uponReceiving('list content of folder, ' + name)
+    return provider.uponReceiving(`as '${username}', a PROPFIND request to list content of folder, ${requestName}`)
       .withRequest({
         method: 'PROPFIND',
         path: webdavPath(parentFolder),
@@ -125,7 +125,7 @@ describe('Main: Currently testing files management,', function () {
   }
 
   const favoriteFileInteraction = (provider, value) => {
-    return provider.uponReceiving(value === true ? 'favorite' : 'unfavorite')
+    return provider.uponReceiving(`as '${username}', a PROPPATCH request to ${value === true ? 'favorite' : 'unfavorite'} a file`)
       .withRequest({
         method: 'PROPPATCH',
         path: webdavPath(`${testFolder}/${testFile}`),
@@ -158,7 +158,7 @@ describe('Main: Currently testing files management,', function () {
   }
 
   const getFavoriteStatusInteraction = (provider, value) => {
-    return provider.uponReceiving('propfind file info, favorite ' + value)
+    return provider.uponReceiving(`as '${username}', a PROPFIND request to propfind file info, favorite  '${value}'`)
       .withRequest({
         method: 'PROPFIND',
         path: webdavPath(`${testFolder}/${testFile}`),
@@ -455,7 +455,6 @@ describe('Main: Currently testing files management,', function () {
         return oc.files.putFileContents(nonExistentDir + '/' + 'file.txt', testContent).then(status => {
           fail('The request to update non existent file was expected to fail but it passed with status ' + status)
         }).catch(error => {
-          console.log(error)
           expect(error.message).toBe('File with name ' + nonExistentDir + ' could not be located')
         })
       })
@@ -504,7 +503,7 @@ describe('Main: Currently testing files management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('creating a folder in a not existing root')
+        .uponReceiving(`as '${username}', a MKCOL request to create a folder in a not existing root`)
         .withRequest({
           method: 'MKCOL',
           path: webdavPath(`${testFolder}/${nonExistentDir}/newFolder/`),
@@ -623,7 +622,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('provider base url is returned')
-        .uponReceiving('move existent file into different folder')
+        .uponReceiving(`as '${username}', a MOVE request to move existent file into different folder`)
         .withRequest({
           method: 'MOVE',
           path: webdavPath(encodedSrcFilePath),
@@ -655,7 +654,7 @@ describe('Main: Currently testing files management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('move non existent file')
+        .uponReceiving(`as '${username}', a MOVE request to move non existent file`)
         .withRequest({
           method: 'MOVE',
           path: webdavPath(nonExistentFile),
@@ -686,7 +685,7 @@ describe('Main: Currently testing files management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('copy existent file into same folder, same name')
+        .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, same name`)
         .withRequest({
           method: 'COPY',
           path: webdavPath(`${testFolder}/${encodeURI('中文.txt')}`),
@@ -717,7 +716,7 @@ describe('Main: Currently testing files management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('copy non existent file')
+        .uponReceiving(`as '${username}', a COPY request to copy non existent file`)
         .withRequest({
           method: 'COPY',
           path: webdavPath(nonExistentFile),
@@ -747,7 +746,7 @@ describe('Main: Currently testing files management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('PROPFIND path for fileId')
+        .uponReceiving(`as '${username}', a PROPFIND request to path for fileId`)
         .withRequest({
           method: 'PROPFIND',
           path: MatchersV3.regex({
@@ -784,7 +783,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       await provider
-        .uponReceiving('PROPFIND file info, fileId')
+        .uponReceiving(`as '${username}', a PROPFIND request to file info, fileId`)
         .withRequest({
           method: 'PROPFIND',
           path: webdavPath(`${testFolder}/${testFile}`),
@@ -792,7 +791,7 @@ describe('Main: Currently testing files management,', function () {
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
-              dPropfind.appendElement('oc:fileid', '', '')
+              dProp.appendElement('oc:fileid', '', '')
             })
           })
         })
@@ -847,9 +846,8 @@ describe('Main: Currently testing files management,', function () {
           'Tus-Max-Size': '100000000'
         }
       }
-      console.log(webdavPath('/'))
       return provider
-        .uponReceiving('PROPFIND request for tus support')
+        .uponReceiving(`as '${username}', a PROPFIND request for tus support`)
         .withRequest({
           method: 'PROPFIND',
           path: webdavPath('/'),
@@ -1016,7 +1014,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('provider base url is returned')
-        .uponReceiving('copy existent file into same folder, different name')
+        .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, different name`)
         .withRequest({
           method: 'COPY',
           path: webdavPath(encodedSrcFilePath),
@@ -1071,7 +1069,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('provider base url is returned')
-        .uponReceiving('copy existent file into different folder')
+        .uponReceiving(`as '${username}', a COPY request to copy existent file into different folder`)
         .withRequest({
           method: 'COPY',
           path: webdavPath(encodedSrcFilePath),
@@ -1155,7 +1153,7 @@ describe('Main: Currently testing files management,', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('get favorite file')
+        .uponReceiving(`as '${username}', a REPORT request to get favorite file`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
@@ -1223,7 +1221,7 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(provider)
 
       await provider
-        .uponReceiving('searches in the instance')
+        .uponReceiving(`as '${username}', a REPORT request to search in the instance`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({
@@ -1315,7 +1313,7 @@ describe('Main: Currently testing files management,', function () {
       const provider = createProvider()
 
       await provider
-        .uponReceiving('create Tag')
+        .uponReceiving(`as '${username}', a POST request to create tag`)
         .withRequest({
           method: 'POST',
           path: MatchersV3.regex({
@@ -1337,12 +1335,12 @@ describe('Main: Currently testing files management,', function () {
           }
         })
       await provider
-        .uponReceiving('PROPFIND file info, fileId')
+        .uponReceiving(`as '${username}', a PROPFIND request to file info, fileId`)
         .withRequest({
           method: 'PROPFIND',
           path: webdavPath(`${testFolder}/${testFile}`),
           headers: validAuthHeaders,
-          body: new XmlBuilder('1.0', '', 'd:profind').build(dPropfind => {
+          body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
               dProp.appendElement('oc:fileid', '', '')
@@ -1352,7 +1350,7 @@ describe('Main: Currently testing files management,', function () {
         .willRespondWith(getFileInfoBy('fileId'))
 
       await provider
-        .uponReceiving('tag file')
+        .uponReceiving(`as '${username}', a PUT request to tag file`)
         .withRequest({
           method: 'PUT',
           path: MatchersV3.regex({
@@ -1367,7 +1365,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       await provider
-        .uponReceiving('get files by tag')
+        .uponReceiving(`as '${username}', a REPORT request to get files by tag`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex({

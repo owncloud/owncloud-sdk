@@ -6,6 +6,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.fileTrash', function () {
   const config = require('./config/config.json')
+  const username = config.adminUsername
 
   const trashEnabled = true
 
@@ -165,7 +166,7 @@ describe('oc.fileTrash', function () {
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
-        .uponReceiving('PROPFIND empty trash')
+        .uponReceiving(`as '${username}', a PROPFIND request to list empty trash`)
         .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
         .willRespondWith({
           status: 207,
@@ -197,7 +198,7 @@ describe('oc.fileTrash', function () {
     describe('and folder is not restored', function () {
       const propfindForTrashbinWithItems = provider => {
         return provider
-          .uponReceiving('PROPFIND to trashbin with items')
+          .uponReceiving(`as '${username}', a PROPFIND request to list trashbin items`)
           .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(
             207,
@@ -207,7 +208,7 @@ describe('oc.fileTrash', function () {
       }
       const listItemWithinADeletedFolder = provider => {
         return provider
-          .uponReceiving('list item within a deleted folder')
+          .uponReceiving(`as '${username}', a PROPFIND request to list item within a deleted folder`)
           .withRequest(requestMethod('PROPFIND', trashbinFolderPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith({
             status: 207,
@@ -303,7 +304,7 @@ describe('oc.fileTrash', function () {
       const originalLocation = testFolder
       const moveFolderFromTrashbinToFilesList = provider => {
         return provider
-          .uponReceiving('MOVE folder from trashbin to fileslist to original location')
+          .uponReceiving(`as '${username}', a MOVE request to restore folder from trashbin to fileslist to original location`)
           .withRequest({
             method: 'MOVE',
             path: trashbinFolderPath,
@@ -319,7 +320,7 @@ describe('oc.fileTrash', function () {
 
       const propfindForTrashbinWithItems = provider => {
         return provider
-          .uponReceiving('PROPFIND to trashbin with items')
+          .uponReceiving(`as '${username}', a PROPFIND request to list trashbin items`)
           .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(
             207,
@@ -330,7 +331,7 @@ describe('oc.fileTrash', function () {
 
       const propfindToARestoredFolderInOriginalLocation = provider => {
         return provider
-          .uponReceiving('PROPFIND to a restored folder in original location')
+          .uponReceiving(`as '${username}', a PROPFIND request to a restored folder in original location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
@@ -400,7 +401,7 @@ describe('oc.fileTrash', function () {
 
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
-          .uponReceiving('MOVE folder from trashbin to fileslist to a different location')
+          .uponReceiving(`as '${username}', a MOVE request to restore folder from trashbin to fileslist to a different location`)
           .withRequest({
             method: 'MOVE',
             path: trashbinFolderPath,
@@ -416,7 +417,7 @@ describe('oc.fileTrash', function () {
 
       const PropfindToAnEmptytrashbinAfterRestoring = provider => {
         return provider
-          .uponReceiving('PROPFIND to an empty trashbin after restoring')
+          .uponReceiving(`as '${username}', a PROPFIND request to an empty trashbin after restoring`)
           .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(
             207,
@@ -427,7 +428,7 @@ describe('oc.fileTrash', function () {
 
       const PropfindToARestoredFolderInNewLocation = provider => {
         return provider
-          .uponReceiving('PROPFIND to a restored folder in new location')
+          .uponReceiving(`as '${username}', a PROPFIND request to a restored folder in new location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
@@ -499,7 +500,7 @@ describe('oc.fileTrash', function () {
     describe('and file is not restored', function () {
       const propfindTrashItemsBeforeDeletingFile = provider => {
         return provider
-          .uponReceiving('PROPFIND trash items before deleting file')
+          .uponReceiving(`as '${username}', a PROPFIND request to trash items before deleting file`)
           .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith({
             status: 207,
@@ -573,7 +574,7 @@ describe('oc.fileTrash', function () {
       const originalLocation = testFile
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
-          .uponReceiving('MOVE file from trashbin to fileslist to a different location')
+          .uponReceiving(`as '${username}', a MOVE request to restore file from trashbin to fileslist to a different location`)
           .withRequest({
             method: 'MOVE',
             path: trashbinFolderPath,
@@ -589,14 +590,14 @@ describe('oc.fileTrash', function () {
 
       const propfindTrashItemsAfterRestoringDeletingFile = provider => {
         return provider
-          .uponReceiving('PROPFIND trash items after restoring deleting file')
+          .uponReceiving(`as '${username}', a PROPFIND request to trash items after restoring deleting file`)
           .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
           .willRespondWith(responseMethod(207, responseHeader('application/xml; charset=utf-8'), trashbinXmlResponseBody()))
       }
 
       const propfindToARestoredFileInOriginalLocation = provider => {
         return provider
-          .uponReceiving('PROPFIND to a restored file in original location')
+          .uponReceiving(`as '${username}', a PROPFIND request to a restored file in original location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
@@ -666,7 +667,7 @@ describe('oc.fileTrash', function () {
 
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
-          .uponReceiving('MOVE file from trashbin to a new location')
+          .uponReceiving(`as '${username}', a MOVE request to restore file from trashbin to a new location`)
           .withRequest({
             method: 'MOVE',
             path: trashbinFolderPath,
@@ -681,7 +682,7 @@ describe('oc.fileTrash', function () {
       }
       const propfindToARestoredFileInNewLocationEmpty = provider => {
         return provider
-          .uponReceiving('PROPFIND trash items after restoring deleting file to new location')
+          .uponReceiving(`as '${username}', a PROPFIND request to trash items after restoring deleting file to new location`)
           .withRequest({
             method: 'PROPFIND',
             path: trashbinPath,
@@ -697,7 +698,7 @@ describe('oc.fileTrash', function () {
 
       const propfindToARestoredFileInNewLocation = provider => {
         return provider
-          .uponReceiving('PROPFIND to a restored file in new location')
+          .uponReceiving(`as '${username}', a PROPFIND request to a restored file in new location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(

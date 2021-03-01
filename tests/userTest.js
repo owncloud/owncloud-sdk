@@ -2,7 +2,6 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing user management,', function () {
   var config = require('./config/config.json')
-  const username = config.adminUsername
 
   // PACT setup
   const {
@@ -23,7 +22,7 @@ describe('Main: Currently testing user management,', function () {
         .given('the user is recreated', { username: username, password: config.testUserPassword })
     }
     return provider
-      .uponReceiving(`as '${username}', a GET request to ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -42,7 +41,7 @@ describe('Main: Currently testing user management,', function () {
   const getUsersInteraction = function (provider, requestName, query, bodyData) {
     return provider
       .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
-      .uponReceiving(`as '${username}', a GET request to ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -70,7 +69,7 @@ describe('Main: Currently testing user management,', function () {
     }
 
     return provider
-      .uponReceiving(`as '${username}', a PUT request to set user attribute of ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a PUT request to set user attribute of ${requestName}`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
@@ -109,7 +108,7 @@ describe('Main: Currently testing user management,', function () {
     }
 
     return provider
-      .uponReceiving(`as '${username}', a POST request to ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a POST request to ${requestName}`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -144,7 +143,7 @@ describe('Main: Currently testing user management,', function () {
         .given('user is added to group', { username: username, groupName: config.testGroup })
     }
     return provider
-      .uponReceiving(`as '${username}', a GET request to get groups of ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a GET request to get groups of ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -174,7 +173,7 @@ describe('Main: Currently testing user management,', function () {
         .given('group exists', { groupName: group })
     }
     return provider
-      .uponReceiving(`as '${username}', a DELETE request to remove ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a DELETE request to remove ${requestName}`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -212,7 +211,7 @@ describe('Main: Currently testing user management,', function () {
         .given('group exists', { groupName: group })
     }
     return provider
-      .uponReceiving(`as '${username}', a POST request to make ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a POST request to make ${requestName}`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -244,7 +243,7 @@ describe('Main: Currently testing user management,', function () {
         .given('user is made group subadmin', { username: username, groupName: config.testGroup })
     }
     return provider
-      .uponReceiving(`as '${username}', a GET request to get subadmin groups of ${requestName}`)
+      .uponReceiving(`as '${config.adminUsername}', a GET request to get subadmin groups of ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -1075,7 +1074,7 @@ describe('Main: Currently testing user management,', function () {
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
-      .uponReceiving(`as '${username}', a request to delete a non-existent user`)
+      .uponReceiving(`as '${config.adminUsername}', a request to delete a non-existent user`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(

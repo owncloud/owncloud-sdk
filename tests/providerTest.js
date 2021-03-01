@@ -1,5 +1,7 @@
 const config = require('./config/config.json')
-const { getOCSMeta } = require('./helpers/ocsResponseParser')
+const { getOCSMeta, getOCSData } = require('./helpers/ocsResponseParser')
+
+let lastSharedToken = ''
 
 describe('provider testing', () => {
   const { VerifierV3 } = require('@pact-foundation/pact/v3')
@@ -21,6 +23,13 @@ describe('provider testing', () => {
     getFileId,
     listVersionsFolder
   } = require('./webdavHelper.js')
+
+  const {
+    shareResource,
+    getShareInfoByPath,
+    createFolderInLastPublicShare,
+    createFileInLastPublicShare
+  } = require('./helpers/sharingHelper.js')
 
   chai.use(chaiAsPromised)
 
@@ -92,7 +101,7 @@ describe('provider testing', () => {
       'file exists': (setup, parameters) => {
         const dirname = path.dirname(parameters.fileName)
         if (setup) {
-          if (dirname !== '' && dirname !== '/') {
+          if (dirname !== '' && dirname !== '/' && dirname !== '.') {
             const results = createFolderRecrusive(
               parameters.username, parameters.password, dirname
             )
@@ -199,6 +208,64 @@ describe('provider testing', () => {
         return Promise.resolve({
           description: `user '${parameters.username}' added to group '${parameters.groupName}'`
         })
+      },
+      'resource is shared': (setup, parameters) => {
+        if (setup) {
+          const { username, password, resource, shareType, shareWith } = parameters
+          const response = shareResource(username, password, resource, shareType, shareWith, parameters.permissions)
+
+          const { status, statuscode, message } = getOCSMeta(response)
+
+          if (process.env.RUN_ON_OCIS === 'true') {
+            if (status === 'ok') {
+              const { token } = getOCSData(response)
+              lastSharedToken = token
+              return getOCSData(response)
+            } /* eslint brace-style: "off" */
+            // TODO: refactor accordingly after the issue has been fixed
+            // status 'error' and statuscode '996' means file/folder has already been shared with user or group
+            // oCIS issue: https://github.com/owncloud/ocis/issues/1710
+            else if (status === 'error' && statuscode === 996 && message === 'grpc create share request failed') {
+              const res = getShareInfoByPath(username, password, resource)
+              const { token } = getOCSData(res)[0]
+              lastSharedToken = token
+              return getOCSData(res)[0]
+            } else {
+              chai.assert.fail(`sharing file/folder '${parameters.resource}' failed`)
+            }
+          } else {
+            chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.resource}' failed`)
+            const { token } = getOCSData(response)
+            lastSharedToken = token
+            return getOCSData(response)
+          }
+        }
+        return Promise.resolve({ description: 'file/folder shared' })
+      },
+      'folder exists in last shared public share': (setup, parameters) => {
+        if (setup) {
+          const { folderName } = parameters
+          const response = createFolderInLastPublicShare(lastSharedToken, folderName)
+
+          const { status } = response
+          // 405 means that the folder already exists
+          if (status !== 201 && status !== 405) {
+            chai.assert.fail('creating folder in last public share failed')
+          }
+        }
+        return Promise.resolve({ description: 'folder created in last shared public share' })
+      },
+      'file exists in last shared public share': (setup, parameters) => {
+        if (setup) {
+          const { fileName } = parameters
+          const response = createFileInLastPublicShare(lastSharedToken, fileName)
+
+          const { status } = response
+          if (status !== 201 && status !== 204) {
+            chai.assert.fail('creating file in last public share failed')
+          }
+        }
+        return Promise.resolve({ description: 'file created in last shared public share' })
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

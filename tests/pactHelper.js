@@ -123,6 +123,10 @@ const createProvider = function () {
   })
 }
 
+const sanitizeUrl = (url) => {
+  return url.replace(/([^:])\/{2,}/g, '$1/')
+}
+
 const createOwncloud = function (username = config.adminUsername, password = config.adminPassword) {
   const oc = new OwnCloud({
     baseUrl: config.owncloudURL,
@@ -546,5 +550,6 @@ module.exports = {
   createUserWithGroupMembershipInteraction,
   deleteUserInteraction,
   createFolderInteraction,
-  updateFileInteraction
+  updateFileInteraction,
+  sanitizeUrl
 }

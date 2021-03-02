@@ -36,6 +36,8 @@ describe('provider testing', () => {
 
   chai.use(chaiAsPromised)
 
+  const providerBaseUrl = process.env.PROVIDER_BASE_URL || 'http://localhost/'
+
   const assertFoldersCreatedSuccessfully = function (results, folderName) {
     for (let i = 0; i < results.length; i++) {
       // 405 means that the folder already exists
@@ -69,7 +71,7 @@ describe('provider testing', () => {
   it('verifies the provider', () => {
     const opts = {
       provider: 'oc-server',
-      providerBaseUrl: process.env.PROVIDER_BASE_URL || 'http://localhost/',
+      providerBaseUrl,
       disableSSLVerification: true,
       callbackTimeout: 10000
     }
@@ -87,7 +89,7 @@ describe('provider testing', () => {
     opts.stateHandlers = {
       'group exists': (setup, parameters) => {
         if (setup) {
-          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups', {
+          fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups', {
             method: 'POST',
             body: 'groupid=' + parameters.groupName,
             headers: {
@@ -95,21 +97,21 @@ describe('provider testing', () => {
               ...applicationFormUrlEncoded
             }
           })
-          return Promise.resolve({ description: 'group added' })
+          return { description: 'group added' }
         } else {
-          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
+          fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
             method: 'DELETE',
             headers: validAdminAuthHeaders
           })
-          return Promise.resolve({ description: 'group deleted' })
+          return { description: 'group deleted' }
         }
       },
       'group does not exist': (setup, parameters) => {
-        fetch(process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
+        fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
           method: 'DELETE',
           headers: validAdminAuthHeaders
         })
-        return Promise.resolve({ description: 'group deleted' })
+        return { description: 'group deleted' }
       },
       'folder exists': (setup, parameters) => {
         if (setup) {
@@ -118,7 +120,7 @@ describe('provider testing', () => {
           )
           assertFoldersCreatedSuccessfully(results, parameters.folderName)
         }
-        return Promise.resolve({ description: 'folder created' })
+        return { description: 'folder created' }
       },
       'file exists': (setup, parameters) => {
         const dirname = path.dirname(parameters.fileName)
@@ -141,11 +143,11 @@ describe('provider testing', () => {
       'the user is recreated': (setup, parameters) => {
         const email = `${parameters.username}@example.com`
         if (setup) {
-          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users/' + parameters.username, {
+          fetch(providerBaseUrl + '/ocs/v2.php/cloud/users/' + parameters.username, {
             method: 'DELETE',
             headers: validAdminAuthHeaders
           })
-          const result = fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/users',
+          const result = fetch(providerBaseUrl + '/ocs/v2.php/cloud/users',
             {
               method: 'POST',
               body: `userid=${parameters.username}&password=${parameters.password}&email=${email}`,
@@ -158,16 +160,16 @@ describe('provider testing', () => {
             result.status, 200, `creating user '${parameters.username}' failed`
           )
           // a hack for https://github.com/owncloud/ocis/issues/1675
-          fetch(process.env.PROVIDER_BASE_URL + '/ocs/v2.php/cloud/capabilities',
+          fetch(providerBaseUrl + '/ocs/v2.php/cloud/capabilities',
             {
               method: 'GET',
               headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
             })
-          return Promise.resolve({ description: 'user created' })
+          return { description: 'user created' }
         }
       },
       'provider base url is returned': () => {
-        return { providerBaseURL: process.env.PROVIDER_BASE_URL }
+        return { providerBaseURL: providerBaseUrl }
       },
       'file version link is returned': (setup, parameters) => {
         if (setup) {
@@ -193,7 +195,7 @@ describe('provider testing', () => {
         // don't try to make users subadmins on OCIS because of
         // https://github.com/owncloud/product/issues/289
         if (setup && process.env.RUN_ON_OCIS !== 'true') {
-          const response = fetch(process.env.PROVIDER_BASE_URL +
+          const response = fetch(providerBaseUrl +
                           '/ocs/v1.php/cloud/users/' + parameters.username +
                           '/subadmins?format=json', {
             method: 'POST',
@@ -207,13 +209,13 @@ describe('provider testing', () => {
           chai.assert.strictEqual(status, 'ok',
           `making user ${parameters.username} subadmin of group ${parameters.groupName} failed`)
         }
-        return Promise.resolve({
+        return {
           description: `user '${parameters.username}' made subadmin of group '${parameters.groupName}'`
-        })
+        }
       },
       'user is added to group': (setup, parameters) => {
         if (setup) {
-          const response = fetch(process.env.PROVIDER_BASE_URL +
+          const response = fetch(providerBaseUrl +
                           '/ocs/v1.php/cloud/users/' + parameters.username +
                           '/groups?format=json', {
             method: 'POST',
@@ -227,9 +229,9 @@ describe('provider testing', () => {
           chai.assert.strictEqual(status, 'ok',
           `adding user ${parameters.username} to group ${parameters.groupName} failed`)
         }
-        return Promise.resolve({
+        return {
           description: `user '${parameters.username}' added to group '${parameters.groupName}'`
-        })
+        }
       },
       'resource is shared': (setup, parameters) => {
         if (setup) {
@@ -262,7 +264,7 @@ describe('provider testing', () => {
             return getOCSData(response)
           }
         }
-        return Promise.resolve({ description: 'file/folder shared' })
+        return { description: 'file/folder shared' }
       },
       'folder exists in last shared public share': (setup, parameters) => {
         if (setup) {
@@ -275,7 +277,7 @@ describe('provider testing', () => {
             chai.assert.fail('creating folder in last public share failed')
           }
         }
-        return Promise.resolve({ description: 'folder created in last shared public share' })
+        return { description: 'folder created in last shared public share' }
       },
       'file exists in last shared public share': (setup, parameters) => {
         if (setup) {
@@ -287,7 +289,7 @@ describe('provider testing', () => {
             chai.assert.fail('creating file in last public share failed')
           }
         }
-        return Promise.resolve({ description: 'file created in last shared public share' })
+        return { description: 'file created in last shared public share' }
       },
       'signed-key is returned': (setup, parameters) => {
         if (setup) {

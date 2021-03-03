@@ -288,7 +288,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('list, get content and move file/folder', function () {
-    it('checking method : list with no depth specified', async function () {
+    it.only('checking method : list with no depth specified', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -302,6 +302,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud()
         await oc.login()
         return oc.files.list(testFolder).then(files => {
+          console.log(files)
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(6)
           expect(files[1].getName()).toEqual('abc.txt')
@@ -859,8 +860,9 @@ describe('Main: Currently testing files management,', function () {
           'Tus-Max-Size': '100000000'
         }
       }
+      const description = `as '${username}', a PROPFIND request for tus support with tus ${enabled ? 'enabled' : 'disabled'} for path ${path}`
       return provider
-        .uponReceiving(`as '${username}', a PROPFIND request for tus support`)
+        .uponReceiving(description)
         .withRequest({
           method: 'PROPFIND',
           path: webdavPath(path),

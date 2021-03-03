@@ -11,7 +11,8 @@ describe('Main: Currently testing file versions management,', function () {
     getCapabilitiesInteraction,
     createOwncloud,
     createProvider,
-    getAuthHeaders
+    getAuthHeaders,
+    validAuthHeaders
   } = require('./pactHelper.js')
 
   const { createDavPath } = require('./webdavHelper.js')

@@ -162,8 +162,12 @@ describe('oc.fileTrash', function () {
       await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving(`as '${username}', a PROPFIND request to list empty trash`)
-        .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
-        .willRespondWith({
+        .withRequest(requestMethod(
+          'PROPFIND',
+          trashbinPath,
+          { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+          emptyTrashbinXmlRequestBody
+        )).willRespondWith({
           status: 207,
           headers: applicationXmlResponseHeaders,
           body: trashbinXmlResponseBody()
@@ -190,8 +194,12 @@ describe('oc.fileTrash', function () {
       const propfindForTrashbinWithItems = provider => {
         return provider
           .uponReceiving(`as '${username}', a PROPFIND request to list trashbin items`)
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
-          .willRespondWith(responseMethod(
+          .withRequest(requestMethod(
+            'PROPFIND',
+            trashbinPath,
+            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            emptyTrashbinXmlRequestBody
+          )).willRespondWith(responseMethod(
             207,
             responseHeader('application/xml; charset=utf-8'),
             trashbinXmlResponseBody(false, deletedFolderId)
@@ -200,7 +208,12 @@ describe('oc.fileTrash', function () {
       const listItemWithinADeletedFolder = provider => {
         return provider
           .uponReceiving(`as '${username}', a PROPFIND request to list item within a deleted folder`)
-          .withRequest(requestMethod('PROPFIND', trashbinFolderPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod(
+            'PROPFIND',
+            trashbinFolderPath,
+            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            emptyTrashbinXmlRequestBody
+          ))
           .willRespondWith({
             status: 207,
             headers: responseHeader('application/xml; charset=utf-8'),
@@ -312,7 +325,12 @@ describe('oc.fileTrash', function () {
       const propfindForTrashbinWithItems = provider => {
         return provider
           .uponReceiving(`as '${username}', a PROPFIND request to list trashbin items`)
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod(
+            'PROPFIND',
+            trashbinPath,
+            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            emptyTrashbinXmlRequestBody
+          ))
           .willRespondWith(responseMethod(
             207,
             responseHeader('application/xml; charset=utf-8'),
@@ -410,7 +428,12 @@ describe('oc.fileTrash', function () {
       const PropfindToAnEmptytrashbinAfterRestoring = provider => {
         return provider
           .uponReceiving(`as '${username}', a PROPFIND request to an empty trashbin after restoring`)
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod(
+            'PROPFIND',
+            trashbinPath,
+            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            emptyTrashbinXmlRequestBody
+          ))
           .willRespondWith(responseMethod(
             207,
             applicationXmlResponseHeaders,
@@ -493,7 +516,12 @@ describe('oc.fileTrash', function () {
       const propfindTrashItemsBeforeDeletingFile = provider => {
         return provider
           .uponReceiving(`as '${username}', a PROPFIND request to trash items before deleting file`)
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod(
+            'PROPFIND',
+            trashbinPath,
+            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            emptyTrashbinXmlRequestBody
+          ))
           .willRespondWith({
             status: 207,
             headers: applicationXmlResponseHeaders,
@@ -583,7 +611,12 @@ describe('oc.fileTrash', function () {
       const propfindTrashItemsAfterRestoringDeletingFile = provider => {
         return provider
           .uponReceiving(`as '${username}', a PROPFIND request to trash items after restoring deleting file`)
-          .withRequest(requestMethod('PROPFIND', trashbinPath, validAdminAuthHeaders, emptyTrashbinXmlRequestBody))
+          .withRequest(requestMethod(
+            'PROPFIND',
+            trashbinPath,
+            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            emptyTrashbinXmlRequestBody
+          ))
           .willRespondWith(responseMethod(207, responseHeader('application/xml; charset=utf-8'), trashbinXmlResponseBody()))
       }
 

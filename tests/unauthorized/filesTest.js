@@ -3,9 +3,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 describe('Unauthorized: Currently testing files management,', function () {
   const config = require('../config/config.json')
   const username = config.adminUsername
-  var timeRightNow = new Date().getTime()
 
-  // PACT setup
   const {
     accessControlAllowMethods,
     invalidAuthHeader,
@@ -93,7 +91,7 @@ describe('Unauthorized: Currently testing files management,', function () {
         await oc.files.getFileContents(testSubFiles[i]).then(() => {
           fail()
         }).catch(error => {
-          expect(error).toMatch(expectedUnAuthorizedMessage)
+          expect(error.message).toMatch(expectedUnAuthorizedMessage)
         })
       }
     })
@@ -148,26 +146,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await unauthorizedWebDavInteraction(provider, 'delete a folder', 'DELETE')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.adminPassword + timeRightNow)
-      await oc.login().then(() => {
-        fail('not expected to log in')
-      }).catch((err) => {
-        expect(err).toBe('Unauthorized')
-      })
-      return oc.files.delete(newFolder).then(() => {
-        fail()
-      }).catch(error => {
-        expect(error).toMatch(expectedUnAuthorizedMessage)
-      })
-    })
-  })
-
-  it.skip('checking method : getFile', async function () {
-    const file = 'tempFile'
-    const provider = createProvider()
-    await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await unauthorizedWebDavInteraction(provider, 'get a file', 'PUT')
-
+      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

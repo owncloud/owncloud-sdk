@@ -16,8 +16,8 @@ describe('oc.publicFiles', function () {
     createProvider,
     textPlainResponseHeaders,
     ocsMeta,
-    validAdminAuthHeaders,
-    applicationFormUrlEncoded
+    applicationFormUrlEncoded,
+    validAdminAuthHeaders
   } = require('./pactHelper.js')
 
   const publicLinkShareTokenPath = MatchersV3.regex(
@@ -26,7 +26,6 @@ describe('oc.publicFiles', function () {
   )
 
   const moveResourceResponse = {
-    status: 201,
     headers: {
       ETag: 'f356def9fc42fd4cbddf293eba3efa86',
       'OC-ETag': 'f356def9fc42fd4cbddf293eba3efa86'
@@ -223,25 +222,26 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
-          await publicShareInteraction(
-            provider,
-            'create a public link share',
-            'POST',
-            new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-              ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'ok', '100')
-              }).appendElement('data', '', (data) => {
-                data.appendElement('token', '', config.shareTokenOfPublicLinkFolder)
-              })
-            })
-          )
-          if (data.shallGrantAccess) {
-            await provider
-              .uponReceiving(`as '${testUser}', a PROPFIND request to list contents of a public link folder`)
-              .withRequest({
-                method: 'PROPFIND',
-                path: publicLinkShareTokenPath
-              })
+
+          const createPublicLinkInteraction = (provider, options) => {
+            const method = 'POST'
+            const path = MatchersV3.regex(
+              '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+              '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            )
+            const { shareParams } = options
+            const headers = { ...applicationFormUrlEncoded, ...validAdminAuthHeaders }
+            let body = 'shareType=3&path=%2FtestFolder'
+            if (shareParams.password) {
+              body += '&password=' + shareParams.password
+            }
+            let description = 'Create a public Link for path /testFolder'
+            if (shareParams.password) {
+              description += ' with password ' + shareParams.password
+            }
+            return provider
+              .uponReceiving(description)
+              .withRequest({ method, headers, path, body })
               .willRespondWith({
                 status: 200,
                 headers: applicationXmlResponseHeaders,
@@ -282,9 +282,10 @@ describe('oc.publicFiles', function () {
                 dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
                 dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\webdavExceptionResponseBody')
               })
-          } else {
-            await provider
-              .uponReceiving(`as '${testUser}', a PROPFIND request to list contents of a password protected public link folder using the wrong password`)
+            }
+            const status = shallGrantAccess ? 207 : 401
+            return provider
+              .uponReceiving(description)
               .withRequest({
                 method: 'PROPFIND',
                 path: publicLinkShareTokenPath,
@@ -344,40 +345,24 @@ describe('oc.publicFiles', function () {
         })
 
         it('should download files from a public shared folder', async function () {
-          const provider = createProvider()
-          if (data.shallGrantAccess) {
-            await provider
-              .uponReceiving(`as '${testUser}', a GET request to download files from a public shared folder`)
-              .withRequest({
-                method: 'GET',
-                path: publicLinkShareTokenPath
-              })
-              .willRespondWith({
-                status: 200,
-                headers: {
-                  'Content-Type': 'text/plain;charset=UTF-8',
-                  'Access-Control-Allow-Origin': origin
-                },
-                body: testContent
-              })
-          } else {
-            await provider
-              .uponReceiving(`as '${testUser}', a GET request to download files from a public shared folder using wrong password`)
-              .withRequest({
-                method: 'GET',
-                path: publicLinkShareTokenPath
-              })
-              .willRespondWith({
-                status: 401,
-                headers: {
-                  // 'Content-Type': 'text/plain;charset=UTF-8',
-                  'Access-Control-Allow-Origin': origin
-                },
-                body: new XmlBuilder('1.0', '', 'd:error').build(dError => {
-                  dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
-                  dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
-                    .appendElement('s:message', '', 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect')
-                })
+          const getFileFromPublicLinkInteraction = (provider, options) => {
+            const method = 'GET'
+            const path = MatchersV3.regex(
+              '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[2]),
+              '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[2])
+            )
+            const { shallGrantAccess, passwordWhenListing } = options
+
+            let resStatusCode = 200
+            let resBody = testContent
+            let respHeaders = {}
+
+            if (!shallGrantAccess) {
+              resStatusCode = 401
+              resBody = new XmlBuilder('1.0', '', 'd:error').build(dError => {
+                dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+                dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
+                  .appendElement('s:message', '', 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect')
               })
             } else {
               respHeaders = { 'Content-Type': 'text/plain;charset=UTF-8' }
@@ -410,10 +395,8 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
 
           await getFileFromPublicLinkInteraction(provider, data)
-
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
-
           await publicShareInteraction(
             provider,
             'create a public link share',
@@ -461,7 +444,6 @@ describe('oc.publicFiles', function () {
       })
     })
   })
-
   describe('when working with files and folder a shared folder', function () {
     using({
       'without password': {
@@ -607,6 +589,7 @@ describe('oc.publicFiles', function () {
                 `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
               ),
               headers: {
+                ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/lorem123456.txt', /* eslint-disable-line */
                   `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
@@ -646,6 +629,7 @@ describe('oc.publicFiles', function () {
                 `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
               ),
               headers: {
+                ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/foo/lorem.txt', /* eslint-disable-line */
                   `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)

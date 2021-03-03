@@ -288,7 +288,7 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('list, get content and move file/folder', function () {
-    it.only('checking method : list with no depth specified', async function () {
+    it('checking method : list with no depth specified', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
@@ -302,7 +302,6 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud()
         await oc.login()
         return oc.files.list(testFolder).then(files => {
-          console.log(files)
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(6)
           expect(files[1].getName()).toEqual('abc.txt')

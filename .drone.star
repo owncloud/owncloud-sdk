@@ -84,22 +84,14 @@ def installCore(version):
 
     return [stepDefinition]
 
-def setupServerAndApp(logLevel):
+def setupServerAndApp():
     return [{
         'name': 'setup-server-%s' % config['app'],
         'image': 'owncloudci/php:7.3',
         'pull': 'always',
         'commands': [
             'cd /var/www/owncloud/server/',
-            'php occ a:e testing',
             'php occ config:system:set trusted_domains 1 --value=owncloud',
-            'php occ config:system:set cors.allowed-domains 0 --value=http://web',
-            'php occ log:manage --level %s' % logLevel,
-            'php occ config:list',
-            'php occ config:system:set skeletondirectory --value=/var/www/owncloud/server/apps/testing/data/webUISkeleton',
-            'php occ config:system:set dav.enable.tech_preview  --type=boolean --value=true',
-            'php occ config:system:set web.baseUrl --value="http://web"',
-            'php occ config:system:set sharing.federation.allowHttpFallback --value=true --type=bool'
         ]
     }]
 
@@ -414,7 +406,7 @@ def oc10ProviderTestPipeline():
             prepareTestConfig() +
             installCore('daily-master-qa') +
             owncloudLog() +
-            setupServerAndApp('2') +
+            setupServerAndApp() +
             fixPermissions()+
             pactProviderTests('daily-master-qa', 'http://owncloud/'),
          'services':

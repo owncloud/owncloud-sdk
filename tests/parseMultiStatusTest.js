@@ -224,7 +224,7 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              '{http://owncloud.org/ns}share-type'
+              '0'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500913',
             '{http://owncloud.org/ns}size': '699',
@@ -255,7 +255,7 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              '{http://owncloud.org/ns}share-type'
+              '3'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500892',
             '{http://owncloud.org/ns}size': '11',
@@ -286,7 +286,7 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              '{http://owncloud.org/ns}share-type'
+              '3'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500914',
             '{http://owncloud.org/ns}size': '0',
@@ -339,7 +339,7 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              '{http://owncloud.org/ns}share-type'
+              '0'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147490159',
             '{DAV:}getcontentlength': '64',

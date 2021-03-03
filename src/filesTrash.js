@@ -65,11 +65,11 @@ class FilesTrash {
       target += item
     }
 
-    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPathV2(target), headers).then(result => {
+    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPathV2(target), headers, null, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.data))
       }
     })
   }
@@ -99,7 +99,7 @@ class FilesTrash {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.data))
       }
     })
   }

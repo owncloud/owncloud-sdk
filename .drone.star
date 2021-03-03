@@ -261,7 +261,6 @@ def pactConsumerTests(uploadPact):
 
 def pactProviderTests(version, baseUrl, extraEnvironment = {}):
     environment = {}
-    environment['PROVIDER_BASE_URL'] = baseUrl
     environment['PACTFLOW_TOKEN'] = {
         'from_secret': 'pactflow_token'
     }
@@ -353,7 +352,8 @@ def ocisProviderTestPipeline():
     extraEnvironment = {
         'NODE_TLS_REJECT_UNAUTHORIZED': 0,
         'NODE_NO_WARNINGS': '1',
-        'RUN_ON_OCIS': 'true'
+        'RUN_ON_OCIS': 'true',
+        'STORAGE_DRIVER_OWNCLOUD_DATADIR': '/srv/app/tmp/ocis/owncloud/data',
     }
     return {
         'kind': 'pipeline',

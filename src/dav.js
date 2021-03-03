@@ -274,7 +274,10 @@ export class Dav {
       var subNodes = []
       for (var key in propNode) {
         // var node = propNode[key]
-        subNodes.push(key)
+        var nsComponent = key.split(':')[0]
+        var localComponent = key.split(':')[1]
+        var nsValue = this.xmlNamespacesComponents[nsComponent]
+        subNodes.push('{' + nsValue + '}' + localComponent)
       }
       if (subNodes.length) {
         content = subNodes

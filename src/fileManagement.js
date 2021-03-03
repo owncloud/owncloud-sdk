@@ -54,7 +54,9 @@ class Files {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
+        console.log(JSON.stringify(result.body))
         const entries = this.helpers._parseBody(result.body)
+        console.log(entries)
         entries[0].tusSupport = this.helpers._parseTusHeaders(result.res)
         return Promise.resolve(entries)
       }

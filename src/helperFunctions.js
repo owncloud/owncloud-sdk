@@ -538,8 +538,8 @@ class helpers {
     let fileType = 'file'
     const resType = props['{DAV:}resourcetype']
     if (resType) {
-      const xmlvalue = resType[0]
-      if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
+      const node = resType[0]
+      if (node === '{DAV:}collection') {
         fileType = 'dir'
       }
     }

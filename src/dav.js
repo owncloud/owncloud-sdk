@@ -85,7 +85,7 @@ export class Dav {
     body += '  </d:prop>\n'
     body += '</d:propfind>'
 
-    return this.request('PROPFIND', path, headers, body, null, options).then(
+    return this.request('PROPFIND', path, headers, body, options).then(
       function (result) {
         if (depth === '0') {
           return {
@@ -219,40 +219,43 @@ export class Dav {
    * @param {string} url Relative or absolute url
    * @param {Object} headers HTTP headers as an object.
    * @param {string} body HTTP request body.
-   * @param {string} responseType HTTP request response type.
    * @param {Object} options
    * @param {Function} options.onProgress progress callback
    * @param {davVersion} options.version v1 | v2
    * @return {Promise}
    */
-  request (method, path, headers, body, responseType, options = {}) {
+  request (method, path, headers, body, options = {}) {
     options.version = options.version || 'v1'
     const reqClient = options.version === 'v2' ? this.clientv2 : this.client
+    delete options.version
 
-    return new Promise((resolve, reject) => {
-      return reqClient.customRequest(decodeURIComponent(path), {
-        method,
-        headers,
-        data: body
-      }).then(res => {
-        var resultBody = res.data
-        if (res.status === 207) {
-          resultBody = this.parseMultiStatus(resultBody)
-        }
-        resolve({
-          body: resultBody,
-          status: res.status,
-          res
-        })
-      }).catch(error => {
-        const res = error.response
+    const requestOptions = {
+      method,
+      headers,
+      data: body,
+      ...options
+    }
+    return new Promise((resolve) => {
+      return reqClient.customRequest(decodeURIComponent(path), requestOptions)
+        .then(res => {
+          var resultBody = res.data
+          if (res.status === 207) {
+            resultBody = this.parseMultiStatus(resultBody)
+          }
+          resolve({
+            body: resultBody,
+            status: res.status,
+            res
+          })
+        }).catch(error => {
+          const res = error.response
 
-        resolve({
-          body: res.data,
-          status: res.status,
-          res
+          resolve({
+            body: res.data,
+            status: res.status,
+            res
+          })
         })
-      })
     })
   }
 

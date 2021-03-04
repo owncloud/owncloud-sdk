@@ -83,7 +83,7 @@ class FilesVersions {
     return this.davClient.request('COPY', this.helpers._buildFullWebDAVPathV2(source), {
       Authorization: this.helpers.getAuthorization(),
       Destination: this.helpers._buildFullWebDAVURLV2(target)
-    }, null, null, { version: 'v2' }).then(result => {
+    }, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {

@@ -144,7 +144,7 @@ class PublicFiles {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
-    return this.davClient.request('MKCOL', url, headers, null, null, { version: 'v2' }).then(result => {
+    return this.davClient.request('MKCOL', url, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -168,7 +168,7 @@ class PublicFiles {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
-    return this.davClient.request('DELETE', url, headers, null, null, { version: 'v2' }).then(result => {
+    return this.davClient.request('DELETE', url, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
@@ -211,7 +211,7 @@ class PublicFiles {
     if (options.onProgress) {
       requestOptions.onProgress = options.onProgress
     }
-    return this.davClient.request('PUT', url, headers, content, null, requestOptions).then(result => {
+    return this.davClient.request('PUT', url, headers, content, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           ETag: result.res.headers.etag,
@@ -240,7 +240,7 @@ class PublicFiles {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     headers.Destination = targetUrl
-    return this.davClient.request('MOVE', sourceUrl, headers, null, null, { version: 'v2' }).then(result => {
+    return this.davClient.request('MOVE', sourceUrl, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -265,7 +265,7 @@ class PublicFiles {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     headers.Destination = targetUrl
-    return this.davClient.request('COPY', sourceUrl, headers, null, null, { version: 'v2' }).then(result => {
+    return this.davClient.request('COPY', sourceUrl, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }

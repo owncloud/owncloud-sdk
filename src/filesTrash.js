@@ -65,7 +65,7 @@ class FilesTrash {
       target += item
     }
 
-    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPathV2(target), headers, null, null, { version: 'v2' }).then(result => {
+    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPathV2(target), headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
@@ -95,7 +95,7 @@ class FilesTrash {
 
     headers.Destination = this.helpers._buildFullWebDAVURLV2(target)
     headers.Overwrite = overWrite ? 'T' : 'F'
-    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPathV2(source), headers, null, null, { version: 'v2' }).then(result => {
+    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPathV2(source), headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {

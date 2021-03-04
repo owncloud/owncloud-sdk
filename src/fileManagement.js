@@ -162,12 +162,11 @@ class Files {
 
     const requestOptions = {}
     if (options.onProgress) {
-      requestOptions.onProgress = options.onProgress
+      requestOptions.onUploadProgress = options.onProgress
     }
-
     headers['Content-Type'] = 'text/plain;charset=utf-8'
 
-    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content, null, requestOptions).then(result => {
+    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           ETag: result.res.headers.etag,
@@ -460,7 +459,7 @@ class Files {
       const headers = this.helpers.buildHeaders()
       headers['Content-Type'] = 'application/xml; charset=utf-8'
 
-      return this.davClient.request('REPORT', path, headers, body, null, { version: 'v2' }).then(result => {
+      return this.davClient.request('REPORT', path, headers, body, { version: 'v2' }).then(result => {
         if (result.status !== 207) {
           return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
         } else {

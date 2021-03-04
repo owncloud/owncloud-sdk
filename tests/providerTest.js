@@ -2,6 +2,7 @@ const config = require('./config/config.json')
 const { getOCSMeta, getOCSData } = require('./helpers/ocsResponseParser')
 
 let lastSharedToken = ''
+const crypto = require('crypto')
 
 describe('provider testing', () => {
   const { VerifierV3 } = require('@pact-foundation/pact/v3')
@@ -14,14 +15,16 @@ describe('provider testing', () => {
   const {
     validAdminAuthHeaders,
     applicationFormUrlEncoded,
-    getAuthHeaders
+    getAuthHeaders,
+    sanitizeUrl
   } = require('./pactHelper.js')
 
   const {
     createFolderRecrusive,
     createFile,
     getFileId,
-    listVersionsFolder
+    listVersionsFolder,
+    getSignKey
   } = require('./webdavHelper.js')
 
   const {
@@ -42,6 +45,25 @@ describe('provider testing', () => {
         )
       }
     }
+  }
+
+  /**
+   * Create a hashed key with secretKey from the string
+   * @param {string} stringToHash - The string that will be hashed.
+   * @param {string} algorithm - Hashing algorithm.
+   * @param {string} secretKey - Secret string.
+   * @param {number} iterations - Number of iterations.
+   * @returns {string} Ready hashed key.
+   */
+  const createHashedKey = function (stringToHash, algorithm, secretKey, iterations) {
+    const hashedKey = crypto.pbkdf2Sync(
+      stringToHash,
+      secretKey,
+      iterations,
+      32,
+      algorithm
+    )
+    return hashedKey.toString('hex')
   }
 
   it('verifies the provider', () => {
@@ -266,6 +288,29 @@ describe('provider testing', () => {
           }
         }
         return Promise.resolve({ description: 'file created in last shared public share' })
+      },
+      'signed-key is returned': (setup, parameters) => {
+        if (setup) {
+          let url = process.env.PROVIDER_BASE_URL + `/remote.php/dav/files/${parameters.username}/${parameters.path}`
+          url = sanitizeUrl(url)
+          const signKey = getSignKey(parameters.username, parameters.password)
+          url = new URL(url)
+          const date = new Date().toISOString()
+          url.searchParams.set('OC-Credential', parameters.username)
+          url.searchParams.set('OC-Date', date)
+          url.searchParams.set('OC-Expires', '1200')
+          url.searchParams.set('OC-Verb', 'GET')
+          const hashedKey = createHashedKey(
+            url.toString(),
+            'sha512',
+            signKey,
+            10000
+          )
+          return {
+            hashedKey: hashedKey,
+            date: date
+          }
+        }
       }
     }
     return new VerifierV3(opts).verifyProvider().then(output => {

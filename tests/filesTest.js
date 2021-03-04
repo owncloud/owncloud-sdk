@@ -424,7 +424,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('uploads file for an existing parent path', async function () {
+    it('uploads file for an existing parent path', async function () {
       const newFile = testFolder + '/' + testFile
       let progressCalled = false
 
@@ -444,7 +444,9 @@ describe('Main: Currently testing files management,', function () {
         try {
           const status = await oc.files.putFileContents(newFile, testContent, options)
           expect(typeof status).toBe('object')
-          expect(progressCalled).toEqual(true)
+
+          // Progress callback is not called for nodejs env
+          expect(progressCalled).toEqual(typeof window !== 'undefined')
         } catch (error) {
           fail(error)
         }
@@ -1310,7 +1312,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it.skip('checking method: filter by tag', async function () {
+    it('checking method: filter by tag', async function () {
       const newFile = testFolder + '/' + testFile
       const newTagName = 'testSystemTag12345'
       const getFileInfoBy = data => {
@@ -1365,7 +1367,10 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'PROPFIND',
           path: webdavPath(`${testFolder}/${testFile}`),
-          headers: validAuthHeaders,
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
@@ -1394,10 +1399,10 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a REPORT request to get files by tag`)
         .withRequest({
           method: 'REPORT',
-          path: MatchersV3.regex({
-            matcher: '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
-            generate: '/remote.php/dav/files/' + config.adminUsername + '/'
-          }),
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            '/remote.php/dav/files/' + config.adminUsername + '/'
+          ),
           headers: {
             ...validAuthHeaders,
             ...applicationXmlResponseHeaders
@@ -1419,7 +1424,8 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
-        oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
+
+        return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
           .then(fileInfo => {
             fileId = fileInfo.getFileId()
             return oc.systemTags.createTag({ name: newTagName })

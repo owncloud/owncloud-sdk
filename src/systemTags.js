@@ -42,11 +42,11 @@ class SystemTags {
     headers['Content-Type'] = 'application/json'
     const body = JSON.stringify(tagInfo)
 
-    return this.davClient.request('POST', this.helpers._buildFullWebDAVPathV2('systemtags'), headers, body, '').then(result => {
+    return this.davClient.request('POST', this.helpers._buildFullWebDAVPathV2('systemtags'), headers, body, { version: 'v2' }).then(result => {
       if (result.status !== 201) {
         return Promise.reject(new Error('Error: ' + result.status))
       } else {
-        const contentLocation = result.res.getResponseHeader('Content-Location')
+        const contentLocation = result.res.headers['content-location']
         return Promise.resolve(parseInt(contentLocation.substr(contentLocation.lastIndexOf('/') + 1), 10))
       }
     })
@@ -67,7 +67,10 @@ class SystemTags {
 
     return this.davClient.request('PUT',
       this.helpers._buildFullWebDAVPathV2(path),
-      this.helpers.buildHeaders()).then(result => {
+      this.helpers.buildHeaders(),
+      null,
+      { version: 'v2' }
+    ).then(result => {
       if (result.status !== 201) {
         return Promise.reject(new Error('Error: ' + result.status))
       } else {

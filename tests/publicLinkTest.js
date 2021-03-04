@@ -1,5 +1,3 @@
-// TODO: Unskip the tests after the issue is fixed
-// https://github.com/owncloud/owncloud-sdk/issues/705
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.publicFiles', function () {
@@ -117,6 +115,8 @@ describe('oc.publicFiles', function () {
         ETag: 'f356def9fc42fd4cbddf293eba3efa86',
         'OC-ETag': 'f356def9fc42fd4cbddf293eba3efa86'
       }
+    } else if (method === 'GET') {
+      headers = {}
     }
     if (password) {
       headers = {
@@ -485,7 +485,7 @@ describe('oc.publicFiles', function () {
           })
         })
 
-        it.skip('should create a file', async function () {
+        it('should create a file', async function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
@@ -530,7 +530,9 @@ describe('oc.publicFiles', function () {
                 options
               )
               expect(typeof status).toBe('object')
-              expect(progressCalled).toEqual(true)
+
+              // uploadProgress callbacks are only called in browser runtime
+              expect(progressCalled).toEqual(typeof window !== 'undefined')
               const resp = await oc.publicFiles.download(config.shareTokenOfPublicLinkFolder, newFile, data.shareParams.password)
               const content = await resp.text()
               expect(content).toEqual(testContent)

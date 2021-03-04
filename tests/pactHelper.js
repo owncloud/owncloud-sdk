@@ -222,6 +222,7 @@ const deleteResourceInteraction = (
 async function getCurrentUserInformationInteraction (
   provider, user = config.adminUsername, password = config.adminPassword
 ) {
+  const displayName = user[0].toUpperCase() + user.slice(1)
   if (user !== config.adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
@@ -245,8 +246,8 @@ async function getCurrentUserInformationInteraction (
             .appendElement('message', '', 'OK')
         }).appendElement('data', '', (data) => {
           data.appendElement('id', '', user)
-          data.appendElement('display-name', '', user)
-          data.appendElement('email', '', '')
+          data.appendElement('display-name', '', MatchersV3.regex(`(${user}|${displayName})`, user))
+          data.appendElement('email', '', MatchersV3.regex(`(${user}@example\\..*)?`, ''))
         })
       })
     })
@@ -344,6 +345,9 @@ const getUserInformationAsAdminInteraction = function (provider) {
     })
 }
 
+// [OCIS] HTTP 401 Unauthorized responses don't contain a body
+// https://github.com/owncloud/ocis/issues/1337
+// https://github.com/owncloud/ocis/issues/1293
 const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.adminUsername, password = config.invalidPassword) {
   return provider.uponReceiving(`as '${username}', a GET request to get capabilities with invalid auth`)
     .withRequest({

@@ -272,10 +272,20 @@ export class Dav {
         return ''
       }
       var subNodes = []
+      // Propnode can be any one of these
+      //         { 'oc:share-type': [ '0', '3' ] }
+      //         { 'oc:share-type': '3' }
+      //         { 'd:collection': {} }
       for (var key in propNode) {
         var node = propNode[key]
         if (typeof node !== 'object') {
           subNodes.push(node)
+          continue
+        }
+        if (Array.isArray(node)) {
+          for (var item of node) {
+            subNodes.push(item)
+          }
           continue
         }
         var nsComponent = key.split(':')[0]
@@ -304,7 +314,7 @@ export class Dav {
   parseMultiStatus (xmlBody) {
     const doc = parser.xml2js(xmlBody)
 
-    var responseIterator = doc['d:multistatus']['d:response']
+    var responseIterator = doc['d:multistatus']['d:response'] || []
     if (responseIterator.constructor !== Array) {
       responseIterator = [responseIterator]
     }

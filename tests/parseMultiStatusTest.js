@@ -42,6 +42,7 @@ describe('Main: Currently testing XmlParser,', function () {
                 <oc:owner-display-name>admin</oc:owner-display-name>
                 <oc:share-types>
                   <oc:share-type>0</oc:share-type>
+                  <oc:share-type>3</oc:share-type>
                 </oc:share-types>
                 <oc:privatelink>http://localhost/index.php/f/2147500913</oc:privatelink>
                 <oc:size>699</oc:size>
@@ -224,7 +225,8 @@ describe('Main: Currently testing XmlParser,', function () {
             '{http://owncloud.org/ns}owner-id': 'admin',
             '{http://owncloud.org/ns}owner-display-name': 'admin',
             '{http://owncloud.org/ns}share-types': [
-              '0'
+              '0',
+              '3'
             ],
             '{http://owncloud.org/ns}privatelink': 'http://localhost/index.php/f/2147500913',
             '{http://owncloud.org/ns}size': '699',

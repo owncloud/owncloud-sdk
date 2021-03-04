@@ -757,8 +757,8 @@ describe('Main: Currently testing files management,', function () {
         .withRequest({
           method: 'PROPFIND',
           path: MatchersV3.regex(
-            '.*\\/remote\\.php\\/webdav\\/meta\\/123456789',
-            '/remote.php/webdav/meta/123456789'
+            '.*\\/remote\\.php\\/dav\\/meta\\/123456789',
+            '/remote.php/dav/meta/123456789'
           ),
           headers: {
             ...validAuthHeaders,

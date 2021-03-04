@@ -124,7 +124,7 @@ class Files {
       '{http://owncloud.org/ns}meta-path-for-user'
     ], 0, {
       Authorization: this.helpers.getAuthorization()
-    }).then(result => {
+    }, { version: 'v2' }).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       }

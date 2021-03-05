@@ -17,6 +17,7 @@ describe('Main: Currently testing group management,', function () {
 
   async function getGroupsInteraction (provider) {
     await provider
+      .given('group exists', { groupName: 'admin' })
       .given('group exists', { groupName: config.testGroup })
       .uponReceiving(`as '${username}', a GET request to get all groups`)
       .withRequest({
@@ -32,19 +33,23 @@ describe('Main: Currently testing group management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           })
             .appendElement('data', '', (data) => {
+              // TODO: adjust the following after the issue is resolved
+              // https://github.com/pact-foundation/pact-js/issues/619
               data.appendElement('groups', '', (groups) => {
                 groups.appendElement('element', '', config.adminUsername)
-                groups.appendElement('element', '', config.testGroup)
+                  .eachLike('element', '', group => {
+                    group.appendText(config.testGroup)
+                  })
               })
             })
         })
       })
   }
 
-  async function deleteGroupInteraction (provider, group) {
+  async function deleteGroupInteraction (provider, group, responseBody) {
     if (group === config.nonExistentGroup) {
       await provider
         .given('group does not exist', { groupName: group })
@@ -67,9 +72,7 @@ describe('Main: Currently testing group management,', function () {
         status: 200,
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-          ocs.appendElement('meta', '', (meta) => {
-            return (group === config.nonExistentGroup) ? ocsMeta(meta, 'failure', '101') : ocsMeta(meta, 'ok', '100')
-          })
+          ocs.appendElement('meta', '', responseBody)
             .appendElement('data', '', '')
         })
       })
@@ -101,7 +104,7 @@ describe('Main: Currently testing group management,', function () {
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.groups.groupExists('admin').then(status => {
+      return oc.groups.groupExists(config.testGroup).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
         expect(error).toBe(null)
@@ -124,12 +127,15 @@ describe('Main: Currently testing group management,', function () {
 
   it('checking method : getGroupMembers', async function () {
     await provider
-      .uponReceiving(`as '${username}', a GET request to get all members of admin group`)
+      .given('group exists', { groupName: config.testGroup })
+      .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
+      .given('user is added to group', { username: config.testUser, groupName: config.testGroup })
+      .uponReceiving(`as '${username}', a GET request to get all members of existing group`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
-          /.*\/ocs\/v1\.php\/cloud\/groups\/admin$/,
-          '/ocs/v1.php/cloud/groups/admin'
+          /.*\/ocs\/v1\.php\/cloud\/groups\/.*$/,
+          '/ocs/v1.php/cloud/groups/' + config.testGroup
         ),
         headers: validAdminAuthHeaders
       })
@@ -138,10 +144,14 @@ describe('Main: Currently testing group management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', (data) => {
+            // TODO: adjust the following after the issue is resolved
+            // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('users', '', (users) => {
-              users.appendElement('element', '', config.adminUsername)
+              users.eachLike('element', '', user => {
+                user.appendText(config.testUser)
+              })
             })
           })
         })
@@ -149,17 +159,23 @@ describe('Main: Currently testing group management,', function () {
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.groups.getGroupMembers('admin').then(data => {
+      return oc.groups.getGroupMembers(config.testGroup).then(data => {
         expect(typeof (data)).toBe('object')
-        expect(data.indexOf(config.adminUsername)).toBeGreaterThan(-1)
+        expect(data.indexOf(config.testUser)).toBeGreaterThan(-1)
       }).catch(error => {
         expect(error).toBe(null)
       })
     })
   })
 
+  // ocis response is different from oc10
+  // https://github.com/owncloud/ocis/issues/1766
   it('checking method : deleteGroup with a non-existent group', async function () {
-    await deleteGroupInteraction(provider, config.nonExistentGroup)
+    await deleteGroupInteraction(
+      provider,
+      config.nonExistentGroup,
+      meta => ocsMeta(meta, 'failure', '101')
+    )
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
@@ -191,7 +207,7 @@ describe('Main: Currently testing group management,', function () {
         headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           })
             .appendElement('data', '', '')
         })
@@ -208,7 +224,11 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : delete a group', async function () {
-    await deleteGroupInteraction(provider, config.testGroup)
+    await deleteGroupInteraction(
+      provider,
+      config.testGroup,
+      meta => ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
+    )
     await provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()

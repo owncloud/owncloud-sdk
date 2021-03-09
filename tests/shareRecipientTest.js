@@ -31,7 +31,13 @@ describe('Main: Currently testing share recipient,', function () {
         ),
         query: { search: 'test', itemType: 'folder', page: '1', perPage: '200', format: 'json' },
         headers: { authorization: getAuthHeaders(sharer, sharerPassword) }
-      }).willRespondWith({
+      })
+      /*
+        [oCIS] ocis returns `text/plain` content-type not `application/json` like oc10
+        when requesting with `?format=json`
+        https://github.com/owncloud/ocis/issues/1779
+      */
+      .willRespondWith({
         status: 200,
         headers: {
           'Content-Type': 'application/json; charset=utf-8'

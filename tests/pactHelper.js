@@ -319,37 +319,6 @@ async function getCapabilitiesInteraction (
     })
 }
 
-const getUserInformationAsAdminInteraction = function (provider) {
-  return provider.uponReceiving(`as '${config.adminUsername}', a GET request to user information`)
-    .withRequest({
-      method: 'GET',
-      path: MatchersV3.regex(
-        '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-        '/ocs/v2.php/cloud/users/' + config.testUser
-      ),
-      query: { format: 'json' },
-      headers: validAdminAuthHeaders
-    })
-    .willRespondWith({
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      },
-      body: {
-        ocs: {
-          meta: {
-            status: 'ok',
-            statuscode: 200,
-            message: null
-          },
-          data: {
-            email: 'foo@bar.net'
-          }
-        }
-      }
-    })
-}
-
 // [OCIS] HTTP 401 Unauthorized responses don't contain a body
 // https://github.com/owncloud/ocis/issues/1337
 // https://github.com/owncloud/ocis/issues/1293
@@ -550,7 +519,6 @@ module.exports = {
   uriEncodedTestSubFiles,
   getCapabilitiesInteraction,
   getCurrentUserInformationInteraction,
-  getUserInformationAsAdminInteraction,
   createOwncloud,
   createProvider,
   getCapabilitiesWithInvalidAuthInteraction,

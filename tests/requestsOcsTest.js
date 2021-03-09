@@ -8,7 +8,6 @@ describe('Main: Currently testing low level OCS', function () {
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     validAdminAuthHeaders,
-    getUserInformationAsAdminInteraction,
     createOwncloud,
     createProvider
   } = require('./pactHelper.js')
@@ -43,6 +42,13 @@ describe('Main: Currently testing low level OCS', function () {
     })
   })
 
+  /*
+    Remove this comment after the issue has been resolved
+
+    Request to edit non-existing user by authorized (admin) user
+    sends statuscode 401 (unauthorized)
+    https://github.com/owncloud/core/issues/38423
+  */
   it('checking : error behavior', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -60,11 +66,11 @@ describe('Main: Currently testing low level OCS', function () {
         headers: validAdminAuthHeaders
       })
       .willRespondWith({
-        status: 401,
+        status: 404,
         body: {
           ocs: {
             meta: {
-              statuscode: 997
+              statuscode: 404
             }
           }
         }
@@ -79,17 +85,21 @@ describe('Main: Currently testing low level OCS', function () {
         data: { key: 'display', value: 'Alice' }
       }).then(response => {
         expect(response.ok).toBe(false)
-        expect(response.status).toBe(401)
+        expect(response.status).toBe(404)
         return response.json()
       }).then(json => {
-        expect(json.ocs.meta.statuscode).toBe(997)
+        expect(json.ocs.meta.statuscode).toBe(404)
       }).catch(error => {
         fail(error)
       })
     })
   })
 
-  it('checking : PUT email', async function (done) {
+  /*
+    [oCIS] Using JSON data as content-type in any request responds with `400` bad request
+    https://github.com/owncloud/ocis/issues/1702
+  */
+  it('checking : PUT email', async function () {
     const { testUser, testUserPassword } = config
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
@@ -126,7 +136,6 @@ describe('Main: Currently testing low level OCS', function () {
           }
         }
       })
-    await getUserInformationAsAdminInteraction(provider)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -142,20 +151,8 @@ describe('Main: Currently testing low level OCS', function () {
         return response.json()
       }).then(json => {
         expect(json.ocs.meta.statuscode).toBe(200)
-        return oc.requests.ocs({
-          service: 'cloud',
-          action: 'users/' + testUser
-        })
-      }).then(response => {
-        expect(response.ok).toBe(true)
-        expect(response.status).toBe(200)
-        return response.json()
-      }).then(json => {
-        expect(json.ocs.data.email).toBe('foo@bar.net')
-        done()
       }).catch(error => {
         fail(error)
-        done()
       })
     })
   })

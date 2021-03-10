@@ -42,7 +42,13 @@ class SystemTags {
     headers['Content-Type'] = 'application/json'
     const body = JSON.stringify(tagInfo)
 
-    return this.davClient.request('POST', this.helpers._buildFullWebDAVPathV2('systemtags'), headers, body, { version: 'v2' }).then(result => {
+    return this.davClient.request(
+      'POST',
+      this.helpers._buildFullWebDAVPathV2('systemtags'),
+      headers,
+      body,
+      { version: 'v2' }
+    ).then(result => {
       if (result.status !== 201) {
         return Promise.reject(new Error('Error: ' + result.status))
       } else {

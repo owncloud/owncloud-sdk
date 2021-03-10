@@ -40,7 +40,13 @@ class FilesTrash {
     const headers = this.helpers.buildHeaders()
     const target = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + path
 
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(target), properties, depth, headers, { version: 'v2' }).then(result => {
+    return this.davClient.propFind(
+      this.helpers._buildFullWebDAVPathV2(target),
+      properties,
+      depth,
+      headers,
+      { version: 'v2' }
+    ).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
@@ -65,7 +71,13 @@ class FilesTrash {
       target += item
     }
 
-    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPathV2(target), headers, null, { version: 'v2' }).then(result => {
+    return this.davClient.request(
+      'DELETE',
+      this.helpers._buildFullWebDAVPathV2(target),
+      headers,
+      null,
+      { version: 'v2' }
+    ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
@@ -95,7 +107,13 @@ class FilesTrash {
 
     headers.Destination = this.helpers._buildFullWebDAVURLV2(target)
     headers.Overwrite = overWrite ? 'T' : 'F'
-    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPathV2(source), headers, null, { version: 'v2' }).then(result => {
+    return this.davClient.request(
+      'MOVE',
+      this.helpers._buildFullWebDAVPathV2(source),
+      headers,
+      null,
+      { version: 'v2' }
+    ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {

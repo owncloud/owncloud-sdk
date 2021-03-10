@@ -46,11 +46,7 @@ export class Dav {
    * @param {Object} [headers] headers
    * @return {Promise}
    */
-  propFind (path, properties, depth, headers, options = {}) {
-    if (typeof depth === 'undefined') {
-      depth = '0'
-    }
-
+  propFind (path, properties, depth = '0', headers = {}, options = {}) {
     // depth header must be a string, in case a number was passed in
     depth = '' + depth
 

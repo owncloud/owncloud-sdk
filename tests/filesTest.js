@@ -854,7 +854,7 @@ describe('Main: Currently testing files management,', function () {
       if (enabled) {
         respHeaders = {
           ...respHeaders,
-          'Content-Type': 'application/xml; charset=utf-8',
+          ...applicationXmlResponseHeaders,
           'Tus-Resumable': '1.0.0',
           'Tus-Version': '1.0.0,0.2.1,0.1.1',
           'Tus-Extension': 'create,create-with-upload',

@@ -270,6 +270,11 @@ async function getCapabilitiesInteraction (
       query: { format: 'json' },
       headers: { authorization: getAuthHeaders(user, password) }
     })
+    /*
+      [oCIS] ocis returns `text/plain` content-type not `application/json`
+      when requesting with `?format=json`
+      https://github.com/owncloud/ocis/issues/1779
+    */
     .willRespondWith({
       status: 200,
       headers: {

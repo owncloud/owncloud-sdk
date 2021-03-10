@@ -10,7 +10,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     validAdminAuthHeaders,
-    applicationXmlResponseHeaders
+    xmlResponseHeaders
   } = require('./pactHelper.js')
 
   it('checking method : getConfig', async () => {
@@ -29,7 +29,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
       })
       .willRespondWith({
         status: 200,
-        headers: applicationXmlResponseHeaders,
+        headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
             meta.appendElement('status', '', 'ok')

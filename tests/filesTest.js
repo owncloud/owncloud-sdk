@@ -635,8 +635,7 @@ describe('Main: Currently testing files management,', function () {
           }
         })
         .willRespondWith({
-          status: 201,
-          headers: htmlResponseHeaders
+          status: 201
         })
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
@@ -976,8 +975,7 @@ describe('Main: Currently testing files management,', function () {
           )
         },
         {
-          status: 201,
-          headers: htmlResponseHeaders
+          status: 201
         })
 
       return provider.executeTest(async () => {
@@ -1027,8 +1025,7 @@ describe('Main: Currently testing files management,', function () {
           }
         })
         .willRespondWith({
-          status: 201,
-          headers: htmlResponseHeaders
+          status: 201
         })
 
       return provider.executeTest(async () => {
@@ -1082,8 +1079,7 @@ describe('Main: Currently testing files management,', function () {
           }
         })
         .willRespondWith({
-          status: 201,
-          headers: htmlResponseHeaders
+          status: 201
         })
 
       return provider.executeTest(async () => {

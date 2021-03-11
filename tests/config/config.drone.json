@@ -1,5 +1,6 @@
 {
-    "owncloudURL": "http://localhost:1234${SUBFOLDER}",
+    "backendHost": "http://localhost:1234${SUBFOLDER}",
+    "pactMockPort": 1234,
     "adminUsername": "admin",
     "adminPassword": "admin",
     "adminDisplayName": "Admin",

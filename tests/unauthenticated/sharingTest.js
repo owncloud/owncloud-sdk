@@ -17,7 +17,7 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.owncloudURL
+      baseUrl: config.backendHost
     })
   })
 

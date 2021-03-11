@@ -153,7 +153,7 @@ describe('Main: Currently testing file versions management,', function () {
     it('checking method: getFileVersionUrl', function () {
       const oc = createOwncloud()
       const url = oc.fileVersions.getFileVersionUrl(666, 123456)
-      expect(url).toBe(config.owncloudURL + 'remote.php/dav/meta/666/v/123456')
+      expect(url).toBe(config.backendHost + 'remote.php/dav/meta/666/v/123456')
     })
 
     it.skip('retrieves file versions', async function () {
@@ -221,7 +221,7 @@ describe('Main: Currently testing file versions management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}${destinationWebDavPath}`,
-              `${config.owncloudURL}${destinationWebDavPath}`
+              `${config.backendHost}${destinationWebDavPath}`
             )
           }
         })

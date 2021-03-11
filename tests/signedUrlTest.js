@@ -27,7 +27,7 @@ describe('Main: Currently testing url signing,', function () {
 
   it('checking method : signUrl', function () {
     const oc = new OwnCloud({
-      baseUrl: config.owncloudURL,
+      baseUrl: config.backendHost,
       auth: {
         basic: {
           username: config.adminUsername,

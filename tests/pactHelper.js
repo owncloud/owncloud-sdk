@@ -50,7 +50,7 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
     .appendElement('stime', '', MatchersV3.string(Math.floor(Date.now() / 1000)))
 
   if (shareType === 3) {
-    res.appendElement('url', '', config.owncloudURL + '/s/yrkoLeS33y1aTya')
+    res.appendElement('url', '', config.backendHost + '/s/yrkoLeS33y1aTya')
   }
   return res
 }
@@ -117,7 +117,7 @@ const createProvider = function () {
   return new PactV3({
     consumer: 'owncloud-sdk',
     provider: 'oc-server',
-    port: 1234,
+    port: config.pactMockPort,
     dir: path.resolve(process.cwd(), 'tests', 'pacts')
   })
 }
@@ -128,7 +128,7 @@ const sanitizeUrl = (url) => {
 
 const createOwncloud = function (username = config.adminUsername, password = config.adminPassword) {
   const oc = new OwnCloud({
-    baseUrl: config.owncloudURL,
+    baseUrl: config.backendHost,
     auth: {
       basic: {
         username,

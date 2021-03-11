@@ -133,7 +133,7 @@ describe('oc.publicFiles', function () {
       it('shall work with ' + description, function () {
         const oc = createOwncloud()
         expect(oc.publicFiles.getFileUrl(data.token, data.path))
-          .toBe(config.owncloudURL + data.expected)
+          .toBe(config.backendHost + data.expected)
       })
     })
   })
@@ -479,7 +479,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/lorem123456.txt', /* eslint-disable-line */
-                  `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
+                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
@@ -518,7 +518,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/foo/lorem.txt', /* eslint-disable-line */
-                  `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
+                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
@@ -552,7 +552,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/bar', /* eslint-disable-line */
-                  `${config.owncloudURL}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
+                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
                 )
               }
             }).willRespondWith(moveResourceResponse)

@@ -29,7 +29,7 @@ describe('Main: Currently testing files management,', function () {
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
-  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, owncloudURL } = config
+  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, backendHost } = config
   const testSubDir = testFolder + '/' + 'subdir'
 
   const moveFileInteraction = function (provider, requestName, header, response) {
@@ -463,7 +463,7 @@ describe('Main: Currently testing files management,', function () {
     it('checking method: getFileUrl', function () {
       const oc = createOwncloud()
       const url = oc.files.getFileUrl('/foo/bar')
-      expect(url).toBe(owncloudURL + 'remote.php/webdav/foo/bar')
+      expect(url).toBe(backendHost + 'remote.php/webdav/foo/bar')
     })
 
     it('checking method: getFileUrlV2', async function () {
@@ -475,7 +475,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud()
         await oc.login()
         const url = oc.files.getFileUrlV2('/foo/bar')
-        expect(url).toBe(owncloudURL + 'remote.php/dav/files/' + config.adminUsername + '/foo/bar')
+        expect(url).toBe(backendHost + 'remote.php/dav/files/' + config.adminUsername + '/foo/bar')
       })
     })
 
@@ -583,7 +583,7 @@ describe('Main: Currently testing files management,', function () {
         'same name',
         {
           ...validAuthHeaders,
-          Destination: `${owncloudURL}remote.php/webdav/testFolder/%E4%B8%AD%E6%96%87.txt`
+          Destination: `${backendHost}remote.php/webdav/testFolder/%E4%B8%AD%E6%96%87.txt`
         },
         {
           status: 403,
@@ -630,7 +630,7 @@ describe('Main: Currently testing files management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}${destinationWebDavPath}`,
-              `${config.owncloudURL}${destinationWebDavPath}`
+              `${config.backendHost}${destinationWebDavPath}`
             )
           }
         })
@@ -660,7 +660,7 @@ describe('Main: Currently testing files management,', function () {
           path: webdavPath(nonExistentFile),
           headers: {
             ...validAuthHeaders,
-            Destination: `${owncloudURL}remote.php/webdav/abcd.txt`
+            Destination: `${backendHost}remote.php/webdav/abcd.txt`
           }
         })
         .willRespondWith({
@@ -691,7 +691,7 @@ describe('Main: Currently testing files management,', function () {
           path: webdavPath(`${testFolder}/${encodeURI('中文.txt')}`),
           headers: {
             ...validAuthHeaders,
-            Destination: `${owncloudURL}remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
+            Destination: `${backendHost}remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
           }
         })
         .willRespondWith({
@@ -722,7 +722,7 @@ describe('Main: Currently testing files management,', function () {
           path: webdavPath(nonExistentFile),
           headers: {
             ...validAuthHeaders,
-            Destination: `${owncloudURL}remote.php/webdav/abcd.txt`
+            Destination: `${backendHost}remote.php/webdav/abcd.txt`
           }
         })
         .willRespondWith({
@@ -972,7 +972,7 @@ describe('Main: Currently testing files management,', function () {
           authorization: getAuthHeaders(config.testUser, config.testUserPassword),
           Destination: MatchersV3.fromProviderState(
             `\${providerBaseURL}${destinationWebDavPath}`,
-            `${config.owncloudURL}${destinationWebDavPath}`
+            `${config.backendHost}${destinationWebDavPath}`
           )
         },
         {
@@ -1022,7 +1022,7 @@ describe('Main: Currently testing files management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}${destinationWebDavPath}`,
-              `${config.owncloudURL}${destinationWebDavPath}`
+              `${config.backendHost}${destinationWebDavPath}`
             )
           }
         })
@@ -1077,7 +1077,7 @@ describe('Main: Currently testing files management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}${destinationWebDavPath}`,
-              `${config.owncloudURL}${destinationWebDavPath}`
+              `${config.backendHost}${destinationWebDavPath}`
             )
           }
         })

@@ -1,5 +1,5 @@
 {
-    "backendHost": "http://127.0.0.1:1234",
+    "backendHost": "http://127.0.0.1:1234/",
     "pactMockPort": 1234,
     "adminUsername": "admin",
     "adminPassword": "admin",

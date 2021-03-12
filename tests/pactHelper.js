@@ -110,21 +110,11 @@ const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0'
       .appendElement('s:message', '', message)
   })
 
-const webdavPath = (resource, version = 'old') => {
-  if (!['new', 'old'].includes(version)) {
-    throw new Error('Invalid dav version provided :' + version)
-  }
-  if (version === 'old') {
-    return MatchersV3.regex(
-      '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
-      path.join('/remote.php/webdav', resource)
-    )
-  } else {
-    return MatchersV3.regex(
-      '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
-      path.join('/remote.php/webdav', resource)
-    )
-  }
+const webdavPath = (resource) => {
+  return MatchersV3.regex(
+    '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
+    path.join('/remote.php/webdav', resource)
+  )
 }
 
 const createProvider = function () {

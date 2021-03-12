@@ -1,6 +1,9 @@
 const { createClient } = require('webdav')
 const parser = require('./xmlParser.js')
 
+const applicationXmlResponseHeaders = {
+  'Content-Type': 'application/xml; charset=utf-8'
+}
 export class Dav {
   constructor (baseUrl, baseUrlv2) {
     this._XML_CHAR_MAP = {
@@ -52,8 +55,7 @@ export class Dav {
 
     headers = headers || {}
 
-    headers.Depth = depth
-    headers['Content-Type'] = 'application/xml; charset=utf-8'
+    headers = { ...headers, Depth: depth, ...applicationXmlResponseHeaders }
 
     var body =
           '<?xml version="1.0"?>\n' +
@@ -66,8 +68,7 @@ export class Dav {
           '  <d:prop>\n'
 
     for (var ii in properties) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (!properties.hasOwnProperty(ii)) {
+      if (!Object.hasOwnProperty.call(properties, ii)) {
         continue
       }
 
@@ -83,18 +84,11 @@ export class Dav {
 
     return this.request('PROPFIND', path, headers, body, options).then(
       function (result) {
-        if (depth === '0') {
-          return {
-            status: result.status,
-            body: result.body[0],
-            res: result
-          }
-        } else {
-          return {
-            status: result.status,
-            body: result.body,
-            res: result
-          }
+        const body = depth === '0' ? result.body[0] : result.body
+        return {
+          status: result.status,
+          body,
+          res: result
         }
       }
     )
@@ -111,8 +105,7 @@ export class Dav {
           '   <d:prop>\n'
 
     for (var ii in properties) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (!properties.hasOwnProperty(ii)) {
+      if (!Object.hasOwnProperty.call(properties, ii)) {
         continue
       }
 
@@ -148,7 +141,7 @@ export class Dav {
   propPatch (url, properties, headers) {
     headers = headers || {}
 
-    headers['Content-Type'] = 'application/xml; charset=utf-8'
+    headers = { ...headers, ...applicationXmlResponseHeaders }
 
     var body =
           '<?xml version="1.0"?>\n' +

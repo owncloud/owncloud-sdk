@@ -51,7 +51,7 @@ def buildSystem():
             ],
     }]
 
-def prepareTestConfig(subFolderPath = '/'):
+def prepareTestConfig(subFolderPath = ''):
     return [{
         'name': 'prepare-test-config',
         'image': 'owncloud/ubuntu:16.04',
@@ -325,10 +325,10 @@ def publishSystem():
         }
     }]
 
-def consumerTestPipeline(subFolderPath = '/'):
+def consumerTestPipeline(subFolderPath = ''):
     return {
         'kind': 'pipeline',
-        'name': 'testConsumer-' + ('root' if subFolderPath == '/' else 'subfolder'),
+        'name': 'testConsumer-' + ('root' if subFolderPath == '' else 'subfolder'),
         'platform': {
             'os': 'linux',
             'arch': 'amd64'
@@ -343,7 +343,7 @@ def consumerTestPipeline(subFolderPath = '/'):
         'steps':
             buildSystem() +
             prepareTestConfig(subFolderPath) +
-            pactConsumerTests(True if subFolderPath == '/' else False),
+            pactConsumerTests(True if subFolderPath == '' else False),
     }
 
 def ocisProviderTestPipeline():

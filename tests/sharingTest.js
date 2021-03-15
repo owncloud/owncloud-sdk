@@ -19,8 +19,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   const {
     applicationXmlResponseHeaders,
+    xmlResponseHeaders,
     applicationFormUrlEncoded,
-    htmlResponseHeaders,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     createOwncloud,
@@ -76,7 +76,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
       ocs.appendElement('meta', '', (meta) => {
-        ocsMeta(meta, 'ok', '100')
+        ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
       }).appendElement('data', '', data => {
         data.appendElement('element', '', element => {
           shareResponseOcsData(element, shareType, shareId, 1, resource)
@@ -98,7 +98,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }).willRespondWith({
         status: 200,
         headers: {
-          ...applicationXmlResponseHeaders
+          ...xmlResponseHeaders
         },
         body
       })
@@ -118,7 +118,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
       ocs.appendElement('meta', '', (meta) => {
-        ocsMeta(meta, 'ok', '100')
+        ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
       }).appendElement('data', '', data => {
         data.appendElement('element', '', element => {
           shareResponseOcsData(element, 0, 101, 1, resource)
@@ -148,7 +148,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }).willRespondWith({
         status: 200,
         headers: {
-          ...applicationXmlResponseHeaders
+          ...xmlResponseHeaders
         },
         body
       })
@@ -169,7 +169,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
       ocs.appendElement('meta', '', (meta) => {
-        ocsMeta(meta, 'ok', '100')
+        ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
       }).appendElement('data', '', data => {
         data.appendElement('element', '', element => {
           shareResponseOcsData(element, shareType, shareId, 1, resource)
@@ -189,7 +189,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
       .willRespondWith({
         status: 200,
-        headers: applicationXmlResponseHeaders,
+        headers: xmlResponseHeaders,
         body
       })
   }
@@ -218,7 +218,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
       ocs.appendElement('meta', '', (meta) => {
-        ocsMeta(meta, 'ok', '100')
+        ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
       }).appendElement('data', '', data => {
         const node = shareResponseOcsData(data, shareType, shareId, permissions, resource)
           .appendElement('token', '', fromProviderState('${token}', shareToken)) /* eslint-disable-line no-template-curly-in-string */
@@ -245,7 +245,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
       .willRespondWith({
         status: 200,
-        headers: applicationXmlResponseHeaders,
+        headers: xmlResponseHeaders,
         body
       })
   }
@@ -417,37 +417,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
             })
           })
         })
-
-        it('adding password', async function () {
-          const formData = { password: '1234' }
-          const additionalBodyElement = {
-            share_with: sharee,
-            share_with_displayname: sharee
-          }
-          const provider = createProvider()
-          await getCapabilitiesInteraction(provider, sharer, sharerPassword)
-          await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await updateShareInteraction(
-            provider,
-            '(user share: set share password)',
-            0,
-            testFolder,
-            'folder',
-            formData,
-            additionalBodyElement
-          )
-
-          return provider.executeTest(async () => {
-            const oc = createOwncloud(sharer, sharerPassword)
-            await oc.login()
-            return oc.shares.updateShare(testFolderShareID, formData).then(async share => {
-              expect(typeof (share.getShareWith())).toEqual('string')
-              expect(typeof (share.getShareWithDisplayName())).toEqual('string')
-            }).catch(error => {
-              expect(error).toBe(null)
-            })
-          })
-        })
       })
     })
 
@@ -512,37 +481,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
             await oc.login()
             return oc.shares.updateShare(testFolderShareID, formData).then(share => {
               expect(share.getPermissions()).toEqual(15)
-            }).catch(error => {
-              expect(error).toBe(null)
-            })
-          })
-        })
-
-        it('adding password', async function () {
-          const formData = { password: '1234' }
-          const additionalBodyElement = {
-            share_with: testGroup,
-            share_with_displayname: testGroup
-          }
-          const provider = createProvider()
-          await getCapabilitiesInteraction(provider, sharer, sharerPassword)
-          await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await updateShareInteraction(
-            provider,
-            '(group share: set share password)',
-            1,
-            testFolder,
-            'folder',
-            formData,
-            additionalBodyElement
-          )
-
-          return provider.executeTest(async () => {
-            const oc = createOwncloud(sharer, sharerPassword)
-            await oc.login()
-            return oc.shares.updateShare(testFolderShareID, formData).then(async share => {
-              expect(typeof (share.getShareWith())).toEqual('string')
-              expect(typeof (share.getShareWithDisplayName())).toEqual('string')
             }).catch(error => {
               expect(error).toBe(null)
             })
@@ -784,6 +722,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     describe('checking method: ', function () {
+      // [oCIS] Trying to share non-existing file responds with empty body
+      // https://github.com/owncloud/ocis/issues/1799
       async function linkSharePOSTNonExistentFile (provider) {
         await givenUserExists(provider, sharer, sharerPassword)
         return provider.uponReceiving(`as '${sharer}', a POST request to create a public link share with non-existent file`)
@@ -810,6 +750,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
             })
           })
       }
+      // [oCIS] Trying to share non-existing file responds with empty body
+      // https://github.com/owncloud/ocis/issues/1799
       async function groupSharePOSTNonExistentFile (provider) {
         await givenUserExists(provider, sharer, sharerPassword)
         await givenGroupExists(provider, testGroup)
@@ -835,6 +777,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
             })
           })
       }
+      // [oCIS] Different responses in oCIS and oC10
+      // https://github.com/owncloud/ocis/issues/1777
       async function shareGETNonExistentFile (provider, name = '') {
         await givenUserExists(provider, sharer, sharerPassword)
         return provider.uponReceiving(`as '${sharer}', a GET request to get share information of non-existent file '${name}'`)
@@ -849,12 +793,12 @@ describe('Main: Currently testing file/folder sharing,', function () {
           }).willRespondWith({
             status: 200,
             headers: {
-              ...applicationXmlResponseHeaders
+              ...xmlResponseHeaders
             },
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
                 ocsMeta(meta, 'failure', 404, 'Wrong path, file/folder doesn\'t exist')
-              }).appendElement('data', '', '')
+              })
             })
           })
       }
@@ -875,15 +819,17 @@ describe('Main: Currently testing file/folder sharing,', function () {
           .willRespondWith({
             status: 200,
             headers: {
-              ...applicationXmlResponseHeaders
+              ...xmlResponseHeaders
             },
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'ok', 100)
+                ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
               }).appendElement('data', '', '')
             })
           })
       }
+      // [oCIS] Different responses in oCIS and oC10
+      // https://github.com/owncloud/ocis/issues/1777
       function shareGetNonExistentShare (provider) {
         return provider.uponReceiving(`as '${sharer}', a GET request to get non-existent share`)
           .withRequest({
@@ -896,32 +842,14 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
           .willRespondWith({
             status: 200,
-            headers: applicationXmlResponseHeaders,
+            headers: xmlResponseHeaders,
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
                 ocsMeta(meta, 'failure', 404, 'Wrong share ID, share doesn\'t exist')
-              }).appendElement('data', '', '')
+              })
             })
           })
       }
-      function putFileWithExmptyContent (provider) {
-        return provider.uponReceiving(`as '${sharer}', a PUT request to put file contents as empty content in files specified`)
-          .withRequest({
-            method: 'PUT',
-            path: MatchersV3.regex(
-              '.*\\/remote\\.php\\/webdav\\/newFileCreated123$',
-              '/remote.php/webdav/newFileCreated123'
-            ),
-            headers: validAuthHeaders
-          })
-          .willRespondWith({
-            status: 201,
-            headers: {
-              ...htmlResponseHeaders
-            }
-          })
-      }
-
       async function sharePOSTRequestWithExpirationDateSet (provider, fileEncoded, file) {
         await givenUserExists(provider, sharer, sharerPassword)
         await givenUserExists(provider, sharee, shareePassword)
@@ -942,19 +870,24 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
           .willRespondWith({
             status: 200,
-            headers: applicationXmlResponseHeaders,
+            headers: xmlResponseHeaders,
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'ok', 100)
+                ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
               }).appendElement('data', '', data => {
                 shareResponseOcsData(data, 0, config.testFilesId[testFiles.indexOf(file)], 19, '/' + file)
-                  .appendElement('expiration', '', config.expirationDate + ' 00:00:00')
+                  // [oCIS] expiration date cannot be set
+                  // https://github.com/owncloud/ocis/issues/1328
+                  .appendElement(
+                    'expiration', '',
+                    MatchersV3.date('yyyy-MM-dd HH:mm:ss', config.expirationDate + ' 00:00:00'))
               })
             })
           })
       }
-
-      function updateDeleteShareNonExistent (provider, method) {
+      // [oCIS] PUT and DELETE requests to non-existing share don't have meaningful responses
+      // https://github.com/owncloud/ocis/issues/1800
+      function updateDeleteShareNonExistent (provider, method, formData = null) {
         return provider
           .uponReceiving(`as '${sharer}', a ${method} request to update/delete a non-existent share`)
           .withRequest({
@@ -963,17 +896,21 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares\\/-1$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares/-1'
             ),
-            headers: validAuthHeaders
+            headers: {
+              ...validAuthHeaders,
+              ...applicationFormUrlEncoded
+            },
+            body: toFormUrlEncoded(formData)
           })
           .willRespondWith({
             status: 200,
             headers: {
-              ...applicationXmlResponseHeaders
+              ...xmlResponseHeaders
             },
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
                 ocsMeta(meta, 'failure', 404, 'Wrong share ID, share doesn\'t exist')
-              }).appendElement('data', '', '')
+              })
             })
           })
       }
@@ -1035,17 +972,13 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-        await putFileWithExmptyContent(provider)
         await shareGETExistingNonSharedFile(provider, '', fileName)
 
         return provider.executeTest(async () => {
           const oc = createOwncloud(sharer, sharerPassword)
           await oc.login()
-          return oc.files.putFileContents(fileName).then(status => {
-            expect(typeof status).toBe('object')
-            return oc.shares.isShared(fileName)
-          }).then(isShared => {
-            expect(isShared).toEqual(false)
+          return oc.shares.isShared(fileName).then(status => {
+            expect(status).toEqual(false)
           }).catch(error => {
             expect(error).toBe(null)
           })
@@ -1096,16 +1029,12 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-        await putFileWithExmptyContent(provider)
         await shareGETExistingNonSharedFile(provider, 'testing getShares', fileName)
 
         return provider.executeTest(async () => {
           const oc = createOwncloud(sharer, sharerPassword)
           await oc.login()
-          return oc.files.putFileContents(fileName).then(status => {
-            expect(typeof status).toBe('object')
-            return oc.shares.getShares(fileName)
-          }).then(shares => {
+          return oc.shares.getShares(fileName).then(shares => {
             expect(shares.constructor).toEqual(Array)
             expect(shares.length).toEqual(0)
           }).catch(error => {
@@ -1115,15 +1044,16 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('updateShare for non existent share', async function () {
+        const formData = { permissions: 31 }
         const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-        await updateDeleteShareNonExistent(provider, 'PUT')
+        await updateDeleteShareNonExistent(provider, 'PUT', formData)
 
         return provider.executeTest(async () => {
           const oc = createOwncloud(sharer, sharerPassword)
           await oc.login()
-          return oc.shares.updateShare(-1).then(status => {
+          return oc.shares.updateShare(-1, formData).then(status => {
             expect(status).toBe(null)
           }).catch(error => {
             if (error.slice(-1) === '.') {

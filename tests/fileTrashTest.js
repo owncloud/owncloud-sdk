@@ -309,7 +309,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + '/remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder
+              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder
             }
           })
           .willRespondWith(responseMethod(
@@ -406,7 +406,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + '/remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)'
+              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)'
             }
           })
           .willRespondWith(responseMethod(
@@ -579,7 +579,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + '/remote.php/dav/files/' + config.adminUsername + '/' + testFile
+              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + testFile
             }
           })
           .willRespondWith({
@@ -672,7 +672,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + '/remote.php/dav/files/' + config.adminUsername + '/file%20(restored%20to%20a%20different%20location).txt'
+              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/file%20(restored%20to%20a%20different%20location).txt'
             }
           })
           .willRespondWith({

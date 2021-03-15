@@ -140,7 +140,8 @@ const createOwncloud = function (username = config.adminUsername, password = con
   })
   return oc
 }
-
+// [OCIS] Trying to access a non-existing resource returns an empty body
+// https://github.com/owncloud/ocis/issues/1282
 const getContentsOfFileInteraction = (
   provider, file,
   user = config.adminUsername,
@@ -454,8 +455,7 @@ const createFolderInteraction = function (
       ),
       headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith({
-      status: 201,
-      headers: htmlResponseHeaders
+      status: 201
     })
 }
 

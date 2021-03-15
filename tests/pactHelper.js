@@ -323,7 +323,6 @@ async function getCapabilitiesInteraction (
 }
 
 // [OCIS] HTTP 401 Unauthorized responses don't contain a body
-// https://github.com/owncloud/ocis/issues/1337
 // https://github.com/owncloud/ocis/issues/1293
 const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.adminUsername, password = config.invalidPassword) {
   return provider.uponReceiving(`as '${username}', a GET request to get capabilities with invalid auth`)

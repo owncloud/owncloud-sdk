@@ -610,7 +610,7 @@ describe('Main: Currently testing files management,', function () {
         provider, config.testUser, config.testUserPassword
       )
       const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `/remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
       provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -952,7 +952,7 @@ describe('Main: Currently testing files management,', function () {
         provider, config.testUser, config.testUserPassword
       )
       const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `/remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
       provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -1000,7 +1000,7 @@ describe('Main: Currently testing files management,', function () {
         provider, config.testUser, config.testUserPassword
       )
       const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `/remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -1049,7 +1049,7 @@ describe('Main: Currently testing files management,', function () {
       )
       await provider
       const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/subdir/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `/remote.php/webdav/${testFolder}/subdir/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
           username: config.testUser,

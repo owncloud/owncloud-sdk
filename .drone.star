@@ -408,7 +408,7 @@ def oc10ProviderTestPipeline():
             owncloudLog() +
             setupServerAndApp() +
             fixPermissions()+
-            pactProviderTests('daily-master-qa', 'http://owncloud/'),
+            pactProviderTests('daily-master-qa', 'http://owncloud'),
          'services':
             owncloudService() +
             databaseService()

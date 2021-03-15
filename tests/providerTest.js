@@ -16,7 +16,8 @@ describe('provider testing', () => {
     validAdminAuthHeaders,
     applicationFormUrlEncoded,
     getAuthHeaders,
-    sanitizeUrl
+    sanitizeUrl,
+    getProviderBaseUrl
   } = require('./pactHelper.js')
 
   const {
@@ -36,7 +37,7 @@ describe('provider testing', () => {
 
   chai.use(chaiAsPromised)
 
-  const providerBaseUrl = process.env.PROVIDER_BASE_URL || 'http://localhost/'
+  const providerBaseUrl = getProviderBaseUrl()
 
   const assertFoldersCreatedSuccessfully = function (results, folderName) {
     for (let i = 0; i < results.length; i++) {
@@ -293,7 +294,7 @@ describe('provider testing', () => {
       },
       'signed-key is returned': (setup, parameters) => {
         if (setup) {
-          let url = process.env.PROVIDER_BASE_URL + `/remote.php/dav/files/${parameters.username}/${parameters.path}`
+          let url = providerBaseUrl + `/remote.php/dav/files/${parameters.username}/${parameters.path}`
           url = sanitizeUrl(url)
           const signKey = getSignKey(parameters.username, parameters.password)
           url = new URL(url)

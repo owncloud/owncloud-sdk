@@ -495,6 +495,12 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
     })
 }
 
+const getProviderBaseUrl = function () {
+  let providerBaseUrl = process.env.PROVIDER_BASE_URL || 'http://localhost/'
+  providerBaseUrl = providerBaseUrl.replace(/\/$/, '')
+  return providerBaseUrl
+}
+
 module.exports = {
   getAuthHeaders,
   getContentsOfFileInteraction,
@@ -528,5 +534,6 @@ module.exports = {
   deleteUserInteraction,
   createFolderInteraction,
   updateFileInteraction,
-  sanitizeUrl
+  sanitizeUrl,
+  getProviderBaseUrl
 }

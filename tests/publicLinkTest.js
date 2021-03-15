@@ -117,17 +117,17 @@ describe('oc.publicFiles', function () {
       'token only': {
         token: 'abcdef',
         path: null,
-        expected: 'remote.php/dav/public-files/abcdef'
+        expected: '/remote.php/dav/public-files/abcdef'
       },
       'token and path': {
         token: 'abcdef',
         path: 'foo/bar.txt',
-        expected: 'remote.php/dav/public-files/abcdef/foo/bar.txt'
+        expected: '/remote.php/dav/public-files/abcdef/foo/bar.txt'
       },
       'token and path starting with a forward slash': {
         token: 'abcdef',
         path: '/foo/bar.txt',
-        expected: 'remote.php/dav/public-files/abcdef/foo/bar.txt'
+        expected: '/remote.php/dav/public-files/abcdef/foo/bar.txt'
       }
     }, function (data, description) {
       it('shall work with ' + description, function () {
@@ -479,7 +479,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/lorem123456.txt', /* eslint-disable-line */
-                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
+                  `${config.backendHost}/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
@@ -518,7 +518,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/foo/lorem.txt', /* eslint-disable-line */
-                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
+                  `${config.backendHost}/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
@@ -552,7 +552,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/bar', /* eslint-disable-line */
-                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
+                  `${config.backendHost}/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
                 )
               }
             }).willRespondWith(moveResourceResponse)

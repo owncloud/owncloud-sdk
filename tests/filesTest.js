@@ -18,7 +18,6 @@ describe('Main: Currently testing files management,', function () {
     testSubFiles,
     validAuthHeaders,
     applicationXmlResponseHeaders,
-    htmlResponseHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     getAuthHeaders,

@@ -50,7 +50,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
-        baseUrl: config.owncloudURL,
+        baseUrl: config.backendHost,
         auth: {
           basic: {
             username: nonExistentUser,
@@ -73,7 +73,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
-        baseUrl: config.owncloudURL,
+        baseUrl: config.backendHost,
         auth: {
           basic: {
             username: config.adminUsername,
@@ -96,7 +96,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     await getCurrentUserInformationInteraction(provider)
     return provider.executeTest(async () => {
       oc = new OwnCloud({
-        baseUrl: config.owncloudURL,
+        baseUrl: config.backendHost,
         auth: {
           basic: {
             username: config.adminUsername,

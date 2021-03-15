@@ -1,7 +1,9 @@
 {
-    "owncloudURL": "http://127.0.0.1:1234/${SUBFOLDER}",
+    "backendHost": "http://127.0.0.1:1234/",
+    "pactMockPort": 1234,
     "adminUsername": "admin",
     "adminPassword": "admin",
+    "adminDisplayName": "Admin",
     "testUser": "test123",
     "testUserPassword": "test123",
     "testUser2": "testABC",
@@ -17,6 +19,7 @@
     "nonExistentDir": "nonExistentDir",
     "shareTokenOfPasswordProtectedPublicLinkFolder": "7PGbQApejJDgmZL",
     "shareTokenOfPublicLinkFolder": "St6nrQx74PWDuEF",
+    "testFolderId": 9,
     "testFiles": [
       "test space and + and #.txt",
       "test.txt",

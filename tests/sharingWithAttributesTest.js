@@ -4,7 +4,7 @@ describe('oc.shares', function () {
   const config = require('./config/config.json')
 
   const {
-    applicationXmlResponseHeaders,
+    xmlResponseHeaders,
     applicationFormUrlEncoded,
     ocsMeta,
     shareResponseOcsData,
@@ -61,10 +61,10 @@ describe('oc.shares', function () {
       })
       .willRespondWith({
         status: 200,
-        headers: applicationXmlResponseHeaders,
+        headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           })
             .appendElement('data', '', (data) => {
               shareResponseOcsData(data, 0, 7, 17, '/' + testFile)

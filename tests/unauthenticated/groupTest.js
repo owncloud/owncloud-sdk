@@ -13,7 +13,7 @@ describe('Unauthenticated: Currently testing group management,', function () {
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.owncloudURL
+      baseUrl: config.backendHost
     })
   })
 

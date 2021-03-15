@@ -15,7 +15,7 @@ describe('Unauthenticated: Currently testing user management,', function () {
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.owncloudURL
+      baseUrl: config.backendHost
     })
   })
 

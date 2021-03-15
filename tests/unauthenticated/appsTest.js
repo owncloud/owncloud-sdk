@@ -7,7 +7,7 @@ describe('Unauthenticated: Currently testing apps management,', function () {
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.owncloudURL
+      baseUrl: config.backendHost
     })
   })
 

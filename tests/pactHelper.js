@@ -50,7 +50,9 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
     .appendElement('stime', '', MatchersV3.string(Math.floor(Date.now() / 1000)))
 
   if (shareType === 3) {
-    res.appendElement('url', '', config.owncloudURL + '/s/yrkoLeS33y1aTya')
+    res.appendElement('url', '', MatchersV3.regex(
+      '.*\\/s\\/[a-zA-Z0-9]+',
+      config.backendHost + '/s/yrkoLeS33y1aTya'))
   }
   return res
 }
@@ -117,7 +119,7 @@ const createProvider = function () {
   return new PactV3({
     consumer: 'owncloud-sdk',
     provider: 'oc-server',
-    port: 1234,
+    port: config.pactMockPort,
     dir: path.resolve(process.cwd(), 'tests', 'pacts')
   })
 }
@@ -128,7 +130,7 @@ const sanitizeUrl = (url) => {
 
 const createOwncloud = function (username = config.adminUsername, password = config.adminPassword) {
   const oc = new OwnCloud({
-    baseUrl: config.owncloudURL,
+    baseUrl: config.backendHost,
     auth: {
       basic: {
         username,
@@ -270,6 +272,11 @@ async function getCapabilitiesInteraction (
       query: { format: 'json' },
       headers: { authorization: getAuthHeaders(user, password) }
     })
+    /*
+      [oCIS] ocis returns `text/plain` content-type not `application/json`
+      when requesting with `?format=json`
+      https://github.com/owncloud/ocis/issues/1779
+    */
     .willRespondWith({
       status: 200,
       headers: {
@@ -308,37 +315,6 @@ async function getCapabilitiesInteraction (
                 trashbin: '1.0'
               }
             }
-          }
-        }
-      }
-    })
-}
-
-const getUserInformationAsAdminInteraction = function (provider) {
-  return provider.uponReceiving(`as '${config.adminUsername}', a GET request to user information`)
-    .withRequest({
-      method: 'GET',
-      path: MatchersV3.regex(
-        '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-        '/ocs/v2.php/cloud/users/' + config.testUser
-      ),
-      query: { format: 'json' },
-      headers: validAdminAuthHeaders
-    })
-    .willRespondWith({
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      },
-      body: {
-        ocs: {
-          meta: {
-            status: 'ok',
-            statuscode: 200,
-            message: null
-          },
-          data: {
-            email: 'foo@bar.net'
           }
         }
       }
@@ -440,7 +416,7 @@ const deleteUserInteraction = function (provider) {
       body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
         ocs
           .appendElement('meta', '', meta => {
-            ocsMeta(meta, 'ok', 100)
+            ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
           })
           .appendElement('data', '', '')
       })
@@ -545,7 +521,6 @@ module.exports = {
   uriEncodedTestSubFiles,
   getCapabilitiesInteraction,
   getCurrentUserInformationInteraction,
-  getUserInformationAsAdminInteraction,
   createOwncloud,
   createProvider,
   getCapabilitiesWithInvalidAuthInteraction,

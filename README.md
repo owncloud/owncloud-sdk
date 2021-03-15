@@ -74,14 +74,28 @@ To build the jsdocs, type this command and follow the instructions on the termin
 $ yarn build:docs
 ```
 
-## Unit tests
+## Unit/Integration tests
 
-The following command will run all unit tests. Before running the command, make sure you have edited the `owncloud/test/config.json` file accordingly.
+owncloud-sdk uses [pactjs](https://github.com/pact-foundation/pact-js) with jest for unit and integration test.
+Before running tests you need to create config.json file.
+```
+$ cp tests/config/config.sample.json tests/config/config.json
+```
+
+### consumer tests
+The pact consumer tests checks owncloud sdk against the pact mock server. In order to run these tests, use this comand
 
 ```
-$ yarn test
+$ yarn test-consumer
 ```
 
+If you have pacts from old test run in `tests/pacts` your tests will fail. Make sure to delete that before you run the tests again.
+
+### Provider tests
+The pact provider tests tests the pacts generated from the consumer tests against the real owncloud bakcend server. For this you will need a actual owncloud server running. Then you can run the pact tests with this command.
+```
+$ PROVIDER_BASE_URL=<owncloud-backend-url> yarn test-provider
+```
 
 ## Team
 

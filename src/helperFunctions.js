@@ -35,6 +35,7 @@ class helpers {
     this._versionNumber = null
     this._currentUser = null
     this._signingKey = null
+    this.fetch = fetch
   }
 
   /**
@@ -423,10 +424,18 @@ class helpers {
   }
 
   _buildFullWebDAVPath (path) {
-    return this._webdavUrl + this._encodeUri(path)
+    return this._encodeUri(path)
   }
 
   _buildFullWebDAVPathV2 (path) {
+    return this._encodeUri(path)
+  }
+
+  _buildFullWebDAVURL (path) {
+    return this._webdavUrl + this._encodeUri(path)
+  }
+
+  _buildFullWebDAVURLV2 (path) {
     return this._davPath + this._encodeUri(path)
   }
 
@@ -529,8 +538,8 @@ class helpers {
     let fileType = 'file'
     const resType = props['{DAV:}resourcetype']
     if (resType) {
-      const xmlvalue = resType[0]
-      if (xmlvalue.namespaceURI === 'DAV:' && xmlvalue.nodeName.split(':')[1] === 'collection') {
+      const node = resType[0]
+      if (node === '{DAV:}collection') {
         fileType = 'dir'
       }
     }
@@ -538,28 +547,30 @@ class helpers {
     return new FileInfo(name, fileType, props)
   }
 
-  _parseTusHeaders (xhr) {
+  _parseTusHeaders (response) {
     const result = {}
+
+    const resHeaders = response.res.headers
     // hack to avoid logging the uncatchable "refused to get unsafe header"
-    const allHeaders = xhr.getAllResponseHeaders().toLowerCase()
-    if (allHeaders.indexOf('tus-version:') < 0) {
+    const allHeaders = Object.keys(response.res.headers).map(header => header.toLowerCase())
+    if (allHeaders.indexOf('tus-version') < 0) {
       // backend did not expose TUS headers, unsupported
       return null
     }
-    const version = xhr.getResponseHeader('tus-version')
+    const version = resHeaders['tus-version']
     if (!version) {
       // TUS not supported
       return null
     }
     result.version = version.split(',')
-    if (xhr.getResponseHeader('tus-extension')) {
-      result.extension = xhr.getResponseHeader('tus-extension').split(',')
+    if (resHeaders['tus-extension']) {
+      result.extension = resHeaders['tus-extension'].split(',')
     }
-    if (xhr.getResponseHeader('tus-resumable')) {
-      result.resumable = xhr.getResponseHeader('tus-resumable')
+    if (resHeaders['tus-resumable']) {
+      result.resumable = resHeaders['tus-resumable']
     }
-    if (xhr.getResponseHeader('tus-max-size')) {
-      result.maxSize = parseInt(xhr.getResponseHeader('tus-max-size'), 10)
+    if (resHeaders['tus-max-size']) {
+      result.maxSize = parseInt(resHeaders['tus-max-size'], 10)
     }
     return result
   }

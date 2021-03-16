@@ -282,8 +282,8 @@ describe('provider testing', () => {
       },
       'file exists in last shared public share': (setup, parameters) => {
         if (setup) {
-          const { fileName } = parameters
-          const response = createFileInLastPublicShare(lastSharedToken, fileName)
+          const { fileName, content } = parameters
+          const response = createFileInLastPublicShare(lastSharedToken, fileName, content)
 
           const { status } = response
           if (status !== 201 && status !== 204) {

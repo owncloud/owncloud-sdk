@@ -110,10 +110,12 @@ const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0'
       .appendElement('s:message', '', message)
   })
 
-const webdavPath = resource => MatchersV3.regex(
-  '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
-  `/remote.php/webdav/${resource}`
-)
+const webdavPath = (resource) => {
+  return MatchersV3.regex(
+    '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
+    path.join('/remote.php/webdav', resource)
+  )
+}
 
 const createProvider = function () {
   return new PactV3({

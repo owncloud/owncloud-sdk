@@ -1,5 +1,3 @@
-// TODO: Unskip the tests after the issue is fixed
-// https://github.com/owncloud/owncloud-sdk/issues/705
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.publicFiles', function () {
@@ -8,17 +6,16 @@ describe('oc.publicFiles', function () {
   const { testUser, testUserPassword, testFolder, testFile } = config
 
   const {
-    validAdminAuthHeaders,
-    origin,
-    xmlResponseAndAccessControlCombinedHeader,
+    applicationXmlResponseHeaders,
     htmlResponseAndAccessControlCombinedHeader,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     createOwncloud,
     createProvider,
     textPlainResponseHeaders,
-    applicationXmlResponseHeaders,
-    ocsMeta
+    ocsMeta,
+    applicationFormUrlEncoded,
+    validAdminAuthHeaders
   } = require('./pactHelper.js')
 
   const publicLinkShareTokenPath = MatchersV3.regex(
@@ -28,27 +25,56 @@ describe('oc.publicFiles', function () {
 
   const moveResourceResponse = {
     status: 201,
-    headers: htmlResponseAndAccessControlCombinedHeader
+    headers: {
+      ...htmlResponseAndAccessControlCombinedHeader
+    }
   }
 
-  const publicShareInteraction = (provider, description, method, responseBody) => {
+  const getPublicLinkAuthHeader = (password) => {
+    if (!password) {
+      return {}
+    }
+    return { Authorization: 'Basic ' + Buffer.from('public:' + password, 'binary').toString('base64') }
+  }
+
+  const publicShareInteraction = (provider, description, method, responseBody, password = null) => {
+    const path = MatchersV3.regex(
+      '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+      '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+    )
+    let headers = {}
+    let body = ''
+    if (method === 'POST') {
+      headers = { ...applicationFormUrlEncoded, ...validAdminAuthHeaders }
+      body = 'shareType=3&path=%2FtestFolder'
+      if (password) {
+        body = body + '&password=' + password
+      }
+    } else {
+      if (password) {
+        headers = { ...headers, ...getPublicLinkAuthHeader(password) }
+      }
+    }
+    description = `${description}: with${password ? '' : 'out'} password ${password || ''}`
     return provider
       .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
-        method: method,
-        path: MatchersV3.regex(
-          '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
-          '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-        ),
-        headers: validAdminAuthHeaders
+        method,
+        path,
+        headers,
+        body
       }).willRespondWith({
         status: 200,
-        headers: xmlResponseAndAccessControlCombinedHeader,
+        headers: applicationXmlResponseHeaders,
         body: responseBody
       })
   }
 
-  const folderInPublicShareInteraction = (provider, description, method, statusCode) => {
+  const folderInPublicShareInteraction = (provider, description, method, statusCode, password = null) => {
+    let headers = {}
+    if (password) {
+      headers = getPublicLinkAuthHeader(password)
+    }
     return provider
       .given('the user is recreated', { username: testUser, password: testUserPassword })
       .given('folder exists', {
@@ -69,7 +95,8 @@ describe('oc.publicFiles', function () {
         path: MatchersV3.fromProviderState(
           '/remote.php/dav/public-files/${token}/foo', /* eslint-disable-line no-template-curly-in-string */
           `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
-        )
+        ),
+        headers
       })
       .willRespondWith({
         status: statusCode,
@@ -77,8 +104,28 @@ describe('oc.publicFiles', function () {
       })
   }
 
-  const publicShareContentInteraction = (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined) => {
-    return provider
+  const publicShareContentInteraction = async (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined, password) => {
+    let headers = textPlainResponseHeaders
+    let responseHeaders = {}
+    if (method === 'PUT') {
+      headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+      responseHeaders = {
+        ETag: MatchersV3.string('f356def9fc42fd4cbddf293eba3efa86'),
+        'OC-ETag': MatchersV3.string('f356def9fc42fd4cbddf293eba3efa86')
+      }
+    } else if (method === 'GET') {
+      headers = {}
+      responseHeaders = textPlainResponseHeaders
+    }
+    if (password) {
+      headers = {
+        ...headers,
+        ...getPublicLinkAuthHeader(password)
+      }
+    }
+    await provider
       .given('the user is recreated', { username: testUser, password: testUserPassword })
       .given('folder exists', {
         username: testUser,
@@ -92,7 +139,12 @@ describe('oc.publicFiles', function () {
         shareType: 3,
         permissions: 15
       })
-      .given('file exists in last shared public share', { fileName: testFile })
+
+    if (method === 'GET') {
+      await provider.given('file exists in last shared public share', { fileName: testFile, content: responseBody })
+    }
+
+    return provider
       .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
@@ -100,14 +152,12 @@ describe('oc.publicFiles', function () {
           '/remote.php/dav/public-files/${token}/' + testFile, /* eslint-disable-line no-template-curly-in-string */
           `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
         ),
-        headers: {
-          ...textPlainResponseHeaders
-        },
+        headers,
         body: requestBody
       })
       .willRespondWith({
         status: statusCode,
-        headers: htmlResponseAndAccessControlCombinedHeader,
+        headers: responseHeaders,
         body: responseBody
       })
   }
@@ -138,7 +188,7 @@ describe('oc.publicFiles', function () {
     })
   })
 
-  describe.skip('when listing a shared folder', function () {
+  describe('when listing a shared folder', function () {
     using({
       'without password': {
         shareParams: {},
@@ -178,49 +228,84 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
-          await publicShareInteraction(
-            provider,
-            'create a public link share',
-            'POST',
-            new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-              ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'ok', '100')
-              }).appendElement('data', '', (data) => {
-                data.appendElement('token', '', config.shareTokenOfPublicLinkFolder)
-              })
-            })
-          )
-          if (data.shallGrantAccess) {
-            await provider
-              .uponReceiving(`as '${testUser}', a PROPFIND request to list contents of a public link folder`)
-              .withRequest({
-                method: 'PROPFIND',
-                path: publicLinkShareTokenPath
-              })
+
+          const createPublicLinkInteraction = (provider, options) => {
+            const method = 'POST'
+            const path = MatchersV3.regex(
+              '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares',
+              '/ocs/v1.php/apps/files_sharing/api/v1/shares'
+            )
+            const { shareParams } = options
+            const headers = { ...applicationFormUrlEncoded, ...validAdminAuthHeaders }
+            let body = 'shareType=3&path=%2FtestFolder'
+            if (shareParams.password) {
+              body += '&password=' + shareParams.password
+            }
+            let description = 'Create a public Link for path /testFolder'
+            if (shareParams.password) {
+              description += ' with password ' + shareParams.password
+            }
+            return provider
+              .uponReceiving(description)
+              .withRequest({ method, headers, path, body })
               .willRespondWith({
-                status: 207,
-                headers: xmlResponseAndAccessControlCombinedHeader,
-                body: propfindBody('1')
-              })
-          } else {
-            await provider
-              .uponReceiving(`as '${testUser}', a PROPFIND request to list contents of a password protected public link folder using the wrong password`)
-              .withRequest({
-                method: 'PROPFIND',
-                path: publicLinkShareTokenPath,
-                headers: {
-                  Origin: origin
-                }
-              })
-              .willRespondWith({
-                status: 401,
-                headers: xmlResponseAndAccessControlCombinedHeader,
-                body: new XmlBuilder('1.0', '', 'd:error').build(dError => {
-                  dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
-                  dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\webdavExceptionResponseBody')
+                status: 200,
+                headers: applicationXmlResponseHeaders,
+                body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+                  ocs.appendElement('meta', '', (meta) => {
+                    ocsMeta(meta, 'ok', '100')
+                  }).appendElement('data', '', (data) => {
+                    data.appendElement('token', '', config.shareTokenOfPublicLinkFolder)
+                  })
                 })
               })
           }
+
+          const listContentsOfPublicLinkInteraction = (provider, options) => {
+            const { passwordWhenListing, shallGrantAccess } = options
+            let description = 'list content of public link folder'
+            if (passwordWhenListing) {
+              if (shallGrantAccess) {
+                description += ' with valid password ' + passwordWhenListing
+              } else {
+                description += ' with invalid password ' + passwordWhenListing
+              }
+            } else {
+              if (shallGrantAccess) {
+                description += ' where password is not set'
+              } else {
+                description += ' where password is set'
+              }
+            }
+            let headers, body
+            if (passwordWhenListing) {
+              headers = getPublicLinkAuthHeader(data.passwordWhenListing)
+            }
+            if (shallGrantAccess) {
+              body = propfindBody('1')
+            } else {
+              body = new XmlBuilder('1.0', '', 'd:error').build(dError => {
+                dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+                dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\webdavExceptionResponseBody')
+              })
+            }
+            const status = shallGrantAccess ? 207 : 401
+            return provider
+              .uponReceiving(description)
+              .withRequest({
+                method: 'PROPFIND',
+                path: publicLinkShareTokenPath,
+                headers
+              })
+              .willRespondWith({
+                status,
+                headers: applicationXmlResponseHeaders,
+                body
+              })
+          }
+
+          await createPublicLinkInteraction(provider, data)
+          await listContentsOfPublicLinkInteraction(provider, data)
           return provider.executeTest(async () => {
             const oc = createOwncloud()
             await oc.login()
@@ -266,44 +351,71 @@ describe('oc.publicFiles', function () {
         })
 
         it('should download files from a public shared folder', async function () {
-          const provider = createProvider()
-          if (data.shallGrantAccess) {
-            await provider
-              .uponReceiving(`as '${testUser}', a GET request to download files from a public shared folder`)
-              .withRequest({
-                method: 'GET',
-                path: publicLinkShareTokenPath
+          const getFileFromPublicLinkInteraction = (provider, options) => {
+            const method = 'GET'
+            const path = MatchersV3.regex(
+              '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[2]),
+              '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[2])
+            )
+            const { shallGrantAccess, passwordWhenListing } = options
+
+            let resStatusCode = 200
+            let resBody = testContent
+            let respHeaders = {}
+
+            if (!shallGrantAccess) {
+              resStatusCode = 401
+              resBody = new XmlBuilder('1.0', '', 'd:error').build(dError => {
+                dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+                dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
+                  .appendElement('s:message', '', 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect')
               })
-              .willRespondWith({
-                status: 200,
-                headers: {
-                  'Content-Type': 'text/plain;charset=UTF-8',
-                  'Access-Control-Allow-Origin': origin
-                },
-                body: testContent
-              })
-          } else {
-            await provider
-              .uponReceiving(`as '${testUser}', a GET request to download files from a public shared folder using wrong password`)
-              .withRequest({
-                method: 'GET',
-                path: publicLinkShareTokenPath
-              })
-              .willRespondWith({
-                status: 401,
-                headers: {
-                  // 'Content-Type': 'text/plain;charset=UTF-8',
-                  'Access-Control-Allow-Origin': origin
-                },
-                body: new XmlBuilder('1.0', '', 'd:error').build(dError => {
-                  dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
-                  dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
-                    .appendElement('s:message', '', 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect')
-                })
-              })
+            } else {
+              respHeaders = { 'Content-Type': 'text/plain;charset=UTF-8' }
+            }
+
+            let headers
+            if (passwordWhenListing) {
+              headers = getPublicLinkAuthHeader(data.passwordWhenListing)
+            }
+            let description = 'download files from a public shared folder'
+            if (passwordWhenListing) {
+              if (shallGrantAccess) {
+                description += ' with valid password ' + passwordWhenListing
+              } else {
+                description += ' with invalid password ' + passwordWhenListing
+              }
+            } else {
+              if (shallGrantAccess) {
+                description += ' where password is not set'
+              } else {
+                description += ' where password is set'
+              }
+            }
+            return provider
+              .uponReceiving(description)
+              .withRequest({ method, path, headers })
+              .willRespondWith({ status: resStatusCode, body: resBody, headers, respHeaders })
           }
+
+          const provider = createProvider()
+
+          await getFileFromPublicLinkInteraction(provider, data)
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
+          await publicShareInteraction(
+            provider,
+            'create a public link share',
+            'POST',
+            new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+              ocs.appendElement('meta', '', (meta) => {
+                ocsMeta(meta, 'ok', '100')
+              }).appendElement('data', '', (data) => {
+                data.appendElement('token', '', config.shareTokenOfPublicLinkFolder)
+              })
+            }),
+            data.shareParams.password
+          )
 
           return provider.executeTest(async () => {
             const oc = createOwncloud()
@@ -363,7 +475,8 @@ describe('oc.publicFiles', function () {
             provider,
             'create a folder in public share' + ' ' + data.description,
             'MKCOL',
-            201
+            201,
+            data.shareParams.password
           )
 
           return provider.executeTest(async () => {
@@ -378,7 +491,7 @@ describe('oc.publicFiles', function () {
           })
         })
 
-        it.skip('should create a file', async function () {
+        it('should create a file', async function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
@@ -387,7 +500,9 @@ describe('oc.publicFiles', function () {
             'update content of public share' + ' ' + data.description,
             'PUT',
             204,
-            'lorem'
+            config.testContent,
+            null,
+            data.shareParams.password
           )
 
           await publicShareContentInteraction(
@@ -396,7 +511,8 @@ describe('oc.publicFiles', function () {
             'GET',
             200,
             undefined,
-            config.testContent
+            config.testContent,
+            data.shareParams.password
           )
 
           return provider.executeTest(async () => {
@@ -420,7 +536,9 @@ describe('oc.publicFiles', function () {
                 options
               )
               expect(typeof status).toBe('object')
-              expect(progressCalled).toEqual(true)
+
+              // uploadProgress callbacks are only called in browser runtime
+              expect(progressCalled).toEqual(typeof window !== 'undefined')
               const resp = await oc.publicFiles.download(config.shareTokenOfPublicLinkFolder, newFile, data.shareParams.password)
               const content = await resp.text()
               expect(content).toEqual(testContent)
@@ -439,7 +557,9 @@ describe('oc.publicFiles', function () {
             'update content of public share' + ' ' + data.description + ' and content lorem',
             'PUT',
             204,
-            'lorem'
+            'lorem',
+            null,
+            data.shareParams.password
           )
           return provider.executeTest(async () => {
             const oc = createOwncloud(testUser, testUserPassword)
@@ -477,6 +597,7 @@ describe('oc.publicFiles', function () {
                 `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
               ),
               headers: {
+                ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/lorem123456.txt', /* eslint-disable-line */
                   `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
@@ -516,6 +637,7 @@ describe('oc.publicFiles', function () {
                 `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
               ),
               headers: {
+                ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/foo/lorem.txt', /* eslint-disable-line */
                   `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
@@ -570,7 +692,7 @@ describe('oc.publicFiles', function () {
           })
         })
 
-        it.skip('should get fileInfo of shared folder', async function () {
+        it('should get fileInfo of shared folder', async function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
@@ -580,6 +702,7 @@ describe('oc.publicFiles', function () {
               method: 'PROPFIND',
               path: publicLinkShareTokenPath,
               headers: {
+                ...getPublicLinkAuthHeader(data.shareParams.headers),
                 ...applicationXmlResponseHeaders
               },
               body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
@@ -596,7 +719,7 @@ describe('oc.publicFiles', function () {
             })
             .willRespondWith({
               status: 207,
-              headers: xmlResponseAndAccessControlCombinedHeader,
+              headers: applicationXmlResponseHeaders,
               body: propfindBody('15')
             })
 
@@ -649,7 +772,7 @@ describe('oc.publicFiles', function () {
 
   function propfindBody (permission) {
     return new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
-      dMultistatus.appendElement('d:response', '', dResponse => {
+      const node = dMultistatus.appendElement('d:response', '', dResponse => {
         dResponse.appendElement('d:href', '', '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder)
           .appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
@@ -660,10 +783,10 @@ describe('oc.publicFiles', function () {
             })
               .appendElement('d:status', '', 'HTTP/1.1 200 OK')
           })
-        if (permission === '1') {
-          buildPropfindFileList(dResponse)
-        }
       })
+      if (permission === '1') {
+        buildPropfindFileList(node)
+      }
     })
   }
 })

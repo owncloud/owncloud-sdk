@@ -1,5 +1,5 @@
 const Promise = require('promise')
-const dav = require('davclient.js')
+const { Dav } = require('./dav')
 
 /**
  * @class PublicFiles
@@ -13,13 +13,8 @@ const dav = require('davclient.js')
 class PublicFiles {
   constructor (helperFile) {
     this.helpers = helperFile
-    this.davClient = new dav.Client({
-      baseUrl: this.helpers._webdavUrl,
-      xmlNamespaces: {
-        'DAV:': 'd',
-        'http://owncloud.org/ns': 'oc'
-      }
-    })
+
+    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
 
     // constant definitions
     this.PUBLIC_LINK_ITEM_TYPE = '{http://owncloud.org/ns}public-link-item-type'
@@ -41,7 +36,7 @@ class PublicFiles {
    */
   async list (tokenAndPath, password = null, properties = [], depth = '1') {
     const headers = this.helpers.buildHeaders(false)
-    const url = this.getFileUrl(tokenAndPath)
+    const url = this.getFileSharePath(tokenAndPath)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
@@ -58,13 +53,13 @@ class PublicFiles {
       ]
     }
 
-    const result = await this.davClient.propFind(url, properties, depth, headers)
+    const result = await this.davClient.propFind(url, properties, depth, headers, { version: 'v2' })
 
     if (result.status === 207) {
       return this.helpers._parseBody(result.body, 1)
     }
 
-    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
   }
 
   /**
@@ -87,7 +82,7 @@ class PublicFiles {
       headers: headers
     }
 
-    return fetch(url, init).then(resp => {
+    return this.helpers.fetch(url, init).then(resp => {
       if (resp.ok) {
         return Promise.resolve(resp)
       }
@@ -109,6 +104,24 @@ class PublicFiles {
       // In case of the path starting with a "/" we remove it
       path = path.replace(/^\//, '')
 
+      return this.helpers._buildFullWebDAVURLV2('/public-files/' + token + '/' + path)
+    }
+
+    return this.helpers._buildFullWebDAVURLV2('/public-files/' + token)
+  }
+
+  /**
+   * Returns the url of a public file
+   * @param  {string}       token  public share token - may contain the path as well
+   * @param  {string|null}  path   path to a file in the share
+   * @return {string}              Url of the public file
+   */
+  getFileSharePath (token, path = null) {
+    token = token.replace(/^\//, '')
+    if (path) {
+      // In case of the path starting with a "/" we remove it
+      path = path.replace(/^\//, '')
+
       return this.helpers._buildFullWebDAVPathV2('/public-files/' + token + '/' + path)
     }
 
@@ -125,13 +138,13 @@ class PublicFiles {
    */
   createFolder (token, path = null, password = null) {
     const headers = this.helpers.buildHeaders(false)
-    const url = this.getFileUrl(token, path)
+    const url = this.getFileSharePath(token, path)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
-    return this.davClient.request('MKCOL', url, headers).then(result => {
+    return this.davClient.request('MKCOL', url, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -149,13 +162,13 @@ class PublicFiles {
    */
   delete (token, path = null, password = null) {
     const headers = this.helpers.buildHeaders(false)
-    const url = this.getFileUrl(token, path)
+    const url = this.getFileSharePath(token, path)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
-    return this.davClient.request('DELETE', url, headers).then(result => {
+    return this.davClient.request('DELETE', url, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
@@ -180,7 +193,7 @@ class PublicFiles {
    */
   putFileContents (token, path = null, password = null, content = '', options = {}) {
     const headers = Object.assign({}, this.helpers.buildHeaders(), options.headers)
-    const url = this.getFileUrl(token, path)
+    const url = this.getFileSharePath(token, path)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
@@ -194,15 +207,15 @@ class PublicFiles {
       headers['If-None-Match'] = '*'
     }
 
-    const requestOptions = {}
+    const requestOptions = { version: 'v2' }
     if (options.onProgress) {
       requestOptions.onProgress = options.onProgress
     }
-    return this.davClient.request('PUT', url, headers, content, null, requestOptions).then(result => {
+    return this.davClient.request('PUT', url, headers, content, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
-          ETag: result.xhr.getResponseHeader('etag'),
-          'OC-FileId': result.xhr.getResponseHeader('oc-fileid')
+          ETag: result.res.headers.etag,
+          'OC-FileId': result.res.headers['oc-fileid']
         })
       } else {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
@@ -220,14 +233,14 @@ class PublicFiles {
    */
   move (source, target, password = null) {
     const headers = this.helpers.buildHeaders(false)
-    const sourceUrl = this.getFileUrl(source)
+    const sourceUrl = this.getFileSharePath(source)
     const targetUrl = this.getFileUrl(target)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     headers.Destination = targetUrl
-    return this.davClient.request('MOVE', sourceUrl, headers).then(result => {
+    return this.davClient.request('MOVE', sourceUrl, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -245,14 +258,14 @@ class PublicFiles {
    */
   copy (source, target, password = null) {
     const headers = this.helpers.buildHeaders(false)
-    const sourceUrl = this.getFileUrl(source)
+    const sourceUrl = this.getFileSharePath(source)
     const targetUrl = this.getFileUrl(target)
 
     if (password) {
       headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     headers.Destination = targetUrl
-    return this.davClient.request('COPY', sourceUrl, headers).then(result => {
+    return this.davClient.request('COPY', sourceUrl, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }

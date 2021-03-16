@@ -1,5 +1,5 @@
 const Promise = require('promise')
-const dav = require('davclient.js')
+const { Dav } = require('./dav')
 
 /**
  * @class FilesTrash
@@ -12,13 +12,7 @@ const dav = require('davclient.js')
 class FilesTrash {
   constructor (helperFile) {
     this.helpers = helperFile
-    this.davClient = new dav.Client({
-      baseUrl: this.helpers._webdavUrl,
-      xmlNamespaces: {
-        'DAV:': 'd',
-        'http://owncloud.org/ns': 'oc'
-      }
-    })
+    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
   }
 
   /**
@@ -46,9 +40,15 @@ class FilesTrash {
     const headers = this.helpers.buildHeaders()
     const target = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + path
 
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(target), properties, depth, headers).then(result => {
+    return this.davClient.propFind(
+      this.helpers._buildFullWebDAVPathV2(target),
+      properties,
+      depth,
+      headers,
+      { version: 'v2' }
+    ).then(result => {
       if (result.status !== 207) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
         return Promise.resolve(this.helpers._parseBody(result.body))
       }
@@ -71,11 +71,17 @@ class FilesTrash {
       target += item
     }
 
-    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPathV2(target), headers).then(result => {
+    return this.davClient.request(
+      'DELETE',
+      this.helpers._buildFullWebDAVPathV2(target),
+      headers,
+      null,
+      { version: 'v2' }
+    ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.data))
       }
     })
   }
@@ -99,13 +105,19 @@ class FilesTrash {
     const source = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + fileId
     const target = '/files/' + this.helpers.getCurrentUser().id + '/' + originalLocation
 
-    headers.Destination = this.helpers._buildFullWebDAVPathV2(target)
+    headers.Destination = this.helpers._buildFullWebDAVURLV2(target)
     headers.Overwrite = overWrite ? 'T' : 'F'
-    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPathV2(source), headers).then(result => {
+    return this.davClient.request(
+      'MOVE',
+      this.helpers._buildFullWebDAVPathV2(source),
+      headers,
+      null,
+      { version: 'v2' }
+    ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.xhr.response))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.data))
       }
     })
   }

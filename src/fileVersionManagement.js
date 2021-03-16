@@ -1,5 +1,5 @@
 const Promise = require('promise')
-const dav = require('davclient.js')
+const { Dav } = require('./dav')
 
 /**
  * @class FilesVersions
@@ -23,13 +23,7 @@ const dav = require('davclient.js')
 class FilesVersions {
   constructor (helperFile) {
     this.helpers = helperFile
-    this.davClient = new dav.Client({
-      baseUrl: this.helpers._webdavUrl,
-      xmlNamespaces: {
-        'DAV:': 'd',
-        'http://owncloud.org/ns': 'oc'
-      }
-    })
+    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
   }
 
   /**
@@ -43,7 +37,7 @@ class FilesVersions {
 
     return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), [], 1, {
       Authorization: this.helpers.getAuthorization()
-    }).then(result => {
+    }, { version: 'v2' }).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
@@ -60,7 +54,7 @@ class FilesVersions {
   getFileVersionContents (fileId, versionId) {
     const path = '/meta/' + fileId + '/v/' + versionId
 
-    return this.helpers._get(this.helpers._buildFullWebDAVPathV2(path)).then(data => {
+    return this.helpers._get(this.helpers._buildFullWebDAVURLV2(path)).then(data => {
       const response = data.response
       const body = data.body
 
@@ -88,8 +82,8 @@ class FilesVersions {
 
     return this.davClient.request('COPY', this.helpers._buildFullWebDAVPathV2(source), {
       Authorization: this.helpers.getAuthorization(),
-      Destination: this.helpers._buildFullWebDAVPathV2(target)
-    }).then(result => {
+      Destination: this.helpers._buildFullWebDAVURLV2(target)
+    }, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
@@ -106,7 +100,7 @@ class FilesVersions {
    */
   getFileVersionUrl (fileId, versionId) {
     const source = '/meta/' + fileId + '/v/' + versionId
-    return this.helpers._buildFullWebDAVPathV2(source)
+    return this.helpers._buildFullWebDAVURLV2(source)
   }
 }
 

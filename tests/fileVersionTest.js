@@ -1,5 +1,3 @@
-// TODO: Unskip the tests after the issue is fixed
-// https://github.com/owncloud/owncloud-sdk/issues/705
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing file versions management,', function () {
@@ -13,7 +11,8 @@ describe('Main: Currently testing file versions management,', function () {
     getCapabilitiesInteraction,
     createOwncloud,
     createProvider,
-    getAuthHeaders
+    getAuthHeaders,
+    validAuthHeaders
   } = require('./pactHelper.js')
 
   const { createDavPath } = require('./webdavHelper.js')
@@ -34,11 +33,11 @@ describe('Main: Currently testing file versions management,', function () {
   }
   const propfindFileVersionsRequestData = {
     method: 'PROPFIND',
-    path: MatchersV3.regex({
-      matcher: `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v$`,
-      generate: `/remote.php/dav/meta/${fileInfo.id}/v`
-    }),
-    headers: validAdminAuthHeaders,
+    path: MatchersV3.regex(
+      `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v$`,
+      `/remote.php/dav/meta/${fileInfo.id}/v`
+    ),
+    headers: { ...validAuthHeaders, ...applicationXmlResponseHeaders },
     body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
       dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
       dPropfind.appendElement('d:prop', '', '')
@@ -73,7 +72,7 @@ describe('Main: Currently testing file versions management,', function () {
    `/remote.php/dav/meta/${fileId}/v/${versionId}`
   )
 
-  describe.skip('file versions of non existing file', () => {
+  describe('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
@@ -156,7 +155,7 @@ describe('Main: Currently testing file versions management,', function () {
       expect(url).toBe(config.backendHost + 'remote.php/dav/meta/666/v/123456')
     })
 
-    it.skip('retrieves file versions', async function () {
+    it('retrieves file versions', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)

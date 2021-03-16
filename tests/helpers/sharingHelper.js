@@ -131,10 +131,10 @@ const createFolderInLastPublicShare = function (token, folderName) {
  * @param {string} fileName
  * @returns {*} result of the fetch request
  */
-const createFileInLastPublicShare = function (token, fileName) {
+const createFileInLastPublicShare = function (token, fileName, content = 'a file') {
   return fetch(getPublicFilesEndPoint() + `/${token}/${fileName}?format=json`, {
     method: 'PUT',
-    body: 'a file'
+    body: content
   })
 }
 

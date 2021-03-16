@@ -24,9 +24,9 @@ describe('oc.publicFiles', function () {
   )
 
   const moveResourceResponse = {
+    status: 201,
     headers: {
-      ETag: 'f356def9fc42fd4cbddf293eba3efa86',
-      'OC-ETag': 'f356def9fc42fd4cbddf293eba3efa86'
+      ...htmlResponseAndAccessControlCombinedHeader
     }
   }
 
@@ -104,7 +104,7 @@ describe('oc.publicFiles', function () {
       })
   }
 
-  const publicShareContentInteraction = (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined, password) => {
+  const publicShareContentInteraction = async (provider, description, method, statusCode, requestBody = undefined, responseBody = undefined, password) => {
     let headers = textPlainResponseHeaders
     let responseHeaders = {}
     if (method === 'PUT') {
@@ -112,11 +112,12 @@ describe('oc.publicFiles', function () {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
       responseHeaders = {
-        ETag: 'f356def9fc42fd4cbddf293eba3efa86',
-        'OC-ETag': 'f356def9fc42fd4cbddf293eba3efa86'
+        ETag: MatchersV3.string('f356def9fc42fd4cbddf293eba3efa86'),
+        'OC-ETag': MatchersV3.string('f356def9fc42fd4cbddf293eba3efa86')
       }
     } else if (method === 'GET') {
       headers = {}
+      responseHeaders = textPlainResponseHeaders
     }
     if (password) {
       headers = {
@@ -124,7 +125,7 @@ describe('oc.publicFiles', function () {
         ...getPublicLinkAuthHeader(password)
       }
     }
-    return provider
+    await provider
       .given('the user is recreated', { username: testUser, password: testUserPassword })
       .given('folder exists', {
         username: testUser,
@@ -138,7 +139,12 @@ describe('oc.publicFiles', function () {
         shareType: 3,
         permissions: 15
       })
-      .given('file exists in last shared public share', { fileName: testFile })
+
+    if (method === 'GET') {
+      await provider.given('file exists in last shared public share', { fileName: testFile, content: responseBody })
+    }
+
+    return provider
       .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
@@ -494,7 +500,7 @@ describe('oc.publicFiles', function () {
             'update content of public share' + ' ' + data.description,
             'PUT',
             204,
-            '123456',
+            config.testContent,
             null,
             data.shareParams.password
           )

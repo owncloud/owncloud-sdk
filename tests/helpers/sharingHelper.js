@@ -2,7 +2,8 @@ const fetch = require('sync-fetch')
 const {
   getAuthHeaders,
   applicationFormUrlEncoded,
-  sanitizeUrl
+  sanitizeUrl,
+  getProviderBaseUrl
 } = require('../pactHelper.js')
 const config = require('../config/config.json')
 
@@ -15,7 +16,7 @@ const publicFilesEndPoint = '/remote.php/dav/public-files'
  * @returns {string}
  */
 const getSharingEndPoint = function () {
-  return sanitizeUrl(process.env.PROVIDER_BASE_URL + shareEndPoint)
+  return sanitizeUrl(getProviderBaseUrl() + shareEndPoint)
 }
 
 /**
@@ -24,7 +25,7 @@ const getSharingEndPoint = function () {
  * @returns {string}
  */
 const getPublicFilesEndPoint = function () {
-  return sanitizeUrl(process.env.PROVIDER_BASE_URL + publicFilesEndPoint)
+  return sanitizeUrl(getProviderBaseUrl() + publicFilesEndPoint)
 }
 
 /**

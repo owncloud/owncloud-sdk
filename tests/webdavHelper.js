@@ -1,7 +1,8 @@
 const fetch = require('sync-fetch')
 const path = require('path')
 const {
-  getAuthHeaders
+  getAuthHeaders,
+  getProviderBaseUrl
 } = require('./pactHelper.js')
 
 /**
@@ -26,7 +27,7 @@ const createDavPath = function (userId, element, type = 'files') {
  * @returns {string}
  */
 const createFullDavUrl = function (userId, resource, type = 'files') {
-  return (process.env.PROVIDER_BASE_URL + createDavPath(userId, resource, type))
+  return (getProviderBaseUrl() + createDavPath(userId, resource, type))
     .replace(/([^:])\/{2,}/g, '$1/')
 }
 
@@ -115,7 +116,7 @@ const listVersionsFolder = function (user, password, fileId) {
 }
 
 const getSignKey = function (username, password) {
-  const endpoint = process.env.PROVIDER_BASE_URL + '/ocs/v1.php/cloud/user/signing-key?format=json'
+  const endpoint = getProviderBaseUrl() + '/ocs/v1.php/cloud/user/signing-key?format=json'
   const response = fetch(endpoint, {
     method: 'GET',
     headers: {

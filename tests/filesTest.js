@@ -629,7 +629,7 @@ describe('Main: Currently testing files management,', function () {
           headers: {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
-              `\${providerBaseURL}${destinationWebDavPath}`,
+              `\${providerBaseURL}/${destinationWebDavPath}`,
               `${config.backendHost}${destinationWebDavPath}`
             )
           }
@@ -970,7 +970,7 @@ describe('Main: Currently testing files management,', function () {
         {
           authorization: getAuthHeaders(config.testUser, config.testUserPassword),
           Destination: MatchersV3.fromProviderState(
-            `\${providerBaseURL}${destinationWebDavPath}`,
+            `\${providerBaseURL}/${destinationWebDavPath}`,
             `${config.backendHost}${destinationWebDavPath}`
           )
         },
@@ -1019,7 +1019,7 @@ describe('Main: Currently testing files management,', function () {
           headers: {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
-              `\${providerBaseURL}${destinationWebDavPath}`,
+              `\${providerBaseURL}/${destinationWebDavPath}`,
               `${config.backendHost}${destinationWebDavPath}`
             )
           }
@@ -1073,7 +1073,7 @@ describe('Main: Currently testing files management,', function () {
           headers: {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
-              `\${providerBaseURL}${destinationWebDavPath}`,
+              `\${providerBaseURL}/${destinationWebDavPath}`,
               `${config.backendHost}${destinationWebDavPath}`
             )
           }

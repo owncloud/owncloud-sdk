@@ -52,7 +52,7 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
   if (shareType === 3) {
     res.appendElement('url', '', MatchersV3.regex(
       '.*\\/s\\/[a-zA-Z0-9]+',
-      config.backendHost + '/s/yrkoLeS33y1aTya'))
+      config.backendHost + 's/yrkoLeS33y1aTya'))
   }
   return res
 }
@@ -495,6 +495,12 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
     })
 }
 
+const getProviderBaseUrl = function () {
+  let providerBaseUrl = process.env.PROVIDER_BASE_URL || 'http://localhost/'
+  providerBaseUrl = providerBaseUrl.replace(/\/$/, '')
+  return providerBaseUrl
+}
+
 module.exports = {
   getAuthHeaders,
   getContentsOfFileInteraction,
@@ -528,5 +534,6 @@ module.exports = {
   deleteUserInteraction,
   createFolderInteraction,
   updateFileInteraction,
-  sanitizeUrl
+  sanitizeUrl,
+  getProviderBaseUrl
 }

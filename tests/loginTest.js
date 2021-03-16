@@ -16,8 +16,11 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     createProvider,
     getCapabilitiesWithInvalidAuthInteraction,
     getCapabilitiesInteraction,
-    getCurrentUserInformationInteraction
+    getCurrentUserInformationInteraction,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
+
+  const mockServerBaseUrl = getMockServerBaseUrl()
 
   beforeEach(function () {
     oc = null
@@ -50,7 +53,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
-        baseUrl: config.backendHost,
+        baseUrl: mockServerBaseUrl,
         auth: {
           basic: {
             username: nonExistentUser,
@@ -73,7 +76,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
-        baseUrl: config.backendHost,
+        baseUrl: mockServerBaseUrl,
         auth: {
           basic: {
             username: config.adminUsername,
@@ -96,7 +99,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     await getCurrentUserInformationInteraction(provider)
     return provider.executeTest(async () => {
       oc = new OwnCloud({
-        baseUrl: config.backendHost,
+        baseUrl: mockServerBaseUrl,
         auth: {
           basic: {
             username: config.adminUsername,

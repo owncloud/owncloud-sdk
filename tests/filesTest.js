@@ -24,12 +24,14 @@ describe('Main: Currently testing files management,', function () {
     createFolderInteraction,
     updateFileInteraction,
     createOwncloud,
-    createProvider
+    createProvider,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
 
   // TESTING CONFIGS
-  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir, backendHost } = config
+  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir } = config
   const testSubDir = testFolder + '/' + 'subdir'
+  const mockServerBaseUrl = getMockServerBaseUrl()
 
   const moveFileInteraction = function (provider, requestName, header, response) {
     return provider
@@ -472,7 +474,7 @@ describe('Main: Currently testing files management,', function () {
     it('checking method: getFileUrl', function () {
       const oc = createOwncloud()
       const url = oc.files.getFileUrl('/foo/bar')
-      expect(url).toBe(backendHost + 'remote.php/webdav/foo/bar')
+      expect(url).toBe(mockServerBaseUrl + 'remote.php/webdav/foo/bar')
     })
 
     it('checking method: getFileUrlV2', async function () {
@@ -484,7 +486,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud()
         await oc.login()
         const url = oc.files.getFileUrlV2('/foo/bar')
-        expect(url).toBe(backendHost + 'remote.php/dav/files/' + config.adminUsername + '/foo/bar')
+        expect(url).toBe(mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/foo/bar')
       })
     })
 
@@ -592,7 +594,7 @@ describe('Main: Currently testing files management,', function () {
         'same name',
         {
           ...validAuthHeaders,
-          Destination: `${backendHost}remote.php/webdav/testFolder/%E4%B8%AD%E6%96%87.txt`
+          Destination: `${mockServerBaseUrl}remote.php/webdav/testFolder/%E4%B8%AD%E6%96%87.txt`
         },
         {
           status: 403,
@@ -639,7 +641,7 @@ describe('Main: Currently testing files management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}/${destinationWebDavPath}`,
-              `${config.backendHost}${destinationWebDavPath}`
+              `${mockServerBaseUrl}${destinationWebDavPath}`
             )
           }
         })
@@ -668,7 +670,7 @@ describe('Main: Currently testing files management,', function () {
           path: webdavPath(nonExistentFile),
           headers: {
             ...validAuthHeaders,
-            Destination: `${backendHost}remote.php/webdav/abcd.txt`
+            Destination: `${mockServerBaseUrl}remote.php/webdav/abcd.txt`
           }
         })
         .willRespondWith({
@@ -699,7 +701,7 @@ describe('Main: Currently testing files management,', function () {
           path: webdavPath(`${testFolder}/${encodeURI('中文.txt')}`),
           headers: {
             ...validAuthHeaders,
-            Destination: `${backendHost}remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
+            Destination: `${mockServerBaseUrl}remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
           }
         })
         .willRespondWith({
@@ -730,7 +732,7 @@ describe('Main: Currently testing files management,', function () {
           path: webdavPath(nonExistentFile),
           headers: {
             ...validAuthHeaders,
-            Destination: `${backendHost}remote.php/webdav/abcd.txt`
+            Destination: `${mockServerBaseUrl}remote.php/webdav/abcd.txt`
           }
         })
         .willRespondWith({
@@ -995,7 +997,7 @@ describe('Main: Currently testing files management,', function () {
           authorization: getAuthHeaders(config.testUser, config.testUserPassword),
           Destination: MatchersV3.fromProviderState(
             `\${providerBaseURL}/${destinationWebDavPath}`,
-            `${config.backendHost}${destinationWebDavPath}`
+            `${mockServerBaseUrl}${destinationWebDavPath}`
           )
         },
         {
@@ -1044,7 +1046,7 @@ describe('Main: Currently testing files management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}/${destinationWebDavPath}`,
-              `${config.backendHost}${destinationWebDavPath}`
+              `${mockServerBaseUrl}${destinationWebDavPath}`
             )
           }
         })
@@ -1098,7 +1100,7 @@ describe('Main: Currently testing files management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}/${destinationWebDavPath}`,
-              `${config.backendHost}${destinationWebDavPath}`
+              `${mockServerBaseUrl}${destinationWebDavPath}`
             )
           }
         })

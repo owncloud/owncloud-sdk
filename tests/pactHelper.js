@@ -503,6 +503,11 @@ const getProviderBaseUrl = function () {
   return providerBaseUrl
 }
 
+const getMockServerBaseUrl = function () {
+  const subfolder = process.env.SUBFOLDER || '/'
+  return config.pactMockHost + ':' + config.pactMockPort + subfolder
+}
+
 module.exports = {
   getAuthHeaders,
   getContentsOfFileInteraction,
@@ -537,5 +542,6 @@ module.exports = {
   createFolderInteraction,
   updateFileInteraction,
   sanitizeUrl,
-  getProviderBaseUrl
+  getProviderBaseUrl,
+  getMockServerBaseUrl
 }

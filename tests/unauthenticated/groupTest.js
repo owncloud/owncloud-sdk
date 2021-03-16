@@ -1,6 +1,7 @@
 describe('Unauthenticated: Currently testing group management,', function () {
   var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
+  const getMockServerBaseUrl = require('./pactHelper.js')
+  const mockServerBaseUrl = getMockServerBaseUrl()
 
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
@@ -13,7 +14,7 @@ describe('Unauthenticated: Currently testing group management,', function () {
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.backendHost
+      baseUrl: mockServerBaseUrl
     })
   })
 

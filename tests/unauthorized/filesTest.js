@@ -5,9 +5,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   const username = config.adminUsername
 
   const {
-    accessControlAllowMethods,
     invalidAuthHeader,
-    origin,
     webdavExceptionResponseBody,
     getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
@@ -17,12 +15,13 @@ describe('Unauthorized: Currently testing files management,', function () {
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader
   }
+
+  // https://github.com/owncloud/core/issues/38530
+  // Fix the error message once this issue is fixed
   const expectedUnAuthorizedMessage = 'Username or password was incorrect, Username or password was incorrect'
   const incorrectAuthorizationXmlResponseBody = webdavExceptionResponseBody('NotAuthenticated', expectedUnAuthorizedMessage)
   const webdavFilesResponseHeader = {
-    'Access-Control-Allow-Origin': origin,
-    'Content-Type': 'application/xml; charset=utf-8',
-    'Access-Control-Allow-Methods': accessControlAllowMethods
+    'Content-Type': 'application/xml; charset=utf-8'
   }
   const unauthorizedResponse = {
     status: 401,

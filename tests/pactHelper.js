@@ -52,7 +52,7 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
   if (shareType === 3) {
     res.appendElement('url', '', MatchersV3.regex(
       '.*\\/s\\/[a-zA-Z0-9]+',
-      config.backendHost + 's/yrkoLeS33y1aTya'))
+      getMockServerBaseUrl() + 's/yrkoLeS33y1aTya'))
   }
   return res
 }
@@ -132,7 +132,7 @@ const sanitizeUrl = (url) => {
 
 const createOwncloud = function (username = config.adminUsername, password = config.adminPassword) {
   const oc = new OwnCloud({
-    baseUrl: config.backendHost,
+    baseUrl: getMockServerBaseUrl(),
     auth: {
       basic: {
         username,

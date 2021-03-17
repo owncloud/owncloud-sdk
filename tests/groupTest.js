@@ -78,13 +78,10 @@ describe('Main: Currently testing group management,', function () {
       })
   }
 
-  beforeEach(async function () {
-    provider = createProvider()
+  it('checking method : getGroups', async function () {
+    provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
-  })
-
-  it('checking method : getGroups', async function () {
     await getGroupsInteraction(provider)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -100,6 +97,9 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : groupExists with an existing group', async function () {
+    provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await getGroupsInteraction(provider)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -113,6 +113,9 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : groupExists with a non-existent group', async function () {
+    provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await getGroupsInteraction(provider)
     await provider.executeTest(async () => {
       const oc = createOwncloud()
@@ -126,6 +129,9 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : getGroupMembers', async function () {
+    provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await provider
       .given('group exists', { groupName: config.testGroup })
       .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
@@ -171,6 +177,9 @@ describe('Main: Currently testing group management,', function () {
   // ocis response is different from oc10
   // https://github.com/owncloud/ocis/issues/1766
   it('checking method : deleteGroup with a non-existent group', async function () {
+    provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await deleteGroupInteraction(
       provider,
       config.nonExistentGroup,
@@ -189,6 +198,9 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : createGroup', async function () {
+    provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
     await provider
       .given('group does not exist', { groupName: config.testGroup })
@@ -224,6 +236,9 @@ describe('Main: Currently testing group management,', function () {
   })
 
   it('checking method : delete a group', async function () {
+    provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
     await deleteGroupInteraction(
       provider,
       config.testGroup,

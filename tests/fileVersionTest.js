@@ -76,7 +76,7 @@ describe('Main: Currently testing file versions management,', function () {
 
   describe('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -158,7 +158,7 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     it('retrieves file versions', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await PropfindFileVersionOfExistentFiles(provider)
@@ -183,7 +183,7 @@ describe('Main: Currently testing file versions management,', function () {
 
     it('restore file version', async function () {
       const destinationWebDavPath = createDavPath(config.testUser, versionedFile)
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       provider

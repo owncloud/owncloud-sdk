@@ -228,7 +228,7 @@ describe('oc.publicFiles', function () {
         let testFolderShare = null
 
         it('should list the folder contents', async function () {
-          const provider = createProvider()
+          const provider = createProvider(true, true)
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
 
@@ -401,7 +401,7 @@ describe('oc.publicFiles', function () {
               .willRespondWith({ status: resStatusCode, body: resBody, headers, respHeaders })
           }
 
-          const provider = createProvider()
+          const provider = createProvider(true, true)
 
           await getFileFromPublicLinkInteraction(provider, data)
           await getCapabilitiesInteraction(provider)
@@ -471,7 +471,7 @@ describe('oc.publicFiles', function () {
     }, function (data, description) {
       describe(description, function () {
         it('should create a folder', async function () {
-          const provider = createProvider()
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await folderInPublicShareInteraction(
@@ -495,7 +495,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should create a file', async function () {
-          const provider = createProvider()
+          const provider = createProvider(true, true)
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           await publicShareContentInteraction(
@@ -552,7 +552,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should update a file', async function () {
-          const provider = createProvider()
+          const provider = createProvider(true, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await publicShareContentInteraction(
@@ -583,7 +583,7 @@ describe('oc.publicFiles', function () {
           const source = config.shareTokenOfPublicLinkFolder + '/' + testFile
           const target = config.shareTokenOfPublicLinkFolder + '/lorem123456.txt'
 
-          const provider = createProvider()
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await provider
@@ -622,7 +622,7 @@ describe('oc.publicFiles', function () {
           const source = config.shareTokenOfPublicLinkFolder + '/' + testFile
           const target = config.shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
 
-          const provider = createProvider()
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await provider
@@ -658,7 +658,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should move a folder', async function () {
-          const provider = createProvider()
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await provider
@@ -696,7 +696,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should get fileInfo of shared folder', async function () {
-          const provider = createProvider()
+          const provider = createProvider(true, true)
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)
           await provider

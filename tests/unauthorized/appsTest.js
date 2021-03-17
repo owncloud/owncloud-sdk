@@ -53,7 +53,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   }
 
   it('checking method : getApps', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getAppsInvalidAuthInteraction(provider)
     await getAppsInvalidAuthInteraction(provider, { filter: 'enabled' })
@@ -75,7 +75,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   })
 
   it('checking method : enableApp when app exists', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await appRequestInvalidAuthInteraction(provider, 'enable app', 'POST', 'files')
 
@@ -96,7 +96,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
   })
 
   it('checking method : disableApp', async function (done) {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await appRequestInvalidAuthInteraction(provider, 'disable app', 'DELETE', 'files')
 

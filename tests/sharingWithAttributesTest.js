@@ -77,7 +77,7 @@ describe('oc.shares', function () {
   }
 
   it('shall share with permissions in attributes', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider, testUser, testUserPassword)
     await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
     await sharingWithAttributes(provider)

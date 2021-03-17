@@ -288,7 +288,7 @@ describe('Main: Currently testing user management,', function () {
 
   describe('added testUser to testGroup,', function () {
     it('checking method : getUserGroups with an existent user', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await getGroupOfUserInteraction(
@@ -323,7 +323,7 @@ describe('Main: Currently testing user management,', function () {
     })
 
     it('checking method : userIsInGroup with an existent user, existent group', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
 
@@ -359,7 +359,7 @@ describe('Main: Currently testing user management,', function () {
   // https://github.com/owncloud/product/issues/289
   describe('made testUser as testGroup subAdmin', function () {
     it('checking method : getUserSubadminGroups with an existent user', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
 
@@ -391,7 +391,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUser on an existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationInteraction(
@@ -443,7 +443,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUser on a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
 
@@ -461,7 +461,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : createUser & deleteUser', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await createUserInteraction(provider)
@@ -484,7 +484,7 @@ describe('Main: Currently testing user management,', function () {
   // 'createUser' doesn't accept email parameter
   // [oCIS] email is needed for oCIS to create users
   it('checking method : createUser with groups', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await createUserWithGroupMembershipInteraction(provider)
@@ -501,7 +501,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : searchUsers', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
@@ -534,7 +534,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : searchUsers with zero user results', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
@@ -558,7 +558,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userExists with existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
@@ -584,7 +584,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userExists with non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersInteraction(
@@ -607,7 +607,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : setUserAttribute of an existent user, allowed attribute', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await changeUserAttributeInteraction(
@@ -633,7 +633,7 @@ describe('Main: Currently testing user management,', function () {
 
   it('checking method : setUserAttribute of an existent user, not allowed attribute', async function () {
     const message = 'mail \'Ã¤Ã¶Ã¼Ã¤Ã¤_sfsdf\\+\\$%\\/\\)%&=\' must be a valid email'
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await changeUserAttributeInteraction(
@@ -670,7 +670,7 @@ describe('Main: Currently testing user management,', function () {
   // trying to edit non-existing user by admin returns unauthorized response
   // https://github.com/owncloud/core/issues/38423
   it('checking method : setUserAttribute of a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await changeUserAttributeInteraction(
@@ -703,7 +703,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToGroup with existent user, non existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await addUserToGroupInteraction(
@@ -728,7 +728,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToGroup with non existent user, existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await addUserToGroupInteraction(
@@ -751,7 +751,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUserGroups with a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     getGroupOfUserInteraction(
@@ -784,7 +784,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInGroup with an existent user but a group the user isn\'t part of', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getGroupOfUserInteraction(
@@ -818,7 +818,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInGroup with an existent user, non existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getGroupOfUserInteraction(
@@ -853,7 +853,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInGroup with a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getGroupOfUserInteraction(
@@ -887,7 +887,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUser with an existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationInteraction(
@@ -921,7 +921,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : getUser with a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationOfNonExistentUserInteraction(provider)
@@ -938,7 +938,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : removeUserFromGroup with existent user, non existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await removeUserFromGroupInteraction(
@@ -961,7 +961,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : removeUserFromGroup with non existent user, existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await removeUserFromGroupInteraction(
@@ -987,7 +987,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] subadmin endpoint not implemented
   // https://github.com/owncloud/product/issues/289
   it('checking method : addUserToSubadminGroup with existent user, non existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await addUserToSubAdminGroupInteraction(
@@ -1015,7 +1015,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] subadmin endpoint not implemented
   // https://github.com/owncloud/product/issues/289
   it('checking method : addUserToSubadminGroup with non existent user, existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await addUserToSubAdminGroupInteraction(
@@ -1041,7 +1041,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] subadmin endpoint not implemented
   // https://github.com/owncloud/product/issues/289
   it('checking method : getUserSubadminGroups with a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
@@ -1071,7 +1071,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] subadmin endpoint not implemented
   // https://github.com/owncloud/product/issues/289
   it('checking method : userIsInSubadminGroup with existent user, non existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
@@ -1102,7 +1102,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] subadmin endpoint not implemented
   // https://github.com/owncloud/product/issues/289
   it('checking method : userIsInSubadminGroup with non existent user, existent group', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getUsersSubAdminGroupsInteraction(
@@ -1130,7 +1130,7 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : deleteUser on a non existent user', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider

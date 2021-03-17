@@ -86,7 +86,7 @@ describe('Signed urls', function () {
   }
 
   it('should allow file download with a signUrl', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
     // eslint-disable-next-line no-sequences
     await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)

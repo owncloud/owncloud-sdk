@@ -139,7 +139,7 @@ describe('oc.fileTrash', function () {
 
   describe('when deleting files and folders', function () {
     it('should have the trashbin capability set', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
 
@@ -160,7 +160,7 @@ describe('oc.fileTrash', function () {
 
   describe('and when empty', function () {
     it('should list no items ', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -264,7 +264,7 @@ describe('oc.fileTrash', function () {
       }
 
       it('should list a deleted folder', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await propfindForTrashbinWithItems(provider)
@@ -280,7 +280,7 @@ describe('oc.fileTrash', function () {
       })
 
       it('should list an item within a deleted folder', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await listItemWithinADeletedFolder(provider)
@@ -383,7 +383,7 @@ describe('oc.fileTrash', function () {
       }
 
       it('should list the folder in the original location and no longer in trash-bin', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await moveFolderFromTrashbinToFilesList(provider)
@@ -485,7 +485,7 @@ describe('oc.fileTrash', function () {
           })
       }
       it('should list the folder in the different location and no longer in trash-bin', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
@@ -573,7 +573,7 @@ describe('oc.fileTrash', function () {
       }
 
       it('should list the deleted file', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await propfindTrashItemsBeforeDeletingFile(provider)
@@ -665,7 +665,7 @@ describe('oc.fileTrash', function () {
       }
 
       it('should list the folder in the original location and no longer in trash-bin', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)
@@ -765,7 +765,7 @@ describe('oc.fileTrash', function () {
           })
       }
       it('should list the folder in the different location and no longer in trash-bin', async function () {
-        const provider = createProvider()
+        const provider = createProvider(true, true)
         await getCapabilitiesInteraction(provider)
         await getCurrentUserInformationInteraction(provider)
         await MoveFromTrashbinToDifferentLocation(provider)

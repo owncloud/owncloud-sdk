@@ -32,37 +32,17 @@ const getPublicFilesEndPoint = function () {
  * share a file or folder using webDAV api.
  *
  * @param {string} username
- * @param {string} userPassword
- * @param {string} path
- * @param {number} shareType
- * @param {string} shareWith
- * @param {number} permissions
- * @param {string} name
- * @param {boolean} publicUpload
  * @param {string} password
- * @param {string} expireDate
+ * @param {object} shareParams
  * @returns {*} result of the fetch request
  */
-const shareResource = function (
-  username,
-  userPassword,
-  path,
-  shareType,
-  shareWith,
-  permissions,
-  name,
-  publicUpload,
-  password,
-  expireDate
-) {
-  const params = validateParams({
-    path, shareType, shareWith, permissions, name, publicUpload, password, expireDate
-  })
+const shareResource = function (username, password, shareParams) {
+  const params = validateParams(shareParams)
   return fetch(getSharingEndPoint() + '?format=json', {
     method: 'POST',
     body: params,
     headers: {
-      authorization: getAuthHeaders(username, userPassword),
+      authorization: getAuthHeaders(username, password),
       ...applicationFormUrlEncoded
     }
   })

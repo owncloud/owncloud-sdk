@@ -246,6 +246,31 @@ const givenResourceIsShared = async (
   }
 }
 
+/**
+ * provider state: creates a public link share
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {sring} userPassword
+ * @param {sring} path
+ * @param {object} optionalParams
+ */
+const givenPublicShareExists = (
+  provider,
+  username,
+  userPassword,
+  path,
+  optionalParams
+) => {
+  return provider
+    .given('public link share is created', {
+      username,
+      userPassword,
+      path,
+      ...optionalParams
+    })
+}
+
 module.exports = {
   givenUserExists,
   givenGroupExists,
@@ -255,5 +280,6 @@ module.exports = {
   givenGroupShareExists,
   givenPublicShareExists,
   givenFileFolderIsCreated,
-  givenResourceIsShared
+  givenResourceIsShared,
+  givenPublicShareExists
 }

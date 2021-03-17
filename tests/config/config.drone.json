@@ -1,5 +1,5 @@
 {
-    "backendHost": "http://localhost:1234${SUBFOLDER}",
+    "pactMockHost": "http://localhost",
     "pactMockPort": 1234,
     "adminUsername": "admin",
     "adminPassword": "admin",

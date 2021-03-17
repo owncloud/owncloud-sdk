@@ -2,8 +2,8 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
-
+  const { getMockServerBaseUrl } = require('../pactHelper.js')
+  const mockServerBaseUrl = getMockServerBaseUrl()
   // LIBRARY INSTANCE
   var oc
 
@@ -17,7 +17,7 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.backendHost
+      baseUrl: mockServerBaseUrl
     })
   })
 

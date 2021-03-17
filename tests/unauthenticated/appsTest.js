@@ -1,13 +1,13 @@
 describe('Unauthenticated: Currently testing apps management,', function () {
   var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
-
+  const { getMockServerBaseUrl } = require('../pactHelper.js')
+  const mockServerBaseUrl = getMockServerBaseUrl()
   // LIBRARY INSTANCE
   var oc
 
   beforeEach(function () {
     oc = new OwnCloud({
-      baseUrl: config.backendHost
+      baseUrl: mockServerBaseUrl
     })
   })
 

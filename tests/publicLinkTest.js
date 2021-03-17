@@ -15,8 +15,11 @@ describe('oc.publicFiles', function () {
     textPlainResponseHeaders,
     ocsMeta,
     applicationFormUrlEncoded,
-    validAdminAuthHeaders
+    validAdminAuthHeaders,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
+
+  const mockServerBaseUrl = getMockServerBaseUrl()
 
   const publicLinkShareTokenPath = MatchersV3.regex(
     '.*\\/remote\\.php\\/dav\\/public-files\\/' + config.shareTokenOfPublicLinkFolder,
@@ -183,7 +186,7 @@ describe('oc.publicFiles', function () {
       it('shall work with ' + description, function () {
         const oc = createOwncloud()
         expect(oc.publicFiles.getFileUrl(data.token, data.path))
-          .toBe(config.backendHost + data.expected)
+          .toBe(mockServerBaseUrl + data.expected)
       })
     })
   })
@@ -600,7 +603,7 @@ describe('oc.publicFiles', function () {
                 ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/lorem123456.txt', /* eslint-disable-line */
-                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
+                  `${mockServerBaseUrl}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
@@ -640,7 +643,7 @@ describe('oc.publicFiles', function () {
                 ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/foo/lorem.txt', /* eslint-disable-line */
-                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
+                  `${mockServerBaseUrl}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
@@ -674,7 +677,7 @@ describe('oc.publicFiles', function () {
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/bar', /* eslint-disable-line */
-                  `${config.backendHost}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
+                  `${mockServerBaseUrl}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
                 )
               }
             }).willRespondWith(moveResourceResponse)

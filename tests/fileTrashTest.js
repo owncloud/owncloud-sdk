@@ -16,8 +16,11 @@ describe('oc.fileTrash', function () {
     getCapabilitiesInteraction,
     createOwncloud,
     createProvider,
-    applicationXmlResponseHeaders
+    applicationXmlResponseHeaders,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
+
+  const mockServerBaseUrl = getMockServerBaseUrl()
 
   const deletedFolderId = '2147596415'
   const deletedFileId = '2147596419'
@@ -313,7 +316,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder
             }
           })
           .willRespondWith(responseMethod(
@@ -415,7 +418,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)',
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)',
               ...validAdminAuthHeaders
             }
           })
@@ -599,7 +602,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + testFile
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + testFile
             }
           })
           .willRespondWith({
@@ -697,7 +700,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/file%20(restored%20to%20a%20different%20location).txt'
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/file%20(restored%20to%20a%20different%20location).txt'
             }
           })
           .willRespondWith({

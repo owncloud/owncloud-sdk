@@ -12,7 +12,8 @@ describe('Main: Currently testing file versions management,', function () {
     createOwncloud,
     createProvider,
     getAuthHeaders,
-    validAuthHeaders
+    validAuthHeaders,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
 
   const { createDavPath } = require('./webdavHelper.js')
@@ -31,6 +32,7 @@ describe('Main: Currently testing file versions management,', function () {
       }
     ]
   }
+  const mockServerBaseUrl = getMockServerBaseUrl()
   const propfindFileVersionsRequestData = {
     method: 'PROPFIND',
     path: MatchersV3.regex(
@@ -152,7 +154,7 @@ describe('Main: Currently testing file versions management,', function () {
     it('checking method: getFileVersionUrl', function () {
       const oc = createOwncloud()
       const url = oc.fileVersions.getFileVersionUrl(666, 123456)
-      expect(url).toBe(config.backendHost + 'remote.php/dav/meta/666/v/123456')
+      expect(url).toBe(mockServerBaseUrl + 'remote.php/dav/meta/666/v/123456')
     })
 
     it('retrieves file versions', async function () {
@@ -220,7 +222,7 @@ describe('Main: Currently testing file versions management,', function () {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}${destinationWebDavPath}`,
-              `${config.backendHost}${destinationWebDavPath}`
+              `${mockServerBaseUrl}${destinationWebDavPath}`
             )
           }
         })

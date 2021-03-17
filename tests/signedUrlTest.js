@@ -2,6 +2,9 @@ describe('Main: Currently testing url signing,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
+  const { getMockServerBaseUrl } = require('./pactHelper.js')
+  const mockServerBaseUrl = getMockServerBaseUrl()
+
   // saved date object
   var realDate
 
@@ -27,7 +30,7 @@ describe('Main: Currently testing url signing,', function () {
 
   it('checking method : signUrl', function () {
     const oc = new OwnCloud({
-      baseUrl: config.backendHost,
+      baseUrl: mockServerBaseUrl,
       auth: {
         basic: {
           username: config.adminUsername,

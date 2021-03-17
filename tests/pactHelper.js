@@ -505,7 +505,7 @@ const getProviderBaseUrl = function () {
 
 const getMockServerBaseUrl = function () {
   const subfolder = process.env.SUBFOLDER || '/'
-  return config.pactMockHost + ':' + config.pactMockPort + subfolder
+  return `${config.pactMockHost}:${config.pactMockPort}${subfolder}`
 }
 
 module.exports = {

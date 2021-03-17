@@ -16,7 +16,8 @@ describe('oc.fileTrash', function () {
     getCapabilitiesInteraction,
     createOwncloud,
     createProvider,
-    applicationXmlResponseHeaders
+    applicationXmlResponseHeaders,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -417,7 +418,7 @@ describe('oc.fileTrash', function () {
             method: 'MOVE',
             path: trashbinFolderPath,
             headers: {
-              Destination: config.backendHost + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)',
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)',
               ...validAdminAuthHeaders
             }
           })

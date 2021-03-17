@@ -1,6 +1,6 @@
 describe('Unauthenticated: Currently testing getConfig, getVersion and getCapabilities', function () {
   const OwnCloud = require('../../src')
-  const getMockServerBaseUrl = require('./pactHelper.js')
+  const { getMockServerBaseUrl } = require('../pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
   // LIBRARY INSTANCE
   let oc

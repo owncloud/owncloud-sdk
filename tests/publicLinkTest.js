@@ -15,7 +15,8 @@ describe('oc.publicFiles', function () {
     textPlainResponseHeaders,
     ocsMeta,
     applicationFormUrlEncoded,
-    validAdminAuthHeaders
+    validAdminAuthHeaders,
+    getMockServerBaseUrl
   } = require('./pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()

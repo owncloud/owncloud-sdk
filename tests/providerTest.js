@@ -292,7 +292,7 @@ describe('provider testing', () => {
             chai.assert.fail(`sharing file/folder '${parameters.path}' failed`)
           }
         } else {
-          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.resource}' failed`)
+          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.path}' failed`)
           const { token } = getOCSData(response)
           lastSharedToken = token
           return getOCSData(response)

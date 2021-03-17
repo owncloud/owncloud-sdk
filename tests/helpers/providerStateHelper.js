@@ -1,5 +1,11 @@
 const config = require('../config/config.json')
 
+const SHARE_TYPE = Object.freeze({
+  user: 0,
+  group: 1,
+  public: 3
+})
+
 /**
  * provider state: creates a given user
  *
@@ -57,9 +63,7 @@ const givenFolderExists = (provider, username, password, resource) => {
  * @param {sring} userPassword
  * @param {sring} path
  * @param {string} shareWith
- * @param {number} permissions
- * @param {sring} expireDate
- * @param {object} attributes
+ * @param {object} optionalParams
  */
 const givenUserShareExists = (
   provider,
@@ -67,20 +71,16 @@ const givenUserShareExists = (
   userPassword,
   path,
   shareWith,
-  permissions,
-  expireDate,
-  attributes
+  optionalParams
 ) => {
   return provider
     .given('resource is shared', {
       username,
       userPassword,
       path,
-      shareType: 0,
+      shareType: SHARE_TYPE.user,
       shareWith,
-      permissions,
-      expireDate,
-      attributes
+      ...optionalParams
     })
 }
 
@@ -92,9 +92,7 @@ const givenUserShareExists = (
  * @param {sring} userPassword
  * @param {sring} path
  * @param {string} shareWith
- * @param {number} permissions
- * @param {sring} expireDate
- * @param {object} attributes
+ * @param {object} optionalParams
  */
 const givenGroupShareExists = (
   provider,
@@ -102,20 +100,16 @@ const givenGroupShareExists = (
   userPassword,
   path,
   shareWith,
-  permissions,
-  expireDate,
-  attributes
+  optionalParams
 ) => {
   return provider
     .given('resource is shared', {
       username,
       userPassword,
       path,
-      shareType: 1,
+      shareType: SHARE_TYPE.group,
       shareWith,
-      permissions,
-      expireDate,
-      attributes
+      ...optionalParams
     })
 }
 
@@ -126,34 +120,22 @@ const givenGroupShareExists = (
  * @param {string} username
  * @param {sring} userPassword
  * @param {sring} path
- * @param {boolean} publicUpload
- * @param {number} permissions
- * @param {sring} password public link share password
- * @param {sring} expireDate
- * @param {object} attributes
+ * @param {object} optionalParams
  */
 const givenPublicShareExists = (
   provider,
   username,
   userPassword,
   path,
-  permissions,
-  password,
-  publicUpload,
-  expireDate,
-  attributes
+  optionalParams
 ) => {
   return provider
     .given('resource is shared', {
       username,
       userPassword,
       path,
-      shareType: 3,
-      password,
-      permissions,
-      publicUpload,
-      expireDate,
-      attributes
+      shareType: SHARE_TYPE.public,
+      ...optionalParams
     })
 }
 
@@ -202,19 +184,21 @@ const givenResourceIsShared = async (
   password,
   publicUpload
 ) => {
-  if (shareType === 3) {
+  if (shareType === SHARE_TYPE.public) {
     return givenPublicShareExists(
       provider,
       username,
       userPassword,
       resource,
-      permissions,
-      password,
-      publicUpload,
-      expireDate,
-      attributes
+      {
+        permissions,
+        password,
+        publicUpload,
+        expireDate,
+        attributes
+      }
     )
-  } else if (shareType === 0) {
+  } else if (shareType === SHARE_TYPE.user) {
     await givenUserExists(provider, shareWith, config.testUser2Password)
     return givenUserShareExists(
       provider,
@@ -222,11 +206,13 @@ const givenResourceIsShared = async (
       userPassword,
       resource,
       shareWith,
-      permissions,
-      expireDate,
-      attributes
+      {
+        permissions,
+        expireDate,
+        attributes
+      }
     )
-  } else if (shareType === 1) {
+  } else if (shareType === SHARE_TYPE.group) {
     await givenGroupExists(provider, shareWith)
     return givenGroupShareExists(
       provider,
@@ -234,9 +220,11 @@ const givenResourceIsShared = async (
       userPassword,
       resource,
       shareWith,
-      permissions,
-      expireDate,
-      attributes
+      {
+        permissions,
+        expireDate,
+        attributes
+      }
     )
   }
 }

@@ -402,7 +402,6 @@ describe('oc.publicFiles', function () {
           }
 
           const provider = createProvider(true, true)
-
           await getFileFromPublicLinkInteraction(provider, data)
           await getCapabilitiesInteraction(provider)
           await getCurrentUserInformationInteraction(provider)

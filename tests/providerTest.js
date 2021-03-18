@@ -1,6 +1,8 @@
-const fs = require('fs')
 const config = require('./config/config.json')
-const { getOCSMeta, getOCSData } = require('./helpers/ocsResponseParser')
+const {
+  getOCSMeta,
+  getOCSData
+} = require('./helpers/ocsResponseParser')
 
 let lastSharedToken = ''
 const crypto = require('crypto')
@@ -231,10 +233,20 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
-        const { username, password, resource, shareType, shareWith } = parameters
+        const {
+          username,
+          password,
+          resource,
+          shareType,
+          shareWith
+        } = parameters
         const response = shareResource(username, password, resource, shareType, shareWith, parameters.permissions)
 
-        const { status, statuscode, message } = getOCSMeta(response)
+        const {
+          status,
+          statuscode,
+          message
+        } = getOCSMeta(response)
 
         if (process.env.RUN_ON_OCIS === 'true') {
           if (status === 'ok') {
@@ -277,7 +289,10 @@ describe('provider testing', () => {
     },
     'file exists in last shared public share': (setup, parameters) => {
       if (setup) {
-        const { fileName, content } = parameters
+        const {
+          fileName,
+          content
+        } = parameters
         const response = createFileInLastPublicShare(lastSharedToken, fileName, content)
 
         const { status } = response
@@ -317,15 +332,9 @@ describe('provider testing', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server'
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(
+        opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server.json'
-        )
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as finished both on oC10 & OCIS!')
-          return
-        }
+        )]
       }
 
       return new VerifierV3(opts).verifyProvider().then(output => {
@@ -340,13 +349,9 @@ describe('provider testing', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-ocis'
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json')
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as pending on ocis!')
-          return
-        }
+        opts.pactUrls = [path.resolve(
+          process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json'
+        )]
       }
 
       return new VerifierV3(opts).verifyProvider().then(output => {
@@ -362,13 +367,9 @@ describe('provider testing', () => {
       opts.provider = 'oc-server-pendingOn-oc10'
       opts.enablePending = true
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json')
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as pending on oC10!')
-          return
-        }
+        opts.pactUrls = [path.resolve(
+          process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json'
+        )]
       }
 
       return new VerifierV3(opts).verifyProvider().then(output => {
@@ -384,15 +385,9 @@ describe('provider testing', () => {
       opts.provider = 'oc-server-pendingOn-oc10-ocis'
       opts.enablePending = true
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(
+        opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
-        )
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as pending both on oC10 & OCIS!')
-          return
-        }
+        )]
       }
       return new VerifierV3(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
@@ -408,15 +403,9 @@ describe('provider testing', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server'
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(
+        opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server.json'
-        )
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as finished both on oC10 & OCIS!')
-          return
-        }
+        )]
       }
 
       return new VerifierV3(opts).verifyProvider().then(output => {
@@ -431,13 +420,9 @@ describe('provider testing', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10'
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json')
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as pending on oC10!')
-          return
-        }
+        opts.pactUrls = [path.resolve(
+          process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json'
+        )]
       }
 
       return new VerifierV3(opts).verifyProvider().then(output => {
@@ -453,13 +438,9 @@ describe('provider testing', () => {
       opts.provider = 'oc-server-pendingOn-ocis'
       opts.enablePending = true
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json')
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as pending on ocis!')
-          return
-        }
+        opts.pactUrls = [path.resolve(
+          process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json'
+        )]
       }
 
       return new VerifierV3(opts).verifyProvider().then(output => {
@@ -475,15 +456,9 @@ describe('provider testing', () => {
       opts.provider = 'oc-server-pendingOn-oc10-ocis'
       opts.enablePending = true
       if (process.env.CI !== 'true') {
-        const pactPath = path.resolve(
+        opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
-        )
-        if (fs.existsSync(pactPath)) {
-          opts.pactUrls = [pactPath]
-        } else {
-          console.log('looks like there are no tests marked as pending both on oC10 & OCIS!')
-          return
-        }
+        )]
       }
       return new VerifierV3(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')

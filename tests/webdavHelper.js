@@ -3,7 +3,8 @@ const path = require('path')
 const convert = require('xml-js')
 const {
   getAuthHeaders,
-  getProviderBaseUrl
+  getProviderBaseUrl,
+  encodeURIPath
 } = require('./pactHelper.js')
 
 /**
@@ -17,7 +18,7 @@ const createDavPath = function (userId, element, type = 'files') {
   if (type === 'versions') {
     parts.push('meta', element, 'v')
   } else {
-    parts.push(type, userId, element)
+    parts.push(type, userId, encodeURIPath(element))
   }
   return path.join(...parts)
 }

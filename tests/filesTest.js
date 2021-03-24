@@ -14,7 +14,6 @@ describe('Main: Currently testing files management,', function () {
     webdavExceptionResponseBody,
     resourceNotFoundExceptionMessage,
     webdavPath,
-    uriEncodedTestSubFiles,
     testSubFiles,
     validAuthHeaders,
     applicationXmlResponseHeaders,
@@ -38,7 +37,7 @@ describe('Main: Currently testing files management,', function () {
       .uponReceiving(`as '${username}', a MOVE request to move existent file into same folder, ${requestName}`)
       .withRequest({
         method: 'MOVE',
-        path: webdavPath(`${testFolder}/${encodeURI('中文.txt')}`),
+        path: webdavPath(`${testFolder}/中文.txt`),
         headers: header
       }).willRespondWith(response)
   }
@@ -244,9 +243,9 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
-      for (let i = 0; i < uriEncodedTestSubFiles.length; i++) {
+      for (let i = 0; i < testSubFiles.length; i++) {
         await updateFileInteraction(
-          provider, uriEncodedTestSubFiles[i], config.testUser, config.testUserPassword
+          provider, testSubFiles[i], config.testUser, config.testUserPassword
         )
       }
 
@@ -388,7 +387,7 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : getFileContents for existent files', async function () {
       const provider = createProvider(false, true)
 
-      for (const file of uriEncodedTestSubFiles) {
+      for (const file of testSubFiles) {
         await getContentsOfFileInteraction(provider, file, config.testUser, config.testUserPassword)
       }
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -495,7 +494,7 @@ describe('Main: Currently testing files management,', function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
-      await createFolderInteraction(provider, encodeURI(newFolder), config.testUser, config.testUserPassword)
+      await createFolderInteraction(provider, newFolder, config.testUser, config.testUserPassword)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
@@ -547,7 +546,7 @@ describe('Main: Currently testing files management,', function () {
         provider, config.testUser, config.testUserPassword
       )
       await deleteResourceInteraction(
-        provider, encodeURI(newFolder), 'folder', config.testUser, config.testUserPassword
+        provider, newFolder, 'folder', config.testUser, config.testUserPassword
       )
 
       return provider.executeTest(async () => {
@@ -571,7 +570,7 @@ describe('Main: Currently testing files management,', function () {
         provider, config.testUser, config.testUserPassword
       )
       await deleteResourceInteraction(
-        provider, encodeURI(nonExistentDir), 'folder', config.testUser, config.testUserPassword
+        provider, nonExistentDir, 'folder', config.testUser, config.testUserPassword
       )
 
       return provider.executeTest(async () => {
@@ -620,7 +619,7 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
-      const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
+      const srcFilePath = `${testFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
       provider
         .given('the user is recreated', {
@@ -628,7 +627,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('file exists', {
-          fileName: encodedSrcFilePath,
+          fileName: srcFilePath,
           username: config.testUser,
           password: config.testUserPassword
         })
@@ -636,7 +635,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a MOVE request to move existent file into different folder`)
         .withRequest({
           method: 'MOVE',
-          path: webdavPath(encodedSrcFilePath),
+          path: webdavPath(srcFilePath),
           headers: {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
@@ -698,7 +697,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, same name`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(`${testFolder}/${encodeURI('中文.txt')}`),
+          path: webdavPath(`${testFolder}/中文.txt`),
           headers: {
             ...validAuthHeaders,
             Destination: `${mockServerBaseUrl}remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
@@ -977,7 +976,7 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
-      const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
+      const srcFilePath = `${testFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
       provider
         .given('the user is recreated', {
@@ -985,7 +984,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('file exists', {
-          fileName: encodedSrcFilePath,
+          fileName: srcFilePath,
           username: config.testUser,
           password: config.testUserPassword
         })
@@ -1025,7 +1024,7 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
-      const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
+      const srcFilePath = `${testFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
@@ -1033,7 +1032,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('file exists', {
-          fileName: encodedSrcFilePath,
+          fileName: srcFilePath,
           username: config.testUser,
           password: config.testUserPassword
         })
@@ -1041,7 +1040,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, different name`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(encodedSrcFilePath),
+          path: webdavPath(srcFilePath),
           headers: {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(
@@ -1074,7 +1073,7 @@ describe('Main: Currently testing files management,', function () {
         provider, config.testUser, config.testUserPassword
       )
       await provider
-      const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
+      const srcFilePath = `${testFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/webdav/${testFolder}/subdir/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
@@ -1082,7 +1081,7 @@ describe('Main: Currently testing files management,', function () {
           password: config.testUserPassword
         })
         .given('file exists', {
-          fileName: encodedSrcFilePath,
+          fileName: srcFilePath,
           username: config.testUser,
           password: config.testUserPassword
         })
@@ -1095,7 +1094,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy existent file into different folder`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(encodedSrcFilePath),
+          path: webdavPath(srcFilePath),
           headers: {
             authorization: getAuthHeaders(config.testUser, config.testUserPassword),
             Destination: MatchersV3.fromProviderState(

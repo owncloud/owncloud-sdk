@@ -21,7 +21,9 @@ const testSubFiles = [
   `${config.testFolder}/中文.txt`
 ]
 
-const uriEncodedTestSubFiles = testSubFiles.map(item => encodeURIComponent(item).split('%2F').join('/'))
+const encodeURIPath = function (path) {
+  return encodeURIComponent(path).split('%2F').join('/')
+}
 
 /**
  *
@@ -111,6 +113,7 @@ const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0'
   })
 
 const webdavPath = (resource) => {
+  resource = encodeURIPath(resource)
   return MatchersV3.regex(
     '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
     path.join('/remote.php/webdav', resource)
@@ -455,14 +458,15 @@ const createFolderInteraction = function (
       password: password
     })
   }
+  const encodedFolderName = encodeURIPath(folderName)
   return provider
     .uponReceiving(`as '${user}', a MKCOL request to create a folder '${folderName}'`)
     .withRequest({
       method: 'MKCOL',
       path: MatchersV3.regex(
         // accept any request to testfolder and any subfolders except notExistentDir
-        `.*\\/remote\\.php\\/webdav\\/${folderName}\\/?`,
-        '/remote.php/webdav/' + folderName + '/'
+        `.*\\/remote\\.php\\/webdav\\/${encodedFolderName}\\/?`,
+        '/remote.php/webdav/' + encodedFolderName + '/'
       ),
       headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith({
@@ -540,7 +544,6 @@ module.exports = {
   unauthorizedXmlResponseBody,
   applicationXmlResponseHeaders,
   testSubFiles,
-  uriEncodedTestSubFiles,
   getCapabilitiesInteraction,
   getCurrentUserInformationInteraction,
   createOwncloud,
@@ -553,5 +556,6 @@ module.exports = {
   updateFileInteraction,
   sanitizeUrl,
   getProviderBaseUrl,
-  getMockServerBaseUrl
+  getMockServerBaseUrl,
+  encodeURIPath
 }

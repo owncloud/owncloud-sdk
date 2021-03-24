@@ -3,7 +3,8 @@ const {
   getAuthHeaders,
   applicationFormUrlEncoded,
   sanitizeUrl,
-  getProviderBaseUrl
+  getProviderBaseUrl,
+  encodeURIPath
 } = require('../pactHelper.js')
 const config = require('../config/config.json')
 
@@ -57,7 +58,7 @@ const shareResource = function (username, password, shareParams) {
  * @returns {*} result of the fetch request
  */
 const getShareInfoByPath = function (username, userPassword, path) {
-  return fetch(getSharingEndPoint() + `?path=${encodeURIComponent(path)}&format=json`, {
+  return fetch(getSharingEndPoint() + `?path=${encodeURIPath(path)}&format=json`, {
     method: 'GET',
     headers: {
       authorization: getAuthHeaders(username, userPassword)

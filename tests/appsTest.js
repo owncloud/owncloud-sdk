@@ -120,7 +120,6 @@ describe('Main: Currently testing apps management,', function () {
   it('checking method : disableApp when app exists', async function () {
     const provider = createProvider()
     await changeAppStatus(provider, 'disable')
-    await changeAppStatus(provider, 'enable')
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
 
@@ -128,11 +127,6 @@ describe('Main: Currently testing apps management,', function () {
       const oc = createOwncloud()
       await oc.login()
       return oc.apps.disableApp('files').then(status => {
-        expect(status).toBe(true)
-
-        // Re-Enabling the Files App
-        return oc.apps.enableApp('files')
-      }).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
         expect(error).toBe(null)

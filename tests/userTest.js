@@ -16,7 +16,6 @@ describe('Main: Currently testing user management,', function () {
     createProvider
   } = require('./pactHelper.js')
   const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
-
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
     if (username !== config.adminUsername && username !== config.nonExistentUser) {
       await provider
@@ -52,6 +51,7 @@ describe('Main: Currently testing user management,', function () {
         query: query,
         headers: validAdminAuthHeaders
       })
+
       .willRespondWith({
         status: 200,
         headers: xmlResponseHeaders,
@@ -602,6 +602,154 @@ describe('Main: Currently testing user management,', function () {
         expect(status).toBe(false)
       }).catch(error => {
         expect(error).toBe(null)
+      })
+    })
+  })
+
+  it('checking method : enableUser with an existing user', async function () {
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider
+      .given(
+        'the user is recreated',
+        { username: config.testUser, password: config.testUserPassword }
+      )
+      .uponReceiving(`as '${config.adminUsername}' a PUT request to enable an existing user`)
+      .withRequest({
+        headers: validAdminAuthHeaders,
+        method: 'PUT',
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/enable',
+          '/ocs/v1.php/cloud/users/' + config.testUser + '/enable'
+        )
+      }).willRespondWith({
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: new XmlBuilder('1.0', '', 'ocs')
+          .build(ocs => {
+            ocs.appendElement('meta', '', (meta) => {
+              return ocsMeta(meta, 'ok', '100')
+            })
+          })
+      })
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.users.enableUser(config.testUser).then((status) => {
+        expect(status).toBe(true)
+      }).catch(error => {
+        expect(error).toBe(null)
+      })
+    })
+  })
+
+  it('checking method : disableUser with an existing user', async function () {
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider
+      .given(
+        'the user is recreated',
+        { username: config.testUser, password: config.testUserPassword }
+      )
+      .uponReceiving(`as '${config.adminUsername}' a PUT request to disable an existing user`)
+      .withRequest({
+        headers: validAdminAuthHeaders,
+        method: 'PUT',
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/disable',
+          '/ocs/v1.php/cloud/users/' + config.testUser + '/disable'
+        )
+      }).willRespondWith({
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: new XmlBuilder('1.0', '', 'ocs')
+          .build(ocs => {
+            ocs.appendElement('meta', '', (meta) => {
+              return ocsMeta(meta, 'ok', '100')
+            })
+          })
+      })
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.users.disableUser(config.testUser).then((status) => {
+        expect(status).toBe(true)
+      }).catch(error => {
+        expect(error).toBe(null)
+      })
+    })
+  })
+
+  it('checking method : enableUser with a non-existing user', async function () {
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider.uponReceiving(`as '${config.adminUsername}' a PUT request to enable a non-existing user`)
+      .withRequest({
+        headers: validAdminAuthHeaders,
+        method: 'PUT',
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/enable',
+          '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/enable'
+        )
+      }).willRespondWith({
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: new XmlBuilder('1.0', '', 'ocs')
+          .build(ocs => {
+            ocs.appendElement('meta', '', (meta) => {
+              return ocsMeta(meta, 'failure', '101')
+            })
+          })
+      })
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.users.enableUser(config.nonExistentUser).then((status) => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(typeof (error)).toBe('object')
+        expect(error.ocs.meta.statuscode).toEqual('101')
+      })
+    })
+  })
+
+  it('checking method : disableUser with a non-existing user', async function () {
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider.uponReceiving(`as '${config.adminUsername}' a PUT request to  disable a non-existing user`)
+      .withRequest({
+        headers: validAdminAuthHeaders,
+        method: 'PUT',
+        path: MatchersV3.regex(
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/disable',
+          '/ocs/v1.php/cloud/users/' + config.nonExistentUser + '/disable'
+        )
+      }).willRespondWith({
+        status: 200,
+        headers: xmlResponseHeaders,
+        body: new XmlBuilder('1.0', '', 'ocs')
+          .build(ocs => {
+            ocs.appendElement('meta', '', (meta) => {
+              return ocsMeta(meta, 'failure', '101')
+            })
+          })
+      })
+
+    return provider.executeTest(async () => {
+      const oc = createOwncloud()
+      await oc.login()
+      return oc.users.disableUser(config.nonExistentUser).then((status) => {
+        expect(status).toBe(null)
+      }).catch(error => {
+        expect(typeof (error)).toBe('object')
+        expect(error.ocs.meta.statuscode).toEqual('101')
       })
     })
   })

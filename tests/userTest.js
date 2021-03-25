@@ -607,10 +607,17 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : enableUser with an existing user', async function () {
-    const provider = createProvider()
-
-    await provider.uponReceiving('enable an existing user')
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider
+      .given(
+        'the user is recreated',
+        { username: config.testUser, password: config.testUserPassword }
+      )
+      .uponReceiving(`as '${config.adminUsername}' a PUT request to enable an existing user`)
       .withRequest({
+        headers: validAdminAuthHeaders,
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/enable',
@@ -629,7 +636,7 @@ describe('Main: Currently testing user management,', function () {
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
-
+      await oc.login()
       return oc.users.enableUser(config.testUser).then((status) => {
         expect(status).toBe(true)
       }).catch(error => {
@@ -639,10 +646,17 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : disableUser with an existing user', async function () {
-    const provider = createProvider()
-
-    await provider.uponReceiving('disable an existing user')
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider
+      .given(
+        'the user is recreated',
+        { username: config.testUser, password: config.testUserPassword }
+      )
+      .uponReceiving(`as '${config.adminUsername}' a PUT request to disable an existing user`)
       .withRequest({
+        headers: validAdminAuthHeaders,
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/disable',
@@ -661,7 +675,7 @@ describe('Main: Currently testing user management,', function () {
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
-
+      await oc.login()
       return oc.users.disableUser(config.testUser).then((status) => {
         expect(status).toBe(true)
       }).catch(error => {
@@ -671,10 +685,12 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : enableUser with a non-existing user', async function () {
-    const provider = createProvider()
-
-    await provider.uponReceiving('enable a non-existing user')
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider.uponReceiving(`as '${config.adminUsername}' a PUT request to enable a non-existing user`)
       .withRequest({
+        headers: validAdminAuthHeaders,
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/enable',
@@ -693,7 +709,7 @@ describe('Main: Currently testing user management,', function () {
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
-
+      await oc.login()
       return oc.users.enableUser(config.nonExistentUser).then((status) => {
         expect(status).toBe(null)
       }).catch(error => {
@@ -704,10 +720,12 @@ describe('Main: Currently testing user management,', function () {
   })
 
   it('checking method : disableUser with a non-existing user', async function () {
-    const provider = createProvider()
-
-    await provider.uponReceiving('disable a non-existing user')
+    const provider = createProvider(false, true)
+    await getCapabilitiesInteraction(provider)
+    await getCurrentUserInformationInteraction(provider)
+    await provider.uponReceiving(`as '${config.adminUsername}' a PUT request to  disable a non-existing user`)
       .withRequest({
+        headers: validAdminAuthHeaders,
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.nonExistentUser + '\\/disable',
@@ -726,7 +744,7 @@ describe('Main: Currently testing user management,', function () {
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
-
+      await oc.login()
       return oc.users.disableUser(config.nonExistentUser).then((status) => {
         expect(status).toBe(null)
       }).catch(error => {

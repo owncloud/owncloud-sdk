@@ -69,7 +69,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   }
 
   it('checking method : getGroups', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await groupsInteraction(provider, 'get all groups', 'GET')
@@ -92,7 +92,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   })
 
   it('checking method : createGroup', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await groupsInteraction(provider, 'create a group', 'POST')
@@ -115,7 +115,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   })
 
   it('checking method : groupExists', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await groupsInteraction(provider, 'check group existence', 'GET')
@@ -138,7 +138,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   })
 
   it('checking method : deleteGroup', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await deleteGroupInteraction(provider)
@@ -161,7 +161,7 @@ describe('Unauthorized: Currently testing group management,', function () {
   })
 
   it('checking method : getGroupMembers', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getGroupMembersInteraction(provider)

@@ -48,7 +48,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   })
 
   it('checking method : login with wrong username and password', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider, nonExistentUser, 'config.adminPassword' + timeRightNow)
 
     return provider.executeTest(async () => {
@@ -71,7 +71,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   })
 
   it('checking method : login with correct username only', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider, config.adminUsername, 'config.adminPassword' + timeRightNow)
 
     return provider.executeTest(async () => {
@@ -94,7 +94,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   })
 
   it('checking method : login with correct config.adminUsername and config.adminPassword', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     return provider.executeTest(async () => {

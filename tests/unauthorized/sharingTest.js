@@ -79,7 +79,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   }
 
   it('checking method : shareFileWithLink', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await createShareInteraction(provider, `as '${username}', a POST request to create public link share with invalid auth`)
@@ -102,7 +102,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : shareFileWithUser', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await createShareInteraction(provider, `as '${username}', a POST request to share a file to a user with invalid auth`)
@@ -125,7 +125,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : shareFileWithGroup', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await createShareInteraction(provider, `as '${username}', a POST request to share a file to a group with invalid auth`)
@@ -150,7 +150,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : isShared', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getSharesInteraction(provider, `as '${username}', a GET request to check whether a file is shared or not with invalid auth`, testFile)
@@ -173,7 +173,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : getShare', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getShareInteraction(provider, `as '${username}', a GET request to get single share of a file with invalid auth`, 'GET')
@@ -196,7 +196,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : getShares', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getSharesInteraction(provider, `as '${username}', a GET request to get shares of a file with invalid auth`, testFile)
@@ -219,7 +219,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : updateShare', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getShareInteraction(provider, `as '${username}', a PUT request to update a share with invalid auth`, 'PUT')
@@ -242,7 +242,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
   })
 
   it('checking method : deleteShare', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await getShareInteraction(provider, `as '${username}', a DELETE request to delete a share with invalid auth`, 'DELETE')

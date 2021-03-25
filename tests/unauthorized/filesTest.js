@@ -54,7 +54,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   ]
 
   it('checking method : list', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await unauthorizedWebDavInteraction(provider, 'list folder contents', 'PROPFIND')
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
@@ -74,7 +74,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : getFileContents', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await unauthorizedWebDavInteraction(provider, 'get file contents', 'GET')
 
@@ -98,7 +98,7 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it('checking method : putFileContents', async function () {
     const newFile = config.testFolder + '/' + 'file.txt'
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await unauthorizedWebDavInteraction(provider, 'update file contents', 'PUT')
 
@@ -119,7 +119,7 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it('checking method : mkdir', async function () {
     const newFolder = config.testFolder + '/' + 'new folder/'
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await unauthorizedWebDavInteraction(provider, 'create a directory', 'MKCOL')
 
@@ -140,7 +140,7 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it('checking method : delete', async function () {
     const newFolder = config.testFolder + '/' + 'new folder'
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await unauthorizedWebDavInteraction(provider, 'delete a folder', 'DELETE')
 
@@ -160,7 +160,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : move', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await unauthorizedWebDavInteraction(provider, 'move a file', 'MOVE')
 
@@ -181,7 +181,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : copy', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await unauthorizedWebDavInteraction(provider, 'copy a file', 'COPY')
 

@@ -13,7 +13,7 @@ describe('Main: Currently testing low level OCS', function () {
   } = require('./pactHelper.js')
 
   it('checking : capabilities', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
 
@@ -50,7 +50,7 @@ describe('Main: Currently testing low level OCS', function () {
     https://github.com/owncloud/core/issues/38423
   */
   it('checking : error behavior', async function () {
-    const provider = createProvider()
+    const provider = createProvider(true, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
 
@@ -101,7 +101,7 @@ describe('Main: Currently testing low level OCS', function () {
   */
   it('checking : PUT email', async function () {
     const { testUser, testUserPassword } = config
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider

@@ -117,10 +117,20 @@ const webdavPath = (resource) => {
   )
 }
 
-const createProvider = function () {
+const createProvider = function (pendingOnOc10 = false, pendingOnOcis = false) {
+  let providerNameSuffix = ''
+  if (pendingOnOc10 || pendingOnOcis) {
+    providerNameSuffix += '-pendingOn'
+  }
+  if (pendingOnOc10) {
+    providerNameSuffix += '-oc10'
+  }
+  if (pendingOnOcis) {
+    providerNameSuffix += '-ocis'
+  }
   return new PactV3({
     consumer: 'owncloud-sdk',
-    provider: 'oc-server',
+    provider: 'oc-server' + providerNameSuffix,
     port: config.pactMockPort,
     dir: path.resolve(process.cwd(), 'tests', 'pacts')
   })

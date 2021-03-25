@@ -197,7 +197,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('file/folder creation and deletion', function () {
     it('creates the testFolder at instance', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -218,7 +218,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('creates subfolder at instance', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       await createFolderInteraction(
@@ -237,7 +237,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('creates subfiles at instance', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -267,7 +267,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('deletes the test folder at instance', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -290,7 +290,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('list, get content and move file/folder', function () {
     it('checking method : list with no depth specified', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await listFolderContentInteraction(
@@ -317,7 +317,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : list with Infinity depth', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await listFolderContentInteraction(
@@ -342,7 +342,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : list with 2 depth', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await listFolderContentInteraction(
@@ -366,7 +366,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : list with non existent file', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await listFolderContentInteraction(
@@ -386,7 +386,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : getFileContents for existent files', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
 
       for (const file of uriEncodedTestSubFiles) {
         await getContentsOfFileInteraction(provider, file, config.testUser, config.testUserPassword)
@@ -409,7 +409,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : getFileContents for non existent file', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await getContentsOfFileInteraction(provider, nonExistentFile)
@@ -434,7 +434,7 @@ describe('Main: Currently testing files management,', function () {
           progressCalled = true
         }
       }
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await updateFileInteraction(provider, newFile)
@@ -455,7 +455,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('fails with error when uploading to a non-existent parent path', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await updateFileInteraction(provider, nonExistentDir + '/' + 'file.txt')
@@ -478,7 +478,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method: getFileUrlV2', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
 
@@ -492,7 +492,7 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : mkdir for an existing parent path', async function () {
       const newFolder = testFolder + '/' + 'new folder'
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       await createFolderInteraction(provider, encodeURI(newFolder), config.testUser, config.testUserPassword)
@@ -510,7 +510,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : mkdir for a non-existent parent path', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -539,7 +539,7 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : delete for an existing folder', async function () {
       const newFolder = testSubDir
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -563,7 +563,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : delete for a non-existent folder', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -586,7 +586,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : move existent file into same folder, same name', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await moveFileInteraction(
@@ -613,7 +613,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : move existent file into different folder', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -660,7 +660,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : move non existent file', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -691,7 +691,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : copy existent file into same folder, same name', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -722,7 +722,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : copy non existent file', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -752,7 +752,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('resolved the path of a file identified by its fileId', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await provider
@@ -908,7 +908,7 @@ describe('Main: Currently testing files management,', function () {
     }
 
     it('returns TUS support information when TUS headers are set for a list call', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await tusSupportRequest(provider)
@@ -931,7 +931,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('returns TUS support information when TUS headers are set for a fileinfo call', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await tusSupportRequest(provider, true, 'somedir')
@@ -951,7 +951,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('returns null when TUS headers are not set for a list call', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await tusSupportRequest(provider, false)
@@ -970,7 +970,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('rename existing file', function () {
     it('rename existing file', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1018,7 +1018,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('copy existent file', function () {
     it('checking method : copy existent file into same folder, different name', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1066,7 +1066,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : copy existent file into different folder', async function () {
-      const provider = createProvider()
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1122,7 +1122,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('unfavorite a file', function () {
     it('checking method: unfavorite', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await favoriteFileInteraction(provider, false)
@@ -1149,7 +1149,7 @@ describe('Main: Currently testing files management,', function () {
     let tagId = 6789
 
     it('checking method: favorite', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await favoriteFileInteraction(provider, true)
@@ -1171,7 +1171,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method: favorite filter', async function () {
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
       await favoriteFileInteraction(provider, true)
@@ -1242,7 +1242,7 @@ describe('Main: Currently testing files management,', function () {
         '{DAV:}resourcetype'
       ]
 
-      const provider = createProvider()
+      const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
 
@@ -1339,7 +1339,7 @@ describe('Main: Currently testing files management,', function () {
           })
         }
       }
-      const provider = createProvider()
+      const provider = createProvider(true, true)
 
       await provider
         .uponReceiving(`as '${username}', a POST request to create tag`)

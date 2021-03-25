@@ -81,7 +81,7 @@ describe('Main: Currently testing apps management,', function () {
   }
 
   it('checking method : getApps', async () => {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await getAppsInteraction(provider, { filter: 'enabled' })
@@ -101,7 +101,7 @@ describe('Main: Currently testing apps management,', function () {
   })
 
   it('checking method : enableApp when app exists', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await changeAppStatus(provider, 'enable')
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -118,7 +118,7 @@ describe('Main: Currently testing apps management,', function () {
 
   // cors issue
   it('checking method : disableApp when app exists', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await changeAppStatus(provider, 'disable')
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -135,7 +135,7 @@ describe('Main: Currently testing apps management,', function () {
   })
 
   it('checking method : enableApp when app doesn\'t exist', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await changeAppStatus(provider, 'enable')
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -152,7 +152,7 @@ describe('Main: Currently testing apps management,', function () {
   })
 
   it('checking method : disableApp when app doesn\'t exist', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await changeAppStatus(provider, 'disable')
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)

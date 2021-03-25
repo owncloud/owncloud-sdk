@@ -31,6 +31,8 @@
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
     "test-consumer": "jest --runInBand --testPathIgnorePatterns='provider.*'",
     "test-provider": "jest --runInBand providerTest.js",
+    "test-provider:oc10": "jest --runInBand providerTest.js -t 'oc10 as provider'",
+    "test-provider:ocis": "jest --runInBand providerTest.js -t 'ocis as provider'",
     "build:docs": "jsdoc -c jsdoc.conf.json",
     "build:system": "webpack"
   },

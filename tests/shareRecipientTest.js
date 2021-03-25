@@ -57,7 +57,7 @@ describe('Main: Currently testing share recipient,', function () {
   }
 
   it('testing behavior : invalid page', function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     return provider.executeTest(() => {
       const oc = createOwncloud(sharer, sharerPassword)
@@ -71,7 +71,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   it('testing behavior : invalid perPage', function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(sharer, sharerPassword)
@@ -85,7 +85,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   it('testing behavior : negative page', function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(sharer, sharerPassword)
@@ -99,7 +99,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   it('testing behavior : searching for users and groups', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider, sharer, sharerPassword)
     await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
     await getShareesInteraction(provider)

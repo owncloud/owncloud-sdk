@@ -72,7 +72,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   var testUserPassword = 'password'
 
   it('checking method : getUser', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'admin user', 'GET', adminUserEndpointPath)
@@ -93,7 +93,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : createUser', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'create a user', 'POST', usersEndpointPath)
@@ -114,7 +114,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : searchUsers', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'search users', 'GET', usersEndpointPath)
@@ -135,7 +135,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : userExists', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
     const query = { search: config.adminUsername }
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
@@ -157,7 +157,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : setUserAttribute', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'edit user', 'PUT', testUserEndpointPath)
@@ -178,7 +178,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToGroup', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'add user to a group', 'POST', groupsEndpointPath)
@@ -199,7 +199,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : getUserGroups', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'get users of a group', 'GET', groupsEndpointPath)
@@ -220,7 +220,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInGroup', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'check user existence in a group', 'GET', groupsEndpointPath)
@@ -241,7 +241,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : getUser', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'normal user', 'GET', testUserEndpointPath)
@@ -262,7 +262,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : removeUserFromGroup', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'remove user from a group', 'DELETE', groupsEndpointPath)
@@ -283,7 +283,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : addUserToSubadminGroup', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'add a user to subadmin group', 'POST', subadminsUserEndpointPath)
@@ -304,7 +304,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : getUserSubadminGroups', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'get users of subadmin group', 'GET', subadminsUserEndpointPath)
@@ -325,7 +325,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : userIsInSubadminGroup', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'check user existence in subadmin group', 'GET', subadminsUserEndpointPath)
@@ -346,7 +346,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   })
 
   it('checking method : deleteUser', async function () {
-    const provider = createProvider()
+    const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'delete a non-existent user', 'DELETE', nonExistingUserEndpoint)

@@ -355,29 +355,6 @@ describe('provider testing', () => {
       if (setup) {
         delay(paramters.delay)
       }
-    },
-    'public link share is created': (setup, parameters) => {
-      if (setup) {
-        const { username, userPassword, path, permissions, password } = parameters
-        const response = shareResource(
-          username,
-          userPassword,
-          path,
-          3,
-          null,
-          permissions,
-          null,
-          null,
-          password
-        )
-
-        const { status } = getOCSMeta(response)
-        chai.assert.strictEqual(status, 'ok', `public link share of '${parameters.path}' failed`)
-
-        const { token } = getOCSData(response)
-        lastSharedToken = token
-        return getOCSData(response)
-      }
     }
   }
 

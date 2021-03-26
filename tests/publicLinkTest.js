@@ -1,3 +1,6 @@
+// TODO: Review all matchers in xml once the issue is fixed
+// https://github.com/pact-foundation/pact-js/issues/632
+
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.publicFiles', function () {
@@ -196,7 +199,12 @@ describe('oc.publicFiles', function () {
         const testContent = config.testContent
 
         it('should list the folder contents', async function () {
-          const provider = createProvider(true, true)
+          let provider
+          if (data.shallGrantAccess) {
+            provider = createProvider(true, true)
+          } else {
+            provider = createProvider(false, true)
+          }
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
@@ -369,7 +377,7 @@ describe('oc.publicFiles', function () {
               .willRespondWith({ status: resStatusCode, body: resBody, headers: respHeaders })
           }
 
-          const provider = createProvider(true, true)
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await getFileFromPublicLinkInteraction(provider, data)
@@ -446,7 +454,7 @@ describe('oc.publicFiles', function () {
           })
         })
         it('should get content of a file', async function () {
-          const provider = createProvider(true, true)
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
@@ -475,7 +483,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should update a file', async function () {
-          const provider = createProvider(true, true)
+          const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await publicShareContentInteraction(

@@ -1,5 +1,6 @@
 const fetch = require('sync-fetch')
 const path = require('path')
+const convert = require('xml-js')
 const {
   getAuthHeaders,
   getProviderBaseUrl
@@ -12,11 +13,13 @@ const {
  * @param {string} type (files|versions)
  */
 const createDavPath = function (userId, element, type = 'files') {
-  if (type === 'files') {
-    return `/remote.php/dav/files/${userId}/${element}`
-  } else if (type === 'versions') {
-    return `/remote.php/dav/meta/${element}/v`
+  const parts = ['/remote.php/dav']
+  if (type === 'versions') {
+    parts.push('meta', element, 'v')
+  } else {
+    parts.push(type, userId, element)
   }
+  return path.join(...parts)
 }
 
 /**
@@ -129,6 +132,91 @@ const getSignKey = function (username, password) {
   return response.json().ocs.data['signing-key']
 }
 
+/**
+ *
+ * @param {string} path
+ * @param {string} userId
+ * @param {array} properties
+ * @param {string} type
+ * @param {number} folderDepth
+ */
+const propfind = function (path, userId, password, properties, type = 'files', folderDepth = '1') {
+  let propertyBody = ''
+  properties.map(prop => {
+    propertyBody += `<${prop}/>`
+  })
+  const body = `<?xml version="1.0"?>
+                <d:propfind
+                xmlns:d="DAV:"
+                xmlns:oc="http://owncloud.org/ns"
+                xmlns:ocs="http://open-collaboration-services.org/ns">
+                <d:prop>${propertyBody}</d:prop>
+                </d:propfind>`
+
+  const result = fetch(createFullDavUrl(userId, path, type), {
+    method: 'PROPFIND',
+    body,
+    headers: { authorization: getAuthHeaders(userId, password), Depth: folderDepth }
+  })
+  if (result.status !== 207) {
+    throw new Error('could not list trashbin folders')
+  }
+  return result.text()
+}
+
+/**
+ * Get the list of trashbin items for a user
+ * in following format
+ * [{
+ *  "href":
+ *  "originalFilename":
+ *  "originalLocation":
+ *  "deleteTimestamp":
+ *  "lastModified":
+ * },...]
+ *
+ * @param {string} user
+ * @param {string} password
+ * @param {number} depth
+ */
+const getTrashBinElements = function (user, password, depth = 2) {
+  const str = propfind(
+    '/',
+    user,
+    password,
+    [
+      'oc:trashbin-original-filename',
+      'oc:trashbin-original-location',
+      'oc:trashbin-delete-timestamp',
+      'd:getlastmodified'
+    ],
+    'trash-bin',
+    depth
+  )
+  const trashData = convert.xml2js(str, { compact: true })['d:multistatus']['d:response']
+  const trashItems = []
+  trashData.map(trash => {
+    let propstat
+    if (Array.isArray(trash['d:propstat'])) {
+      propstat = trash['d:propstat'][0]
+    } else {
+      propstat = trash['d:propstat']
+    }
+    if (propstat['d:prop'] === undefined) {
+      throw new Error('trashbin data not defined')
+    } else {
+      trashItems.push({
+        href: trash?.['d:href']._text,
+        originalFilename: propstat['d:prop']['oc:trashbin-original-filename'] ? propstat['d:prop']['oc:trashbin-original-filename']._text : '',
+        originalLocation: propstat['d:prop']['oc:trashbin-original-location'] ? propstat['d:prop']['oc:trashbin-original-location']._text : '',
+        deleteTimestamp: propstat['d:prop']['oc:trashbin-delete-timestamp'] ? propstat['d:prop']['oc:trashbin-delete-timestamp']._text : '',
+        lastModified: propstat['d:prop']['d:getlastmodified'] ? propstat['d:prop']['d:getlastmodified']._text : ''
+      })
+    }
+  })
+  return trashItems
+}
+
 module.exports = {
   createFolderRecrusive,
   createFile,
@@ -136,5 +224,6 @@ module.exports = {
   getFileId,
   listVersionsFolder,
   createDavPath,
-  getSignKey
+  getSignKey,
+  getTrashBinElements
 }

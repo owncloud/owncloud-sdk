@@ -460,7 +460,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await getShareInteraction(provider, '(group share)', 1, testFolder, testFolder, 'folder')
+          await getShareInteraction(provider, '(group share)', 1, testFolder, testGroup, 'folder')
           return provider.executeTest(async () => {
             const oc = createOwncloud(sharer, sharerPassword)
             await oc.login()
@@ -483,7 +483,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             '(group share: set read/write permission)',
             0,
             testFolder,
-            testGroup,
+            sharee,
             'folder',
             formData
           )

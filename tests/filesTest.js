@@ -1145,8 +1145,8 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('favorite, search file', function () {
-    let fileId = 123456789
-    let tagId = 6789
+    const fileId = 123456789
+    const tagId = 6789
 
     it('checking method: favorite', async function () {
       const provider = createProvider(true, true)
@@ -1314,8 +1314,6 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method: filter by tag', async function () {
-      const newFile = testFolder + '/' + testFile
-      const newTagName = 'testSystemTag12345'
       const getFileInfoBy = data => {
         return {
           status: 207,
@@ -1340,6 +1338,54 @@ describe('Main: Currently testing files management,', function () {
         }
       }
       const provider = createProvider(true, true)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+
+      await provider
+        .uponReceiving(`as '${username}', a REPORT request to get files by tag`)
+        .withRequest({
+          method: 'REPORT',
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
+            '/remote.php/dav/files/' + config.adminUsername + '/'
+          ),
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
+          body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
+            ocFilterFiles.setAttributes({
+              'xmlns:d': 'DAV:',
+              'xmlns:oc': 'http://owncloud.org/ns'
+            })
+            ocFilterFiles.appendElement('d:prop', '', dProp => {
+              dProp.appendElement('oc:fileid', '', '')
+            }).appendElement('oc:filter-rules', '', ocFilterRules => {
+              ocFilterRules.appendElement('oc:systemtag', '', tagId)
+            })
+          })
+        })
+        .willRespondWith(getFileInfoBy('tag'))
+
+      return provider.executeTest(async () => {
+        const oc = createOwncloud()
+        await oc.login()
+
+        return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
+          .then(files => {
+            expect(files.length).toEqual(1)
+            expect(files[0].getName()).toEqual(testFile)
+          }).catch(error => {
+            expect(error).toBe(null)
+          })
+      })
+    })
+
+    it('checking method: create tag', async function () {
+      const newTagName = 'testSystemTag12345'
+      const provider = createProvider(true, true)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
 
       await provider
         .uponReceiving(`as '${username}', a POST request to create tag`)
@@ -1363,6 +1409,50 @@ describe('Main: Currently testing files management,', function () {
             'Content-Location': `/remote.php/dav/systemtags/${tagId}`
           }
         })
+
+      return provider.executeTest(async () => {
+        const oc = createOwncloud()
+        await oc.login()
+        return oc.systemTags.createTag({ name: newTagName })
+          .catch(error => {
+            expect(error).toBe(null)
+          })
+      })
+    })
+
+    it('checking method: file info', async function () {
+      const newFile = testFolder + '/' + testFile
+      const provider = createProvider(true, true)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
+
+      const getFileInfoBy = data => {
+        return {
+          status: 207,
+          headers: applicationXmlResponseHeaders,
+          body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
+            dMultistatus.setAttributes({
+              'xmlns:d': 'DAV:',
+              'xmlns:s': 'http://sabredav.org/ns',
+              'xmlns:oc': 'http://owncloud.org/ns'
+            })
+            dMultistatus.appendElement('d:response', '', dResponse => {
+              dResponse.appendElement(
+                'd:href', '',
+                `/remote.php/${data === fileId ? 'webdav' : 'dav/files/' + config.adminUsername}/${testFolder}/${testFile}`
+              )
+                .appendElement('d:propstat', '', dPropstat => {
+                  dPropstat.appendElement('d:prop', '', dProp => {
+                    dProp
+                      .appendElement('oc:fileid', '', fileId)
+                  })
+                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                })
+            })
+          })
+        }
+      }
+
       await provider
         .uponReceiving(`as '${username}', a PROPFIND request to file info, fileId`)
         .withRequest({
@@ -1381,6 +1471,22 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith(getFileInfoBy('fileId'))
 
+      return provider.executeTest(async () => {
+        const oc = createOwncloud()
+        await oc.login()
+        return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
+          .then(fileInfo => {
+            expect(fileInfo.getProperty('{http://owncloud.org/ns}fileid')).toEqual('123456789')
+          }).catch(error => {
+            expect(error).toBe(null)
+          })
+      })
+    })
+
+    it('checking method: tag file', async function () {
+      const provider = createProvider(true, true)
+      await getCapabilitiesInteraction(provider)
+      await getCurrentUserInformationInteraction(provider)
       await provider
         .uponReceiving(`as '${username}', a PUT request to tag file`)
         .withRequest({
@@ -1396,49 +1502,12 @@ describe('Main: Currently testing files management,', function () {
           headers: applicationXmlResponseHeaders
         })
 
-      await provider
-        .uponReceiving(`as '${username}', a REPORT request to get files by tag`)
-        .withRequest({
-          method: 'REPORT',
-          path: MatchersV3.regex(
-            '.*\\/remote\\.php\\/dav\\/files\\/' + config.adminUsername + '\\/$',
-            '/remote.php/dav/files/' + config.adminUsername + '/'
-          ),
-          headers: {
-            ...validAuthHeaders,
-            ...applicationXmlResponseHeaders
-          },
-          body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
-            ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
-            ocFilterFiles.appendElement('d:prop', '', dProp => {
-              dProp.appendElement('oc:fileid', '', '')
-            }).appendElement('oc:filter-rules', '', ocFilterRules => {
-              ocFilterRules.appendElement('oc:systemtag', '', tagId)
-            })
-          })
-        })
-        .willRespondWith(getFileInfoBy('tag'))
-
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
 
-        return oc.files.fileInfo(newFile, ['{http://owncloud.org/ns}fileid'])
-          .then(fileInfo => {
-            fileId = fileInfo.getFileId()
-            return oc.systemTags.createTag({ name: newTagName })
-          }).then(resp => {
-            tagId = resp
-            return oc.systemTags.tagFile(fileId, tagId)
-          }).then(() => {
-            return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
-          }).then(files => {
-            expect(files.length).toEqual(1)
-            expect(files[0].getName()).toEqual(testFile)
-          }).catch(error => {
+        return oc.systemTags.tagFile(fileId, tagId)
+          .catch(error => {
             expect(error).toBe(null)
           })
       })

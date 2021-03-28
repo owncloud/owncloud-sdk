@@ -1,21 +1,23 @@
+// TODO: Review all matchers in xml once the issue is fixed
+//
+// https://github.com/pact-foundation/pact-js/issues/632
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing file versions management,', function () {
   const config = require('./config/config.json')
-  const username = config.adminUsername
+  const { testUser, testUserPassword } = config
 
   const {
-    validAdminAuthHeaders,
     applicationXmlResponseHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     createOwncloud,
     createProvider,
     getAuthHeaders,
-    validAuthHeaders,
     getMockServerBaseUrl
   } = require('./pactHelper.js')
 
+  const mockServerBaseUrl = getMockServerBaseUrl()
   const { createDavPath } = require('./webdavHelper.js')
   // TESTING CONFIGS
   const versionedFile = config.testFile
@@ -24,38 +26,32 @@ describe('Main: Currently testing file versions management,', function () {
     versions: [
       {
         versionId: 98765432,
-        content: config.testContent
+        content: 'update content'
       },
       {
         versionId: 87654321,
         content: '*'
       }
+    ],
+    versionResponseContent: [
+      'update content',
+      config.testContent
     ]
-  }
-  const mockServerBaseUrl = getMockServerBaseUrl()
-  const propfindFileVersionsRequestData = {
-    method: 'PROPFIND',
-    path: MatchersV3.regex(
-      `.*\\/remote\\.php\\/dav\\/meta\\/${fileInfo.id}\\/v$`,
-      `/remote.php/dav/meta/${fileInfo.id}/v`
-    ),
-    headers: { ...validAuthHeaders, ...applicationXmlResponseHeaders },
-    body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
-      dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
-      dPropfind.appendElement('d:prop', '', '')
-    })
   }
 
   const propfindFileVersionsResponse = (node, version, contentLength) => {
     return node.appendElement('d:response', '', dResponse => {
-      dResponse.appendElement('d:href', '', `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`)
+      dResponse.appendElement('d:href', '', MatchersV3.regex(
+        '.*\\/remote\\.php\\/dav\\/meta\\/.*\\/v\\/.*',
+        `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[version].versionId}`)
+      )
         .appendElement('d:propstat', '', dPropstat => {
           dPropstat.appendElement('d:prop', '', dProp => {
             dProp
-              .appendElement('d:getlastmodified', '', 'Thu, 08 Oct 2020 02:28:50 GMT')
+              .appendElement('d:getlastmodified', '', MatchersV3.date('E, dd MM yyyy HH:mm:ss Z', 'Thu, 08 Oct 2020 02:28:50 GMT'))
               .appendElement('d:getcontentlength', '', contentLength)
               .appendElement('d:resourcetype', '', '')
-              .appendElement('d:getetag', '', '&quot;bc7012325dcc9899be7da7cabfdddb00&quot;')
+              .appendElement('d:getetag', '', MatchersV3.string('&quot;bc7012325dcc9899be7da7cabfdddb00&quot;'))
               .appendElement('d:getcontenttype', '', 'text/plain')
           })
             .appendElement('d:status', '', 'HTTP/1.1 200 OK')
@@ -69,32 +65,42 @@ describe('Main: Currently testing file versions management,', function () {
     })
   }
 
-  const fileVersionPath = (fileId, versionId) => MatchersV3.regex(
-   `.*\\/remote\\.php\\/dav\\/meta\\/${fileId}\\/v\\/${versionId}$`,
-   `/remote.php/dav/meta/${fileId}/v/${versionId}`
-  )
-
   describe('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
+      await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+      await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
       await provider
-        .uponReceiving(`as '${username}', a PROPFIND request to get file versions of non existent file`)
-        .withRequest(propfindFileVersionsRequestData)
+        .given('the user is recreated', {
+          username: testUser,
+          password: testUserPassword
+        })
+        .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of non existent file`)
+        .withRequest({
+          method: 'PROPFIND',
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/meta\\/42\\/v',
+            '/remote.php/dav/meta/42/v'
+          ),
+          headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
+          body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
+            dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
+            dPropfind.appendElement('d:prop', '', '')
+          })
+        })
         .willRespondWith({
           status: 404,
           headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', 'utf-8', 'd:error').build(dError => {
-            dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
-            dError.appendElement('d:exception', '', 'Sabre\\DAV\\Exception\\NotFound')
+            dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
+            dError.appendElement('s:exception', '', 'Sabre\\DAV\\Exception\\NotFound')
               .appendElement('s:message', '', '')
           })
         })
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(testUser, testUserPassword)
         await oc.login()
-        return oc.fileVersions.listVersions(fileInfo.id).then(versions => {
+        return oc.fileVersions.listVersions(42).then(versions => {
           expect(versions).toBe(null)
         }).catch(error => {
           expect(error.statusCode).toBe(404)
@@ -106,9 +112,50 @@ describe('Main: Currently testing file versions management,', function () {
 
   describe('file versions for existing files', () => {
     const PropfindFileVersionOfExistentFiles = provider => {
-      return provider
-        .uponReceiving(`as '${username}', a PROPFIND request to get file versions of existent file`)
-        .withRequest(propfindFileVersionsRequestData)
+      return provider.given('the user is recreated', {
+        username: config.testUser,
+        password: config.testUserPassword
+      })
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword
+        })
+        .given('the client waits', { delay: 2000 })
+      // re-upload the same file to create a new version
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          content: fileInfo.versions[0].content
+        })
+        .given('the client waits', { delay: 2000 })
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          content: fileInfo.versions[1].content
+        })
+        .given('the client waits', { delay: 2000 })
+        .given('file version link is returned', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          number: 1
+        })
+        .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of existent file`)
+        .withRequest({
+          method: 'PROPFIND',
+          path: MatchersV3.fromProviderState(
+            '/remote.php/dav/meta/${fileId}/v', /* eslint-disable-line no-template-curly-in-string */
+            `/remote.php/dav/meta/${fileInfo.id}/v`
+          ),
+          headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
+          body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
+            dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
+            dPropfind.appendElement('d:prop', '', '')
+          })
+        })
         .willRespondWith({
           status: 207,
           headers: applicationXmlResponseHeaders,
@@ -119,7 +166,7 @@ describe('Main: Currently testing file versions management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             const node = dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', `/remote.php/dav/meta/${fileInfo.id}/v/`)
+              dResponse.appendElement('d:href', '', MatchersV3.regex('.*\\/remote\\.php\\/dav\\/meta\\/.*\\/v$', `/remote.php/dav/meta/${fileInfo.id}/v/`))
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
@@ -130,25 +177,56 @@ describe('Main: Currently testing file versions management,', function () {
                     .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                 })
             })
-            propfindFileVersionsResponse(node, 1, 2)
-            propfindFileVersionsResponse(node, 0, 1)
+            propfindFileVersionsResponse(node, 1, 14)
+            propfindFileVersionsResponse(node, 0, 6)
           })
         })
     }
-    const getFileVersionContents = async provider => {
-      for (let i = 0; i < fileInfo.versions.length; i++) {
-        await provider
-          .uponReceiving(`as '${username}', a GET request to get file version contents`)
-          .withRequest({
-            method: 'GET',
-            path: fileVersionPath(fileInfo.id, fileInfo.versions[i].versionId),
-            headers: validAdminAuthHeaders
-          })
-          .willRespondWith({
-            status: 200,
-            body: fileInfo.versions[i].content
-          })
-      }
+    const getFileVersionContents = async (provider, i) => {
+      await provider.given('the user is recreated', {
+        username: config.testUser,
+        password: config.testUserPassword
+      }).given('file exists', {
+        fileName: versionedFile,
+        username: config.testUser,
+        password: config.testUserPassword
+      })
+        .given('the client waits', { delay: 2000 })
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          content: fileInfo.versions[0].content
+        })
+        .given('the client waits', { delay: 2000 })
+        .given('file exists', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          content: fileInfo.versions[1].content
+        })
+        .given('the client waits', { delay: 2000 })
+        .given('file version link is returned', {
+          fileName: versionedFile,
+          username: config.testUser,
+          password: config.testUserPassword,
+          number: i + 1
+        })
+      await provider
+        .uponReceiving(`as '${testUser}', a GET request to get file version ${i} contents`)
+        .withRequest({
+          method: 'GET',
+          path: MatchersV3.fromProviderState(
+            '\${versionLink}', // eslint-disable-line no-useless-escape,no-template-curly-in-string
+              `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[i].versionId}`
+          ),
+          headers: { authorization: getAuthHeaders(testUser, testUserPassword) }
+        })
+        .willRespondWith({
+          status: 200,
+          body: fileInfo.versionResponseContent[i],
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        })
     }
 
     it('checking method: getFileVersionUrl', function () {
@@ -158,27 +236,28 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     it('retrieves file versions', async function () {
-      const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
-      await PropfindFileVersionOfExistentFiles(provider)
-      await getFileVersionContents(provider)
+      // TODO: move this loop to a single provider test
+      // https://github.com/pact-foundation/pact-js/issues/604
+      for (let i = 0; i < fileInfo.versions.length; i++) {
+        const provider = createProvider(true, true)
+        await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+        await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+        await PropfindFileVersionOfExistentFiles(provider)
+        await getFileVersionContents(provider, i)
 
-      return provider.executeTest(async () => {
-        const oc = createOwncloud()
-        await oc.login()
-        await oc.fileVersions.listVersions(fileInfo.id).then(versions => {
-          expect(versions.length).toEqual(2)
-          expect(versions[0].getSize()).toEqual(2)
-          expect(versions[1].getSize()).toEqual(1)
+        await provider.executeTest(async () => {
+          const oc = createOwncloud(config.testUser, config.testUserPassword)
+          await oc.login()
+          await oc.fileVersions.listVersions(fileInfo.id).then(versions => {
+            expect(versions.length).toEqual(2)
+            expect(versions[0].getSize()).toEqual(14)
+            expect(versions[1].getSize()).toEqual(6)
+          })
+          await oc.fileVersions.getFileVersionContents(fileInfo.id, fileInfo.versions[i].versionId).then(content => {
+            expect(content).toBe(fileInfo.versionResponseContent[i])
+          })
         })
-        await oc.fileVersions.getFileVersionContents(fileInfo.id, fileInfo.versions[0].versionId).then(content => {
-          expect(content).toBe(fileInfo.versions[0].content)
-        })
-        return oc.fileVersions.getFileVersionContents(fileInfo.id, fileInfo.versions[1].versionId).then(content => {
-          expect(content).toBe(fileInfo.versions[1].content)
-        })
-      })
+      }
     })
 
     it('restore file version', async function () {
@@ -186,7 +265,7 @@ describe('Main: Currently testing file versions management,', function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
-      provider
+      await provider
         .given('the user is recreated', {
           username: config.testUser,
           password: config.testUserPassword
@@ -209,13 +288,13 @@ describe('Main: Currently testing file versions management,', function () {
           number: 1
         })
         .given('provider base url is returned')
-      provider
-        .uponReceiving(`as '${username}', a COPY request to restore file versions`)
+
+      await provider
+        .uponReceiving(`as '${testUser}', a COPY request to restore file versions`)
         .withRequest({
           method: 'COPY',
           path: MatchersV3.fromProviderState(
-            // eslint-disable-next-line no-useless-escape,no-template-curly-in-string
-            '\${versionLink}',
+            '\${versionLink}', // eslint-disable-line no-useless-escape,no-template-curly-in-string
             `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[0].versionId}`
           ),
           headers: {

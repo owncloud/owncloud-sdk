@@ -1,23 +1,24 @@
-// TODO: Enable all tests
-// enable all tests once owncloud-sdk is fully compatible with nodejs
+// TODO: Review all matchers in xml once the issue is fixed
 //
-// https://github.com/owncloud/owncloud-sdk/issues/705
+// https://github.com/pact-foundation/pact-js/issues/632
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import path from 'path'
 
 describe('oc.fileTrash', function () {
   const config = require('./config/config.json')
-  const username = config.adminUsername
+  const { testUser, testUserPassword } = config
 
   const trashEnabled = true
 
   const {
-    validAdminAuthHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     createOwncloud,
     createProvider,
     applicationXmlResponseHeaders,
-    getMockServerBaseUrl
+    getMockServerBaseUrl,
+    getAuthHeaders,
+    htmlResponseHeaders
   } = require('./pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -26,13 +27,8 @@ describe('oc.fileTrash', function () {
   const deletedFileId = '2147596419'
 
   const trashbinPath = MatchersV3.regex(
-    '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + config.adminUsername + '\\/$',
-    '/remote.php/dav/trash-bin/' + config.adminUsername + '/'
-  )
-
-  const trashbinFolderPath = MatchersV3.regex(
-    '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + config.adminUsername + '\\/' + deletedFolderId,
-    '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFolderId
+    '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + testUser + '\\/$',
+    '/remote.php/dav/trash-bin/' + testUser + '/'
   )
 
   const responseHeader = function (contentType) {
@@ -60,6 +56,9 @@ describe('oc.fileTrash', function () {
     dPropfind.appendElement('d:prop', '', '')
   })
 
+  // oCIS Issue - https://github.com/owncloud/ocis/issues/1846 - invalid root href
+  // oCIS Issue - https://github.com/owncloud/ocis/issues/1847 - invalid datetime
+  // oCIS Issue - https://github.com/owncloud/ocis/issues/1848 - invaalid root resourcetype
   const trashbinXmlResponseBody = function (emptyTrashbin = true, deletedFolderId = null) {
     const xmlResponseBody = (extraBody = null) => {
       return new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
@@ -69,7 +68,7 @@ describe('oc.fileTrash', function () {
           'xmlns:oc': 'http://owncloud.org/ns'
         })
         const body = dMultistatus.appendElement('d:response', '', dResponse => {
-          dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername)
+          dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + testUser + '/')
             .appendElement('d:propstat', '', dPropstat => {
               dPropstat.appendElement('d:prop', '', dProp => {
                 dProp
@@ -84,7 +83,7 @@ describe('oc.fileTrash', function () {
                   .appendElement('oc:trashbin-original-filename', '', '')
                   .appendElement('oc:trashbin-original-location', '', '')
                   .appendElement('oc:trashbin-delete-timestamp', '', '')
-                  .appendElement('oc:getcontentlength', '', '')
+                  .appendElement('d:getcontentlength', '', '')
               })
                 .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
             })
@@ -99,13 +98,16 @@ describe('oc.fileTrash', function () {
       return xmlResponseBody()
     } else {
       return xmlResponseBody(dResponse => {
-        dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFolderId + '/')
+        dResponse.appendElement('d:href', '', MatchersV3.regex(
+          '.*remote\\.php\\/dav\\/trash-bin\\/' + testUser + '\\/\\d+\\/$',
+          '/remote.php/dav/trash-bin/test123/2344455/'
+        ))
           .appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
                 .appendElement('oc:trashbin-original-filename', '', 'testFolder')
                 .appendElement('oc:trashbin-original-location', '', 'testFolder')
-                .appendElement('oc:trashbin-delete-timestamp', '', '1601867256')
+                .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                 .appendElement('d:resourcetype', '', dResourceType => {
                   dResourceType.appendElement('d:collection', '', '')
                 })
@@ -129,7 +131,7 @@ describe('oc.fileTrash', function () {
       body: body
     }
   }
-  const responseMethod = function (status, headers, body = null) {
+  const responseMethod = function (status, headers = {}, body = null) {
     return {
       status: status,
       headers: headers,
@@ -160,15 +162,19 @@ describe('oc.fileTrash', function () {
 
   describe('and when empty', function () {
     it('should list no items ', async function () {
-      const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider)
-      await getCurrentUserInformationInteraction(provider)
+      const provider = createProvider(false, true)
+      await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+      await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
       await provider
-        .uponReceiving(`as '${username}', a PROPFIND request to list empty trash`)
+        .given('the user is recreated', {
+          username: testUser,
+          password: testUserPassword
+        })
+        .uponReceiving(`as '${testUser}', a PROPFIND request to list empty trash`)
         .withRequest(requestMethod(
           'PROPFIND',
           trashbinPath,
-          { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+          { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
           emptyTrashbinXmlRequestBody
         )).willRespondWith({
           status: 207,
@@ -176,14 +182,14 @@ describe('oc.fileTrash', function () {
           body: trashbinXmlResponseBody()
         })
       return provider.executeTest(async () => {
-        const oc = createOwncloud()
+        const oc = createOwncloud(testUser, testUserPassword)
         await oc.login()
         if (!trashEnabled) {
           pending()
         }
         return oc.fileTrash.list('/').then(trashItems => {
           expect(trashItems.length).toEqual(1)
-          expect(trashItems[0].getName()).toEqual(config.adminUsername)
+          expect(trashItems[0].getName()).toEqual(testUser)
         })
       })
     })
@@ -196,11 +202,28 @@ describe('oc.fileTrash', function () {
     describe('and folder is not restored', function () {
       const propfindForTrashbinWithItems = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to list trashbin items`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: testFile,
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: testFolder,
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to list trashbin items`)
           .withRequest(requestMethod(
             'PROPFIND',
-            trashbinPath,
-            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            MatchersV3.regex(
+              '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + testUser + '\\/$',
+              '/remote.php/dav/trash-bin/' + testUser + '/'
+            ),
+            { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             emptyTrashbinXmlRequestBody
           )).willRespondWith(responseMethod(
             207,
@@ -210,11 +233,28 @@ describe('oc.fileTrash', function () {
       }
       const listItemWithinADeletedFolder = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to list item within a deleted folder`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: testFile,
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: testFolder,
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to list item within a deleted folder`)
           .withRequest(requestMethod(
             'PROPFIND',
-            trashbinFolderPath,
-            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            MatchersV3.fromProviderState(
+              '/remote.php/dav/trash-bin/' + testUser + '/${trashId}', /* eslint-disable-line no-template-curly-in-string */
+              `/remote.php/dav/trash-bin/${testUser}/${deletedFolderId}`
+            ),
+            { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             emptyTrashbinXmlRequestBody
           ))
           .willRespondWith({
@@ -227,13 +267,16 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFile.txt')
+                dResponse.appendElement('d:href', '', MatchersV3.regex(
+                  '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + testUser + '\\/d+$',
+                  '/remote.php/dav/trash-bin/' + testUser + '/' + deletedFolderId
+                ))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
                         .appendElement('oc:trashbin-original-filename', '', 'testFolder')
                         .appendElement('oc:trashbin-original-location', '', 'testFolder')
-                        .appendElement('oc:trashbin-delete-timestamp', '', '1601867256')
+                        .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
@@ -242,18 +285,21 @@ describe('oc.fileTrash', function () {
                   }).appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp.appendElement('d:getcontentlength')
-                    }).appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    }).appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
                   })
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFolderId + '/' + deletedFileId)
+                dResponse.appendElement('d:href', '', MatchersV3.regex(
+                  '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + testUser + '\\/d+\\/d+$',
+                  '/remote.php/dav/trash-bin/' + testUser + '/' + deletedFolderId + '/' + deletedFileId)
+                )
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
                         .appendElement('oc:trashbin-original-filename', '', 'testFile.txt')
                         .appendElement('oc:trashbin-original-location', '', 'testFolder/testFile.txt')
-                        .appendElement('oc:trashbin-delete-timestamp', '', '1601867256')
-                        .appendElement('d:getcontentlength', '', '1')
+                        .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
+                        .appendElement('d:getcontentlength', '', '6')
                         .appendElement('d:resourcetype', '', '')
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 200 OK')
@@ -265,12 +311,12 @@ describe('oc.fileTrash', function () {
 
       it('should list a deleted folder', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await propfindForTrashbinWithItems(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.list('/').then(trashItems => {
             expect(trashItems.length).toEqual(2)
@@ -281,13 +327,13 @@ describe('oc.fileTrash', function () {
 
       it('should list an item within a deleted folder', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
-        await listItemWithinADeletedFolder(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await propfindForTrashbinWithItems(provider)
+        await listItemWithinADeletedFolder(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.list('/').then(trashItems => {
             expect(trashItems.length).toEqual(2)
@@ -311,27 +357,44 @@ describe('oc.fileTrash', function () {
       const originalLocation = testFolder
       const moveFolderFromTrashbinToFilesList = provider => {
         return provider
-          .uponReceiving(`as '${username}', a MOVE request to restore folder from trashbin to fileslist to original location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: testFile,
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: testFile,
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a MOVE request to restore folder from trashbin to fileslist to original location`)
           .withRequest({
             method: 'MOVE',
-            path: trashbinFolderPath,
+            path: MatchersV3.fromProviderState(
+              `/remote.php/dav/trash-bin/${testUser}/\${trashId}`, /* eslint-disable-line no-template-curly-in-string */
+              `/remote.php/dav/trash-bin/${testUser}/${deletedFolderId}`
+            ),
             headers: {
-              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder
+              authorization: getAuthHeaders(testUser, testUserPassword),
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + testUser + '/' + config.testFolder
             }
           })
           .willRespondWith(responseMethod(
-            201,
-            applicationXmlResponseHeaders
+            204
           ))
       }
 
       const propfindForTrashbinWithItems = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to list trashbin items`)
+          .uponReceiving(`as '${testUser}', a PROPFIND request to list trashbin items`)
           .withRequest(requestMethod(
             'PROPFIND',
             trashbinPath,
-            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             emptyTrashbinXmlRequestBody
           ))
           .willRespondWith(responseMethod(
@@ -343,14 +406,23 @@ describe('oc.fileTrash', function () {
 
       const propfindToARestoredFolderInOriginalLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to a restored folder in original location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: testFile,
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in original location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
               '.*\\/remote\\.php\\/webdav\\/' + testFolder,
               '/remote.php/webdav/' + testFolder
             ),
-            headers: { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -363,17 +435,17 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/testFolder')
+                dResponse.appendElement('d:href', '', `/remote.php/webdav/${testFolder}/`)
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('d:getlastmodified', '', 'Mon, 05 Oct 2020 09:29:37 GMT')
+                        .appendElement('d:getlastmodified', '', MatchersV3.date('E, dd MM yyyy HH:mm:ss Z', 'Thu, 08 Oct 2020 02:28:50 GMT'))
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
-                        .appendElement('d:quota-used-bytes', '', '1')
+                        .appendElement('d:quota-used-bytes', '', '6')
                         .appendElement('d:quota-available-bytes', '', '-3')
-                        .appendElement('d:getetag', '', '5f7ae781e8073')
+                        .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]+', '5f7ae781e8073'))
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                   })
@@ -384,19 +456,19 @@ describe('oc.fileTrash', function () {
 
       it('should list the folder in the original location and no longer in trash-bin', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await moveFolderFromTrashbinToFilesList(provider)
         await propfindForTrashbinWithItems(provider)
         await propfindToARestoredFolderInOriginalLocation(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(config.adminUsername)
+              expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(testFolder).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(testFolder)
               })
@@ -409,32 +481,54 @@ describe('oc.fileTrash', function () {
     })
 
     describe('and when this deleted folder is restored to a different location', function () {
-      const originalLocation = testFolder + ' (restored to a different location)'
+      const suffix = ' (restored to a different location)'
+      const originalLocation = testFolder + suffix
 
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a MOVE request to restore folder from trashbin to fileslist to a different location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a MOVE request to restore folder from trashbin to fileslist to a different location`)
           .withRequest({
             method: 'MOVE',
-            path: trashbinFolderPath,
+            path: MatchersV3.fromProviderState(
+              `/remote.php/dav/trash-bin/${testUser}/\${trashId}`, /* eslint-disable-line no-template-curly-in-string */
+              `/remote.php/dav/trash-bin/${testUser}/${deletedFolderId}`
+            ),
             headers: {
-              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)',
-              ...validAdminAuthHeaders
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + testUser + '/' + config.testFolder + '%20(restored%20to%20a%20different%20location)',
+              authorization: getAuthHeaders(testUser, testUserPassword)
             }
           })
           .willRespondWith(responseMethod(
             201,
-            applicationXmlResponseHeaders
+            htmlResponseHeaders
           ))
       }
 
       const PropfindToAnEmptytrashbinAfterRestoring = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to an empty trashbin after restoring`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to an empty trashbin after restoring`)
           .withRequest(requestMethod(
             'PROPFIND',
             trashbinPath,
-            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             emptyTrashbinXmlRequestBody
           ))
           .willRespondWith(responseMethod(
@@ -446,14 +540,23 @@ describe('oc.fileTrash', function () {
 
       const PropfindToARestoredFolderInNewLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to a restored folder in new location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('folder exists', {
+            folderName: originalLocation,
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in new location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
               '.*\\/remote\\.php\\/webdav\\/' + testFolder + '.*$',
-              '/remote.php/webdav/' + testFolder
+              '/remote.php/webdav/' + testFolder + encodeURIComponent(suffix)
             ),
-            headers: { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -466,17 +569,17 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/' + originalLocation)
+                dResponse.appendElement('d:href', '', '/remote.php/webdav/' + testFolder + encodeURIComponent(suffix) + '/')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('d:getlastmodified', '', 'Mon, 05 Oct 2020 10:38:29 GMT')
+                        .appendElement('d:getlastmodified', '', MatchersV3.date('E, dd MM yyyy HH:mm:ss Z', 'Thu, 08 Oct 2020 02:28:50 GMT'))
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
-                        .appendElement('d:quota-used-bytes', '', '1')
+                        .appendElement('d:quota-used-bytes', '', '0')
                         .appendElement('d:quota-available-bytes', '', '-3')
-                        .appendElement('d:getetag', '', '5f7ae781e8073')
+                        .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]', '5f7c5fdc06e47'))
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                   })
@@ -486,19 +589,19 @@ describe('oc.fileTrash', function () {
       }
       it('should list the folder in the different location and no longer in trash-bin', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await MoveFromTrashbinToDifferentLocation(provider)
         await PropfindToAnEmptytrashbinAfterRestoring(provider)
         await PropfindToARestoredFolderInNewLocation(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(config.adminUsername)
+              expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(originalLocation).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(originalLocation)
               })
@@ -518,11 +621,30 @@ describe('oc.fileTrash', function () {
     describe('and file is not restored', function () {
       const propfindTrashItemsBeforeDeletingFile = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to trash items before deleting file`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('folder exists', {
+            folderName: testFolder,
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to trash items before deleting file`)
           .withRequest(requestMethod(
             'PROPFIND',
             trashbinPath,
-            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             emptyTrashbinXmlRequestBody
           ))
           .willRespondWith({
@@ -535,7 +657,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/files/' + config.adminUsername + '/')
+                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + testUser + '/')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -550,19 +672,22 @@ describe('oc.fileTrash', function () {
                         .appendElement('oc:trashbin-original-filename', '', '')
                         .appendElement('oc:trashbin-original-location', '', '')
                         .appendElement('oc:trashbin-delete-timestamp', '', '')
-                        .appendElement('oc:getcontentlength', '', '')
+                        .appendElement('d:getcontentlength', '', '')
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
                   })
               }).appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + deletedFileId)
+                dResponse.appendElement('d:href', '', MatchersV3.regex(
+                  '.*\\/remote\\.php\\/dav\\/trash-bin\\/' + testUser + '\\/d+$',
+                  '/remote.php/dav/trash-bin/' + testUser + '/' + deletedFileId
+                ))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
                         .appendElement('oc:trashbin-original-filename', '', testFile)
                         .appendElement('oc:trashbin-original-location', '', testFolder + '/' + testFile)
-                        .appendElement('oc:trashbin-delete-timestamp', '', '1601986135')
-                        .appendElement('d:getcontentlength', '', '1')
+                        .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('d+', '5f7c5fdc06e47'))
+                        .appendElement('d:getcontentlength', '', '6')
                         .appendElement('d:resourcetype', '', '')
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 200 OK')
@@ -574,12 +699,12 @@ describe('oc.fileTrash', function () {
 
       it('should list the deleted file', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await propfindTrashItemsBeforeDeletingFile(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           if (!trashEnabled) {
             pending()
@@ -597,27 +722,45 @@ describe('oc.fileTrash', function () {
       const originalLocation = testFile
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a MOVE request to restore file from trashbin to fileslist to a different location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUserPassword}', a MOVE request to restore file from trashbin to fileslist to a different location`)
           .withRequest({
             method: 'MOVE',
-            path: trashbinFolderPath,
+            path: MatchersV3.fromProviderState(
+              `/remote.php/dav/trash-bin/${testUser}/\${trashId}`,
+              '/remote.php/dav/trash-bin/' + testUser + '/' + deletedFolderId
+            ),
             headers: {
-              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/' + testFile
+              Destination: mockServerBaseUrl + `remote.php/dav/files/${testUser}/${testFile}`,
+              authorization: getAuthHeaders(testUser, testUserPassword)
             }
           })
           .willRespondWith({
             status: 201,
-            headers: applicationXmlResponseHeaders
+            headers: htmlResponseHeaders
           })
       }
 
       const propfindTrashItemsAfterRestoringDeletingFile = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to trash items after restoring deleting file`)
+          .uponReceiving(`as '${testUser}', a PROPFIND request to trash items after restoring deleting file`)
           .withRequest(requestMethod(
             'PROPFIND',
             trashbinPath,
-            { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             emptyTrashbinXmlRequestBody
           ))
           .willRespondWith(responseMethod(207, responseHeader('application/xml; charset=utf-8'), trashbinXmlResponseBody()))
@@ -625,14 +768,23 @@ describe('oc.fileTrash', function () {
 
       const propfindToARestoredFileInOriginalLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to a restored file in original location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to a restored file in original location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
               '.*\\/remote\\.php\\/webdav\\/' + testFolder + '.*$',
               '/remote.php/webdav/' + testFolder
             ),
-            headers: { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -645,17 +797,17 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + config.adminUsername + '/' + testFolder)
+                dResponse.appendElement('d:href', '', '/remote.php/webdav/' + testFolder + '/')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('d:getlastmodified', '', 'Tue, 06 Oct 2020 12:15:24 GMT')
+                        .appendElement('d:getlastmodified', '', MatchersV3.timestamp('EEE, dd MMM yyyy HH:mm:ss z', 'Tue, 06 Oct 2020 12:15:24 GMT'))
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
-                        .appendElement('d:quota-used-bytes', '', '1')
+                        .appendElement('d:quota-used-bytes', '', '6')
                         .appendElement('d:quota-available-bytes', '', '-3')
-                        .appendElement('d:getetag', '', '5f7c5fdc06e47')
+                        .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]+', '5f7c5fdc06e47'))
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                   })
@@ -666,19 +818,19 @@ describe('oc.fileTrash', function () {
 
       it('should list the folder in the original location and no longer in trash-bin', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await MoveFromTrashbinToDifferentLocation(provider)
         await propfindTrashItemsAfterRestoringDeletingFile(provider)
         await propfindToARestoredFileInOriginalLocation(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(config.adminUsername)
+              expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(testFolder).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(testFolder)
               })
@@ -695,26 +847,53 @@ describe('oc.fileTrash', function () {
 
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a MOVE request to restore file from trashbin to a new location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a MOVE request to restore file from trashbin to a new location`)
           .withRequest({
             method: 'MOVE',
-            path: trashbinFolderPath,
+            path: MatchersV3.fromProviderState(
+              `/remote.php/dav/trash-bin/${testUser}/\${trashId}`,
+              '/remote.php/dav/trash-bin/' + testUser + '/' + deletedFolderId
+            ),
             headers: {
-              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + config.adminUsername + '/file%20(restored%20to%20a%20different%20location).txt'
+              authorization: getAuthHeaders(testUser, testUserPassword),
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + testUser + '/file%20(restored%20to%20a%20different%20location).txt'
             }
           })
           .willRespondWith({
             status: 201,
-            headers: applicationXmlResponseHeaders
+            headers: htmlResponseHeaders
           })
       }
       const propfindToARestoredFileInNewLocationEmpty = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to trash items after restoring deleting file to new location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: '/file (restored to a different location).txt',
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to trash items after restoring deleting file to new location`)
           .withRequest({
             method: 'PROPFIND',
             path: trashbinPath,
-            headers: { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: emptyTrashbinXmlRequestBody
           })
           .willRespondWith({
@@ -726,14 +905,23 @@ describe('oc.fileTrash', function () {
 
       const propfindToARestoredFileInNewLocation = provider => {
         return provider
-          .uponReceiving(`as '${username}', a PROPFIND request to a restored file in new location`)
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: '/file (restored to a different location).txt',
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a PROPFIND request to a restored file in new location`)
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
               '.*\\/remote\\.php\\/webdav\\/.*',
-              '/remote.php/webdav/.*$'
+              '/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt/'
             ),
-            headers: { ...validAdminAuthHeaders, ...applicationXmlResponseHeaders },
+            headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
           })
           .willRespondWith({
@@ -746,17 +934,13 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt/')
+                dResponse.appendElement('d:href', '', '/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt')
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('d:getlastmodified', '', 'Tue, 06 Oct 2020 12:15:24 GMT')
-                        .appendElement('d:resourcetype', '', dResourceType => {
-                          dResourceType.appendElement('d:collection', '', '')
-                        })
-                        .appendElement('d:quota-used-bytes', '', '0')
-                        .appendElement('d:quota-available-bytes', '', '-3')
-                        .appendElement('d:getetag', '', '5f7c5fdc06e47')
+                        .appendElement('d:getlastmodified', '', MatchersV3.like('Tue, 06 Oct 2020 12:15:24 GMT'))
+                        .appendElement('d:resourcetype', '', '')
+                        .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]+', '5f7c5fdc06e47'))
                     })
                       .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                   })
@@ -766,19 +950,19 @@ describe('oc.fileTrash', function () {
       }
       it('should list the folder in the different location and no longer in trash-bin', async function () {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider)
-        await getCurrentUserInformationInteraction(provider)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await MoveFromTrashbinToDifferentLocation(provider)
         await propfindToARestoredFileInNewLocationEmpty(provider)
         await propfindToARestoredFileInNewLocation(provider)
 
         return provider.executeTest(async () => {
-          const oc = createOwncloud()
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
             return oc.fileTrash.list('/').then(trashItems => {
               expect(trashItems.length).toEqual(1)
-              expect(trashItems[0].getName()).toEqual(config.adminUsername)
+              expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(originalLocation).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(originalLocation)
               })

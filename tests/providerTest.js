@@ -7,6 +7,11 @@ const {
 let lastSharedToken = ''
 const crypto = require('crypto')
 
+const delay = (delayTime) => {
+  var start = new Date().getTime()
+  while (new Date().getTime() < start + delayTime);
+}
+
 describe('provider testing', () => {
   const { VerifierV3 } = require('@pact-foundation/pact/v3')
   const chai = require('chai')
@@ -28,7 +33,9 @@ describe('provider testing', () => {
     createFile,
     getFileId,
     listVersionsFolder,
-    getSignKey
+    getSignKey,
+    deleteItem,
+    getTrashBinElements
   } = require('./webdavHelper.js')
 
   const {
@@ -122,6 +129,7 @@ describe('provider testing', () => {
     },
     'file exists': (setup, parameters) => {
       const dirname = path.dirname(parameters.fileName)
+      const content = parameters.content || config.testContent
       if (setup) {
         if (dirname !== '' && dirname !== '/' && dirname !== '.') {
           const results = createFolderRecrusive(
@@ -130,13 +138,37 @@ describe('provider testing', () => {
           assertFoldersCreatedSuccessfully(results, dirname)
         }
         const result = createFile(
-          parameters.username, parameters.password, parameters.fileName, config.testContent
+          parameters.username, parameters.password, parameters.fileName, content
         )
         chai.assert.isBelow(
           result.status, 300, `creating file '${parameters.fileName}' failed`
         )
         return { fileId: result.headers.get('oc-fileid') }
       }
+    },
+    'resource is deleted': (setup, parameters) => {
+      if (!setup) {
+        return
+      }
+      const dirname = parameters.resourcePath
+      const result = deleteItem(parameters.username, parameters.password, dirname)
+      chai.assert.isBelow(
+        result.status, 300, `Deleting path '${dirname}' failed`
+      )
+      const items = getTrashBinElements(parameters.username, parameters.password)
+      let found = false
+      let id
+      for (const item of items) {
+        if (item.originalLocation === parameters.resourcePath) {
+          found = true
+          const parts = item.href.split('/').filter(el => el !== '')
+          id = parts[parts.length - 1]
+          break
+        }
+      }
+
+      chai.assert.isTrue(found, 'Deleted item not found in trash')
+      return { description: 'resource deleted', trashId: id }
     },
     'the user is recreated': (setup, parameters) => {
       const email = `${parameters.username}@example.com`
@@ -323,6 +355,11 @@ describe('provider testing', () => {
           hashedKey: hashedKey,
           date: date
         }
+      }
+    },
+    'the client waits': (setup, paramters) => {
+      if (setup) {
+        delay(paramters.delay)
       }
     }
   }

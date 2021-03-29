@@ -87,8 +87,8 @@ describe('oc.publicFiles', function () {
       })
       .given('resource is shared', {
         username: testUser,
-        password: testUserPassword,
-        resource: testFolder,
+        userPassword: testUserPassword,
+        path: testFolder,
         shareType: 3,
         permissions: 15
       })
@@ -137,8 +137,8 @@ describe('oc.publicFiles', function () {
       })
       .given('resource is shared', {
         username: testUser,
-        password: testUserPassword,
-        resource: testFolder,
+        userPassword: testUserPassword,
+        path: testFolder,
         shareType: 3,
         permissions: 15
       })
@@ -589,7 +589,7 @@ describe('oc.publicFiles', function () {
             .given('provider base url is returned')
             .given('the user is recreated', { username: testUser, password: testUserPassword })
             .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-            .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
+            .given('resource is shared', { username: testUser, userPassword: testUserPassword, path: testFolder, shareType: 3, permissions: 15 })
             .given('file exists in last shared public share', { fileName: testFile })
             .uponReceiving(`as '${testUser}', a MOVE request to move a file in public share ${data.description}`)
             .withRequest({
@@ -628,7 +628,7 @@ describe('oc.publicFiles', function () {
             .given('provider base url is returned')
             .given('the user is recreated', { username: testUser, password: testUserPassword })
             .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-            .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
+            .given('resource is shared', { username: testUser, userPassword: testUserPassword, path: testFolder, shareType: 3, permissions: 15 })
             .given('folder exists in last shared public share', { folderName: 'foo' })
             .given('file exists in last shared public share', { fileName: testFile })
             .uponReceiving(`as '${testUser}', a MOVE request to move a file to subfolder in public share ${data.description}`)
@@ -664,7 +664,7 @@ describe('oc.publicFiles', function () {
             .given('provider base url is returned')
             .given('the user is recreated', { username: testUser, password: testUserPassword })
             .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-            .given('resource is shared', { username: testUser, password: testUserPassword, resource: testFolder, shareType: 3, permissions: 15 })
+            .given('resource is shared', { username: testUser, userPassword: testUserPassword, path: testFolder, shareType: 3, permissions: 15 })
             .given('folder exists in last shared public share', { folderName: 'foo' })
             .uponReceiving(`as '${testUser}', a MOVE request to move a folder to different name in public share ${data.description}`)
             .withRequest({

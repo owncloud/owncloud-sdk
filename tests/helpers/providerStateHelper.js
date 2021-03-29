@@ -1,5 +1,11 @@
 const config = require('../config/config.json')
 
+const SHARE_TYPE = Object.freeze({
+  user: 0,
+  group: 1,
+  public: 3
+})
+
 /**
  * provider state: creates a given user
  *
@@ -50,25 +56,102 @@ const givenFolderExists = (provider, username, password, resource) => {
 }
 
 /**
- * provider state: creates a share
+ * provider state: creates a user share
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} resource
- * @param {sring} shareType
- * @param {sring} shareWith
+ * @param {sring} userPassword
+ * @param {sring} path
+ * @param {string} shareWith
+ * @param {object} optionalParams
+ * available optional parameters
+ * - permissions
+ * - expireDate
+ * - attributes
  */
-const givenShareExists = async (
+const givenUserShareExists = (
   provider,
   username,
-  password,
-  resource,
-  shareType,
-  shareWith
+  userPassword,
+  path,
+  shareWith,
+  optionalParams
 ) => {
   return provider
-    .given('resource is shared', { username, password, resource, shareType, shareWith })
+    .given('resource is shared', {
+      username,
+      userPassword,
+      path,
+      shareType: SHARE_TYPE.user,
+      shareWith,
+      ...optionalParams
+    })
+}
+
+/**
+ * provider state: creates a group share
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {sring} userPassword
+ * @param {sring} path
+ * @param {string} shareWith
+ * @param {object} optionalParams
+ * available optional parameters
+ * - permissions
+ * - expireDate
+ * - attributes
+ */
+const givenGroupShareExists = (
+  provider,
+  username,
+  userPassword,
+  path,
+  shareWith,
+  optionalParams
+) => {
+  return provider
+    .given('resource is shared', {
+      username,
+      userPassword,
+      path,
+      shareType: SHARE_TYPE.group,
+      shareWith,
+      ...optionalParams
+    })
+}
+
+/**
+ * provider state: creates a public link share
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {sring} userPassword
+ * @param {sring} path
+ * @param {object} optionalParams
+ * available optional parameters
+ * - name
+ * - password
+ * - permissions
+ * - publicUpload
+ * - expireDate
+ * - attributes
+ */
+const givenPublicShareExists = (
+  provider,
+  username,
+  userPassword,
+  path,
+  optionalParams
+) => {
+  return provider
+    .given('resource is shared', {
+      username,
+      userPassword,
+      path,
+      shareType: SHARE_TYPE.public,
+      ...optionalParams
+    })
 }
 
 /**
@@ -93,19 +176,73 @@ const givenFileFolderIsCreated = (provider, username, password, resource, resour
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
+ * @param {sring} userPassword
  * @param {sring} resource
- * @param {sring} shareType
+ * @param {number} shareType
+ * @param {sring} shareWith
+ * @param {number} permissions
+ * @param {string} expireDate
+ * @param {object} attributes
+ * @param {string} password
+ * @param {boolean} publicUpload
  */
-const givenResourceIsShared = async (provider, username, password, resource, shareType) => {
-  if (shareType === 3) {
-    return givenShareExists(provider, username, password, resource, shareType)
-  } else if (shareType === 0) {
-    await givenUserExists(provider, config.testUser2, config.testUser2Password)
-    return givenShareExists(provider, username, password, resource, shareType, config.testUser2)
-  } else if (shareType === 1) {
-    await givenGroupExists(provider, config.testGroup)
-    return givenShareExists(provider, username, password, resource, shareType, config.testGroup)
+const givenResourceIsShared = async (
+  provider,
+  username,
+  userPassword,
+  resource,
+  shareType,
+  shareWith,
+  permissions,
+  expireDate,
+  attributes,
+  password,
+  publicUpload
+) => {
+  if (shareType === SHARE_TYPE.public) {
+    return givenPublicShareExists(
+      provider,
+      username,
+      userPassword,
+      resource,
+      {
+        permissions,
+        password,
+        publicUpload,
+        expireDate,
+        attributes
+      }
+    )
+  } else if (shareType === SHARE_TYPE.user) {
+    await givenUserExists(provider, shareWith, config.testUser2Password)
+    return givenUserShareExists(
+      provider,
+      username,
+      userPassword,
+      resource,
+      shareWith,
+      {
+        permissions,
+        expireDate,
+        attributes
+      }
+    )
+  } else if (shareType === SHARE_TYPE.group) {
+    await givenGroupExists(provider, shareWith)
+    return givenGroupShareExists(
+      provider,
+      username,
+      userPassword,
+      resource,
+      shareWith,
+      {
+        permissions,
+        expireDate,
+        attributes
+      }
+    )
+  } else {
+    throw new Error(`Invalid shareType "${shareType}`)
   }
 }
 
@@ -114,7 +251,9 @@ module.exports = {
   givenGroupExists,
   givenFileExists,
   givenFolderExists,
-  givenShareExists,
+  givenUserShareExists,
+  givenGroupShareExists,
+  givenPublicShareExists,
   givenFileFolderIsCreated,
   givenResourceIsShared
 }

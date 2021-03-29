@@ -9,7 +9,9 @@ const {
 const {
   givenUserExists,
   givenGroupExists,
-  givenShareExists,
+  givenUserShareExists,
+  givenGroupShareExists,
+  givenPublicShareExists,
   givenFileFolderIsCreated,
   givenResourceIsShared
 } = require('./helpers/providerStateHelper')
@@ -66,12 +68,13 @@ describe('Main: Currently testing file/folder sharing,', function () {
     requestName,
     shareType,
     resource,
+    shareWith,
     resourceType = 'file'
   ) {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
     await givenUserExists(provider, sharer, sharerPassword)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
-    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType)
+    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
 
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -111,9 +114,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
     await givenUserExists(provider, sharee, shareePassword)
     await givenGroupExists(provider, testGroup)
     // shares file/folder with user, group and public link
-    await givenShareExists(provider, sharer, sharerPassword, resource, 3)
-    await givenShareExists(provider, sharer, sharerPassword, resource, 0, sharee)
-    await givenShareExists(provider, sharer, sharerPassword, resource, 1, testGroup)
+    await givenPublicShareExists(provider, sharer, sharerPassword, resource)
+    await givenUserShareExists(provider, sharer, sharerPassword, resource, sharee)
+    await givenGroupShareExists(provider, sharer, sharerPassword, resource, testGroup)
 
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -159,12 +162,13 @@ describe('Main: Currently testing file/folder sharing,', function () {
     requestName,
     shareType,
     resource,
+    shareWith,
     resourceType
   ) => {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
     await givenUserExists(provider, sharer, sharerPassword)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
-    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType)
+    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
     resource = '/' + resource
 
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -199,6 +203,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     requestName,
     shareType,
     resource,
+    shareWith,
     resourceType,
     formData,
     additionalBodyElement
@@ -207,7 +212,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     let permissions = 1
     await givenUserExists(provider, sharer, sharerPassword)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
-    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType)
+    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
 
     if (formData.permissions) {
       permissions = formData.permissions
@@ -262,6 +267,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             `check whether '${testFolder}' is shared or not (public link share)`,
             3,
             testFolder,
+            null,
             'folder'
           )
 
@@ -280,7 +286,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await getShareInteraction(provider, '(public link share)', 3, testFolder, 'folder')
+          await getShareInteraction(provider, '(public link share)', 3, testFolder, null, 'folder')
           return provider.executeTest(async () => {
             const oc = createOwncloud(sharer, sharerPassword)
             await oc.login()
@@ -303,6 +309,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             '(public link share: enable publicUpload)',
             3,
             testFolder,
+            null,
             'folder',
             formData
           )
@@ -332,6 +339,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             '(public link share: set share password)',
             3,
             testFolder,
+            null,
             'folder',
             formData,
             additionalBodyElement
@@ -362,6 +370,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             `check whether '${testFolder}' is shared or not (user share)`,
             0,
             testFolder,
+            sharee,
             'folder'
           )
 
@@ -380,7 +389,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await getShareInteraction(provider, '(user share)', 0, testFolder, 'folder')
+          await getShareInteraction(provider, '(user share)', 0, testFolder, sharee, 'folder')
           return provider.executeTest(async () => {
             const oc = createOwncloud(sharer, sharerPassword)
             await oc.login()
@@ -403,6 +412,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             '(user share: set read/write permission)',
             0,
             testFolder,
+            sharee,
             'folder',
             formData
           )
@@ -431,6 +441,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             `check whether '${testFolder}' is shared or not (group share)`,
             1,
             testFolder,
+            testGroup,
             'folder'
           )
 
@@ -449,7 +460,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await getShareInteraction(provider, '(group share)', 1, testFolder, 'folder')
+          await getShareInteraction(provider, '(group share)', 1, testFolder, testGroup, 'folder')
           return provider.executeTest(async () => {
             const oc = createOwncloud(sharer, sharerPassword)
             await oc.login()
@@ -472,6 +483,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             '(group share: set read/write permission)',
             0,
             testFolder,
+            sharee,
             'folder',
             formData
           )
@@ -580,6 +592,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '(user share: set max permission)',
               0,
               testFiles[i],
+              sharee,
               '',
               formData
             )
@@ -607,7 +620,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
               provider,
               `check whether '${file}' is shared or not (user share)`,
               0,
-              file
+              file,
+              sharee
             )
           }
           return provider.executeTest(async () => {
@@ -631,7 +645,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             const provider = createProvider(false, true)
             await getCapabilitiesInteraction(provider, sharer, sharerPassword)
             await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-            await getShareInteraction(provider, '(user share)', 0, testFiles[i])
+            await getShareInteraction(provider, '(user share)', 0, testFiles[i], sharee)
 
             return provider.executeTest(async () => {
               const oc = createOwncloud(sharer, sharerPassword)
@@ -658,7 +672,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
             provider,
             `check whether '${file}' is shared or not (group share)`,
             1,
-            file
+            file,
+            testGroup
           )
         }
         return provider.executeTest(async () => {
@@ -682,7 +697,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-          await getShareInteraction(provider, '(group share)', 1, testFiles[i])
+          await getShareInteraction(provider, '(group share)', 1, testFiles[i], testGroup)
 
           return provider.executeTest(async () => {
             const oc = createOwncloud(sharer, sharerPassword)

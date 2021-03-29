@@ -265,14 +265,8 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
-        const {
-          username,
-          password,
-          resource,
-          shareType,
-          shareWith
-        } = parameters
-        const response = shareResource(username, password, resource, shareType, shareWith, parameters.permissions)
+        const { username, userPassword, ...shareParams } = parameters
+        const response = shareResource(username, userPassword, shareParams)
 
         const {
           status,
@@ -290,15 +284,15 @@ describe('provider testing', () => {
           // status 'error' and statuscode '996' means file/folder has already been shared with user or group
           // oCIS issue: https://github.com/owncloud/ocis/issues/1710
           else if (status === 'error' && statuscode === 996 && message === 'grpc create share request failed') {
-            const res = getShareInfoByPath(username, password, resource)
+            const res = getShareInfoByPath(username, userPassword, parameters.path)
             const { token } = getOCSData(res)[0]
             lastSharedToken = token
             return getOCSData(res)[0]
           } else {
-            chai.assert.fail(`sharing file/folder '${parameters.resource}' failed`)
+            chai.assert.fail(`sharing file/folder '${parameters.path}' failed`)
           }
         } else {
-          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.resource}' failed`)
+          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.path}' failed`)
           const { token } = getOCSData(response)
           lastSharedToken = token
           return getOCSData(response)

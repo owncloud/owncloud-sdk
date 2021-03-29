@@ -64,6 +64,10 @@ const givenFolderExists = (provider, username, password, resource) => {
  * @param {sring} path
  * @param {string} shareWith
  * @param {object} optionalParams
+ * available optional parameters
+ * - permissions
+ * - expireDate
+ * - attributes
  */
 const givenUserShareExists = (
   provider,
@@ -93,6 +97,10 @@ const givenUserShareExists = (
  * @param {sring} path
  * @param {string} shareWith
  * @param {object} optionalParams
+ * available optional parameters
+ * - permissions
+ * - expireDate
+ * - attributes
  */
 const givenGroupShareExists = (
   provider,
@@ -121,6 +129,13 @@ const givenGroupShareExists = (
  * @param {sring} userPassword
  * @param {sring} path
  * @param {object} optionalParams
+ * available optional parameters
+ * - name
+ * - password
+ * - permissions
+ * - publicUpload
+ * - expireDate
+ * - attributes
  */
 const givenPublicShareExists = (
   provider,
@@ -226,6 +241,8 @@ const givenResourceIsShared = async (
         attributes
       }
     )
+  } else {
+    throw new Error(`Invalid shareType "${shareType}`)
   }
 }
 

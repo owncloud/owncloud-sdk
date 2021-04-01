@@ -647,7 +647,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
             await getShareInteraction(provider, '(user share)', 0, testFiles[i], sharee)
 
-            return provider.executeTest(async () => {
+            await provider.executeTest(async () => {
               const oc = createOwncloud(sharer, sharerPassword)
               await oc.login()
               await oc.shares.getShare(testFilesId[i]).then(share => {
@@ -699,7 +699,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getShareInteraction(provider, '(group share)', 1, testFiles[i], testGroup)
 
-          return provider.executeTest(async () => {
+          await provider.executeTest(async () => {
             const oc = createOwncloud(sharer, sharerPassword)
             await oc.login()
             await oc.shares.getShare(testFilesId[i]).then(share => {

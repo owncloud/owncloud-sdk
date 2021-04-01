@@ -39,7 +39,7 @@ const givenGroupExists = (provider, group) => {
  */
 const givenFileExists = (provider, username, password, resource) => {
   return provider
-    .given('file exists', { username, password, fileName: encodeURIComponent(resource) })
+    .given('file exists', { username, password, fileName: resource })
 }
 
 /**

@@ -35,7 +35,11 @@ describe('provider testing', () => {
     listVersionsFolder,
     getSignKey,
     deleteItem,
-    getTrashBinElements
+    getTrashBinElements,
+    markAsFavorite,
+    createASystemTag,
+    assignTagToFile,
+    getTagId
   } = require('./webdavHelper.js')
 
   const {
@@ -354,6 +358,50 @@ describe('provider testing', () => {
     'the client waits': (setup, paramters) => {
       if (setup) {
         delay(paramters.delay)
+      }
+    },
+    'file is marked as favorite': (setup, parameters) => {
+      if (setup) {
+        const { username, password, path } = parameters
+        const { status } = markAsFavorite(username, password, path)
+
+        if (status !== 207) {
+          chai.assert.fail(`Failed to mark file '${path}' as favorite.`)
+        }
+      }
+    },
+    'a system tag is created': (setup, parameters) => {
+      if (setup) {
+        const { username, password, tag } = parameters
+        const response = createASystemTag(username, password, tag)
+        let tagId
+        if (response.status === 409 && response.text().includes('Tag already exists')) {
+          tagId = getTagId(username, password, tag)
+        } else if (response.status === 201) {
+          tagId = response.headers.get('Content-Location').split('/').pop()
+        }
+        /* eslint brace-style: "off" */
+        // tagging not implement on oCIS
+        else if (process.env.RUN_ON_OCIS === 'true' && response.status === 404) {
+          tagId = ''
+        } else {
+          chai.assert.fail(`Failed to create a system tag '${tag}'`)
+        }
+        return { tagId }
+      }
+    },
+    'a tag is assigned to a file': (setup, parameters) => {
+      if (setup) {
+        const { username, password, fileName, tagName } = parameters
+        // tagging not implement on oCIS
+        if (process.env.RUN_ON_OCIS === 'true') {
+          return
+        }
+        const { status } = assignTagToFile(username, password, fileName, tagName)
+
+        if (status !== 201) {
+          chai.assert.fail('Failed to assign last created tag to last created file')
+        }
       }
     }
   }

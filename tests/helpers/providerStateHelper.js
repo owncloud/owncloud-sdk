@@ -246,6 +246,46 @@ const givenResourceIsShared = async (
   }
 }
 
+/**
+ * marks file as favorite
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {sring} password
+ * @param {sring} path
+ */
+const givenFileIsMarkedFavorite = (provider, username, password, path) => {
+  return provider
+    .given('file is marked as favorite', { username, password, path })
+}
+
+/**
+ * creates a system tag
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {sring} password
+ * @param {sring} tag tag name
+ */
+const givenSystemTagExists = (provider, username, password, tag) => {
+  return provider
+    .given('a system tag is created', { username, password, tag })
+}
+
+/**
+ * assigns a tag to a file
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {sring} password
+ * @param {sring} fileName
+ * @param {sring} tagName
+ */
+const givenTagIsAssignedToFile = (provider, username, password, fileName, tagName) => {
+  return provider
+    .given('a tag is assigned to a file', { username, password, fileName, tagName })
+}
+
 module.exports = {
   givenUserExists,
   givenGroupExists,
@@ -255,5 +295,8 @@ module.exports = {
   givenGroupShareExists,
   givenPublicShareExists,
   givenFileFolderIsCreated,
-  givenResourceIsShared
+  givenResourceIsShared,
+  givenFileIsMarkedFavorite,
+  givenSystemTagExists,
+  givenTagIsAssignedToFile
 }

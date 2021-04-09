@@ -488,6 +488,35 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
   }
 
   const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)
+  let response = {}
+  if (file.includes(config.nonExistentDir)) {
+    response = {
+      status: 409,
+      headers: applicationXmlResponseHeaders,
+      body: webdavExceptionResponseBody(
+        'Conflict',
+        'Files cannot be created in non-existent collections'
+      )
+    }
+  } else if (file.includes(config.nonExistentFile)) {
+    response = {
+      status: 404,
+      headers: applicationXmlResponseHeaders,
+      body: webdavExceptionResponseBody(
+        'NotFound',
+        resourceNotFoundExceptionMessage(config.nonExistentDir)
+      )
+    }
+  } else {
+    response = {
+      status: 201,
+      headers: {
+        'OC-FileId': MatchersV3.like(config.testFileOcFileId),
+        ETag: etagMatcher,
+        'OC-ETag': etagMatcher
+      }
+    }
+  }
   return provider.uponReceiving(`as '${user}', a PUT request to upload a file to '${file}'`)
     .withRequest({
       method: 'PUT',
@@ -497,18 +526,8 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
         'Content-Type': 'text/plain;charset=utf-8'
       },
       body: config.testContent
-    }).willRespondWith(file.includes('nonExistent') ? {
-      status: 404,
-      headers: applicationXmlResponseHeaders,
-      body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
-    } : {
-      status: 201,
-      headers: {
-        'OC-FileId': MatchersV3.like(config.testFileOcFileId),
-        ETag: etagMatcher,
-        'OC-ETag': etagMatcher
-      }
     })
+    .willRespondWith(response)
 }
 
 const getProviderBaseUrl = function () {

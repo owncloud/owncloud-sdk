@@ -218,6 +218,95 @@ const getTrashBinElements = function (user, password, depth = 2) {
   return trashItems
 }
 
+/**
+ * favorites a file
+ * @param {string} username
+ * @param {string} password
+ * @param {string} fileName
+ * @returns {*} result of the fetch request
+ */
+const markAsFavorite = function (username, password, fileName) {
+  return fetch(createFullDavUrl(username, fileName), {
+    method: 'PROPPATCH',
+    headers: { authorization: getAuthHeaders(username, password) },
+    body: '<?xml version="1.0"?>' +
+      '<d:propertyupdate  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
+      '<d:set><d:prop>' +
+      '<oc:favorite>true</oc:favorite>' +
+      '</d:prop></d:set>' +
+      '</d:propertyupdate>'
+  })
+}
+
+/**
+ * creates a system tag
+ * @param {string} username
+ * @param {string} password
+ * @param {string} tag tag name
+ * @returns {*} result of the fetch request
+ */
+const createASystemTag = function (username, password, tag) {
+  return fetch(getProviderBaseUrl() + '/remote.php/dav/systemtags', {
+    method: 'POST',
+    headers: {
+      authorization: getAuthHeaders(username, password),
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: tag,
+      canAssign: true,
+      userEditable: true,
+      userAssignable: true,
+      userVisible: true
+    })
+  })
+}
+
+/**
+ * assigns a tag to a file
+ * @param {string} username
+ * @param {string} password
+ * @param {string} fileName
+ * @param {string} tagName
+ * @returns {*} result of the fetch request
+ */
+const assignTagToFile = function (username, password, fileName, tagName) {
+  const fileId = getFileId(username, password, fileName)
+  const tagId = getTagId(username, password, tagName)
+  return fetch(getProviderBaseUrl() +
+    '/remote.php/dav/systemtags-relations/files/' +
+    fileId + '/' + tagId, {
+    method: 'PUT',
+    headers: {
+      authorization: getAuthHeaders(username, password)
+    }
+  })
+}
+
+/**
+ * gets tagid by tagName
+ * @param {string} username
+ * @param {string} password
+ * @param {string} tagName
+ * @returns {*} result of the fetch request
+ */
+const getTagId = function (username, password, tagName) {
+  const xmlReq = '<?xml version="1.0" encoding="utf-8" ?>' +
+    '<a:propfind xmlns:a="DAV:" xmlns:oc="http://owncloud.org/ns">' +
+    '<a:prop><oc:display-name/><oc:id/></a:prop></a:propfind>'
+  const res = fetch(getProviderBaseUrl() + '/remote.php/dav/systemtags', {
+    method: 'PROPFIND',
+    body: xmlReq,
+    headers: { authorization: getAuthHeaders(username, password) }
+  })
+  if (res.status !== 207) {
+    throw new Error('could not get tags list')
+  }
+  /* eslint-disable-next-line no-useless-escape */
+  const regex = '<oc:display-name>' + tagName + '<\/oc:display-name><oc:id>[0-9]+<\/oc:id>'
+  return res.text().match(regex)[0].match(/<oc:id>([^<]*)<\/oc:id>/)[1]
+}
+
 module.exports = {
   createFolderRecrusive,
   createFile,
@@ -226,5 +315,9 @@ module.exports = {
   listVersionsFolder,
   createDavPath,
   getSignKey,
-  getTrashBinElements
+  getTrashBinElements,
+  markAsFavorite,
+  createASystemTag,
+  assignTagToFile,
+  getTagId
 }

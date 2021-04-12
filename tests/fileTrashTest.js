@@ -18,7 +18,8 @@ describe('oc.fileTrash', function () {
     applicationXmlResponseHeaders,
     getMockServerBaseUrl,
     getAuthHeaders,
-    htmlResponseHeaders
+    htmlResponseHeaders,
+    webdavExceptionResponseBody
   } = require('./pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -969,6 +970,62 @@ describe('oc.fileTrash', function () {
             }).catch(error => {
               fail(error)
             })
+          })
+        })
+      })
+    })
+
+    // https://github.com/owncloud/ocis/issues/1122
+    // Deleted file cannot be restored to different location
+    describe('Trashbin errors should be handled correctly', function () {
+      const MoveFromTrashbinToNonExistingLocation = provider => {
+        return provider
+          .given('the user is recreated', {
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('file exists', {
+            fileName: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .given('resource is deleted', {
+            resourcePath: path.join(testFolder, testFile),
+            username: testUser,
+            password: testUserPassword
+          })
+          .uponReceiving(`as '${testUser}', a MOVE request to restore file from trashbin to a non existing location`)
+          .withRequest({
+            method: 'MOVE',
+            path: MatchersV3.fromProviderState(
+              `/remote.php/dav/trash-bin/${testUser}/\${trashId}`,
+              `/remote.php/dav/trash-bin/${testUser}/${deletedFolderId}`
+            ),
+            headers: {
+              authorization: getAuthHeaders(testUser, testUserPassword),
+              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + testUser + '/non-existing/new-file.txt'
+            }
+          })
+          .willRespondWith({
+            status: 409,
+            headers: applicationXmlResponseHeaders,
+            body: webdavExceptionResponseBody('Conflict', 'The destination node is not found')
+          })
+      }
+
+      it('Trying to restore file should give error', async function () {
+        const provider = createProvider(false, true)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+        await MoveFromTrashbinToNonExistingLocation(provider)
+
+        return provider.executeTest(async () => {
+          const oc = createOwncloud(testUser, testUserPassword)
+          await oc.login()
+          return oc.fileTrash.restore(deletedFolderId, 'non-existing/new-file.txt').then(() => {
+            fail('Restoring to non existing location should fail but passed')
+          }).catch(error => {
+            expect(error.message).toBe('The destination node is not found')
           })
         })
       })

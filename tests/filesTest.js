@@ -30,7 +30,8 @@ describe('Main: Currently testing files management,', function () {
     givenFileExists,
     givenFileIsMarkedFavorite,
     givenSystemTagExists,
-    givenTagIsAssignedToFile
+    givenTagIsAssignedToFile,
+    givenFolderExists
   } = require('./helpers/providerStateHelper')
   const validAuthHeaders = { authorization: getAuthHeaders(config.testUser, config.testUserPassword) }
 
@@ -49,7 +50,12 @@ describe('Main: Currently testing files management,', function () {
       }).willRespondWith(response)
   }
 
-  const listFolderContentInteraction = async function (provider, requestName, parentFolder, items, depth) {
+  const listFolderContentInteraction = async function (provider, requestName, parentFolder, files, folders, depth) {
+    const items = []
+    items.push(...files.map(item => { return { name: item, type: 'file' } }))
+    items.push(...folders.map(item => { return { name: item, type: 'folder' } }))
+
+    items.sort((a, b) => (a.name > b.name) ? 1 : -1)
     let response
     if (requestName.includes('non existing')) {
       response = {
@@ -93,10 +99,13 @@ describe('Main: Currently testing files management,', function () {
 
     await givenUserExists(provider, config.testUser, config.testUserPassword)
     if (parentFolder !== nonExistentFile) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i] !== 'subdir') {
-          await givenFileExists(provider, config.testUser, config.testUserPassword, parentFolder + '/' + items[i])
-        }
+      for (let i = 0; i < files.length; i++) {
+        await givenFileExists(provider, config.testUser, config.testUserPassword, parentFolder + '/' + files[i])
+      }
+    }
+    if (parentFolder !== nonExistentFile) {
+      for (let i = 0; i < folders.length; i++) {
+        await givenFolderExists(provider, config.testUser, config.testUserPassword, parentFolder + '/' + folders[i])
       }
     }
     return provider.uponReceiving(`as '${username}', a PROPFIND request to list content of folder, ${requestName}`)
@@ -115,16 +124,24 @@ describe('Main: Currently testing files management,', function () {
       }).willRespondWith(response)
   }
 
-  const listFolderContentResponse = (items) => {
+  const listFolderContentResponse = (items, type = 'file') => {
     const response = []
-    for (const subFile of items) {
+
+    for (const item of items) {
+      let resourceType = ''
+
+      if (item.type === 'folder') {
+        resourceType = dResourcetype => {
+          dResourcetype.appendElement('d:collection', '', '')
+        }
+      }
       response.push(node => {
         node
           .appendElement(
             'd:href', '',
             MatchersV3.regex(
-              `*.\\/remote\\.php\\/webdav\\/${testFolder}\\/${subFile}`,
-              `/remote.php/webdav/${testFolder}/${subFile}`
+              `*.\\/remote\\.php\\/webdav\\/${testFolder}\\/${item.name}`,
+              `/remote.php/webdav/${testFolder}/${item.name}`
             )
           )
           .appendElement('d:propstat', '', dPropstat => {
@@ -135,7 +152,7 @@ describe('Main: Currently testing files management,', function () {
                   MatchersV3.date('EEE, d MMM yyyy HH:mm:ss z', 'Mon, 19 Oct 2020 03:50:00 GMT')
                 )
                 .appendElement('d:getcontentlength', '', MatchersV3.number(11))
-                .appendElement('d:resourcetype', '', '')
+                .appendElement('d:resourcetype', '', resourceType)
                 .appendElement(
                   'd:getetag', '',
                   MatchersV3.regex('"[a-z0-9]+"', '"3986cd55c130a4d50ff0904bf64aa27d"')
@@ -301,7 +318,7 @@ describe('Main: Currently testing files management,', function () {
         provider,
         'test folder, with no depth specified',
         testFolder,
-        ['abc.txt', 'file one.txt', 'subdir', 'zz+z.txt', '中文.txt'], '1'
+        ['abc.txt', 'file one.txt', 'zz+z.txt', '中文.txt'], ['subdir'], '1'
       )
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
@@ -312,7 +329,9 @@ describe('Main: Currently testing files management,', function () {
           expect(files[1].getName()).toEqual('abc.txt')
           expect(files[2].getName()).toEqual('file one.txt')
           expect(files[3].getName()).toEqual('subdir')
+          expect(files[3].isDir()).toBe(true)
           expect(files[4].getName()).toEqual('zz+z.txt')
+          expect(files[4].isDir()).toBe(false)
           expect(files[5].getName()).toEqual('中文.txt')
         }).catch(error => {
           expect(error).toBe(null)
@@ -330,7 +349,7 @@ describe('Main: Currently testing files management,', function () {
         provider,
         'test folder, with infinity depth',
         testFolder,
-        ['abc.txt', 'file one.txt', 'subdir', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], 'infinity'
+        ['abc.txt', 'file one.txt', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], ['subdir'], 'infinity'
       )
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
@@ -340,7 +359,9 @@ describe('Main: Currently testing files management,', function () {
             expect(typeof (files)).toBe('object')
             expect(files.length).toEqual(7)
             expect(files[3].getName()).toEqual('subdir')
+            expect(files[3].isDir()).toBe(true)
             expect(files[4].getPath()).toEqual('/' + testFolder + '/' + 'subdir/')
+            expect(files[4].isDir()).toBe(false)
           }).catch(error => {
             expect(error).toBe(null)
           })
@@ -357,7 +378,7 @@ describe('Main: Currently testing files management,', function () {
         provider,
         'test folder, with 2 depth',
         testFolder,
-        ['abc.txt', 'file one.txt', 'subdir', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], '2')
+        ['abc.txt', 'file one.txt', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], ['subdir'], '2')
 
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
@@ -366,7 +387,9 @@ describe('Main: Currently testing files management,', function () {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(7)
           expect(files[3].getName()).toEqual('subdir')
+          expect(files[3].isDir()).toBe(true)
           expect(files[4].getPath()).toEqual('/' + testFolder + '/' + 'subdir/')
+          expect(files[4].isDir()).toBe(false)
         }).catch(error => {
           expect(error).toBe(null)
         })
@@ -383,7 +406,7 @@ describe('Main: Currently testing files management,', function () {
         provider,
         'non existing file',
         nonExistentFile,
-        [], '1')
+        [], [], '1')
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
@@ -1347,6 +1370,61 @@ describe('Main: Currently testing files management,', function () {
             expect(files[0].getProperty('{http://owncloud.org/ns}favorite')).toEqual('1')
           }).catch(error => {
             expect(error).toBe(null)
+          })
+      })
+    })
+
+    // https://github.com/owncloud/ocis/issues/1330
+    // REPORT method not implemented in ocis
+    it('checking method getFavoriteFiles when there are no favorite files', async () => {
+      const provider = createProvider(false, true)
+      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCurrentUserInformationInteraction(
+        provider, config.testUser, config.testUserPassword
+      )
+      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenFileExists(provider, config.testUser, config.testUserPassword, file)
+      await provider
+        .uponReceiving(`as '${username}', a REPORT request to get favorite file when there are no favorites`)
+        .withRequest({
+          method: 'REPORT',
+          path: MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/files\\/' + config.testUser + '\\/$',
+            '/remote.php/dav/files/' + config.testUser + '/'
+          ),
+          headers: {
+            ...validAuthHeaders,
+            ...applicationXmlResponseHeaders
+          },
+          body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
+            ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
+            ocFilterFiles.appendElement('d:prop', '', dProp => {
+              dProp.appendElement('oc:favorite', '', '')
+            }).appendElement('oc:filter-rules', '', ocFilterRules => {
+              ocFilterRules.appendElement('oc:favorite', '', '1')
+            })
+          })
+        })
+        .willRespondWith({
+          status: 207,
+          headers: applicationXmlResponseHeaders,
+          body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
+            dMultistatus.setAttributes({
+              'xmlns:d': 'DAV:',
+              'xmlns:s': 'http://sabredav.org/ns',
+              'xmlns:oc': 'http://owncloud.org/ns'
+            })
+          })
+        })
+
+      return provider.executeTest(async () => {
+        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        await oc.login()
+        return oc.files.getFavoriteFiles(['{http://owncloud.org/ns}favorite'])
+          .then(files => {
+            expect(files.length).toEqual(0)
+          }).catch(error => {
+            fail(error)
           })
       })
     })

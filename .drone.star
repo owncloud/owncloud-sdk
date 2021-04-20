@@ -232,12 +232,9 @@ def databaseService():
 
 def redisService():
     return[{
-        'name': 'redis',
-        'image': 'webhippie/redis',
-        'pull': 'always',
-        'environment': {
-            'REDIS_DATABASES': 1
-        },
+      'name': 'redis',
+      'image': 'redis:6-alpine',
+      'pull': 'always',
     }]
 
 def pactConsumerTests(uploadPact):

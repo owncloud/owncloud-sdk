@@ -213,15 +213,15 @@ describe('oc.publicFiles', function () {
             let description = `as ${testUser}, a PROPFIND request to list contents of public link folder`
             if (passwordWhenListing) {
               if (shallGrantAccess) {
-                description += ' with valid password ' + passwordWhenListing
+                description += ' with valid password "' + passwordWhenListing + '"'
               } else {
-                description += ' with invalid password ' + passwordWhenListing
+                description += ' with invalid password "' + passwordWhenListing + '"'
               }
             } else {
               if (shallGrantAccess) {
                 description += ' where password is not set'
               } else {
-                description += ' where password is set'
+                description += ' wihout password where password is set'
               }
             }
             let headers, body
@@ -268,6 +268,10 @@ describe('oc.publicFiles', function () {
                   })
                 })
               })
+              // [oCIS] responses are not identical with oC10
+              // https://github.com/owncloud/ocis/issues/1944
+              // [oCIS] unauthorized request has empty response body
+              // https://github.com/owncloud/ocis/issues/1945
               .willRespondWith({
                 status,
                 headers: applicationXmlResponseHeaders,
@@ -374,6 +378,8 @@ describe('oc.publicFiles', function () {
             return provider
               .uponReceiving(description)
               .withRequest({ method, path, headers })
+              // [oCIS] unauthorized request has empty response body
+              // https://github.com/owncloud/ocis/issues/1945
               .willRespondWith({ status: resStatusCode, body: resBody, headers: respHeaders })
           }
 
@@ -689,13 +695,20 @@ describe('oc.publicFiles', function () {
   function buildPropfindFileList (node) {
     for (let fileNum = 0; fileNum < config.testFiles.length; fileNum++) {
       node.appendElement('d:response', '', dResponse => {
-        dResponse.appendElement('d:href', '', MatchersV3.string(
-          `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${encodeURIComponent(config.testFiles[fileNum]).toLowerCase()}`)
+        dResponse.appendElement('d:href', '',
+          MatchersV3.regex(
+            '.*\\/remote\\.php\\/dav\\/public-files\\/' +
+            '[A-Za-z0-9]+\\/' + encodeURIComponent(config.testFiles[fileNum]).toLowerCase(),
+            '/remote.php/dav/public-files/' +
+            config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[fileNum]).toLowerCase()
+          )
         )
           .appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
-                .appendElement('d:getcontenttype', '', 'text/plain')
+                .appendElement('d:getcontenttype', '',
+                  MatchersV3.regex('text\\/plain(; charset=utf-8)?', 'text/plain')
+                )
             })
               .appendElement('d:status', '', 'HTTP/1.1 200 OK')
           }).appendElement('d:propstat', '', dPropstat => {

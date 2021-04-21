@@ -83,9 +83,12 @@ describe('Main: Currently testing files management,', function () {
                     dProp.appendElement('d:resourcetype', '', dResourcetype => {
                       dResourcetype.appendElement('d:collection', '', '')
                     })
-                      .appendElement('d:quota-used-bytes', '', MatchersV3.number(55))
-                      .appendElement('d:quota-available-bytes', '', MatchersV3.number(3))
-                      .appendElement('d:getetag', '', MatchersV3.regex('"[a-z0-9]+"', '"5f8d0ce8c62b5"'))
+                      .appendElement('d:getetag', '',
+                        MatchersV3.regex(
+                          '"[a-z0-9]+"',
+                          '"5f8d0ce8c62b5"'
+                        )
+                      )
                   })
                     .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                 })
@@ -140,7 +143,7 @@ describe('Main: Currently testing files management,', function () {
           .appendElement(
             'd:href', '',
             MatchersV3.regex(
-              `*.\\/remote\\.php\\/webdav\\/${testFolder}\\/${item.name}`,
+              `.*\\/remote\\.php\\/webdav\\/${testFolder}\\/${item.name}(\\/)?`,
               `/remote.php/webdav/${testFolder}/${item.name}`
             )
           )
@@ -151,23 +154,23 @@ describe('Main: Currently testing files management,', function () {
                   'd:getlastmodified', '',
                   MatchersV3.date('EEE, d MMM yyyy HH:mm:ss z', 'Mon, 19 Oct 2020 03:50:00 GMT')
                 )
-                .appendElement('d:getcontentlength', '', MatchersV3.number(11))
                 .appendElement('d:resourcetype', '', resourceType)
                 .appendElement(
                   'd:getetag', '',
-                  MatchersV3.regex('"[a-z0-9]+"', '"3986cd55c130a4d50ff0904bf64aa27d"')
+                  MatchersV3.regex(
+                    '"[a-z0-9]+"',
+                    '"3986cd55c130a4d50ff0904bf64aa27d"'
+                  )
                 )
-                .appendElement('d:getcontenttype', '', 'text/plain')
+              if (item.type === 'file') {
+                dProp
+                  .appendElement('d:getcontentlength', '', MatchersV3.number(11))
+                  .appendElement('d:getcontenttype', '',
+                    MatchersV3.regex('text\\/plain(; charset=utf-8)?', 'text/plain')
+                  )
+              }
             })
               .appendElement('d:status', '', 'HTTP/1.1 200 OK')
-          })
-          .appendElement('d:propstat', '', dPropstat => {
-            dPropstat.appendElement('d:prop', '', dProp => {
-              dProp
-                .appendElement('d:quota-used-bytes', '', '')
-                .appendElement('d:quota-available-bytes', '', '')
-            })
-              .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
           })
       })
     }
@@ -368,6 +371,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] PROPFIND on folder with Depth 2 returns 400 Bad Request
+    // https://github.com/owncloud/ocis/issues/1975
     it('checking method : list with 2 depth', async function () {
       const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -396,6 +401,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] request to non-existing file gives empty response body
+    // https://github.com/owncloud/ocis/issues/1799
     it('checking method : list with non existent file', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -440,6 +447,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] request to non-existing file gives empty response body
+    // https://github.com/owncloud/ocis/issues/1799
     it('checking method : getFileContents for non existent file', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -490,6 +499,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] Not-meaningful response message when tyring to PUT file into non-existing folder
+    // https://github.com/owncloud/ocis/issues/1264
     it('fails with error when uploading to a non-existent parent path', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -549,6 +560,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] request to non-existing file gives empty response body
+    // https://github.com/owncloud/ocis/issues/1799
     it('checking method : mkdir for a non-existent parent path', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -604,6 +617,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] request to non-existing file gives empty response body
+    // https://github.com/owncloud/ocis/issues/1799
     it('checking method : delete for a non-existent folder', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
@@ -627,6 +642,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] Moving a file into same folder with same name returns 404 instead of 403
+    // https://github.com/owncloud/ocis/issues/1976
     it('checking method : move existent file into same folder, same name', async function () {
       const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
       const destinationWebDavPath = `remote.php/webdav/${encodedSrcFilePath}`
@@ -727,6 +744,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] request to non-existing file gives empty response body
+    // https://github.com/owncloud/ocis/issues/1799
     it('checking method : move non existent file', async function () {
       const destinationWebDavPath = 'remote.php/webdav/abcd.txt'
       const provider = createProvider(false, true)
@@ -766,6 +785,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] COPY a file into same folder with same name returns 204 instead of 403
+    // https://github.com/owncloud/ocis/issues/1977
     it('checking method : copy existent file into same folder, same name', async function () {
       const file = `${testFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
@@ -807,6 +828,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] request to non-existing file gives empty response body
+    // https://github.com/owncloud/ocis/issues/1799
     it('checking method : copy non existent file', async function () {
       const destinationWebDavPath = 'remote.php/webdav/abcd.txt'
       const provider = createProvider(false, true)
@@ -845,6 +868,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] Requests to webdav /meta/endpoint with valid fileId returns 404 Not Found
+    // https://github.com/owncloud/ocis/issues/1978
     it('resolved the path of a file identified by its fileId', async function () {
       const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -983,14 +1008,20 @@ describe('Main: Currently testing files management,', function () {
       if (enabled) {
         respHeaders = {
           ...respHeaders,
-          ...applicationXmlResponseHeaders,
           'Tus-Resumable': '1.0.0',
-          'Tus-Version': '1.0.0,0.2.1,0.1.1',
-          'Tus-Extension': 'create,create-with-upload',
-          'Tus-Max-Size': '100000000'
+          'Tus-Version': '1.0.0',
+          'Tus-extension': 'creation,creation-with-upload'
         }
       }
+
       const description = `as '${username}', a PROPFIND request for tus support with tus ${enabled ? 'enabled' : 'disabled'} for path ${path}`
+
+      let examplePath = path
+      if (path !== '/') {
+        examplePath = '/' + path + '/'
+      }
+      const regexPath = examplePath.replace(/\//g, '\\\\/')
+
       return provider
         .uponReceiving(description)
         .withRequest({
@@ -1007,6 +1038,8 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 207,
+          // [V3] Cannot match response headers having comma separated values
+          // https://github.com/pact-foundation/pact-js/issues/646
           headers: respHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({
@@ -1015,18 +1048,35 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:oc': 'http://owncloud.org/ns'
             })
             dMultistatus.appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin' + path)
+              dResponse.appendElement('d:href', '',
+                MatchersV3.regex(
+                  `.*\\/remote\\.php\\/webdav${regexPath}`,
+                  `/remote.php/webdav${examplePath}`
+                )
+              )
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
-                    dProp.appendElement('d:quota-available-bytes', '', '-3')
+                    dProp.appendElement('d:getetag', '',
+                      MatchersV3.regex(
+                        '"[a-z0-9]+"',
+                        '"3986cd55c130a4d50ff0904bf64aa27d"'
+                      )
+                    )
                   })
                     .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                 })
             }).appendElement('d:response', '', dResponse => {
-              dResponse.appendElement('d:href', '', '/remote.php/dav/files/admin/' + path + 'file1')
+              dResponse.appendElement('d:href', '',
+                MatchersV3.regex(
+                  `.*\\/remote\\.php\\/webdav${regexPath}${config.testFile}`,
+                  `/remote.php/webdav${examplePath}${config.testFile}`
+                )
+              )
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
-                    dProp.appendElement('oc:fileid', '', '123456789')
+                    dProp.appendElement('d:getcontenttype', '',
+                      MatchersV3.regex('text\\/plain(; charset=utf-8)?', 'text/plain')
+                    )
                   })
                     .appendElement('d:status', '', 'HTTP/1.1 200 OK')
                 })
@@ -1041,6 +1091,8 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
+      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenFileExists(provider, config.testUser, config.testUserPassword, config.testFile)
       await tusSupportRequest(provider)
 
       return provider.executeTest(async () => {
@@ -1051,9 +1103,8 @@ describe('Main: Currently testing files management,', function () {
         await promise.then(entries => {
           const tusSupport = entries[0].getTusSupport()
           expect(tusSupport.resumable).toEqual('1.0.0')
-          expect(tusSupport.version).toEqual(['1.0.0', '0.2.1', '0.1.1'])
-          expect(tusSupport.extension).toEqual(['create', 'create-with-upload'])
-          expect(tusSupport.maxSize).toEqual(100000000)
+          expect(tusSupport.version).toEqual(['1.0.0'])
+          expect(tusSupport.extension).toEqual(['creation', 'creation-with-upload'])
           // only the first entry gets the header
           expect(entries[1].getTusSupport()).toEqual(null)
         })
@@ -1066,18 +1117,21 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
-      await tusSupportRequest(provider, true, 'somedir')
+      const dir = 'somedir'
+      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenFolderExists(provider, config.testUser, config.testUserPassword, dir)
+      await givenFileExists(provider, config.testUser, config.testUserPassword, dir + '/' + config.testFile)
+      await tusSupportRequest(provider, true, dir)
 
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        const promise = oc.files.fileInfo('somedir')
+        const promise = oc.files.fileInfo(dir)
         return promise.then(entry => {
           const tusSupport = entry.getTusSupport()
           expect(tusSupport.resumable).toEqual('1.0.0')
-          expect(tusSupport.version).toEqual(['1.0.0', '0.2.1', '0.1.1'])
-          expect(tusSupport.extension).toEqual(['create', 'create-with-upload'])
-          expect(tusSupport.maxSize).toEqual(100000000)
+          expect(tusSupport.version).toEqual(['1.0.0'])
+          expect(tusSupport.extension).toEqual(['creation', 'creation-with-upload'])
         })
       })
     })
@@ -1088,6 +1142,8 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
       )
+      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenFileExists(provider, config.testUser, config.testUserPassword, config.testFile)
       await tusSupportRequest(provider, false)
 
       return provider.executeTest(async () => {
@@ -1258,6 +1314,8 @@ describe('Main: Currently testing files management,', function () {
   })
 
   describe('unfavorite a file', function () {
+    // [oCIS] Favoriting files/folders not implemented
+    // https://github.com/owncloud/ocis/issues/1228
     it('checking method: unfavorite', async function () {
       const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -1286,6 +1344,8 @@ describe('Main: Currently testing files management,', function () {
     const file = `${testFolder}/${testFile}`
     const newTagName = 'testSystemTag12345'
 
+    // [oCIS] Favoriting files/folders not implemented
+    // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite', async function () {
       const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -1306,6 +1366,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] Favoriting files/folders not implemented
+    // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite filter', async function () {
       const provider = createProvider(true, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -1429,6 +1491,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // https://github.com/owncloud/ocis/issues/1330
+    // REPORT method not implemented in ocis
     it('searches in the instance', async function () {
       const davProperties = [
         '{http://owncloud.org/ns}favorite',
@@ -1522,6 +1586,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] cannot create system tags
+    // https://github.com/owncloud/ocis/issues/1947
     it('checking method: filter by tag', async function () {
       const getFileInfoBy = data => {
         return {
@@ -1537,7 +1603,7 @@ describe('Main: Currently testing files management,', function () {
             const davPathRegex = davPath.replace(/\//g, '\\\\/')
             dMultistatus.appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '', MatchersV3.regex(
-                `*.\\/remote\\.php\\/${davPathRegex}\\/${testFolder}\\/${testFile}`,
+                `.*\\/remote\\.php\\/${davPathRegex}\\/${testFolder}\\/${testFile}`,
                 `/remote.php/${davPath}/${testFolder}/${testFile}`
               ))
                 .appendElement('d:propstat', '', dPropstat => {
@@ -1598,6 +1664,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] cannot create system tags
+    // https://github.com/owncloud/ocis/issues/1947
     it('checking method: create tag', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -1641,6 +1709,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
+    // [oCIS] cannot create system tags
+    // https://github.com/owncloud/ocis/issues/1947
     it('checking method: tag file', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)

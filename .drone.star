@@ -10,6 +10,8 @@ config = {
     'build': True
 }
 
+STORAGE_DRIVER_OWNCLOUD_DATADIR='/srv/app/tmp/ocis/owncloud/data'
+
 def main(ctx):
     return [ consumerTestPipeline(), consumerTestPipeline('/sub/'), oc10ProviderTestPipeline(),  ocisProviderTestPipeline(), publish() ]
 
@@ -151,7 +153,7 @@ def ocisService():
             'STORAGE_USERS_DRIVER': 'owncloud',
             'STORAGE_DRIVER_OCIS_ROOT': '/srv/app/tmp/ocis/storage/users',
             'STORAGE_DRIVER_LOCAL_ROOT': '/srv/app/tmp/ocis/local/root',
-            'STORAGE_DRIVER_OWNCLOUD_DATADIR': '/srv/app/tmp/ocis/owncloud/data',
+            'STORAGE_DRIVER_OWNCLOUD_DATADIR': STORAGE_DRIVER_OWNCLOUD_DATADIR,
             'STORAGE_METADATA_ROOT': '/srv/app/tmp/ocis/metadata',
             'STORAGE_DRIVER_OWNCLOUD_REDIS_ADDR': 'redis:6379',
             'PROXY_OIDC_INSECURE': 'true',
@@ -267,7 +269,6 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
     environment['PROVIDER_VERSION'] = version
     environment['PROVIDER_BASE_URL'] = baseUrl
 
-
     for env in extraEnvironment:
         environment[env] = extraEnvironment[env]
 
@@ -278,7 +279,11 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
         'environment': environment,
         'commands': [
             'yarn test-provider:ocis' if extraEnvironment.get('RUN_ON_OCIS') == 'true' else 'yarn test-provider:oc10'
-        ]
+        ],
+        'volumes': [{
+            'name': 'gopath',
+            'path': '/srv/app',
+        }],
     }]
 
 def publishDocs():
@@ -353,7 +358,7 @@ def ocisProviderTestPipeline():
         'NODE_TLS_REJECT_UNAUTHORIZED': 0,
         'NODE_NO_WARNINGS': '1',
         'RUN_ON_OCIS': 'true',
-        'STORAGE_DRIVER_OWNCLOUD_DATADIR': '/srv/app/tmp/ocis/owncloud/data',
+        'STORAGE_DRIVER_OWNCLOUD_DATADIR': STORAGE_DRIVER_OWNCLOUD_DATADIR,
     }
     return {
         'kind': 'pipeline',

@@ -1,4 +1,5 @@
 const config = require('./config/config.json')
+const fs = require('fs')
 const {
   getOCSMeta,
   getOCSData
@@ -44,7 +45,6 @@ describe('provider testing', () => {
 
   const {
     shareResource,
-    getShareInfoByPath,
     createFolderInLastPublicShare,
     createFileInLastPublicShare
   } = require('./helpers/sharingHelper.js')
@@ -81,6 +81,21 @@ describe('provider testing', () => {
       algorithm
     )
     return hashedKey.toString('hex')
+  }
+
+  /**
+   * deletes user data folder when running against oCIS
+   *
+   * @param {string} username
+   */
+  const deleteOCISUserFolder = (username) => {
+    const dataPath = process.env.STORAGE_DRIVER_OWNCLOUD_DATADIR
+    const userDataFolder = `${dataPath}/${username}`
+    try {
+      fs.rmdirSync(userDataFolder, { recursive: true })
+    } catch (err) {
+      console.error('\x1b[31m', 'Cannot delete user data folder\n' + err, '\x1b[0m')
+    }
   }
 
   const defaultOpts = {
@@ -181,6 +196,10 @@ describe('provider testing', () => {
           method: 'DELETE',
           headers: validAdminAuthHeaders
         })
+        if (process.env.RUN_ON_OCIS === 'true') {
+          deleteOCISUserFolder(parameters.username)
+        }
+
         const result = fetch(providerBaseUrl + '/ocs/v2.php/cloud/users',
           {
             method: 'POST',
@@ -271,36 +290,14 @@ describe('provider testing', () => {
       if (setup) {
         const { username, userPassword, ...shareParams } = parameters
         const response = shareResource(username, userPassword, shareParams)
+        const { status } = getOCSMeta(response)
 
-        const {
-          status,
-          statuscode,
-          message
-        } = getOCSMeta(response)
+        chai.assert.strictEqual(status, 'ok', `Sharing file/folder '${parameters.path}' failed`)
 
-        if (process.env.RUN_ON_OCIS === 'true') {
-          if (status === 'ok') {
-            const { token } = getOCSData(response)
-            lastSharedToken = token
-            return getOCSData(response)
-          } /* eslint brace-style: "off" */
-          // TODO: refactor accordingly after the issue has been fixed
-          // status 'error' and statuscode '996' means file/folder has already been shared with user or group
-          // oCIS issue: https://github.com/owncloud/ocis/issues/1710
-          else if (status === 'error' && statuscode === 996 && message === 'grpc create share request failed') {
-            const res = getShareInfoByPath(username, userPassword, parameters.path)
-            const { token } = getOCSData(res)[0]
-            lastSharedToken = token
-            return getOCSData(res)[0]
-          } else {
-            chai.assert.fail(`sharing file/folder '${parameters.path}' failed`)
-          }
-        } else {
-          chai.assert.strictEqual(status, 'ok', `sharing file/folder '${parameters.path}' failed`)
-          const { token } = getOCSData(response)
-          lastSharedToken = token
-          return getOCSData(response)
-        }
+        const { token } = getOCSData(response)
+        lastSharedToken = token
+
+        return getOCSData(response)
       }
       return { description: 'file/folder shared' }
     },

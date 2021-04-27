@@ -17,7 +17,7 @@ describe('oc.publicFiles', function () {
     createProvider,
     textPlainResponseHeaders,
     getMockServerBaseUrl
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
 

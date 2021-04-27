@@ -20,7 +20,7 @@ describe('oc.fileTrash', function () {
     getAuthHeaders,
     htmlResponseHeaders,
     webdavExceptionResponseBody
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
 

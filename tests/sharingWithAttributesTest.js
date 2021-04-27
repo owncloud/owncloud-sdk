@@ -13,7 +13,7 @@ describe('oc.shares', function () {
     createOwncloud,
     createProvider,
     getAuthHeaders
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   // TESTING CONFIGS
   const { testUser, testUserPassword, testFile } = config

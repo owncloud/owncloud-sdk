@@ -14,8 +14,8 @@ describe('Main: Currently testing user management,', function () {
     createUserWithGroupMembershipInteraction,
     createOwncloud,
     createProvider
-  } = require('./pactHelper.js')
-  const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
+  const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./helpers/pactHelper.js')
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
     if (username !== config.adminUsername && username !== config.nonExistentUser) {
       await provider

@@ -13,7 +13,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
     createProvider
-  } = require('../pactHelper.js')
+  } = require('../helpers/pactHelper.js')
 
   const requestHeaderWithInvalidAuth = {
     authorization: invalidAuthHeader

@@ -2,7 +2,7 @@ describe('Main: Currently testing url signing,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
 
-  const { getMockServerBaseUrl } = require('./pactHelper.js')
+  const { getMockServerBaseUrl } = require('./helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
 
   // saved date object

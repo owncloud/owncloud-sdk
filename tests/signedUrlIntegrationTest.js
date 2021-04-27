@@ -11,7 +11,7 @@ describe('Signed urls', function () {
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     createProvider
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const getSigningKeyInteraction = (provider, username, password) => {
     return provider

@@ -10,7 +10,7 @@ describe('Main: Currently testing low level OCS', function () {
     validAdminAuthHeaders,
     createOwncloud,
     createProvider
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   it('checking : capabilities', async function () {
     const provider = createProvider(false, true)

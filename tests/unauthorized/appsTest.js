@@ -11,7 +11,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     getCapabilitiesWithInvalidAuthInteraction,
     invalidAuthHeader,
     xmlResponseHeaders
-  } = require('../pactHelper.js')
+  } = require('../helpers/pactHelper.js')
 
   const unauthorizedResponseObject = {
     status: 401,

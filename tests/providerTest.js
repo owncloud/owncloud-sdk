@@ -27,7 +27,7 @@ describe('provider testing', () => {
     getAuthHeaders,
     sanitizeUrl,
     getProviderBaseUrl
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const {
     createFolderRecrusive,
@@ -41,7 +41,7 @@ describe('provider testing', () => {
     createASystemTag,
     assignTagToFile,
     getTagId
-  } = require('./webdavHelper.js')
+  } = require('./helpers/webdavHelper.js')
 
   const {
     shareResource,

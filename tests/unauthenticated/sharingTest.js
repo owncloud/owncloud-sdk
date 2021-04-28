@@ -2,7 +2,7 @@ describe('Unauthenticated: Currently testing file/folder sharing,', function () 
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var OwnCloud = require('../../src')
-  const { getMockServerBaseUrl } = require('../pactHelper.js')
+  const { getMockServerBaseUrl } = require('../helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
   // LIBRARY INSTANCE
   var oc

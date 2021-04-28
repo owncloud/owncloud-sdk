@@ -23,7 +23,7 @@ describe('Main: Currently testing files management,', function () {
     createOwncloud,
     createProvider,
     getMockServerBaseUrl
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const {
     givenUserExists,

@@ -14,11 +14,11 @@ describe('Unauthorized: Currently testing user management,', function () {
     xmlResponseHeaders,
     getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud
-  } = require('../pactHelper.js')
+  } = require('../helpers/pactHelper.js')
   const {
     unauthorizedXmlResponseBody,
     createProvider
-  } = require('../pactHelper.js')
+  } = require('../helpers/pactHelper.js')
 
   const invalidAuthInteraction = (provider, requestName, method, path, query) => {
     return provider

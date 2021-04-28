@@ -15,10 +15,10 @@ describe('Main: Currently testing file versions management,', function () {
     createProvider,
     getAuthHeaders,
     getMockServerBaseUrl
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
-  const { createDavPath } = require('./webdavHelper.js')
+  const { createDavPath } = require('./helpers/webdavHelper.js')
   // TESTING CONFIGS
   const versionedFile = config.testFile
   const fileInfo = {

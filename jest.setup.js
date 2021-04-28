@@ -2,7 +2,7 @@ import '@babel/polyfill'
 
 const {
   createProvider
-} = require('./tests/pactHelper.js')
+} = require('./tests/helpers/pactHelper.js')
 
 // create empty pact files for every combination of verified / pending pacts
 // so that there is a file for every combination even if there are no interactions for that combination

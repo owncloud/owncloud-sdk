@@ -9,7 +9,7 @@ describe('Main: Currently testing share recipient,', function () {
     getCurrentUserInformationInteraction,
     createOwncloud,
     createProvider
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const sharer = config.testUser
   const sharerPassword = config.testUserPassword

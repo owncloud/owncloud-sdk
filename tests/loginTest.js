@@ -18,7 +18,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     getMockServerBaseUrl
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
 

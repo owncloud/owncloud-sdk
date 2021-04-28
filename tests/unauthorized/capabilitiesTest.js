@@ -5,7 +5,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
     getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
     createProvider
-  } = require('../pactHelper.js')
+  } = require('../helpers/pactHelper.js')
 
   it('checking method : getCapabilities', async function (done) {
     const provider = createProvider(false, true)

@@ -30,7 +30,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     shareResponseOcsData,
     createProvider,
     getAuthHeaders
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   // TESTING CONFIGS
   const testUserPassword = config.testUserPassword

@@ -13,7 +13,7 @@ describe('Main: Currently testing group management,', function () {
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     createOwncloud
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   async function getGroupsInteraction (provider) {
     await provider

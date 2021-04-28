@@ -12,7 +12,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     getCapabilitiesWithInvalidAuthInteraction,
     createOwncloud,
     createProvider
-  } = require('../pactHelper.js')
+  } = require('../helpers/pactHelper.js')
 
   // TESTING CONFIGS
   const {

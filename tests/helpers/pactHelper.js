@@ -1,10 +1,10 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
-const config = require('./config/config.json')
+const config = require('../config/config.json')
 var adminPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
 
 const path = require('path')
-const OwnCloud = require('../src/owncloud')
+const OwnCloud = require('../../src/owncloud')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE,HEAD,LOCK,UNLOCK'

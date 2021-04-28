@@ -13,7 +13,7 @@ describe('Main: Currently testing apps management,', function () {
     htmlResponseHeaders,
     createProvider,
     createOwncloud
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   const changeAppStatus = (provider, action) => {
     let method = 'DELETE'

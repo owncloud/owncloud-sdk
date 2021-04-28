@@ -11,7 +11,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
     getCurrentUserInformationInteraction,
     validAdminAuthHeaders,
     xmlResponseHeaders
-  } = require('./pactHelper.js')
+  } = require('./helpers/pactHelper.js')
 
   it('checking method : getConfig', async () => {
     const provider = createProvider(false, true)

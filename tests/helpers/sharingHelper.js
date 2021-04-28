@@ -5,7 +5,7 @@ const {
   sanitizeUrl,
   getProviderBaseUrl,
   encodeURIPath
-} = require('../pactHelper.js')
+} = require('./pactHelper.js')
 const config = require('../config/config.json')
 
 const shareEndPoint = '/ocs/v1.php/apps/files_sharing/api/v1/shares'

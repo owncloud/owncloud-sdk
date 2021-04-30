@@ -10,6 +10,7 @@ Use this light-weight JS library with a promise-based interface for seamless com
 Supports only browser JS but requires JavaScript techniques like webpack to compile it properly.<br>
 For Node.js please have a look at [this tag](https://github.com/owncloud/owncloud-sdk/releases/tag/last-nodejs).
 
+Trigger CI
 
 ## Install
 

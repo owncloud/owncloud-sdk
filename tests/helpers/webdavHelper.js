@@ -43,17 +43,17 @@ const createFullDavUrl = function (userId, resource, type = 'files') {
  * @param {string} folderName
  * @returns {[]} all fetch results
  */
-const createFolderRecrusive = function (user, password, folderName) {
+const createFolderRecursive = function (user, password, folderName) {
   const results = []
   folderName = folderName.replace(/\/$/, '')
   folderName = folderName.replace(/^\//, '')
   const folders = folderName.split(path.sep)
   for (let i = 0; i < folders.length; i++) {
-    let recrusivePath = ''
+    let recursivePath = ''
     for (let j = 0; j <= i; j++) {
-      recrusivePath += path.sep + folders[j]
+      recursivePath += path.sep + folders[j]
     }
-    results[i] = fetch(createFullDavUrl(user, recrusivePath), {
+    results[i] = fetch(createFullDavUrl(user, recursivePath), {
       method: 'MKCOL',
       headers: { authorization: getAuthHeaders(user, password) }
     })
@@ -308,7 +308,7 @@ const getTagId = function (username, password, tagName) {
 }
 
 module.exports = {
-  createFolderRecrusive,
+  createFolderRecursive,
   createFile,
   deleteItem,
   getFileId,

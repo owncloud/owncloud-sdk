@@ -5,6 +5,21 @@ const {
   getOCSData
 } = require('./helpers/ocsResponseParser')
 
+const TEST_TIMEOUT = 600000
+
+// environment variables
+const STORAGE_DRIVER_OWNCLOUD_DATADIR = process.env.STORAGE_DRIVER_OWNCLOUD_DATADIR
+const PACTFLOW_TOKEN = process.env.PACTFLOW_TOKEN
+const DRONE_SOURCE_BRANCH = process.env.DRONE_SOURCE_BRANCH
+const PROVIDER_VERSION = process.env.PROVIDER_VERSION
+
+const isRunningWithOCIS = () => {
+  return (process.env.RUN_ON_OCIS === 'true')
+}
+const isRunningOnCI = () => {
+  return (process.env.CI === 'true')
+}
+
 let lastSharedToken = ''
 const crypto = require('crypto')
 
@@ -30,7 +45,7 @@ describe('provider testing', () => {
   } = require('./helpers/pactHelper.js')
 
   const {
-    createFolderRecrusive,
+    createFolderRecursive,
     createFile,
     getFileId,
     listVersionsFolder,
@@ -89,8 +104,7 @@ describe('provider testing', () => {
    * @param {string} username
    */
   const deleteOCISUserFolder = (username) => {
-    const dataPath = process.env.STORAGE_DRIVER_OWNCLOUD_DATADIR
-    const userDataFolder = `${dataPath}/${username}`
+    const userDataFolder = `${STORAGE_DRIVER_OWNCLOUD_DATADIR}/${username}`
     try {
       fs.rmdirSync(userDataFolder, { recursive: true })
     } catch (err) {
@@ -103,12 +117,12 @@ describe('provider testing', () => {
     disableSSLVerification: true,
     callbackTimeout: 10000
   }
-  if (process.env.CI === 'true') {
+  if (isRunningOnCI()) {
     defaultOpts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
     defaultOpts.publishVerificationResult = true
-    defaultOpts.pactBrokerToken = process.env.PACTFLOW_TOKEN
-    defaultOpts.consumerVersionTags = process.env.DRONE_SOURCE_BRANCH
-    defaultOpts.providerVersion = process.env.PROVIDER_VERSION
+    defaultOpts.pactBrokerToken = PACTFLOW_TOKEN
+    defaultOpts.consumerVersionTags = DRONE_SOURCE_BRANCH
+    defaultOpts.providerVersion = PROVIDER_VERSION
   }
   defaultOpts.stateHandlers = {
     'group exists': (setup, parameters) => {
@@ -139,7 +153,7 @@ describe('provider testing', () => {
     },
     'folder exists': (setup, parameters) => {
       if (setup) {
-        const results = createFolderRecrusive(
+        const results = createFolderRecursive(
           parameters.username, parameters.password, parameters.folderName
         )
         assertFoldersCreatedSuccessfully(results, parameters.folderName)
@@ -151,7 +165,7 @@ describe('provider testing', () => {
       const content = parameters.content || config.testContent
       if (setup) {
         if (dirname !== '' && dirname !== '/' && dirname !== '.') {
-          const results = createFolderRecrusive(
+          const results = createFolderRecursive(
             parameters.username, parameters.password, dirname
           )
           assertFoldersCreatedSuccessfully(results, dirname)
@@ -196,7 +210,7 @@ describe('provider testing', () => {
           method: 'DELETE',
           headers: validAdminAuthHeaders
         })
-        if (process.env.RUN_ON_OCIS === 'true') {
+        if (isRunningWithOCIS()) {
           deleteOCISUserFolder(parameters.username)
         }
 
@@ -247,7 +261,7 @@ describe('provider testing', () => {
     'user is made group subadmin': (setup, parameters) => {
       // don't try to make users subadmins on OCIS because of
       // https://github.com/owncloud/product/issues/289
-      if (setup && process.env.RUN_ON_OCIS !== 'true') {
+      if (setup && !isRunningWithOCIS()) {
         const response = fetch(providerBaseUrl +
           '/ocs/v1.php/cloud/users/' + parameters.username +
           '/subadmins?format=json', {
@@ -352,9 +366,9 @@ describe('provider testing', () => {
         }
       }
     },
-    'the client waits': (setup, paramters) => {
+    'the client waits': (setup, parameters) => {
       if (setup) {
-        delay(paramters.delay)
+        delay(parameters.delay)
       }
     },
     'file is marked as favorite': (setup, parameters) => {
@@ -379,7 +393,7 @@ describe('provider testing', () => {
         }
         /* eslint brace-style: "off" */
         // tagging not implement on oCIS
-        else if (process.env.RUN_ON_OCIS === 'true' && response.status === 404) {
+        else if (isRunningWithOCIS() && response.status === 404) {
           tagId = ''
         } else {
           chai.assert.fail(`Failed to create a system tag '${tag}'`)
@@ -391,7 +405,7 @@ describe('provider testing', () => {
       if (setup) {
         const { username, password, fileName, tagName } = parameters
         // tagging not implement on oCIS
-        if (process.env.RUN_ON_OCIS === 'true') {
+        if (isRunningWithOCIS()) {
           return
         }
         const { status } = assignTagToFile(username, password, fileName, tagName)
@@ -407,7 +421,7 @@ describe('provider testing', () => {
     it('verifies the contract with finished interactions', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server'
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server.json'
         )]
@@ -419,12 +433,12 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
 
     it('verifies the contract pending on ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-ocis'
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json'
         )]
@@ -436,13 +450,13 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
 
     it('verifies the contract pending on oC10', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10'
       opts.enablePending = true
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json'
         )]
@@ -454,13 +468,13 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
 
     it('verifies the contract pending on oC10 & ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10-ocis'
       opts.enablePending = true
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
         )]
@@ -471,14 +485,14 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
   })
 
   describe('ocis as provider', () => {
     it('verifies the contract with finished interactions', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server'
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server.json'
         )]
@@ -490,12 +504,12 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
 
     it('verifies the contract pending on oC10', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10'
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json'
         )]
@@ -507,13 +521,13 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
 
     it('verifies the contract pending on ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-ocis'
       opts.enablePending = true
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json'
         )]
@@ -525,13 +539,13 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
 
     it('verifies the contract pending on oC10 & ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10-ocis'
       opts.enablePending = true
-      if (process.env.CI !== 'true') {
+      if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
         )]
@@ -542,6 +556,6 @@ describe('provider testing', () => {
       }).catch(function () {
         chai.assert.fail()
       })
-    }, 600000)
+    }, TEST_TIMEOUT)
   })
 })

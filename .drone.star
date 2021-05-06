@@ -280,10 +280,6 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
         'commands': [
             'yarn test-provider:ocis' if extraEnvironment.get('RUN_ON_OCIS') == 'true' else 'yarn test-provider:oc10'
         ],
-        'volumes': [{
-            'name': 'gopath',
-            'path': '/srv/app',
-        }],
     }]
 
 def publishDocs():
@@ -358,7 +354,6 @@ def ocisProviderTestPipeline():
         'NODE_TLS_REJECT_UNAUTHORIZED': 0,
         'NODE_NO_WARNINGS': '1',
         'RUN_ON_OCIS': 'true',
-        'STORAGE_DRIVER_OWNCLOUD_DATADIR': STORAGE_DRIVER_OWNCLOUD_DATADIR,
     }
     return {
         'kind': 'pipeline',

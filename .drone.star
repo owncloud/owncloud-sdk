@@ -149,8 +149,8 @@ def ocisService():
         'detach': True,
         'environment' : {
             'OCIS_URL': 'https://ocis:9200',
-            'STORAGE_HOME_DRIVER': 'owncloud',
-            'STORAGE_USERS_DRIVER': 'owncloud',
+            'STORAGE_HOME_DRIVER': 'ocis',
+            'STORAGE_USERS_DRIVER': 'ocis',
             'STORAGE_DRIVER_OCIS_ROOT': '/srv/app/tmp/ocis/storage/users',
             'STORAGE_DRIVER_LOCAL_ROOT': '/srv/app/tmp/ocis/local/root',
             'STORAGE_DRIVER_OWNCLOUD_DATADIR': STORAGE_DRIVER_OWNCLOUD_DATADIR,

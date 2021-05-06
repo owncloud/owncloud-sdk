@@ -10,8 +10,6 @@ config = {
     'build': True
 }
 
-STORAGE_DRIVER_OWNCLOUD_DATADIR='/srv/app/tmp/ocis/owncloud/data'
-
 def main(ctx):
     return [ consumerTestPipeline(), consumerTestPipeline('/sub/'), oc10ProviderTestPipeline(),  ocisProviderTestPipeline(), publish() ]
 
@@ -100,19 +98,21 @@ def setupServerAndApp():
 def cloneOCIS():
     return[{
         'name': 'clone-ocis',
-        'image': 'webhippie/golang:1.15',
+        'image': 'owncloudci/golang:1.16',
         'pull': 'always',
         'commands': [
             'source .drone.env',
-            'mkdir -p /srv/app/src',
             'cd $GOPATH/src',
             'mkdir -p github.com/owncloud/',
             'cd github.com/owncloud/',
             'git clone -b $OCIS_BRANCH --single-branch --no-tags https://github.com/owncloud/ocis',
         ],
         'volumes': [{
+            'name': 'server',
+            'path': '/srv/app'
+        }, {
             'name': 'gopath',
-            'path': '/srv/app',
+            'path': '/go',
         }, {
             'name': 'configs',
             'path': '/srv/config'
@@ -122,7 +122,7 @@ def cloneOCIS():
 def buildOCIS():
     return[{
         'name': 'build-ocis',
-        'image': 'webhippie/golang:1.15',
+        'image': 'owncloudci/golang:1.16',
         'pull': 'always',
         'commands': [
             'source .drone.env',
@@ -133,8 +133,11 @@ def buildOCIS():
             'cp bin/ocis /var/www/owncloud'
         ],
         'volumes': [{
+            'name': 'server',
+            'path': '/srv/app'
+        }, {
             'name': 'gopath',
-            'path': '/srv/app',
+            'path': '/go',
         }, {
             'name': 'configs',
             'path': '/srv/config'
@@ -144,7 +147,7 @@ def buildOCIS():
 def ocisService():
     return[{
         'name': 'ocis',
-        'image': 'webhippie/golang:1.15',
+        'image': 'owncloudci/golang:1.16',
         'pull': 'always',
         'detach': True,
         'environment' : {
@@ -153,24 +156,27 @@ def ocisService():
             'STORAGE_USERS_DRIVER': 'ocis',
             'STORAGE_DRIVER_OCIS_ROOT': '/srv/app/tmp/ocis/storage/users',
             'STORAGE_DRIVER_LOCAL_ROOT': '/srv/app/tmp/ocis/local/root',
-            'STORAGE_DRIVER_OWNCLOUD_DATADIR': STORAGE_DRIVER_OWNCLOUD_DATADIR,
+            'STORAGE_DRIVER_OWNCLOUD_DATADIR': '/srv/app/tmp/ocis/owncloud/data',
             'STORAGE_METADATA_ROOT': '/srv/app/tmp/ocis/metadata',
-            'STORAGE_DRIVER_OWNCLOUD_REDIS_ADDR': 'redis:6379',
             'PROXY_OIDC_INSECURE': 'true',
             'STORAGE_HOME_DATA_SERVER_URL': 'http://ocis:9155/data',
             'STORAGE_USERS_DATA_SERVER_URL': 'http://ocis:9158/data',
             'ACCOUNTS_DATA_PATH': '/srv/app/tmp/ocis-accounts/',
             'PROXY_ENABLE_BASIC_AUTH': True,
+            'OCIS_LOG_LEVEL': 'debug'
         },
         'commands': [
             'cd /var/www/owncloud',
             'mkdir -p /srv/app/tmp/ocis/owncloud/data/',
             'mkdir -p /srv/app/tmp/ocis/storage/users/',
-            './ocis --log-level debug server'
+            './ocis server'
         ],
         'volumes': [{
+            'name': 'server',
+            'path': '/srv/app'
+        }, {
             'name': 'gopath',
-            'path': '/srv/app',
+            'path': '/go',
         }, {
             'name': 'configs',
             'path': '/srv/config'
@@ -227,17 +233,6 @@ def databaseService():
             'MYSQL_DATABASE': 'owncloud',
             'MYSQL_ROOT_PASSWORD': 'owncloud'
         }
-    }]
-
-
-def redisService():
-    return[{
-        'name': 'redis',
-        'image': 'webhippie/redis',
-        'pull': 'always',
-        'environment': {
-            'REDIS_DATABASES': 1
-        },
     }]
 
 def pactConsumerTests(uploadPact):
@@ -377,8 +372,6 @@ def ocisProviderTestPipeline():
             buildOCIS() +
             ocisService() +
             pactProviderTests('ocis-master', 'https://ocis:9200', extraEnvironment),
-         'services':
-            redisService(),
          'volumes': [{
             'name': 'configs',
                 'temp': {}

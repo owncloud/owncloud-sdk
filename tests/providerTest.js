@@ -207,12 +207,18 @@ describe('provider testing', () => {
         chai.assert.strictEqual(
           result.status, 200, `creating user '${parameters.username}' failed`
         )
-        // a hack for https://github.com/owncloud/ocis/issues/1675
-        fetch(providerBaseUrl + '/ocs/v2.php/cloud/capabilities',
-          {
-            method: 'GET',
-            headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
-          })
+        // a hack for
+        // https://github.com/owncloud/ocis/issues/1675
+        // https://github.com/owncloud/ocis/issues/2027
+        if (isRunningWithOCIS()) {
+          for (let count = 1; count <= 2; count++) {
+            fetch(providerBaseUrl + '/ocs/v2.php/cloud/capabilities',
+              {
+                method: 'GET',
+                headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
+              })
+          }
+        }
         return { description: 'user created' }
       }
     },

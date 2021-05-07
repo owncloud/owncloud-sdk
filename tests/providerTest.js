@@ -1,5 +1,4 @@
 const config = require('./config/config.json')
-const fs = require('fs')
 const {
   getOCSMeta,
   getOCSData
@@ -8,7 +7,6 @@ const {
 const TEST_TIMEOUT = 600000
 
 // environment variables
-const STORAGE_DRIVER_OWNCLOUD_DATADIR = process.env.STORAGE_DRIVER_OWNCLOUD_DATADIR
 const PACTFLOW_TOKEN = process.env.PACTFLOW_TOKEN
 const DRONE_SOURCE_BRANCH = process.env.DRONE_SOURCE_BRANCH
 const PROVIDER_VERSION = process.env.PROVIDER_VERSION
@@ -96,20 +94,6 @@ describe('provider testing', () => {
       algorithm
     )
     return hashedKey.toString('hex')
-  }
-
-  /**
-   * deletes user data folder when running against oCIS
-   *
-   * @param {string} username
-   */
-  const deleteOCISUserFolder = (username) => {
-    const userDataFolder = `${STORAGE_DRIVER_OWNCLOUD_DATADIR}/${username}`
-    try {
-      fs.rmdirSync(userDataFolder, { recursive: true })
-    } catch (err) {
-      console.error('\x1b[31m', 'Cannot delete user data folder\n' + err, '\x1b[0m')
-    }
   }
 
   const defaultOpts = {
@@ -210,9 +194,6 @@ describe('provider testing', () => {
           method: 'DELETE',
           headers: validAdminAuthHeaders
         })
-        if (isRunningWithOCIS()) {
-          deleteOCISUserFolder(parameters.username)
-        }
 
         const result = fetch(providerBaseUrl + '/ocs/v2.php/cloud/users',
           {
@@ -226,12 +207,18 @@ describe('provider testing', () => {
         chai.assert.strictEqual(
           result.status, 200, `creating user '${parameters.username}' failed`
         )
-        // a hack for https://github.com/owncloud/ocis/issues/1675
-        fetch(providerBaseUrl + '/ocs/v2.php/cloud/capabilities',
-          {
-            method: 'GET',
-            headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
-          })
+        // a hack for
+        // https://github.com/owncloud/ocis/issues/1675
+        // https://github.com/owncloud/ocis/issues/2027
+        if (isRunningWithOCIS()) {
+          for (let count = 1; count <= 2; count++) {
+            fetch(providerBaseUrl + '/ocs/v2.php/cloud/capabilities',
+              {
+                method: 'GET',
+                headers: { authorization: getAuthHeaders(parameters.username, parameters.password) }
+              })
+          }
+        }
         return { description: 'user created' }
       }
     },

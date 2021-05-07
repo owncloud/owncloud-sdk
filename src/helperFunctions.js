@@ -61,8 +61,6 @@ class helpers {
     axios.interceptors.request.use(config => {
       if (authHeader && authHeader.startsWith('Bearer ')) {
         config.headers.Authorization = authHeader
-      } else {
-        config.headers.Authorization = undefined
       }
       return config
     })
@@ -175,7 +173,7 @@ class helpers {
     const headers = Object.assign({}, this._headers)
     headers['OCS-APIREQUEST'] = 'true'
     if (withAuthHeader) {
-      headers.authorization = this._authHeader
+      headers.Authorization = this._authHeader
     }
     if (this.atLeastVersion('10.1.0')) {
       headers['X-Request-ID'] = uuidv4()

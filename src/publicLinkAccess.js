@@ -38,8 +38,11 @@ class PublicFiles {
     const headers = this.helpers.buildHeaders(false)
     const url = this.getFileSharePath(tokenAndPath)
 
+    // Dont use default bearer token for public links in web
+    // this will lead to the link not being accessible
+    this.helpers.noAuth()
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
     if (properties.length === 0) {
@@ -74,7 +77,7 @@ class PublicFiles {
     const url = this.getFileUrl(token, path)
 
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     const init = {
       method: 'GET',
@@ -141,7 +144,7 @@ class PublicFiles {
     const url = this.getFileSharePath(token, path)
 
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
     return this.davClient.request('MKCOL', url, headers, null, { version: 'v2' }).then(result => {
@@ -165,7 +168,7 @@ class PublicFiles {
     const url = this.getFileSharePath(token, path)
 
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
 
     return this.davClient.request('DELETE', url, headers, null, { version: 'v2' }).then(result => {
@@ -196,7 +199,7 @@ class PublicFiles {
     const url = this.getFileSharePath(token, path)
 
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     const previousEntityTag = options.previousEntityTag || false
     if (previousEntityTag) {
@@ -237,7 +240,7 @@ class PublicFiles {
     const targetUrl = this.getFileUrl(target)
 
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     headers.Destination = targetUrl
     return this.davClient.request('MOVE', sourceUrl, headers, null, { version: 'v2' }).then(result => {
@@ -262,7 +265,7 @@ class PublicFiles {
     const targetUrl = this.getFileUrl(target)
 
     if (password) {
-      headers.authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
+      headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
     headers.Destination = targetUrl
     return this.davClient.request('COPY', sourceUrl, headers, null, { version: 'v2' }).then(result => {

@@ -8939,7 +8939,7 @@ watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-webdav@^4.0.0:
+webdav@4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/webdav/-/webdav-4.0.0.tgz#ec4594b859b06602103c2e029dbbccab146b2b92"
   integrity sha512-65YHMUfeuTCPt2oVuoEwEqd+RZ+lEKy7l2LtWwiG/2J9gTJDcY1wyg6pTE8GiuLgv2AbupCJCYV1dKyMsnDIzQ==

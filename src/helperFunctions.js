@@ -52,6 +52,14 @@ class helpers {
     return this.instance
   }
 
+  noAuth () {
+    axios.interceptors.request.use(config => {
+      config.extraReqParams = config.extraReqParams || {}
+      config.extraReqParams.dontUseDefaultAuth = true
+      return config
+    })
+  }
+
   /**
    * sets the username
    * @param   {string | null}    authHeader    authorization header; either basic or bearer or what ever
@@ -59,10 +67,12 @@ class helpers {
   setAuthorization (authHeader) {
     this._authHeader = authHeader
     axios.interceptors.request.use(config => {
+      if (config.extraReqParams && config.extraReqParams.dontUseDefaultAuth) {
+        delete config.extraReqParams.dontUseDefaultAuth
+        return config
+      }
       if (authHeader && authHeader.startsWith('Bearer ')) {
         config.headers.Authorization = authHeader
-      } else {
-        config.headers.Authorization = undefined
       }
       return config
     })
@@ -175,7 +185,7 @@ class helpers {
     const headers = Object.assign({}, this._headers)
     headers['OCS-APIREQUEST'] = 'true'
     if (withAuthHeader) {
-      headers.authorization = this._authHeader
+      headers.Authorization = this._authHeader
     }
     if (this.atLeastVersion('10.1.0')) {
       headers['X-Request-ID'] = uuidv4()
@@ -297,7 +307,7 @@ class helpers {
     }
 
     const headers = {
-      authorization: this._authHeader,
+      Authorization: this._authHeader,
       'Content-Type': 'application/x-www-form-urlencoded'
     }
 

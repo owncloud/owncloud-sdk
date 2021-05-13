@@ -246,6 +246,7 @@ def pactConsumerTests(uploadPact):
             }
         },
         'commands': [
+            sanitizeBranchName('DRONE_SOURCE_BRANCH'),
             'yarn test-consumer'
          ] + ([
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server.json',
@@ -273,6 +274,7 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
         'pull': 'always',
         'environment': environment,
         'commands': [
+            sanitizeBranchName('DRONE_SOURCE_BRANCH'),
             'yarn test-provider:ocis' if extraEnvironment.get('RUN_ON_OCIS') == 'true' else 'yarn test-provider:oc10'
         ],
     }]
@@ -438,3 +440,10 @@ def publish():
             ]
         }
     }
+
+# replaces reserved and unsafe url characters with '-'
+# reserved: & $ + , / : ; = ? @ #
+# unsafe: <space> < > [ ] { } | \ ^ %
+def sanitizeBranchName(BRANCH_NAME=''):
+    REGEX='[][&$+,/:;=?@#[:space:]<>{}|^%\\\]'
+    return '%s=`echo $%s | sed -e "s/%s/-/g"`' % (BRANCH_NAME, BRANCH_NAME, REGEX)

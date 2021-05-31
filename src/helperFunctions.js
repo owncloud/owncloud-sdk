@@ -270,7 +270,11 @@ class helpers {
           try {
             tree = parser.xml2js(body)
           } catch (e) {
-            tree = JSON.parse(body)
+            try {
+              tree = JSON.parse(body)
+            } catch (e) {
+              reject(e)
+            }
           }
           if ('message' in tree) {
             reject(tree.message)

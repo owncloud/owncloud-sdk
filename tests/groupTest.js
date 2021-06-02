@@ -39,9 +39,9 @@ describe('Main: Currently testing group management,', function () {
               // TODO: adjust the following after the issue is resolved
               // https://github.com/pact-foundation/pact-js/issues/619
               data.appendElement('groups', '', (groups) => {
-                groups.appendElement('element', '', config.adminUsername)
+                groups.appendElement('element', '', MatchersV3.string(config.adminUsername))
                   .eachLike('element', '', group => {
-                    group.appendText(config.testGroup)
+                    group.appendText(MatchersV3.string(config.testGroup))
                   })
               })
             })
@@ -156,7 +156,7 @@ describe('Main: Currently testing group management,', function () {
             // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('users', '', (users) => {
               users.eachLike('element', '', user => {
-                user.appendText(config.testUser)
+                user.appendText(MatchersV3.equal(config.testUser))
               })
             })
           })

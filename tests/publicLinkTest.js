@@ -233,7 +233,7 @@ describe('oc.publicFiles', function () {
             } else {
               body = new XmlBuilder('1.0', '', 'd:error').build(dError => {
                 dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
-                dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
+                dError.appendElement('s:exception', {}, MatchersV3.equal('Sabre\\DAV\\Exception\\NotAuthenticated'))
               })
             }
             const status = shallGrantAccess ? 207 : 401
@@ -342,8 +342,8 @@ describe('oc.publicFiles', function () {
               resStatusCode = 401
               resBody = new XmlBuilder('1.0', '', 'd:error').build(dError => {
                 dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
-                dError.appendElement('s:exception', {}, 'Sabre\\DAV\\Exception\\NotAuthenticated')
-                  .appendElement('s:message', '', errorMessage)
+                dError.appendElement('s:exception', {}, MatchersV3.equal('Sabre\\DAV\\Exception\\NotAuthenticated'))
+                  .appendElement('s:message', '', MatchersV3.equal(errorMessage))
               })
             } else {
               respHeaders = { 'Content-Type': 'text/plain;charset=UTF-8' }
@@ -710,7 +710,7 @@ describe('oc.publicFiles', function () {
                   MatchersV3.regex('text\\/plain(; charset=utf-8)?', 'text/plain')
                 )
             })
-              .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+              .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
           }).appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
@@ -720,7 +720,7 @@ describe('oc.publicFiles', function () {
                 .appendElement('oc:public-link-share-datetime', '', '')
                 .appendElement('oc:public-link-share-owner', '', '')
             })
-              .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+              .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 404 Not Found'))
           })
       })
     }
@@ -737,11 +737,11 @@ describe('oc.publicFiles', function () {
             .appendElement('d:propstat', '', dPropstat => {
               dPropstat.appendElement('d:prop', '', dProp => {
                 dProp
-                  .appendElement('oc:public-link-item-type', '', 'folder')
-                  .appendElement('oc:public-link-permission', '', permission)
-                  .appendElement('oc:public-link-share-owner', '', testUser)
+                  .appendElement('oc:public-link-item-type', '', MatchersV3.equal('folder'))
+                  .appendElement('oc:public-link-permission', '', MatchersV3.equal(permission))
+                  .appendElement('oc:public-link-share-owner', '', MatchersV3.equal(testUser))
               })
-                .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
             })
         })
       if (permission === '1') {

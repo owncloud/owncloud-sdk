@@ -90,7 +90,7 @@ describe('Main: Currently testing files management,', function () {
                         )
                       )
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           listFolderContentResponse(items).map(item => {
@@ -170,7 +170,7 @@ describe('Main: Currently testing files management,', function () {
                   )
               }
             })
-              .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+              .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
           })
       })
     }
@@ -192,7 +192,7 @@ describe('Main: Currently testing files management,', function () {
           dPropUpdate.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
           dPropUpdate.appendElement('d:set', '', dSet => {
             dSet.appendElement('d:prop', '', dProp => {
-              dProp.appendElement('oc:favorite', '', '' + value)
+              dProp.appendElement('oc:favorite', '', MatchersV3.equal('' + value))
             })
           })
         })
@@ -210,7 +210,7 @@ describe('Main: Currently testing files management,', function () {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp.appendElement('oc:favorite', '', '')
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
         })
@@ -916,9 +916,9 @@ describe('Main: Currently testing files management,', function () {
               )
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
-                    dProp.appendElement('oc:meta-path-for-user', '', `/${file}`)
+                    dProp.appendElement('oc:meta-path-for-user', '', MatchersV3.equal(`/${file}`))
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           })
@@ -981,7 +981,7 @@ describe('Main: Currently testing files management,', function () {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp.appendElement('oc:fileid', '', MatchersV3.string('123456789'))
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           })
@@ -1063,7 +1063,7 @@ describe('Main: Currently testing files management,', function () {
                       )
                     )
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             }).appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
@@ -1078,7 +1078,7 @@ describe('Main: Currently testing files management,', function () {
                       MatchersV3.regex('text\\/plain(; charset=utf-8)?', 'text/plain')
                     )
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           })
@@ -1394,7 +1394,7 @@ describe('Main: Currently testing files management,', function () {
             ocFilterFiles.appendElement('d:prop', '', dProp => {
               dProp.appendElement('oc:favorite', '', '')
             }).appendElement('oc:filter-rules', '', ocFilterRules => {
-              ocFilterRules.appendElement('oc:favorite', '', '1')
+              ocFilterRules.appendElement('oc:favorite', '', MatchersV3.equal('1'))
             })
           })
         })
@@ -1415,9 +1415,9 @@ describe('Main: Currently testing files management,', function () {
               )
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
-                    dProp.appendElement('oc:favorite', '', '1')
+                    dProp.appendElement('oc:favorite', '', MatchersV3.equal('1'))
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           })
@@ -1463,7 +1463,7 @@ describe('Main: Currently testing files management,', function () {
             ocFilterFiles.appendElement('d:prop', '', dProp => {
               dProp.appendElement('oc:favorite', '', '')
             }).appendElement('oc:filter-rules', '', ocFilterRules => {
-              ocFilterRules.appendElement('oc:favorite', '', '1')
+              ocFilterRules.appendElement('oc:favorite', '', MatchersV3.equal('1'))
             })
           })
         })
@@ -1533,8 +1533,8 @@ describe('Main: Currently testing files management,', function () {
                 .appendElement('d:getlastmodified', '', '')
                 .appendElement('d:resourcetype', '', '')
             }).appendElement('oc:search', '', ocSearch => {
-              ocSearch.appendElement('oc:pattern', '', 'abc')
-                .appendElement('oc:limit', '', 30)
+              ocSearch.appendElement('oc:pattern', '', MatchersV3.equal('abc'))
+                .appendElement('oc:limit', '', MatchersV3.equal(30))
             })
           })
         })
@@ -1557,15 +1557,15 @@ describe('Main: Currently testing files management,', function () {
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
-                      .appendElement('oc:favorite', '', '0')
-                      .appendElement('d:getcontentlength', '', '6')
-                      .appendElement('oc:size', '', '6')
+                      .appendElement('oc:favorite', '', MatchersV3.equal('0'))
+                      .appendElement('d:getcontentlength', '', MatchersV3.equal('6'))
+                      .appendElement('oc:size', '', MatchersV3.equal('6'))
                       .appendElement('d:getlastmodified', '',
                         MatchersV3.date('EEE, d MMM yyyy HH:mm:ss z', 'Wed, 21 Oct 2020 11:20:54 GMT')
                       )
                       .appendElement('d:resourcetype', '', '')
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           })
@@ -1609,9 +1609,9 @@ describe('Main: Currently testing files management,', function () {
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
                     dProp
-                      .appendElement('oc:fileid', '', fileId)
+                      .appendElement('oc:fileid', '', MatchersV3.equal(fileId))
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
           })

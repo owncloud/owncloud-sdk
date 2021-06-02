@@ -49,18 +49,18 @@ describe('Main: Currently testing file versions management,', function () {
           dPropstat.appendElement('d:prop', '', dProp => {
             dProp
               .appendElement('d:getlastmodified', '', MatchersV3.date('E, dd MM yyyy HH:mm:ss Z', 'Thu, 08 Oct 2020 02:28:50 GMT'))
-              .appendElement('d:getcontentlength', '', contentLength)
-              .appendElement('d:resourcetype', '', '')
+              .appendElement('d:getcontentlength', '', MatchersV3.equal(contentLength))
+              .appendElement('d:resourcetype', '', MatchersV3.equal(''))
               .appendElement('d:getetag', '', MatchersV3.string('&quot;bc7012325dcc9899be7da7cabfdddb00&quot;'))
-              .appendElement('d:getcontenttype', '', 'text/plain')
+              .appendElement('d:getcontenttype', '', MatchersV3.equal('text/plain'))
           })
-            .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+            .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
         }).appendElement('d:propstat', '', dPropstat => {
           dPropstat.appendElement('d:prop', '', dProp => {
             dProp
               .appendElement('d:quota-used-bytes', '', '')
               .appendElement('d:quota-available-bytes', '', '')
-          }).appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+          }).appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 404 Not Found'))
         })
     })
   }
@@ -93,7 +93,7 @@ describe('Main: Currently testing file versions management,', function () {
           headers: applicationXmlResponseHeaders,
           body: new XmlBuilder('1.0', 'utf-8', 'd:error').build(dError => {
             dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
-            dError.appendElement('s:exception', '', 'Sabre\\DAV\\Exception\\NotFound')
+            dError.appendElement('s:exception', '', MatchersV3.equal('Sabre\\DAV\\Exception\\NotFound'))
               .appendElement('s:message', '', '')
           })
         })
@@ -174,7 +174,7 @@ describe('Main: Currently testing file versions management,', function () {
                         dResourceType.appendElement('d:collection', '', '')
                       })
                   })
-                    .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
             propfindFileVersionsResponse(node, 1, 14)

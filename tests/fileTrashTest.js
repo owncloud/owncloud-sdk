@@ -69,7 +69,7 @@ describe('oc.fileTrash', function () {
           'xmlns:oc': 'http://owncloud.org/ns'
         })
         const body = dMultistatus.appendElement('d:response', '', dResponse => {
-          dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + testUser + '/')
+          dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/dav/trash-bin/' + testUser + '/'))
             .appendElement('d:propstat', '', dPropstat => {
               dPropstat.appendElement('d:prop', '', dProp => {
                 dProp
@@ -77,7 +77,7 @@ describe('oc.fileTrash', function () {
                     dResourceType.appendElement('d:collection', '', '')
                   })
               })
-                .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
             }).appendElement('d:propstat', '', dPropstat => {
               dPropstat.appendElement('d:prop', '', dProp => {
                 dProp
@@ -86,7 +86,7 @@ describe('oc.fileTrash', function () {
                   .appendElement('oc:trashbin-delete-timestamp', '', '')
                   .appendElement('d:getcontentlength', '', '')
               })
-                .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+                .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 404 Not Found'))
             })
         })
         if (extraBody) {
@@ -106,20 +106,20 @@ describe('oc.fileTrash', function () {
           .appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
-                .appendElement('oc:trashbin-original-filename', '', 'testFolder')
-                .appendElement('oc:trashbin-original-location', '', 'testFolder')
+                .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal('testFolder'))
+                .appendElement('oc:trashbin-original-location', '', MatchersV3.equal('testFolder'))
                 .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                 .appendElement('d:resourcetype', '', dResourceType => {
                   dResourceType.appendElement('d:collection', '', '')
                 })
             })
-              .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+              .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
           }).appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
                 .appendElement('d:getcontentlength', '', '')
             })
-              .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+              .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 404 Not Found'))
           })
       })
     }
@@ -275,18 +275,18 @@ describe('oc.fileTrash', function () {
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('oc:trashbin-original-filename', '', 'testFolder')
-                        .appendElement('oc:trashbin-original-location', '', 'testFolder')
+                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal('testFolder'))
+                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal('testFolder'))
                         .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   }).appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp.appendElement('d:getcontentlength')
-                    }).appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+                    }).appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 404 Not Found'))
                   })
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
@@ -297,13 +297,13 @@ describe('oc.fileTrash', function () {
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('oc:trashbin-original-filename', '', 'testFile.txt')
-                        .appendElement('oc:trashbin-original-location', '', 'testFolder/testFile.txt')
+                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal('testFile.txt'))
+                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal('testFolder/testFile.txt'))
                         .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
-                        .appendElement('d:getcontentlength', '', '6')
+                        .appendElement('d:getcontentlength', '', MatchersV3.equal('6'))
                         .appendElement('d:resourcetype', '', '')
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   })
               })
             })
@@ -436,7 +436,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', `/remote.php/webdav/${testFolder}/`)
+                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/webdav/${testFolder}/`))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -444,11 +444,11 @@ describe('oc.fileTrash', function () {
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
-                        .appendElement('d:quota-used-bytes', '', '6')
-                        .appendElement('d:quota-available-bytes', '', '-3')
+                        .appendElement('d:quota-used-bytes', '', MatchersV3.equal('6'))
+                        .appendElement('d:quota-available-bytes', '', MatchersV3.equal('-3'))
                         .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]+', '5f7ae781e8073'))
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   })
               })
             })
@@ -570,7 +570,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/webdav/' + testFolder + encodeURIComponent(suffix) + '/')
+                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/webdav/' + testFolder + encodeURIComponent(suffix) + '/'))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -578,11 +578,11 @@ describe('oc.fileTrash', function () {
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
-                        .appendElement('d:quota-used-bytes', '', '0')
-                        .appendElement('d:quota-available-bytes', '', '-3')
+                        .appendElement('d:quota-used-bytes', '', MatchersV3.equal('0'))
+                        .appendElement('d:quota-available-bytes', '', MatchersV3.equal('-3'))
                         .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]', '5f7c5fdc06e47'))
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   })
               })
             })
@@ -658,7 +658,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/dav/trash-bin/' + testUser + '/')
+                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/dav/trash-bin/' + testUser + '/'))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -666,7 +666,7 @@ describe('oc.fileTrash', function () {
                           dResourceType.appendElement('d:collection', '', '')
                         })
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   }).appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -675,7 +675,7 @@ describe('oc.fileTrash', function () {
                         .appendElement('oc:trashbin-delete-timestamp', '', '')
                         .appendElement('d:getcontentlength', '', '')
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 404 Not Found')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 404 Not Found'))
                   })
               }).appendElement('d:response', '', dResponse => {
                 dResponse.appendElement('d:href', '', MatchersV3.regex(
@@ -685,13 +685,13 @@ describe('oc.fileTrash', function () {
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('oc:trashbin-original-filename', '', testFile)
-                        .appendElement('oc:trashbin-original-location', '', testFolder + '/' + testFile)
-                        .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('d+', '5f7c5fdc06e47'))
-                        .appendElement('d:getcontentlength', '', '6')
+                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal(testFile))
+                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal(testFolder + '/' + testFile))
+                        .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.equal(MatchersV3.regex('d+', '5f7c5fdc06e47')))
+                        .appendElement('d:getcontentlength', '', MatchersV3.equal('6'))
                         .appendElement('d:resourcetype', '', '')
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   })
               })
             })
@@ -798,7 +798,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/webdav/' + testFolder + '/')
+                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/webdav/' + testFolder + '/'))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -806,11 +806,11 @@ describe('oc.fileTrash', function () {
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
                         })
-                        .appendElement('d:quota-used-bytes', '', '6')
-                        .appendElement('d:quota-available-bytes', '', '-3')
+                        .appendElement('d:quota-used-bytes', '', MatchersV3.equal('6'))
+                        .appendElement('d:quota-available-bytes', '', MatchersV3.equal('-3'))
                         .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]+', '5f7c5fdc06e47'))
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   })
               })
             })
@@ -935,7 +935,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', '/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt')
+                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt'))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -943,7 +943,7 @@ describe('oc.fileTrash', function () {
                         .appendElement('d:resourcetype', '', '')
                         .appendElement('d:getetag', '', MatchersV3.regex('[a-f0-9]+', '5f7c5fdc06e47'))
                     })
-                      .appendElement('d:status', '', 'HTTP/1.1 200 OK')
+                      .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                   })
               })
             })

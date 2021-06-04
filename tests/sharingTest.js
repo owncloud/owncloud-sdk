@@ -328,8 +328,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
         it('adding password', async function () {
           const formData = { password: '1234' }
           const additionalBodyElement = {
-            share_with: '***redacted***',
-            share_with_displayname: '***redacted***'
+            share_with: MatchersV3.string('***redacted***'),
+            share_with_displayname: MatchersV3.string('***redacted***')
           }
           const provider = createProvider(false, true)
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)

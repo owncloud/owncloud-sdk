@@ -25,6 +25,13 @@ const encodeURIPath = function (path) {
   return encodeURIComponent(path).split('%2F').join('/')
 }
 
+const getMatchers = function (element) {
+  if (typeof element === 'string' || typeof element === 'number') {
+    return MatchersV3.equal(element)
+  } else {
+    return element
+  }
+}
 /**
  *
  * @param meta {XmlElement}
@@ -34,21 +41,21 @@ const encodeURIPath = function (path) {
  * @returns {string}
  */
 const ocsMeta = function (meta, status, statusCode, Message = null) {
-  return meta.appendElement('status', '', status)
-    .appendElement('statuscode', '', statusCode)
-    .appendElement('message', '', Message)
+  return meta.appendElement('status', '', getMatchers(status))
+    .appendElement('statuscode', '', getMatchers(statusCode))
+    .appendElement('message', '', getMatchers(Message))
 }
 
 const shareResponseOcsData = function (node, shareType, id, permissions, fileTarget) {
   const res = node.appendElement('id', '', MatchersV3.string(id))
-    .appendElement('share_type', '', shareType.toString())
+    .appendElement('share_type', '', MatchersV3.equal(shareType.toString()))
     .appendElement('uid_owner', '', MatchersV3.string(config.adminUsername))
     .appendElement('displayname_owner', '', MatchersV3.string(config.adminUsername))
     .appendElement('permissions', '', MatchersV3.number(permissions))
     .appendElement('uid_file_owner', '', MatchersV3.string(config.adminUsername))
     .appendElement('displayname_file_owner', '', MatchersV3.string(config.adminUsername))
-    .appendElement('path', '', fileTarget)
-    .appendElement('file_target', '', fileTarget)
+    .appendElement('path', '', MatchersV3.equal(fileTarget))
+    .appendElement('file_target', '', MatchersV3.equal(fileTarget))
     .appendElement('stime', '', MatchersV3.string(Math.floor(Date.now() / 1000)))
 
   if (shareType === 3) {
@@ -108,8 +115,8 @@ const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0'
   .build(dError => {
     dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
     dError
-      .appendElement('s:exception', '', `Sabre\\DAV\\Exception\\${exception}`)
-      .appendElement('s:message', '', message)
+      .appendElement('s:exception', '', MatchersV3.equal(`Sabre\\DAV\\Exception\\${exception}`))
+      .appendElement('s:message', '', MatchersV3.equal(message))
   })
 
 const webdavPath = (resource) => {
@@ -215,8 +222,8 @@ const deleteResourceInteraction = (
       headers: xmlResponseHeaders,
       body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
         ocs.appendElement('meta', '', (meta) => {
-          ocsMeta(meta, 'ok', '100')
-        }).appendElement('data', '', '')
+          ocsMeta(meta, 'ok', MatchersV3.equal('100'))
+        }).appendElement('data', '', MatchersV3.equal(''))
       })
     }
   } else {
@@ -259,11 +266,11 @@ async function getCurrentUserInformationInteraction (
       headers: applicationXmlResponseHeaders,
       body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
         ocs.appendElement('meta', '', (meta) => {
-          meta.appendElement('status', '', 'ok')
-            .appendElement('statuscode', '', '100')
-            .appendElement('message', '', 'OK')
+          meta.appendElement('status', '', MatchersV3.equal('ok'))
+            .appendElement('statuscode', '', MatchersV3.equal('100'))
+            .appendElement('message', '', MatchersV3.equal('OK'))
         }).appendElement('data', '', (data) => {
-          data.appendElement('id', '', user)
+          data.appendElement('id', '', MatchersV3.equal(user))
           data.appendElement('display-name', '', MatchersV3.regex(`(${user}|${displayName})`, user))
           data.appendElement('email', '', MatchersV3.regex(`(${user}@example\\..*)?`, ''))
         })
@@ -410,7 +417,7 @@ const createUserWithGroupMembershipInteraction = function (provider) {
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
             return ocsMeta(meta, 'ok', '100')
-          }).appendElement('data', '', '')
+          }).appendElement('data', '', MatchersV3.equal(''))
         })
     })
 }

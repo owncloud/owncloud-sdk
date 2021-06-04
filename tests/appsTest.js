@@ -25,8 +25,8 @@ describe('Main: Currently testing apps management,', function () {
       body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
         ocs.appendElement('meta', '', (meta) => {
           meta
-            .appendElement('status', '', 'ok')
-            .appendElement('statuscode', '', 100)
+            .appendElement('status', '', MatchersV3.equal('ok'))
+            .appendElement('statuscode', '', MatchersV3.equal(100))
             .appendElement('message', '', '')
         }).appendElement('data', '', '')
       })
@@ -66,8 +66,8 @@ describe('Main: Currently testing apps management,', function () {
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
             meta
-              .appendElement('status', '', 'ok')
-              .appendElement('statuscode', '', 100)
+              .appendElement('status', '', MatchersV3.equal('ok'))
+              .appendElement('statuscode', '', MatchersV3.equal(100))
               .appendElement('message', '', '')
           }).appendElement('data', '', (data) => {
             data.appendElement('apps', '', (apps) => {

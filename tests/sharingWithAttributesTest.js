@@ -68,9 +68,9 @@ describe('oc.shares', function () {
           })
             .appendElement('data', '', (data) => {
               shareResponseOcsData(data, 0, 7, 17, '/' + testFile)
-                .appendElement('share_with', '', shareeName)
-                .appendElement('share_with_displayname', '', shareeName)
-                .appendElement('attributes', '', shareAttributesResponse())
+                .appendElement('share_with', '', MatchersV3.equal(shareeName))
+                .appendElement('share_with_displayname', '', MatchersV3.equal(shareeName))
+                .appendElement('attributes', '', MatchersV3.equal(shareAttributesResponse()))
             })
         })
       })

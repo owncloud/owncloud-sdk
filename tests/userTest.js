@@ -205,8 +205,8 @@ describe('Main: Currently testing user management,', function () {
             // [oCIS] Different ocs status-text and status-code in oCIS and oC10
             // https://github.com/owncloud/ocis/issues/1777
             meta
-              .appendElement('status', '', 'failure')
-              .appendElement('statuscode', '', ocsStatusCode)
+              .appendElement('status', '', MatchersV3.equal('failure'))
+              .appendElement('statuscode', '', MatchersV3.equal(ocsStatusCode))
               .appendElement('message', '', MatchersV3.regex(`(${message})?`, ''))
           })
         })
@@ -304,7 +304,7 @@ describe('Main: Currently testing user management,', function () {
               // https://github.com/pact-foundation/pact-js/issues/619
               data.appendElement('groups', '', groups => {
                 groups.eachLike('element', '', group => {
-                  group.appendText(config.testGroup)
+                  group.appendText(MatchersV3.equal(config.testGroup))
                 })
               })
             })
@@ -337,7 +337,7 @@ describe('Main: Currently testing user management,', function () {
               return ocsMeta(meta, 'ok', '100')
             }).appendElement('data', '', data => {
               data.appendElement('groups', '', groups => {
-                groups.appendElement('element', '', config.testGroup)
+                groups.appendElement('element', '', MatchersV3.equal(config.testGroup))
               })
             })
           })
@@ -372,7 +372,7 @@ describe('Main: Currently testing user management,', function () {
             ocs.appendElement('meta', '', (meta) => {
               return ocsMeta(meta, 'ok', '100')
             }).appendElement('data', '', data => {
-              data.appendElement('element', '', config.testGroup)
+              data.appendElement('element', '', MatchersV3.equal(config.testGroup))
             })
           })
       )
@@ -403,14 +403,14 @@ describe('Main: Currently testing user management,', function () {
           ocs.appendElement('meta', '', (meta) => {
             return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', data => {
-            data.appendElement('enabled', '', 'true')
+            data.appendElement('enabled', '', MatchersV3.equal('true'))
               .appendElement('quota', '', quota => {
                 quota
                   .appendElement('free', '', MatchersV3.number(57800708096))
                   .appendElement('used', '', MatchersV3.number(2740027))
                   .appendElement('total', '', MatchersV3.number(57803448123))
                   .appendElement('relative', '', MatchersV3.number(0))
-                  .appendElement('definition', '', 'default')
+                  .appendElement('definition', '', MatchersV3.equal('default'))
               })
               .appendElement(
                 'email', '',
@@ -512,9 +512,9 @@ describe('Main: Currently testing user management,', function () {
         // TODO: adjust the following after the issue is resolved
         // https://github.com/pact-foundation/pact-js/issues/619
         data.appendElement('users', '', users => {
-          users.appendElement('element', '', config.adminUsername)
+          users.appendElement('element', '', MatchersV3.string(config.adminUsername))
             .eachLike('element', '', user => {
-              user.appendText(config.testUser)
+              user.appendText(MatchersV3.string(config.testUser))
             })
         })
       }
@@ -567,7 +567,7 @@ describe('Main: Currently testing user management,', function () {
       { search: config.adminUsername },
       data => {
         data.appendElement('users', '', users => {
-          users.appendElement('element', '', config.adminUsername)
+          users.appendElement('element', '', MatchersV3.equal(config.adminUsername))
         })
       }
     )
@@ -948,7 +948,7 @@ describe('Main: Currently testing user management,', function () {
             // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('groups', '', groups => {
               groups.eachLike('element', '', group => {
-                group.appendText(config.testGroup)
+                group.appendText(MatchersV3.equal(config.testGroup))
               })
             })
           })
@@ -982,7 +982,7 @@ describe('Main: Currently testing user management,', function () {
             // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('groups', '', groups => {
               groups.eachLike('element', '', group => {
-                group.appendText(config.testGroup)
+                group.appendText(MatchersV3.equal(config.testGroup))
               })
             })
           })
@@ -1048,11 +1048,11 @@ describe('Main: Currently testing user management,', function () {
           ocs.appendElement('meta', '', (meta) => {
             return ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
           }).appendElement('data', '', data => {
-            data.appendElement('enabled', '', 'true')
+            data.appendElement('enabled', '', MatchersV3.equal('true'))
               .appendElement('quota', '', quota => {
-                quota.appendElement('definition', '', 'default')
+                quota.appendElement('definition', '', MatchersV3.equal('default'))
               })
-              .appendElement('displayname', '', 'test123')
+              .appendElement('displayname', '', MatchersV3.equal('test123'))
           })
         })
     )
@@ -1229,9 +1229,9 @@ describe('Main: Currently testing user management,', function () {
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
-            return ocsMeta(meta, 'ok', '100')
+            return ocsMeta(meta, 'ok', MatchersV3.equal('100'))
           }).appendElement('data', '', data => {
-            data.appendElement('element', '', config.testGroup)
+            data.appendElement('element', '', MatchersV3.equal(config.testGroup))
           })
         })
     )

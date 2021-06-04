@@ -36,7 +36,7 @@ describe('Signed urls', function () {
             return ocsMeta(meta, 'ok', '100', 'OK')
           })
             .appendElement('data', '', (data) => {
-              data.appendElement('user', '', username)
+              data.appendElement('user', '', MatchersV3.equal(username))
                 .appendElement('signing-key', '',
                   MatchersV3.regex('(?:^[a-zA-Z0-9\\/\\+]+)$',
                     'YONNpClEO2GVtTDqIwaVsgLBIuDSe03wFhdwcG1WmorRK/iE8xGs7HyHNseftgb3'))

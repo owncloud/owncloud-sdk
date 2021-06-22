@@ -16,7 +16,7 @@ def main(ctx):
 def incrementVersion():
     return [{
             'name': 'increment-version',
-            'image': 'owncloudci/nodejs:12',
+            'image': 'owncloudci/nodejs:14',
             'pull': 'always',
             'commands': [
                 'yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}'
@@ -31,7 +31,7 @@ def incrementVersion():
 def buildDocs():
     return [{
             'name': 'build-docs',
-            'image': 'owncloudci/nodejs:12',
+            'image': 'owncloudci/nodejs:14',
             'pull': 'always',
             'commands': [
                 'yarn install',
@@ -42,7 +42,7 @@ def buildDocs():
 def buildSystem():
     return [{
             'name': 'build-system',
-            'image': 'owncloudci/nodejs:12',
+            'image': 'owncloudci/nodejs:14',
             'pull': 'always',
             'commands': [
                 'yarn install',
@@ -54,7 +54,7 @@ def buildSystem():
 def prepareTestConfig(subFolderPath = '/'):
     return [{
         'name': 'prepare-test-config',
-        'image': 'owncloud/ubuntu:16.04',
+        'image': 'owncloud/ubuntu:20.04',
         'commands': [
             'apt update',
             'apt install gettext -y',
@@ -197,7 +197,7 @@ def fixPermissions():
 def owncloudLog():
     return [{
         'name': 'owncloud-log',
-        'image': 'owncloud/ubuntu:16.04',
+        'image': 'owncloud/ubuntu:20.04',
         'pull': 'always',
         'detach': True,
         'commands': [
@@ -238,7 +238,7 @@ def databaseService():
 def pactConsumerTests(uploadPact):
     return [{
         'name': 'test',
-        'image': 'owncloudci/nodejs:12',
+        'image': 'owncloudci/nodejs:14',
         'pull': 'always',
         'environment': {
             'PACTFLOW_TOKEN': {
@@ -270,7 +270,7 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
 
     return [{
         'name': 'test',
-        'image': 'owncloudci/nodejs:12',
+        'image': 'owncloudci/nodejs:14',
         'pull': 'always',
         'environment': environment,
         'commands': [

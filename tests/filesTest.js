@@ -1038,8 +1038,6 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 207,
-          // [V3] Cannot match response headers having comma separated values
-          // https://github.com/pact-foundation/pact-js/issues/646
           headers: respHeaders,
           body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
             dMultistatus.setAttributes({

@@ -282,6 +282,7 @@ class helpers {
               tree = JSON.parse(body)
             } catch (e) {
               reject(e)
+              return
             }
           }
           if ('message' in tree) {

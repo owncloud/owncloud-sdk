@@ -304,10 +304,11 @@ class helpers {
   /**
    * performs a simple GET request
    * @param   {string}    url     url to perform GET on
+   * @param   {Object} options
    * @returns {Promise.<data>}    object: {response: response, body: request body}
    * @returns {Promise.<error>}   string: error message, if any.
    */
-  _get (url) {
+  _get (url, options = {}) {
     let err = null
 
     if (!this.instance) {
@@ -321,6 +322,11 @@ class helpers {
     const headers = {
       Authorization: this._authHeader,
       'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    const noCache = options.noCache || false
+    if (noCache) {
+      headers['Cache-Control'] = 'no-cache'
     }
 
     return new Promise((resolve, reject) => {

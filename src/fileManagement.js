@@ -69,7 +69,7 @@ class Files {
    * @returns {Promise.<error>}       string: error message, if any.
    */
   getFileContents (path, options = {}) {
-    return this.helpers._get(this.helpers._buildFullWebDAVURL(path)).then(data => {
+    return this.helpers._get(this.helpers._buildFullWebDAVURL(path), options).then(data => {
       const response = data.response
       const body = data.body
 

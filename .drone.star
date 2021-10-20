@@ -1,5 +1,5 @@
 OC_CI_ALPINE = "owncloudci/alpine:latest"
-OC_CI_GOLANG = "owncloudci/golang:1.16"
+OC_CI_GOLANG = "owncloudci/golang:1.17"
 OC_CI_NODEJS = "owncloudci/nodejs:14"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
@@ -97,28 +97,45 @@ def cloneOCIS():
     }]
 
 def buildOCIS():
-    return [{
-        "name": "build-ocis",
-        "image": OC_CI_GOLANG,
-        "commands": [
-            "source .drone.env",
-            "cd $GOPATH/src/github.com/owncloud/ocis",
-            "git checkout $OCIS_COMMITID",
-            "cd ocis",
-            "make build",
-            "cp bin/ocis /var/www/owncloud",
-        ],
-        "volumes": [{
-            "name": "server",
-            "path": "/srv/app",
-        }, {
-            "name": "gopath",
-            "path": "/go",
-        }, {
-            "name": "configs",
-            "path": "/srv/config",
-        }],
-    }]
+    return [
+        {
+            "name": "generate-ocis",
+            "image": OC_CI_NODEJS,
+            "commands": [
+                "cd /go/src/github.com/owncloud/ocis",
+                "make ci-node-generate",
+            ],
+            "volumes": [{
+                "name": "server",
+                "path": "/srv/app",
+            }, {
+                "name": "gopath",
+                "path": "/go",
+            }, {
+                "name": "configs",
+                "path": "/srv/config",
+            }],
+        },
+        {
+            "name": "build-ocis",
+            "image": OC_CI_GOLANG,
+            "commands": [
+                "cd $GOPATH/src/github.com/owncloud/ocis/ocis",
+                "make build",
+                "cp bin/ocis /var/www/owncloud",
+            ],
+            "volumes": [{
+                "name": "server",
+                "path": "/srv/app",
+            }, {
+                "name": "gopath",
+                "path": "/go",
+            }, {
+                "name": "configs",
+                "path": "/srv/config",
+            }],
+        },
+    ]
 
 def ocisService():
     return [{
@@ -129,13 +146,12 @@ def ocisService():
             "OCIS_URL": "https://ocis:9200",
             "STORAGE_HOME_DRIVER": "ocis",
             "STORAGE_USERS_DRIVER": "ocis",
-            "STORAGE_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/users",
-            "STORAGE_DRIVER_LOCAL_ROOT": "/srv/app/tmp/ocis/local/root",
-            "STORAGE_DRIVER_OWNCLOUD_DATADIR": "/srv/app/tmp/ocis/owncloud/data",
-            "STORAGE_METADATA_ROOT": "/srv/app/tmp/ocis/metadata",
+            "STORAGE_USERS_DRIVER_LOCAL_ROOT": "/srv/app/tmp/ocis/local/root",
+            "STORAGE_USERS_DRIVER_OWNCLOUD_DATADIR": "/srv/app/tmp/ocis/owncloud/data",
+            "STORAGE_USERS_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/users",
+            "STORAGE_METADATA_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/metadata",
+            "STORAGE_SHARING_USER_JSON_FILE": "/srv/app/tmp/ocis/shares.json",
             "PROXY_OIDC_INSECURE": "true",
-            "STORAGE_HOME_DATA_SERVER_URL": "http://ocis:9155/data",
-            "STORAGE_USERS_DATA_SERVER_URL": "http://ocis:9158/data",
             "ACCOUNTS_DATA_PATH": "/srv/app/tmp/ocis-accounts/",
             "PROXY_ENABLE_BASIC_AUTH": True,
             "OCIS_LOG_LEVEL": "debug",

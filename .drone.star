@@ -10,14 +10,18 @@ config = {
     'build': True
 }
 
+OC_CI_GOLANG = 'owncloudci/golang:1.16'
+OC_CI_NODEJS = 'owncloudci/nodejs:14'
+OC_CI_PHP = 'owncloudci/php:7.3'
+OC_UBUNTU = 'owncloud/ubuntu:20.04'
+
 def main(ctx):
     return [ consumerTestPipeline(), consumerTestPipeline('/sub/'), oc10ProviderTestPipeline(),  ocisProviderTestPipeline(), publish() ]
 
 def incrementVersion():
     return [{
             'name': 'increment-version',
-            'image': 'owncloudci/nodejs:14',
-            'pull': 'always',
+            'image': OC_CI_NODEJS,
             'commands': [
                 'yarn version --no-git-tag-version --new-version 1.0.0-${DRONE_BUILD_NUMBER}'
             ],
@@ -31,8 +35,7 @@ def incrementVersion():
 def buildDocs():
     return [{
             'name': 'build-docs',
-            'image': 'owncloudci/nodejs:14',
-            'pull': 'always',
+            'image': OC_CI_NODEJS,
             'commands': [
                 'yarn install',
                 'yarn build:docs'
@@ -42,8 +45,7 @@ def buildDocs():
 def buildSystem():
     return [{
             'name': 'build-system',
-            'image': 'owncloudci/nodejs:14',
-            'pull': 'always',
+            'image': OC_CI_NODEJS,
             'commands': [
                 'yarn install',
                 'yarn lint',
@@ -54,7 +56,7 @@ def buildSystem():
 def prepareTestConfig(subFolderPath = '/'):
     return [{
         'name': 'prepare-test-config',
-        'image': 'owncloud/ubuntu:20.04',
+        'image': OC_UBUNTU,
         'commands': [
             'apt update',
             'apt install gettext -y',
@@ -70,7 +72,6 @@ def installCore(version):
     stepDefinition = {
         'name': 'install-core',
         'image': 'owncloudci/core',
-        'pull': 'always',
         'settings': {
             'version': version,
             'core_path': '/var/www/owncloud/server',
@@ -87,8 +88,7 @@ def installCore(version):
 def setupServerAndApp():
     return [{
         'name': 'setup-server-%s' % config['app'],
-        'image': 'owncloudci/php:7.3',
-        'pull': 'always',
+        'image': OC_CI_PHP,
         'commands': [
             'cd /var/www/owncloud/server/',
             'php occ config:system:set trusted_domains 1 --value=owncloud',
@@ -98,8 +98,7 @@ def setupServerAndApp():
 def cloneOCIS():
     return[{
         'name': 'clone-ocis',
-        'image': 'owncloudci/golang:1.16',
-        'pull': 'always',
+        'image': OC_CI_GOLANG,
         'commands': [
             'source .drone.env',
             'cd $GOPATH/src',
@@ -122,8 +121,7 @@ def cloneOCIS():
 def buildOCIS():
     return[{
         'name': 'build-ocis',
-        'image': 'owncloudci/golang:1.16',
-        'pull': 'always',
+        'image': OC_CI_GOLANG,
         'commands': [
             'source .drone.env',
             'cd $GOPATH/src/github.com/owncloud/ocis',
@@ -147,8 +145,7 @@ def buildOCIS():
 def ocisService():
     return[{
         'name': 'ocis',
-        'image': 'owncloudci/golang:1.16',
-        'pull': 'always',
+        'image': OC_CI_GOLANG,
         'detach': True,
         'environment' : {
             'OCIS_URL': 'https://ocis:9200',
@@ -186,8 +183,7 @@ def ocisService():
 def fixPermissions():
     return [{
         'name': 'fix-permissions',
-        'image': 'owncloudci/php:7.3',
-        'pull': 'always',
+        'image': OC_CI_PHP,
         'commands': [
             'cd /var/www/owncloud/server',
             'chown www-data * -R'
@@ -197,8 +193,7 @@ def fixPermissions():
 def owncloudLog():
     return [{
         'name': 'owncloud-log',
-        'image': 'owncloud/ubuntu:20.04',
-        'pull': 'always',
+        'image': OC_UBUNTU,
         'detach': True,
         'commands': [
             'tail -f /var/www/owncloud/server/data/owncloud.log'
@@ -208,8 +203,7 @@ def owncloudLog():
 def owncloudService():
     return [{
         'name': 'owncloud',
-        'image': 'owncloudci/php:7.3',
-        'pull': 'always',
+        'image': OC_CI_PHP,
         'environment': {
             'APACHE_WEBROOT': '/var/www/owncloud/server/',
         },
@@ -226,7 +220,6 @@ def databaseService():
     return [{
         'name': 'mysql',
         'image': 'mysql:5.5',
-        'pull': 'always',
         'environment': {
             'MYSQL_USER': 'owncloud',
             'MYSQL_PASSWORD': 'owncloud',
@@ -238,8 +231,7 @@ def databaseService():
 def pactConsumerTests(uploadPact):
     return [{
         'name': 'test',
-        'image': 'owncloudci/nodejs:14',
-        'pull': 'always',
+        'image': OC_CI_NODEJS,
         'environment': {
             'PACTFLOW_TOKEN': {
                 'from_secret': 'pactflow_token'
@@ -270,8 +262,7 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
 
     return [{
         'name': 'test',
-        'image': 'owncloudci/nodejs:14',
-        'pull': 'always',
+        'image': OC_CI_NODEJS,
         'environment': environment,
         'commands': [
             sanitizeBranchName('DRONE_SOURCE_BRANCH'),
@@ -283,7 +274,6 @@ def publishDocs():
     return [{
         'name': 'publish-docs',
         'image': 'plugins/gh-pages:1',
-        'pull': 'always',
         'settings': {
             'pages_directory': 'docs'
         },
@@ -306,7 +296,6 @@ def publishSystem():
     return [{
         'name': 'publish-system',
         'image': 'plugins/npm:1',
-        'pull': 'always',
         'environment' : {
             'NPM_EMAIL': {
                 'from_secret': 'npm_email'

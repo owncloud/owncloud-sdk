@@ -2,10 +2,6 @@
   "name": "owncloud-sdk",
   "version": "1.0.0-dev",
   "description": "ownCloud client library for JavaScript",
-  "main": "./dist/owncloud.js",
-  "files": [
-    "dist"
-  ],
   "keywords": [
     "owncloud",
     "api",
@@ -17,26 +13,85 @@
     "js",
     "promise"
   ],
+  "homepage": "https://owncloud.github.io/owncloud-sdk/",
+  "bugs": {
+    "url": "https://github.com/owncloud/owncloud-sdk/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/owncloud/owncloud-sdk.git"
   },
-  "author": "ownclouders <devops@owncloud.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/owncloud/owncloud-sdk/issues"
-  },
+  "author": "ownclouders <devops@owncloud.com>",
+  "main": "./dist/owncloud.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build:docs": "jsdoc -c jsdoc.conf.json",
+    "build:system": "webpack",
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
     "test-consumer": "jest --runInBand --testPathIgnorePatterns='provider.*'",
     "test-provider": "jest --runInBand providerTest.js",
     "test-provider:oc10": "jest --runInBand providerTest.js -t 'oc10 as provider'",
-    "test-provider:ocis": "jest --runInBand providerTest.js -t 'ocis as provider'",
-    "build:docs": "jsdoc -c jsdoc.conf.json",
-    "build:system": "webpack"
+    "test-provider:ocis": "jest --runInBand providerTest.js -t 'ocis as provider'"
   },
-  "homepage": "https://owncloud.github.io/owncloud-sdk/",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "./node_modules/.bin/eslint --fix",
+      "git add"
+    ]
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "browsers": [
+              "> 1%",
+              "last 2 versions",
+              "not Explorer > 0",
+              "IE 11",
+              "not ExplorerMobile > 0",
+              "not BlackBerry > 0",
+              "not OperaMini all",
+              "not OperaMobile > 0"
+            ]
+          }
+        }
+      ]
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not Explorer > 0",
+    "IE 11",
+    "not ExplorerMobile > 0",
+    "not BlackBerry > 0",
+    "not OperaMini all",
+    "not OperaMobile > 0"
+  ],
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cross-fetch": "^3.0.6",
+    "promise": "^8.0.3",
+    "request": "^2.88.0",
+    "utf8": "^3.0.0",
+    "uuid": "^8.2.0",
+    "webdav": "4.6.0",
+    "xhr": "^2.5.0",
+    "xml-js": "^1.6.11",
+    "xmldom": "^0.3.0",
+    "xmlhttprequest": "^1.8.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
@@ -76,60 +131,5 @@
     "webpack-cli": "^3.3.2",
     "webpack-node-externals": "^1.7.2",
     "xml2js": "^0.4.23"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "cross-fetch": "^3.0.6",
-    "promise": "^8.0.3",
-    "request": "^2.88.0",
-    "utf8": "^3.0.0",
-    "uuid": "^8.2.0",
-    "webdav": "4.6.0",
-    "xhr": "^2.5.0",
-    "xml-js": "^1.6.11",
-    "xmldom": "^0.3.0",
-    "xmlhttprequest": "^1.8.0"
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "browsers": [
-              "> 1%",
-              "last 2 versions",
-              "not Explorer > 0",
-              "IE 11",
-              "not ExplorerMobile > 0",
-              "not BlackBerry > 0",
-              "not OperaMini all",
-              "not OperaMobile > 0"
-            ]
-          }
-        }
-      ]
-    ]
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not Explorer > 0",
-    "IE 11",
-    "not ExplorerMobile > 0",
-    "not BlackBerry > 0",
-    "not OperaMini all",
-    "not OperaMobile > 0"
-  ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "./node_modules/.bin/eslint --fix",
-      "git add"
-    ]
   }
 }

@@ -275,14 +275,12 @@ def publishDocs():
         'name': 'publish-docs',
         'image': 'plugins/gh-pages:1',
         'settings': {
-            'pages_directory': 'docs'
-        },
-        'environment' : {
-            'GITHUB_PASSWORD': {
-                'from_secret': 'github_password'
+            'pages_directory': 'docs',
+            'username': {
+                'from_secret': 'github_username',
             },
-            'GITHUB_USERNAME': {
-                'from_secret': 'github_username'
+            'password': {
+                'from_secret': 'github_password',
             }
         },
         'when': {
@@ -296,16 +294,16 @@ def publishSystem():
     return [{
         'name': 'publish-system',
         'image': 'plugins/npm:1',
-        'environment' : {
-            'NPM_EMAIL': {
-                'from_secret': 'npm_email'
+        'settings': {
+            'email': {
+                'from_secret': 'npm_email',
             },
-            'NPM_TOKEN': {
-                'from_secret': 'npm_token'
+            'token': {
+                'from_secret': 'npm_token',
             },
-            'NPM_USERNAME': {
-                'from_secret': 'npm_username'
-            },
+            'username': {
+                'from_secret': 'npm_email',
+            }
         },
         'when': {
             'event': [

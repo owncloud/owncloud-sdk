@@ -11,3 +11,4 @@ dist
 docs
 tests/pacts
 tests/log
+.drone.yml

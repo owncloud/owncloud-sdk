@@ -277,7 +277,7 @@ def publishDocs():
                 "from_secret": "github_username",
             },
             "password": {
-                "from_secret": "github_password",
+                "from_secret": "github_token",
             },
         },
         "when": {

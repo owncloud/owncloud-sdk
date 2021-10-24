@@ -335,9 +335,9 @@ describe('oc.publicFiles', function () {
               // Fix the error message once this issue is fixed
               let errorMessage = ''
               if (passwordWhenListing) {
-                errorMessage = 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, Username or password was incorrect'
+                errorMessage = 'Username or password was incorrect, No public access to this resource., Username or password was incorrect, No \'Authorization: Bearer\' header found. Either the client didn\'t send one, or the server is mis-configured, Username or password was incorrect'
               } else {
-                errorMessage = 'No \'Authorization: Basic\' header found. Either the client didn\'t send one, or the server is misconfigured, No public access to this resource., No \'Authorization: Basic\' header found. Either the client didn\'t send one, or the server is misconfigured, No \'Authorization: Basic\' header found. Either the client didn\'t send one, or the server is misconfigured'
+                errorMessage = 'No \'Authorization: Basic\' header found. Either the client didn\'t send one, or the server is misconfigured, No public access to this resource., No \'Authorization: Basic\' header found. Either the client didn\'t send one, or the server is misconfigured, No \'Authorization: Bearer\' header found. Either the client didn\'t send one, or the server is mis-configured, No \'Authorization: Basic\' header found. Either the client didn\'t send one, or the server is misconfigured'
               }
               resStatusCode = 401
               resBody = new XmlBuilder('1.0', '', 'd:error').build(dError => {

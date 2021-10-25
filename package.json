@@ -80,7 +80,7 @@
     "not OperaMobile > 0"
   ],
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
     "cross-fetch": "^3.0.6",
     "promise": "^8.0.3",
     "request": "^2.88.0",

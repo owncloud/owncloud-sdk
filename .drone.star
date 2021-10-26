@@ -383,11 +383,11 @@ def oc10ProviderTestPipeline():
         "depends_on": ["testConsumer-root", "testConsumer-subfolder"],
         "steps": buildSystem() +
                  prepareTestConfig() +
-                 installCore("10.8.0") +
+                 installCore("daily-master-qa") +
                  owncloudLog() +
                  setupServerAndApp() +
                  fixPermissions() +
-                 pactProviderTests("10.8.0", "http://owncloud"),
+                 pactProviderTests("daily-master-qa", "http://owncloud"),
         "services": owncloudService() +
                     databaseService(),
     }

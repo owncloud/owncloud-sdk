@@ -287,10 +287,12 @@ class helpers {
           }
           if ('message' in tree) {
             reject(tree.message)
+            return
           }
           const error = self._checkOCSstatus(tree)
           if (error) {
             reject(error)
+            return
           }
           res.statusCode = res.status
           resolve({

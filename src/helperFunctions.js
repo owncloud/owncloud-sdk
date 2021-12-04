@@ -394,6 +394,9 @@ class helpers {
       path = '/' + path
     }
 
+    // Avoid double // in urls
+    path = path.replace(/([^:])(\/\/+)/g, '$1/')
+
     return path
   }
 

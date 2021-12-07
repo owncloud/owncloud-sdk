@@ -15,6 +15,7 @@ export class Dav {
     }
 
     this.baseUrl = baseUrl
+    this.baseUrlv2 = baseUrlv2
 
     this.userName = null
 
@@ -216,16 +217,22 @@ export class Dav {
   request (method, path, headers, body, options = {}) {
     options.version = options.version || 'v1'
     const reqClient = options.version === 'v2' ? this.clientv2 : this.client
+    const reqBaseUrl = options.version === 'v2' ? this.baseUrlv2 : this.baseUrl
     delete options.version
 
+    const params = new URLSearchParams(options.query).toString()
+    const query = params ? '?' + params : ''
+    delete options.query
+
     const requestOptions = {
+      url: reqBaseUrl + path + query,
       method,
       headers,
       data: body,
       ...options
     }
     return new Promise((resolve) => {
-      return reqClient.customRequest(decodeURIComponent(path), requestOptions)
+      return reqClient.customRequest('', requestOptions)
         .then(res => {
           var resultBody = res.data
           if (res.status === 207) {

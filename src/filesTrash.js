@@ -20,9 +20,10 @@ class FilesTrash {
    * @param   {string}    path          path of the file/folder at OC instance
    * @param   {string}    depth         0: only file/folder, 1: upto 1 depth, infinity: infinite depth
    * @param   {array}     properties    Array[string] with dav properties to be requested
+   * @param   {Object}    query         Query parameters dictionary
    * @returns {Promise.<fileInfo | string | Error>}
    */
-  list (path, depth = '1', properties = undefined) {
+  list (path, depth = '1', properties = undefined, query = undefined) {
     if (properties === undefined) {
       properties = [
         '{http://owncloud.org/ns}trashbin-original-filename',
@@ -45,7 +46,10 @@ class FilesTrash {
       properties,
       depth,
       headers,
-      { version: 'v2' }
+      {
+        version: 'v2',
+        query: query
+      }
     ).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))

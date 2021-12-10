@@ -61,10 +61,11 @@ class FilesTrash {
 
   /**
    * Clears the users trash-bin
-   * @param {?string} item
+   * @param   {?string} item
+   * @param   {Object}  query Query parameters dictionary
    * @returns {Promise<void | string | Error>}
    */
-  clearTrashBin (item = null) {
+  clearTrashBin (item = null, query = undefined) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
@@ -80,7 +81,10 @@ class FilesTrash {
       this.helpers._buildFullWebDAVPathV2(target),
       headers,
       null,
-      { version: 'v2' }
+      {
+        version: 'v2',
+        query: query
+      }
     ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()
@@ -92,12 +96,13 @@ class FilesTrash {
 
   /**
    * Restores an item to it's original location.
-   * @param {string|number}  fileId
-   * @param {string}         originalLocation
-   * @param {boolean}        overWrite
+   * @param   {string|number} fileId
+   * @param   {string}        originalLocation
+   * @param   {boolean}       overWrite
+   * @param   {Object}        query            Query parameters dictionary
    * @returns {Promise<void | string | Error>}
    */
-  restore (fileId, originalLocation, overWrite = false) {
+  restore (fileId, originalLocation, overWrite = false, query = undefined) {
     if (fileId === undefined) {
       return Promise.reject(new Error('No fileId given for restore'))
     }
@@ -116,7 +121,10 @@ class FilesTrash {
       this.helpers._buildFullWebDAVPathV2(source),
       headers,
       null,
-      { version: 'v2' }
+      {
+        version: 'v2',
+        query: query
+      }
     ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve()

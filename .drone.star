@@ -34,7 +34,7 @@ def buildDocs():
         "name": "build-docs",
         "image": OC_CI_NODEJS,
         "commands": [
-            "yarn install",
+            "yarn install --immutable",
             "yarn build:docs",
         ],
     }]
@@ -44,7 +44,7 @@ def buildSystem():
         "name": "build-system",
         "image": OC_CI_NODEJS,
         "commands": [
-            "yarn install",
+            "yarn install --immutable",
             "yarn lint",
             "yarn build:system",
         ],

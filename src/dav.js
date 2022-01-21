@@ -247,8 +247,8 @@ export class Dav {
           const res = error.response
 
           resolve({
-            body: res.data,
-            status: res.status,
+            body: res?.data,
+            status: res?.status,
             res
           })
         })

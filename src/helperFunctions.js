@@ -43,11 +43,12 @@ class helpers {
   /**
    * sets the OC instance
    * @param   {string}    instance    instance to be used for communication
+   * @param   {bool}    useRawUri    bliablablub
    */
-  setInstance (instance) {
+  setInstance (instance, useRawUri) {
     this.instance = instance
-    this._webdavUrl = this.instance + 'remote.php/webdav'
-    this._davPath = this.instance + 'remote.php/dav'
+    this._webdavUrl = useRawUri === true ? '' : this.instance + 'remote.php/webdav'
+    this._davPath = useRawUri === true ? '' : this.instance + 'remote.php/dav'
   }
 
   getInstance () {
@@ -532,6 +533,15 @@ class helpers {
     pathSections = pathSections.filter(function (section) {
       return section !== ''
     })
+
+    if (path.startsWith('/dav/spaces/')) {
+      let subPath = ''
+      for (let i = 3; i < pathSections.length; i++) {
+        subPath += '/' + decodeURIComponent(pathSections[i])
+      }
+
+      return subPath
+    }
 
     const remoteIndex = pathSections.findIndex(section => decodeURIComponent(section) === 'remote.php')
     if (remoteIndex === -1) {

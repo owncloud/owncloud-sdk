@@ -224,6 +224,10 @@ export class Dav {
     const query = params ? '?' + params : ''
     delete options.query
 
+    if (!reqBaseUrl.length) {
+      path = decodeURIComponent(path.replace(/^\//, ''))
+    }
+
     const requestOptions = {
       url: reqBaseUrl + path + query,
       method,

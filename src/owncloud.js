@@ -45,7 +45,9 @@ class ownCloud {
     }
 
     const helpers = new HelperFile()
-    helpers.setInstance(baseUrl)
+
+    helpers.setInstance(baseUrl, options.useRawUri)
+
     if (options.auth) {
       if (options.auth.bearer) {
         helpers.setAuthorization('Bearer ' + options.auth.bearer)

@@ -29,6 +29,7 @@ class SettingsValues {
     try {
       const baseUrl = this.helpers.getInstance().replace(/\/$/, '')
       const response = await SettingsClient.ValueService_ListValues({
+        client: this.helpers.axios,
         $domain: baseUrl,
         body: {
           account_uuid: accountUuid

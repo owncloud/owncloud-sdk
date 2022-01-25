@@ -27,7 +27,7 @@ const delay = (delayTime) => {
 }
 
 describe('provider testing', () => {
-  const { VerifierV3 } = require('@pact-foundation/pact/v3')
+  const { Verifier } = require('@pact-foundation/pact')
   const chai = require('chai')
   const chaiAsPromised = require('chai-as-promised')
   const path = require('path')
@@ -98,8 +98,8 @@ describe('provider testing', () => {
 
   const defaultOpts = {
     providerBaseUrl,
-    disableSSLVerification: true,
-    callbackTimeout: 10000
+    disableSslVerification: true,
+    timeout: 10000
   }
   if (isRunningOnCI()) {
     defaultOpts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
@@ -414,7 +414,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -431,7 +431,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -442,14 +442,13 @@ describe('provider testing', () => {
     it('verifies the contract pending on oC10', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10'
-      opts.enablePending = true
       if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10.json'
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -460,13 +459,12 @@ describe('provider testing', () => {
     it('verifies the contract pending on oC10 & ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10-ocis'
-      opts.enablePending = true
       if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
         )]
       }
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -485,7 +483,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -502,7 +500,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -513,14 +511,13 @@ describe('provider testing', () => {
     it('verifies the contract pending on ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-ocis'
-      opts.enablePending = true
       if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-ocis.json'
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -531,13 +528,12 @@ describe('provider testing', () => {
     it('verifies the contract pending on oC10 & ocis', () => {
       const opts = defaultOpts
       opts.provider = 'oc-server-pendingOn-oc10-ocis'
-      opts.enablePending = true
       if (!isRunningOnCI()) {
         opts.pactUrls = [path.resolve(
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
         )]
       }
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {

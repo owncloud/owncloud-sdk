@@ -211,14 +211,11 @@ export class Dav {
    * @param {string} body HTTP request body.
    * @param {Object} options
    * @param {Function} options.onProgress progress callback
-   * @param {davVersion} options.version v1 | v2
    * @return {Promise}
    */
   request (method, path, headers, body, options = {}) {
-    options.version = options.version || 'v1'
-    const reqClient = options.version === 'v2' ? this.clientv2 : this.client
-    const reqBaseUrl = options.version === 'v2' ? this.baseUrlv2 : this.baseUrl
-    delete options.version
+    const reqClient = this.clientv2
+    const reqBaseUrl = this.baseUrlv2
 
     const params = new URLSearchParams(options.query).toString()
     const query = params ? '?' + params : ''

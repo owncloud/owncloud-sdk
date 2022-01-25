@@ -97,7 +97,7 @@ describe('Signed urls', function () {
       const oc = createOwncloud(config.testUser, config.testUserPassword)
       await oc.login()
 
-      const url = oc.files.getFileUrlV2(config.testFolder + '/' + config.testFile)
+      const url = oc.files.getFileUrl(config.testFolder + '/' + config.testFile)
       const signedUrl = await oc.signUrl(url)
       const response = await fetch(signedUrl)
       expect(response.ok).toEqual(true)

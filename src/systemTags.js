@@ -44,10 +44,9 @@ class SystemTags {
 
     return this.davClient.request(
       'POST',
-      this.helpers._buildFullWebDAVPathV2('systemtags'),
+      this.helpers._buildFullWebDAVPath('systemtags'),
       headers,
-      body,
-      { version: 'v2' }
+      body
     ).then(result => {
       if (result.status !== 201) {
         return Promise.reject(new Error('Error: ' + result.status))
@@ -72,10 +71,9 @@ class SystemTags {
     const path = 'systemtags-relations/files/' + fileId + '/' + tagId
 
     return this.davClient.request('PUT',
-      this.helpers._buildFullWebDAVPathV2(path),
+      this.helpers._buildFullWebDAVPath(path),
       this.helpers.buildHeaders(),
-      null,
-      { version: 'v2' }
+      null
     ).then(result => {
       if (result.status !== 201) {
         return Promise.reject(new Error('Error: ' + result.status))

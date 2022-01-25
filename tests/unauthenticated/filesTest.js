@@ -63,10 +63,10 @@ describe('Unauthenticated: Currently testing files management,', function () {
     })
   })
 
-  it('checking method : mkdir', function (done) {
+  it('checking method : createFolder', function (done) {
     var newFolder = testFolder + '/' + 'new folder/'
 
-    oc.files.mkdir(newFolder).then(status => {
+    oc.files.createFolder(newFolder).then(status => {
       expect(status).toBe(null)
       done()
     }).catch(error => {

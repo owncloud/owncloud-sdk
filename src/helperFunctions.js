@@ -126,6 +126,7 @@ class helpers {
     if (user !== null) {
       return Promise.resolve(user)
     }
+
     return this._updateCurrentUser()
   }
 
@@ -461,15 +462,7 @@ class helpers {
     return this._encodeUri(path)
   }
 
-  _buildFullWebDAVPathV2 (path) {
-    return this._encodeUri(path)
-  }
-
   _buildFullWebDAVURL (path) {
-    return this._webdavUrl + this._encodeUri(path)
-  }
-
-  _buildFullWebDAVURLV2 (path) {
     return this._davPath + this._encodeUri(path)
   }
 

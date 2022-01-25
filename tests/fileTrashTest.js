@@ -420,8 +420,8 @@ describe('oc.fileTrash', function () {
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
-              '.*\\/remote\\.php\\/webdav\\/' + testFolder,
-              '/remote.php/webdav/' + testFolder
+              `.*\\/remote\\.php\\/dav\\/files\\/${testUser}\\/${testFolder}`,
+              `/remote.php/dav/files/${testUser}/${testFolder}`
             ),
             headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
@@ -436,7 +436,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/webdav/${testFolder}/`))
+                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/dav/files/${testUser}/${testFolder}/`))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -554,8 +554,8 @@ describe('oc.fileTrash', function () {
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
-              '.*\\/remote\\.php\\/webdav\\/' + testFolder + '.*$',
-              '/remote.php/webdav/' + testFolder + encodeURIComponent(suffix)
+              `.*\\/remote\\.php\\/dav\\/files\\/${testUser}\\/${testFolder}.*$`,
+              `/remote.php/dav/files/${testUser}/${testFolder}${encodeURIComponent(suffix)}`
             ),
             headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
@@ -570,7 +570,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/webdav/' + testFolder + encodeURIComponent(suffix) + '/'))
+                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/dav/files/${testUser}/${testFolder}${encodeURIComponent(suffix)}/`))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -782,8 +782,8 @@ describe('oc.fileTrash', function () {
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
-              '.*\\/remote\\.php\\/webdav\\/' + testFolder + '.*$',
-              '/remote.php/webdav/' + testFolder
+              `.*\\/remote\\.php\\/dav\\/files\\/${testUser}\\/${testFolder}.*$`,
+              `/remote.php/dav/files/${testUser}/${testFolder}`
             ),
             headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
@@ -798,7 +798,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/webdav/' + testFolder + '/'))
+                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/dav/files/${testUser}/${testFolder}/`))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
@@ -919,8 +919,8 @@ describe('oc.fileTrash', function () {
           .withRequest({
             method: 'PROPFIND',
             path: MatchersV3.regex(
-              '.*\\/remote\\.php\\/webdav\\/.*',
-              '/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt/'
+              `.*\\/remote\\.php\\/dav\\/files\\/${testUser}\\/.*`,
+              `/remote.php/dav/files/${testUser}/file%20(restored%20to%20a%20different%20location).txt/`
             ),
             headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
@@ -935,7 +935,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', MatchersV3.equal('/remote.php/webdav/file%20(restored%20to%20a%20different%20location).txt'))
+                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/dav/files/${testUser}/file%20(restored%20to%20a%20different%20location).txt`))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp

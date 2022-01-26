@@ -1,6 +1,6 @@
 const { Dav } = require('../src/dav')
 describe('Main: Currently testing XmlParser,', function () {
-  const davClient = new Dav('http://localhost/core/remote.php/webdav', 'http://localhost/core/remote.php/dav')
+  const davClient = new Dav('http://localhost/core/remote.php/dav')
 
   const testData = [
     [{ clarkNotation: 'invalid' }, false],

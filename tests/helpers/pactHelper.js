@@ -119,11 +119,11 @@ const webdavExceptionResponseBody = (exception, message) => new XmlBuilder('1.0'
       .appendElement('s:message', '', MatchersV3.equal(message))
   })
 
-const webdavPath = (resource) => {
+const webdavPath = (resource, username) => {
   resource = encodeURIPath(resource)
   return MatchersV3.regex(
-    '.*\\/remote\\.php\\/webdav\\/' + webdavMatcherForResource(resource),
-    path.join('/remote.php/webdav', resource)
+    `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/` + webdavMatcherForResource(resource),
+    path.join(`/remote.php/dav/files/${username}`, resource)
   )
 }
 
@@ -184,7 +184,7 @@ const getContentsOfFileInteraction = (
     .uponReceiving(`as '${user}', a GET request to get contents of a file '${file}'`)
     .withRequest({
       method: 'GET',
-      path: webdavPath(file),
+      path: webdavPath(file, user),
       headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith(file !== config.nonExistentFile ? {
       status: 200,
@@ -239,7 +239,7 @@ const deleteResourceInteraction = (
   return provider.uponReceiving(`as '${user}', a DELETE request to delete a ${type} '${resource}'`)
     .withRequest({
       method: 'DELETE',
-      path: webdavPath(resource),
+      path: webdavPath(resource, user),
       headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith(response)
 }
@@ -472,8 +472,8 @@ const createFolderInteraction = function (
       method: 'MKCOL',
       path: MatchersV3.regex(
         // accept any request to testfolder and any subfolders except notExistentDir
-        `.*\\/remote\\.php\\/webdav\\/${encodedFolderName}\\/?`,
-        '/remote.php/webdav/' + encodedFolderName + '/'
+        `.*\\/remote\\.php\\/dav\\/files\\/${user}\\/${encodedFolderName}\\/?`,
+        `/remote.php/dav/files/${user}/${encodedFolderName}/`
       ),
       headers: { authorization: getAuthHeaders(user, password) }
     }).willRespondWith({
@@ -527,7 +527,7 @@ const updateFileInteraction = function (provider, file, user = config.adminUsern
   return provider.uponReceiving(`as '${user}', a PUT request to upload a file to '${file}'`)
     .withRequest({
       method: 'PUT',
-      path: webdavPath(file),
+      path: webdavPath(file, user),
       headers: {
         authorization: getAuthHeaders(user, password),
         'Content-Type': 'text/plain;charset=utf-8'

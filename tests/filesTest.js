@@ -45,7 +45,7 @@ describe('Main: Currently testing files management,', function () {
       .uponReceiving(`as '${username}', a MOVE request to move existent file into same folder, ${requestName}`)
       .withRequest({
         method: 'MOVE',
-        path: webdavPath(`${testFolder}/中文.txt`),
+        path: webdavPath(`${testFolder}/中文.txt`, username),
         headers: header
       }).willRespondWith(response)
   }
@@ -74,8 +74,8 @@ describe('Main: Currently testing files management,', function () {
               dResponse.appendElement(
                 'd:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/webdav\\/${parentFolder}\\/`,
-                  `/remote.php/webdav/${parentFolder}/`
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/${parentFolder}\\/`,
+                  `/remote.php/dav/files/${username}/${parentFolder}/`
                 )
               )
                 .appendElement('d:propstat', '', dPropstat => {
@@ -114,7 +114,7 @@ describe('Main: Currently testing files management,', function () {
     return provider.uponReceiving(`as '${username}', a PROPFIND request to list content of folder, ${requestName}`)
       .withRequest({
         method: 'PROPFIND',
-        path: webdavPath(parentFolder),
+        path: webdavPath(parentFolder, username),
         headers: {
           ...validAuthHeaders,
           Depth: depth,
@@ -127,7 +127,7 @@ describe('Main: Currently testing files management,', function () {
       }).willRespondWith(response)
   }
 
-  const listFolderContentResponse = (items, type = 'file') => {
+  const listFolderContentResponse = (items) => {
     const response = []
 
     for (const item of items) {
@@ -143,8 +143,8 @@ describe('Main: Currently testing files management,', function () {
           .appendElement(
             'd:href', '',
             MatchersV3.regex(
-              `.*\\/remote\\.php\\/webdav\\/${testFolder}\\/${item.name}(\\/)?`,
-              `/remote.php/webdav/${testFolder}/${item.name}`
+              `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/${testFolder}\\/${item.name}(\\/)?`,
+              `/remote.php/dav/files/${username}/${testFolder}/${item.name}`
             )
           )
           .appendElement('d:propstat', '', dPropstat => {
@@ -183,7 +183,7 @@ describe('Main: Currently testing files management,', function () {
     return provider.uponReceiving(`as '${username}', a PROPPATCH request to ${value === true ? 'favorite' : 'unfavorite'} a file`)
       .withRequest({
         method: 'PROPPATCH',
-        path: webdavPath(file),
+        path: webdavPath(file, username),
         headers: {
           ...validAuthHeaders,
           ...applicationXmlResponseHeaders
@@ -204,7 +204,7 @@ describe('Main: Currently testing files management,', function () {
           dMultistatus
             .appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
-                MatchersV3.regex(`.*\\/remote\\.php\\/webdav\\/${file}`, `/remote.php/webdav/${file}`)
+                MatchersV3.regex(`.*\\/remote\\.php\\/dav\\/files\\/${username}\\/${file}`, `/remote.php/dav/files/${username}/${file}`)
               )
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
@@ -250,7 +250,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.mkdir(testSubDir).then(status => {
+        return oc.files.createFolder(testSubDir).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -363,7 +363,7 @@ describe('Main: Currently testing files management,', function () {
             expect(files.length).toEqual(7)
             expect(files[3].getName()).toEqual('subdir')
             expect(files[3].isDir()).toBe(true)
-            expect(files[4].getPath()).toEqual('/' + testFolder + '/' + 'subdir/')
+            expect(files[4].getPath()).toEqual(`/files/${username}/${testFolder}/subdir/`)
             expect(files[4].isDir()).toBe(false)
           }).catch(error => {
             expect(error).toBe(null)
@@ -393,7 +393,7 @@ describe('Main: Currently testing files management,', function () {
           expect(files.length).toEqual(7)
           expect(files[3].getName()).toEqual('subdir')
           expect(files[3].isDir()).toBe(true)
-          expect(files[4].getPath()).toEqual('/' + testFolder + '/' + 'subdir/')
+          expect(files[4].getPath()).toEqual(`/files/${username}/${testFolder}/subdir/`)
           expect(files[4].isDir()).toBe(false)
         }).catch(error => {
           expect(error).toBe(null)
@@ -473,7 +473,7 @@ describe('Main: Currently testing files management,', function () {
       let progressCalled = false
 
       const options = {
-        onProgress: (progressInfo) => {
+        onProgress: () => {
           progressCalled = true
         }
       }
@@ -520,13 +520,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it('checking method: getFileUrl', function () {
-      const oc = createOwncloud(config.testUser, config.testUserPassword)
-      const url = oc.files.getFileUrl('/foo/bar')
-      expect(url).toBe(mockServerBaseUrl + 'remote.php/webdav/foo/bar')
-    })
-
-    it('checking method: getFileUrlV2', async function () {
+    it('checking method: getFileUrl', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
@@ -536,12 +530,12 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        const url = oc.files.getFileUrlV2('/foo/bar')
+        const url = oc.files.getFileUrl('/foo/bar')
         expect(url).toBe(mockServerBaseUrl + 'remote.php/dav/files/' + config.testUser + '/foo/bar')
       })
     })
 
-    it('checking method : mkdir for an existing parent path', async function () {
+    it('checking method : createFolder for an existing parent path', async function () {
       const newFolder = testFolder + '/' + 'new folder'
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -552,7 +546,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
 
-        return oc.files.mkdir(newFolder).then(status => {
+        return oc.files.createFolder(newFolder).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -562,7 +556,7 @@ describe('Main: Currently testing files management,', function () {
 
     // [oCIS] request to non-existing file gives empty response body
     // https://github.com/owncloud/ocis/issues/1799
-    it('checking method : mkdir for a non-existent parent path', async function () {
+    it('checking method : createFolder for a non-existent parent path', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
@@ -572,7 +566,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a MKCOL request to create a folder in a not existing root`)
         .withRequest({
           method: 'MKCOL',
-          path: webdavPath(`${testFolder}/${nonExistentDir}/newFolder/`),
+          path: webdavPath(`${testFolder}/${nonExistentDir}/newFolder/`, username),
           headers: validAuthHeaders
         })
         .willRespondWith({
@@ -584,7 +578,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.mkdir(testFolder + '/' + nonExistentDir + '/newFolder/').then(status => {
+        return oc.files.createFolder(testFolder + '/' + nonExistentDir + '/newFolder/').then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('Parent node does not exist')
@@ -646,7 +640,7 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1976
     it('checking method : move existent file into same folder, same name', async function () {
       const encodedSrcFilePath = `${testFolder}/${encodeURI('中文.txt')}`
-      const destinationWebDavPath = `remote.php/webdav/${encodedSrcFilePath}`
+      const destinationWebDavPath = `remote.php/dav/files/${username}/${encodedSrcFilePath}`
 
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
@@ -701,7 +695,7 @@ describe('Main: Currently testing files management,', function () {
       const srcFilePath = `${testFolder}/中文.txt`
       const desFolder = 'testFolder2'
       const desFilePath = `${desFolder}/中文.txt`
-      const destinationWebDavPath = `remote.php/webdav/${encodeURI(desFilePath)}`
+      const destinationWebDavPath = `remote.php/dav/files/${username}/${encodeURI(desFilePath)}`
       provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -721,7 +715,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a MOVE request to move existent file into different folder`)
         .withRequest({
           method: 'MOVE',
-          path: webdavPath(srcFilePath),
+          path: webdavPath(srcFilePath, username),
           headers: {
             ...validAuthHeaders,
             Destination: MatchersV3.fromProviderState(
@@ -747,7 +741,7 @@ describe('Main: Currently testing files management,', function () {
     // [oCIS] request to non-existing file gives empty response body
     // https://github.com/owncloud/ocis/issues/1799
     it('checking method : move non existent file', async function () {
-      const destinationWebDavPath = 'remote.php/webdav/abcd.txt'
+      const destinationWebDavPath = `remote.php/dav/files/${username}/abcd.txt`
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
@@ -759,7 +753,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a MOVE request to move non existent file`)
         .withRequest({
           method: 'MOVE',
-          path: webdavPath(nonExistentFile),
+          path: webdavPath(nonExistentFile, username),
           headers: {
             ...validAuthHeaders,
             Destination: MatchersV3.fromProviderState(
@@ -789,7 +783,7 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1977
     it('checking method : copy existent file into same folder, same name', async function () {
       const file = `${testFolder}/中文.txt`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文.txt')}`
+      const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/${encodeURI('中文.txt')}`
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
@@ -802,7 +796,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, same name`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(`${testFolder}/中文.txt`),
+          path: webdavPath(`${testFolder}/中文.txt`, username),
           headers: {
             ...validAuthHeaders,
             Destination: MatchersV3.fromProviderState(
@@ -831,7 +825,7 @@ describe('Main: Currently testing files management,', function () {
     // [oCIS] request to non-existing file gives empty response body
     // https://github.com/owncloud/ocis/issues/1799
     it('checking method : copy non existent file', async function () {
-      const destinationWebDavPath = 'remote.php/webdav/abcd.txt'
+      const destinationWebDavPath = `remote.php/dav/files/${username}/abcd.txt`
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
@@ -843,7 +837,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy non existent file`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(nonExistentFile),
+          path: webdavPath(nonExistentFile, username),
           headers: {
             ...validAuthHeaders,
             Destination: MatchersV3.fromProviderState(
@@ -949,7 +943,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a PROPFIND request to file info, fileId`)
         .withRequest({
           method: 'PROPFIND',
-          path: webdavPath(file),
+          path: webdavPath(file, username),
           headers: {
             ...validAuthHeaders,
             ...applicationXmlResponseHeaders
@@ -973,8 +967,8 @@ describe('Main: Currently testing files management,', function () {
             dMultistatus.appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/webdav\\/${file}`,
-                  `/remote.php/webdav/${file}`
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/${file}`,
+                  `/remote.php/dav/files/${username}/${file}`
                 )
               )
                 .appendElement('d:propstat', '', dPropstat => {
@@ -1026,7 +1020,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(description)
         .withRequest({
           method: 'PROPFIND',
-          path: webdavPath(path),
+          path: webdavPath(path, username),
           headers: {
             ...validAuthHeaders,
             ...applicationXmlResponseHeaders
@@ -1048,8 +1042,8 @@ describe('Main: Currently testing files management,', function () {
             dMultistatus.appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/webdav${regexPath}`,
-                  `/remote.php/webdav${examplePath}`
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}${regexPath}`,
+                  `/remote.php/dav/files/${username}${examplePath}`
                 )
               )
                 .appendElement('d:propstat', '', dPropstat => {
@@ -1066,8 +1060,8 @@ describe('Main: Currently testing files management,', function () {
             }).appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/webdav${regexPath}${config.testFile}`,
-                  `/remote.php/webdav${examplePath}${config.testFile}`
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}${regexPath}${config.testFile}`,
+                  `/remote.php/dav/files/${username}${examplePath}${config.testFile}`
                 )
               )
                 .appendElement('d:propstat', '', dPropstat => {
@@ -1167,7 +1161,7 @@ describe('Main: Currently testing files management,', function () {
       )
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/中文123.txt`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/${encodeURI('中文123.txt')}`
       provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -1216,7 +1210,7 @@ describe('Main: Currently testing files management,', function () {
       )
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/中文123.txt`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -1231,7 +1225,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, different name`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(srcFilePath),
+          path: webdavPath(srcFilePath, username),
           headers: {
             ...validAuthHeaders,
             Destination: MatchersV3.fromProviderState(
@@ -1266,7 +1260,7 @@ describe('Main: Currently testing files management,', function () {
       await provider
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/subdir/中文123.txt`
-      const destinationWebDavPath = `remote.php/webdav/${testFolder}/subdir/${encodeURI('中文123.txt')}`
+      const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/subdir/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
           username: config.testUser,
@@ -1286,7 +1280,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${username}', a COPY request to copy existent file into different folder`)
         .withRequest({
           method: 'COPY',
-          path: webdavPath(srcFilePath),
+          path: webdavPath(srcFilePath, username),
           headers: {
             ...validAuthHeaders,
             Destination: MatchersV3.fromProviderState(

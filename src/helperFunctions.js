@@ -46,7 +46,6 @@ class helpers {
    */
   setInstance (instance) {
     this.instance = instance
-    this._webdavUrl = this.instance + 'remote.php/webdav'
     this._davPath = this.instance + 'remote.php/dav'
   }
 
@@ -343,9 +342,21 @@ class helpers {
       })
         .then(async res => {
           res.statusCode = res.status
-          resolve({
+
+          let body
+
+          switch (options.responseType) {
+            case 'arrayBuffer':
+              body = await res.arrayBuffer()
+              break
+
+            default:
+              body = await res.text()
+          }
+
+          return resolve({
             response: res,
-            body: await res.text()
+            body
           })
         })
     })
@@ -400,6 +411,11 @@ class helpers {
     return path
   }
 
+  /**
+   * @param path
+   * @returns {string}
+   * @private
+   */
   _encodeUri (path) {
     path = this._normalizePath(path)
     path = encodeURIComponent(path)
@@ -457,19 +473,21 @@ class helpers {
     return utf8.encode(path)
   }
 
-  _buildFullWebDAVPath (path) {
+  /**
+   * @param path
+   * @returns {string}
+   * @private
+   */
+  _buildFullDAVPath (path) {
     return this._encodeUri(path)
   }
 
-  _buildFullWebDAVPathV2 (path) {
-    return this._encodeUri(path)
-  }
-
-  _buildFullWebDAVURL (path) {
-    return this._webdavUrl + this._encodeUri(path)
-  }
-
-  _buildFullWebDAVURLV2 (path) {
+  /**
+   * @param path
+   * @returns {string}
+   * @private
+   */
+  _buildFullDAVURL (path) {
     return this._davPath + this._encodeUri(path)
   }
 

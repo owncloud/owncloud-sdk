@@ -12,13 +12,9 @@ const { Dav } = require('./dav')
  *          <li>list</li>
  *          <li>getFileContents</li>
  *          <li>putFileContents</li>
- *          <li>mkdir</li>
  *          <li>createFolder</li>
  *          <li>delete</li>
  *          <li>fileInfo</li>
- *          <li>getDirectoryAsZip</li>
- *          <li>putFile</li>
- *          <li>putDirectory</li>
  *          <li>move</li>
  *          <li>copy</li>
  *      </ul>
@@ -33,7 +29,7 @@ class Files {
   constructor (helperFile) {
     this.helpers = helperFile
 
-    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
+    this.davClient = new Dav(this.helpers._davPath)
   }
 
   /**
@@ -49,8 +45,13 @@ class Files {
       return Promise.reject('Please specify an authorization first.')
     }
 
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    path = this._sanitizePath(path)
     const headers = this.helpers.buildHeaders()
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
+    return this.davClient.propFind(this.helpers._buildFullDAVPath(path), properties, depth, headers).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
@@ -69,7 +70,17 @@ class Files {
    * @returns {Promise.<error>}       string: error message, if any.
    */
   getFileContents (path, options = {}) {
-    return this.helpers._get(this.helpers._buildFullWebDAVURL(path), options).then(data => {
+    if (!this.helpers.getAuthorization()) {
+      return Promise.reject('Please specify an authorization first.')
+    }
+
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    path = this._sanitizePath(path)
+
+    return this.helpers._get(this.helpers._buildFullDAVURL(path), options).then(data => {
       const response = data.response
       const body = data.body
 
@@ -92,23 +103,12 @@ class Files {
   }
 
   /**
-   * Returns the url of a remote file - using the version 1 endpoint
-   * @param   {string}  path    path of the remote file at OC instance
-   * @returns {string}          Url of the remote file
-   */
-  getFileUrl (path) {
-    return this.helpers._buildFullWebDAVURL(path)
-  }
-
-  /**
    * Returns the url of a remote file - using the version 2 endpoint
    * @param   {string}  path    path of the remote file at OC instance
    * @returns {string}          Url of the remote file
    */
-  getFileUrlV2 (path) {
-    path = path[0] === '/' ? path : '/' + path
-    const target = '/files/' + this.helpers.getCurrentUser().id + path
-    return this.helpers._buildFullWebDAVURLV2(target)
+  getFileUrl (path) {
+    return this.helpers._buildFullDAVURL(this._sanitizePath(path))
   }
 
   /**
@@ -120,11 +120,11 @@ class Files {
   getPathForFileId (fileId) {
     const path = '/meta/' + fileId
 
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPathV2(path), [
+    return this.davClient.propFind(this.helpers._buildFullDAVPath(path), [
       '{http://owncloud.org/ns}meta-path-for-user'
     ], 0, {
       Authorization: this.helpers.getAuthorization()
-    }, { version: 'v2' }).then(result => {
+    }).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       }
@@ -149,6 +149,12 @@ class Files {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
+
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    path = this._sanitizePath(path)
     options = options || []
     const headers = Object.assign({}, this.helpers.buildHeaders(), options.headers)
     const previousEntityTag = options.previousEntityTag || false
@@ -166,7 +172,7 @@ class Files {
     }
     headers['Content-Type'] = 'text/plain;charset=utf-8'
 
-    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content, requestOptions).then(result => {
+    return this.davClient.request('PUT', this.helpers._buildFullDAVPath(path), headers, content, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           ETag: result.res.headers.etag,
@@ -184,31 +190,26 @@ class Files {
    * @returns {Promise.<status>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}   string: error message, if any.
    */
-  mkdir (path) {
-    if (path[path.length - 1] !== '/') {
-      path += '/'
-    }
-
+  createFolder (path) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
 
-    return this.davClient.request('MKCOL', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    path = this._sanitizePath(path)
+    if (path[path.length - 1] !== '/') {
+      path += '/'
+    }
+
+    return this.davClient.request('MKCOL', this.helpers._buildFullDAVPath(path), this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
       return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
     })
-  }
-
-  /**
-   * Creates a remote directory
-   * @param   {string}  path        path of the folder to be created at OC instance
-   * @returns {Promise.<status>}    boolean: whether the operation was successful
-   * @returns {Promise.<error>}     string: error message, if any.
-   */
-  createFolder (path) {
-    return this.mkdir(path)
   }
 
   /**
@@ -222,7 +223,13 @@ class Files {
       return Promise.reject('Please specify an authorization first.')
     }
 
-    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    path = this._sanitizePath(path)
+
+    return this.davClient.request('DELETE', this.helpers._buildFullDAVPath(path), this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
@@ -245,33 +252,6 @@ class Files {
   }
 
   /**
-   * Helper for putDirectory
-   * This function first makes all the directories required
-   * @param  {object}     array    file list (ls -R) of the directory to be put
-   * @return {Promise.<status>}    boolean: whether mkdir was successful
-   * @returns {Promise.<error>}    string: error message, if any.
-   */
-  recursiveMkdir (array) {
-    const self = this
-    return new Promise(function (resolve, reject) {
-      self.mkdir(array[0].path).then(() => {
-        array.shift()
-        if (array.length === 0) {
-          resolve(true)
-          return
-        }
-        self.recursiveMkdir(array).then(() => {
-          resolve(true)
-        }).catch(err => {
-          reject(err)
-        })
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  }
-
-  /**
    * Moves a remote file or directory
    * @param   {string} source     initial path of file/folder
    * @param   {string} target     path where to move file/folder finally
@@ -283,9 +263,16 @@ class Files {
       return Promise.reject('Please specify an authorization first.')
     }
 
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    source = this._sanitizePath(source)
+    target = this._sanitizePath(target)
+
     const headers = this.helpers.buildHeaders()
-    headers.Destination = this.helpers._buildFullWebDAVURL(target)
-    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
+    headers.Destination = this.helpers._buildFullDAVURL(target)
+    return this.davClient.request('MOVE', this.helpers._buildFullDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -305,9 +292,16 @@ class Files {
       return Promise.reject('Please specify an authorization first.')
     }
 
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    source = this._sanitizePath(source)
+    target = this._sanitizePath(target)
+
     const headers = this.helpers.buildHeaders()
-    headers.Destination = this.helpers._buildFullWebDAVURL(target)
-    return this.davClient.request('COPY', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
+    headers.Destination = this.helpers._buildFullDAVURL(target)
+    return this.davClient.request('COPY', this.helpers._buildFullDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -326,7 +320,14 @@ class Files {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
-    return this.davClient.propPatch(this.helpers._buildFullWebDAVPath(path), {
+
+    if (!this.helpers.getCurrentUser()) {
+      return Promise.reject(new Error('Username or password was incorrect'))
+    }
+
+    path = this._sanitizePath(path)
+
+    return this.davClient.propPatch(this.helpers._buildFullDAVPath(path), {
       '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
     }, this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
@@ -459,7 +460,7 @@ class Files {
       const headers = this.helpers.buildHeaders()
       headers['Content-Type'] = 'application/xml; charset=utf-8'
 
-      return this.davClient.request('REPORT', path, headers, body, { version: 'v2' }).then(result => {
+      return this.davClient.request('REPORT', path, headers, body).then(result => {
         if (result.status !== 207) {
           return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
         } else {
@@ -467,6 +468,18 @@ class Files {
         }
       })
     })
+  }
+
+  _sanitizePath (path) {
+    path = path || ''
+
+    if (path.startsWith('spaces/')) {
+      return path
+    }
+
+    // Remove leading slash if present
+    path = path.startsWith('/') ? path.substr(1) : path
+    return '/files/' + this.helpers.getCurrentUser().id + '/' + path
   }
 }
 module.exports = Files

@@ -23,13 +23,3 @@ updates:
     versions:
     - 4.4.0
     - 4.5.0
-  - dependency-name: jasmine-core
-    versions:
-    - 3.6.0
-    - 3.7.0
-  - dependency-name: jasmine
-    versions:
-    - 3.6.4
-  - dependency-name: xmldom
-    versions:
-    - 0.4.0

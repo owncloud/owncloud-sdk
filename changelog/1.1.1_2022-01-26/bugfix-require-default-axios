@@ -1,0 +1,6 @@
+Bugfix: Always require default axios
+
+We now always require the default axios since the unspecified require 
+eventually lead to problems with unit tests and mocks.
+
+https://github.com/owncloud/owncloud-sdk/pull/965

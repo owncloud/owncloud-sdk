@@ -126,7 +126,6 @@ class helpers {
     if (user !== null) {
       return Promise.resolve(user)
     }
-
     return this._updateCurrentUser()
   }
 
@@ -344,9 +343,21 @@ class helpers {
       })
         .then(async res => {
           res.statusCode = res.status
-          resolve({
+
+          let body
+
+          switch (options.responseType) {
+            case 'arrayBuffer':
+              body = await res.arrayBuffer()
+              break
+
+            default:
+              body = await res.text()
+          }
+
+          return resolve({
             response: res,
-            body: await res.text()
+            body
           })
         })
     })

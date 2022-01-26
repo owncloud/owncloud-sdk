@@ -474,6 +474,11 @@ class Files {
 
   _sanitizePath (path) {
     path = path || ''
+
+    if (path.startsWith('spaces/')) {
+      return path
+    }
+
     // Remove leading slash if present
     path = path.startsWith('/') ? path.substr(1) : path
     return '/files/' + this.helpers.getCurrentUser().id + '/' + path

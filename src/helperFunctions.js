@@ -1,4 +1,4 @@
-const axios = require('axios')
+const axios = require('axios').default
 const Promise = require('promise')
 const fetch = require('cross-fetch')
 const parser = require('./xmlParser.js')

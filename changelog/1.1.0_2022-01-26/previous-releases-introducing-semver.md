@@ -1,4 +1,3 @@
-
 Enhancement: Previous releases and introducing semver
 
 We created the ownCloud SDK to provide developers with a well documented and easy-to-use solution 

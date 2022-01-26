@@ -14,7 +14,7 @@ class PublicFiles {
   constructor (helperFile) {
     this.helpers = helperFile
 
-    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
+    this.davClient = new Dav(this.helpers._davPath)
 
     // constant definitions
     this.PUBLIC_LINK_ITEM_TYPE = '{http://owncloud.org/ns}public-link-item-type'
@@ -27,11 +27,10 @@ class PublicFiles {
   /**
    * Lists files in a public link as determined by the given token
    *
-   * @param {string}      tokenAndPath
-   * @param {string}      path
-   * @param {string|null} password
-   * @param {array}       properties
-   * @param {string}      depth
+   * @param tokenAndPath
+   * @param password
+   * @param properties
+   * @param depth
    * @return {FileInfo[]}
    */
   async list (tokenAndPath, password = null, properties = [], depth = '1') {
@@ -107,10 +106,10 @@ class PublicFiles {
       // In case of the path starting with a "/" we remove it
       path = path.replace(/^\//, '')
 
-      return this.helpers._buildFullWebDAVURL('/public-files/' + token + '/' + path)
+      return this.helpers._buildFullDAVURL('/public-files/' + token + '/' + path)
     }
 
-    return this.helpers._buildFullWebDAVURL('/public-files/' + token)
+    return this.helpers._buildFullDAVURL('/public-files/' + token)
   }
 
   /**
@@ -125,10 +124,10 @@ class PublicFiles {
       // In case of the path starting with a "/" we remove it
       path = path.replace(/^\//, '')
 
-      return this.helpers._buildFullWebDAVPath('/public-files/' + token + '/' + path)
+      return this.helpers._buildFullDAVPath('/public-files/' + token + '/' + path)
     }
 
-    return this.helpers._buildFullWebDAVPath('/public-files/' + token)
+    return this.helpers._buildFullDAVPath('/public-files/' + token)
   }
 
   /**

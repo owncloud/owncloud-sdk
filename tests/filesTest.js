@@ -127,7 +127,7 @@ describe('Main: Currently testing files management,', function () {
       }).willRespondWith(response)
   }
 
-  const listFolderContentResponse = (items, type = 'file') => {
+  const listFolderContentResponse = (items) => {
     const response = []
 
     for (const item of items) {
@@ -473,7 +473,7 @@ describe('Main: Currently testing files management,', function () {
       let progressCalled = false
 
       const options = {
-        onProgress: (progressInfo) => {
+        onProgress: () => {
           progressCalled = true
         }
       }

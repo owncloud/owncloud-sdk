@@ -12,7 +12,7 @@ const { Dav } = require('./dav')
 class SystemTags {
   constructor (helperFile) {
     this.helpers = helperFile
-    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
+    this.davClient = new Dav(this.helpers._davPath)
   }
 
   /**
@@ -44,7 +44,7 @@ class SystemTags {
 
     return this.davClient.request(
       'POST',
-      this.helpers._buildFullWebDAVPath('systemtags'),
+      this.helpers._buildFullDAVPath('systemtags'),
       headers,
       body
     ).then(result => {
@@ -71,7 +71,7 @@ class SystemTags {
     const path = 'systemtags-relations/files/' + fileId + '/' + tagId
 
     return this.davClient.request('PUT',
-      this.helpers._buildFullWebDAVPath(path),
+      this.helpers._buildFullDAVPath(path),
       this.helpers.buildHeaders(),
       null
     ).then(result => {

@@ -12,7 +12,7 @@ const { Dav } = require('./dav')
 class FilesTrash {
   constructor (helperFile) {
     this.helpers = helperFile
-    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
+    this.davClient = new Dav(this.helpers._davPath)
   }
 
   /**
@@ -42,7 +42,7 @@ class FilesTrash {
     const target = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + path
 
     return this.davClient.propFind(
-      this.helpers._buildFullWebDAVPath(target),
+      this.helpers._buildFullDAVPath(target),
       properties,
       depth,
       headers
@@ -74,7 +74,7 @@ class FilesTrash {
 
     return this.davClient.request(
       'DELETE',
-      this.helpers._buildFullWebDAVPath(target),
+      this.helpers._buildFullDAVPath(target),
       headers,
       null,
       {
@@ -110,11 +110,11 @@ class FilesTrash {
     const source = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + fileId
     const target = '/files/' + this.helpers.getCurrentUser().id + '/' + originalLocation
 
-    headers.Destination = this.helpers._buildFullWebDAVURL(target)
+    headers.Destination = this.helpers._buildFullDAVURL(target)
     headers.Overwrite = overWrite ? 'T' : 'F'
     return this.davClient.request(
       'MOVE',
-      this.helpers._buildFullWebDAVPath(source),
+      this.helpers._buildFullDAVPath(source),
       headers,
       null,
       {

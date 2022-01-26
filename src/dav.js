@@ -5,7 +5,7 @@ const applicationXmlResponseHeaders = {
   'Content-Type': 'application/xml; charset=utf-8'
 }
 export class Dav {
-  constructor (baseUrl, baseUrlv2) {
+  constructor (baseUrl) {
     this._XML_CHAR_MAP = {
       '<': '&lt;',
       '>': '&gt;',
@@ -15,7 +15,6 @@ export class Dav {
     }
 
     this.baseUrl = baseUrl
-    this.baseUrlv2 = baseUrlv2
 
     this.userName = null
 
@@ -32,7 +31,6 @@ export class Dav {
     }
 
     this.client = createClient(baseUrl, {})
-    this.clientv2 = createClient(baseUrlv2, {})
   }
 
   _escapeXml (s) {
@@ -206,7 +204,7 @@ export class Dav {
    * Performs a HTTP request, and returns a Promise
    *
    * @param {string} method HTTP method
-   * @param {string} url Relative or absolute url
+   * @param {string} path Relative or absolute url
    * @param {Object} headers HTTP headers as an object.
    * @param {string} body HTTP request body.
    * @param {Object} options
@@ -214,8 +212,8 @@ export class Dav {
    * @return {Promise}
    */
   request (method, path, headers, body, options = {}) {
-    const reqClient = this.clientv2
-    const reqBaseUrl = this.baseUrlv2
+    const reqClient = this.client
+    const reqBaseUrl = this.baseUrl
 
     const params = new URLSearchParams(options.query).toString()
     const query = params ? '?' + params : ''
@@ -305,7 +303,6 @@ export class Dav {
    * Parses a multi-status response body.
    *
    * @param {string} xmlBody
-   * @param {Array}
    */
   parseMultiStatus (xmlBody) {
     const doc = parser.xml2js(xmlBody)

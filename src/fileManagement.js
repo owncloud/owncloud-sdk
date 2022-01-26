@@ -29,7 +29,7 @@ class Files {
   constructor (helperFile) {
     this.helpers = helperFile
 
-    this.davClient = new Dav(this.helpers._webdavUrl, this.helpers._davPath)
+    this.davClient = new Dav(this.helpers._davPath)
   }
 
   /**
@@ -51,7 +51,7 @@ class Files {
 
     path = this._sanitizePath(path)
     const headers = this.helpers.buildHeaders()
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), properties, depth, headers).then(result => {
+    return this.davClient.propFind(this.helpers._buildFullDAVPath(path), properties, depth, headers).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
@@ -80,7 +80,7 @@ class Files {
 
     path = this._sanitizePath(path)
 
-    return this.helpers._get(this.helpers._buildFullWebDAVURL(path), options).then(data => {
+    return this.helpers._get(this.helpers._buildFullDAVURL(path), options).then(data => {
       const response = data.response
       const body = data.body
 
@@ -108,9 +108,7 @@ class Files {
    * @returns {string}          Url of the remote file
    */
   getFileUrl (path) {
-    path = this._sanitizePath(path)
-    path = path[0] === '/' ? path : '/' + path
-    return this.helpers._buildFullWebDAVURL(path)
+    return this.helpers._buildFullDAVURL(this._sanitizePath(path))
   }
 
   /**
@@ -122,7 +120,7 @@ class Files {
   getPathForFileId (fileId) {
     const path = '/meta/' + fileId
 
-    return this.davClient.propFind(this.helpers._buildFullWebDAVPath(path), [
+    return this.davClient.propFind(this.helpers._buildFullDAVPath(path), [
       '{http://owncloud.org/ns}meta-path-for-user'
     ], 0, {
       Authorization: this.helpers.getAuthorization()
@@ -174,7 +172,7 @@ class Files {
     }
     headers['Content-Type'] = 'text/plain;charset=utf-8'
 
-    return this.davClient.request('PUT', this.helpers._buildFullWebDAVPath(path), headers, content, requestOptions).then(result => {
+    return this.davClient.request('PUT', this.helpers._buildFullDAVPath(path), headers, content, requestOptions).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           ETag: result.res.headers.etag,
@@ -206,7 +204,7 @@ class Files {
       path += '/'
     }
 
-    return this.davClient.request('MKCOL', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
+    return this.davClient.request('MKCOL', this.helpers._buildFullDAVPath(path), this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -231,7 +229,7 @@ class Files {
 
     path = this._sanitizePath(path)
 
-    return this.davClient.request('DELETE', this.helpers._buildFullWebDAVPath(path), this.helpers.buildHeaders()).then(result => {
+    return this.davClient.request('DELETE', this.helpers._buildFullDAVPath(path), this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
@@ -273,8 +271,8 @@ class Files {
     target = this._sanitizePath(target)
 
     const headers = this.helpers.buildHeaders()
-    headers.Destination = this.helpers._buildFullWebDAVURL(target)
-    return this.davClient.request('MOVE', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
+    headers.Destination = this.helpers._buildFullDAVURL(target)
+    return this.davClient.request('MOVE', this.helpers._buildFullDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -302,8 +300,8 @@ class Files {
     target = this._sanitizePath(target)
 
     const headers = this.helpers.buildHeaders()
-    headers.Destination = this.helpers._buildFullWebDAVURL(target)
-    return this.davClient.request('COPY', this.helpers._buildFullWebDAVPath(source), headers).then(result => {
+    headers.Destination = this.helpers._buildFullDAVURL(target)
+    return this.davClient.request('COPY', this.helpers._buildFullDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
@@ -329,7 +327,7 @@ class Files {
 
     path = this._sanitizePath(path)
 
-    return this.davClient.propPatch(this.helpers._buildFullWebDAVPath(path), {
+    return this.davClient.propPatch(this.helpers._buildFullDAVPath(path), {
       '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
     }, this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {

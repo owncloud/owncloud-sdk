@@ -46,7 +46,6 @@ class helpers {
    */
   setInstance (instance) {
     this.instance = instance
-    this._webdavUrl = this.instance + 'remote.php/webdav'
     this._davPath = this.instance + 'remote.php/dav'
   }
 
@@ -412,6 +411,11 @@ class helpers {
     return path
   }
 
+  /**
+   * @param path
+   * @returns {string}
+   * @private
+   */
   _encodeUri (path) {
     path = this._normalizePath(path)
     path = encodeURIComponent(path)
@@ -469,11 +473,21 @@ class helpers {
     return utf8.encode(path)
   }
 
-  _buildFullWebDAVPath (path) {
+  /**
+   * @param path
+   * @returns {string}
+   * @private
+   */
+  _buildFullDAVPath (path) {
     return this._encodeUri(path)
   }
 
-  _buildFullWebDAVURL (path) {
+  /**
+   * @param path
+   * @returns {string}
+   * @private
+   */
+  _buildFullDAVURL (path) {
     return this._davPath + this._encodeUri(path)
   }
 

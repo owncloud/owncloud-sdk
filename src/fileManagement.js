@@ -49,7 +49,6 @@ class Files {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
 
-    path = this._sanitizePath(path)
     const headers = this.helpers.buildHeaders()
     return this.davClient.propFind(this.helpers._buildFullDAVPath(path), properties, depth, headers).then(result => {
       if (result.status !== 207) {
@@ -77,8 +76,6 @@ class Files {
     if (!this.helpers.getCurrentUser()) {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
-
-    path = this._sanitizePath(path)
 
     return this.helpers._get(this.helpers._buildFullDAVURL(path), options).then(data => {
       const response = data.response
@@ -108,7 +105,7 @@ class Files {
    * @returns {string}          Url of the remote file
    */
   getFileUrl (path) {
-    return this.helpers._buildFullDAVURL(this._sanitizePath(path))
+    return this.helpers._buildFullDAVURL(path)
   }
 
   /**
@@ -154,7 +151,6 @@ class Files {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
 
-    path = this._sanitizePath(path)
     options = options || []
     const headers = Object.assign({}, this.helpers.buildHeaders(), options.headers)
     const previousEntityTag = options.previousEntityTag || false
@@ -199,7 +195,6 @@ class Files {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
 
-    path = this._sanitizePath(path)
     if (path[path.length - 1] !== '/') {
       path += '/'
     }
@@ -226,8 +221,6 @@ class Files {
     if (!this.helpers.getCurrentUser()) {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
-
-    path = this._sanitizePath(path)
 
     return this.davClient.request('DELETE', this.helpers._buildFullDAVPath(path), this.helpers.buildHeaders()).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
@@ -267,9 +260,6 @@ class Files {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
 
-    source = this._sanitizePath(source)
-    target = this._sanitizePath(target)
-
     const headers = this.helpers.buildHeaders()
     headers.Destination = this.helpers._buildFullDAVURL(target)
     return this.davClient.request('MOVE', this.helpers._buildFullDAVPath(source), headers).then(result => {
@@ -296,9 +286,6 @@ class Files {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
 
-    source = this._sanitizePath(source)
-    target = this._sanitizePath(target)
-
     const headers = this.helpers.buildHeaders()
     headers.Destination = this.helpers._buildFullDAVURL(target)
     return this.davClient.request('COPY', this.helpers._buildFullDAVPath(source), headers).then(result => {
@@ -324,8 +311,6 @@ class Files {
     if (!this.helpers.getCurrentUser()) {
       return Promise.reject(new Error('Username or password was incorrect'))
     }
-
-    path = this._sanitizePath(path)
 
     return this.davClient.propPatch(this.helpers._buildFullDAVPath(path), {
       '{http://owncloud.org/ns}favorite': value ? 'true' : 'false'
@@ -468,18 +453,6 @@ class Files {
         }
       })
     })
-  }
-
-  _sanitizePath (path) {
-    path = path || ''
-
-    if (path.startsWith('spaces/')) {
-      return path
-    }
-
-    // Remove leading slash if present
-    path = path.startsWith('/') ? path.substr(1) : path
-    return '/files/' + this.helpers.getCurrentUser().id + '/' + path
   }
 }
 module.exports = Files

@@ -1,3 +1,22 @@
+# Changelog for [unreleased] (UNRELEASED)
+
+The following sections list the changes in ownCloud SDK unreleased.
+
+[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...master
+
+## Summary
+
+* Change - Drop Internet Explorer support: [#966](https://github.com/owncloud/owncloud-sdk/pull/966)
+
+## Details
+
+* Change - Drop Internet Explorer support: [#966](https://github.com/owncloud/owncloud-sdk/pull/966)
+
+   Since it's nearing its end-of-life, we've dropped polyfills for IE in favor of a smaller bundle
+   size.
+
+   https://github.com/owncloud/owncloud-sdk/pull/966
+
 # Changelog for [1.1.0] (2022-01-26)
 
 The following sections list the changes in ownCloud SDK 1.1.0.

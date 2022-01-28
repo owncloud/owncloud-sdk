@@ -5,7 +5,7 @@ OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 
 def main(ctx):
-    basepipelines = checkStarlark() + changelog(ctx)
+    basepipelines = checkStarlark() + changelog(ctx) + sonarcloud(ctx)
     testpipelines = [consumerTestPipeline(), consumerTestPipeline("/sub/"), oc10ProviderTestPipeline(), ocisProviderTestPipeline()]
     pipelines = basepipelines + testpipelines + publish(ctx)
     return pipelines
@@ -530,6 +530,65 @@ def checkStarlark():
         "depends_on": [],
         "trigger": {
             "ref": [
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def sonarcloud(ctx):
+    sonar_env = {
+        "SONAR_TOKEN": {
+            "from_secret": "sonar_token",
+        },
+    }
+    if ctx.build.event == "pull_request":
+        sonar_env.update({
+            "SONAR_PULL_REQUEST_BASE": "%s" % (ctx.build.target),
+            "SONAR_PULL_REQUEST_BRANCH": "%s" % (ctx.build.source),
+            "SONAR_PULL_REQUEST_KEY": "%s" % (ctx.build.ref.replace("refs/pull/", "").split("/")[0]),
+        })
+
+    fork_handling = []
+    if ctx.build.source_repo != "" and ctx.build.source_repo != ctx.repo.slug:
+        fork_handling = [
+            "git remote add fork https://github.com/%s.git" % (ctx.build.source_repo),
+            "git fetch fork",
+        ]
+
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "sonarcloud",
+        "platform": {
+            "os": "linux",
+            "arch": "amd64",
+        },
+        "clone": {
+            "disable": True,  # Sonarcloud does not apply issues on already merged branch
+        },
+        "steps": [
+            {
+                "name": "clone",
+                "image": "alpine/git:latest",
+                "commands": [
+                                # Always use the owncloud/ocis repository as base to have an up to date default branch.
+                                # This is needed for the skipIfUnchanged step, since it references a commit on master (which could be absent on a fork)
+                                "git clone https://github.com/%s.git ." % (ctx.repo.slug),
+                            ] + fork_handling +
+                            [
+                                "git checkout $DRONE_COMMIT",
+                            ],
+            },
+            {
+                "name": "sonarcloud",
+                "image": "sonarsource/sonar-scanner-cli:latest",
+                "environment": sonar_env,
+            },
+        ],
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/**",
                 "refs/pull/**",
             ],
         },

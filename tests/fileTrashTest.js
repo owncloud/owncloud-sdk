@@ -188,7 +188,7 @@ describe('oc.fileTrash', function () {
         if (!trashEnabled) {
           pending()
         }
-        return oc.fileTrash.list('/').then(trashItems => {
+        return oc.fileTrash.list('').then(trashItems => {
           expect(trashItems.length).toEqual(1)
           expect(trashItems[0].getName()).toEqual(testUser)
         })
@@ -319,7 +319,7 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.list('/').then(trashItems => {
+          return oc.fileTrash.list('').then(trashItems => {
             expect(trashItems.length).toEqual(2)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFolder)
           })
@@ -336,7 +336,7 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.list('/').then(trashItems => {
+          return oc.fileTrash.list('').then(trashItems => {
             expect(trashItems.length).toEqual(2)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFolder)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-location')).toEqual(testFolder)
@@ -467,10 +467,10 @@ describe('oc.fileTrash', function () {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('/').then(trashItems => {
+            return oc.fileTrash.list('').then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
-              return oc.files.fileInfo(testFolder).then(fileInfo => {
+              return oc.files.fileInfo(`files/${testUser}/${testFolder}`).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(testFolder)
               })
             }).catch(error => {
@@ -600,10 +600,10 @@ describe('oc.fileTrash', function () {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('/').then(trashItems => {
+            return oc.fileTrash.list('').then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
-              return oc.files.fileInfo(originalLocation).then(fileInfo => {
+              return oc.files.fileInfo(`files/${testUser}/${originalLocation}`).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(originalLocation)
               })
             }).catch(error => {
@@ -710,7 +710,7 @@ describe('oc.fileTrash', function () {
           if (!trashEnabled) {
             pending()
           }
-          return oc.fileTrash.list('/').then(trashItems => {
+          return oc.fileTrash.list('').then(trashItems => {
             expect(trashItems.length).toEqual(2)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFile)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-location')).toEqual(`${testFolder}/${testFile}`)
@@ -829,10 +829,10 @@ describe('oc.fileTrash', function () {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('/').then(trashItems => {
+            return oc.fileTrash.list('').then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
-              return oc.files.fileInfo(testFolder).then(fileInfo => {
+              return oc.files.fileInfo(`files/${testUser}/${testFolder}`).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(testFolder)
               })
             }).catch(error => {
@@ -961,10 +961,10 @@ describe('oc.fileTrash', function () {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('/').then(trashItems => {
+            return oc.fileTrash.list('').then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
-              return oc.files.fileInfo(originalLocation).then(fileInfo => {
+              return oc.files.fileInfo(`files/${testUser}/${originalLocation}`).then(fileInfo => {
                 expect(fileInfo.getName()).toEqual(originalLocation)
               })
             }).catch(error => {

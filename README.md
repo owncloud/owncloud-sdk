@@ -2,21 +2,25 @@
 [![codecov](https://codecov.io/gh/owncloud/owncloud-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/owncloud/owncloud-sdk)
 [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/owncloud-sdk/)
 
-<p align="center">
-  <img src="https://i.imgur.com/9mKra3O.png" />
-</p>
+# ownCloud JavaScript SDK
 
-Use this light-weight JS library with a promise-based interface for seamless communication with your ownCloud instance.<br>
-Supports only browser JS but requires JavaScript techniques like webpack to compile it properly.<br>
-For Node.js please have a look at [this tag](https://github.com/owncloud/owncloud-sdk/releases/tag/last-nodejs).
+Use this light-weight JS library with a promise-based interface for seamless communication with your ownCloud instance, both from the browser and from Node backends.
 
+## Installation
 
-## Install
+Run either 
 
 ```
-$ npm install owncloud-sdk
+npm install owncloud-sdk
 ```
 
+or
+
+```
+yarn add owncloud-sdk
+```
+
+to add the `owncloud-sdk` to your project.
 
 ## Usage
 
@@ -58,25 +62,30 @@ oc.files.list('/path/to/file/folder').then(files => {
 
 ### ownCloud web
 
-[ownCloud web](https://github.com/owncloud/web) will be the next generation web frontend for ownCloud. It uses owncloud-sdk.
+[ownCloud web](https://github.com/owncloud/web) is the next generation web frontend for ownCloud.
 
-## All Methods Available
+### ownCloud file-picker
 
-Full API documentation is available at [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/owncloud-sdk/)
+[ownCloud file-picker](github.com/owncloud/file-picker) is an integration to access the files in your ownCloud, e.g. in a chat app.
 
-## Building the Documentation
+## Documentation
 
-### JSDocs
+The full API documentation is available [on the docs website](https://owncloud.dev/owncloud-sdk/).
 
-To build the jsdocs, type this command and follow the instructions on the terminal:
+### Building the docs
+
+The docs are based on JSDocs.
+To build them, run the following command and follow the instructions on the terminal:
 
 ```
-$ yarn build:docs
+yarn build:docs
 ```
 
 ## Unit/Integration tests
+
 ### Overview
-owncloud-sdk uses [pactjs](https://github.com/pact-foundation/pact-js) with jest for unit and integration test.
+
+`owncloud-sdk` uses [pactjs](https://github.com/pact-foundation/pact-js) with jest for unit and integration tests.
 
 On the pact provider side, tests have 4 different `interactions`:
 
@@ -107,50 +116,35 @@ describe('feature', function () {
   })
 })
 ```
-### Running Tests
+### Running tests
+
 At first, you need to create `config.json` file.
+
 ```
-$ cp tests/config/config.sample.json tests/config/config.json
+cp tests/config/config.sample.json tests/config/config.json
 ```
 
-### consumer tests
+### Consumer tests
+
 The pact consumer tests checks owncloud sdk against the pact mock server. In order to run these tests, use the following command:
 
 ```
-$ yarn test-consumer
+yarn test-consumer
 ```
 
 > Note: If you have pacts from old test run in `tests/pacts` your tests will fail. Make sure to delete that before you run the tests again.
 
 ### Provider tests
+
 The pact provider tests the pacts generated from the consumer tests against the real owncloud backend server. For this you will need an actual owncloud server running. Then you can run the pact tests with the following command:
 ```
-$ PROVIDER_BASE_URL=<owncloud-backend-url> yarn test-provider
+PROVIDER_BASE_URL=<owncloud-backend-url> yarn test-provider
 ```
 
-## Team
+## Credits
 
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top">
-        <img width="150" height="150" src="http://gravatar.com/avatar/fb09a21ff4cb473d6cf5e70c5fc0f751?s=144">
-        <br>
-        <a href="https://github.com/noveens">Noveen Sachdeva</a>
-      </td>
-      <td align="center" valign="top">
-        <img width="150" height="150" src="https://avatars1.githubusercontent.com/u/277525?v=3&s=144">
-        <br>
-        <a href="https://github.com/PVince81">Vincent Petry</a>
-      </td>
-      <td align="center" valign="top">
-        <img width="150" height="150" src="https://avatars0.githubusercontent.com/u/1005065?s=144&v=4">
-        <br>
-        <a href="https://github.com/DeepDiver1975">Thomas Müller</a>
-      </td>
-     </tr>
-  </tbody>
-</table>
+This project was originally created by <a href="https://github.com/noveens">Noveen Sachdeva</a>, <a href="https://github.com/PVince81">Vincent Petry</a> and <a href="https://github.com/DeepDiver1975">Thomas Müller</a> as part of the [2017 Google Summer of Code](https://summerofcode.withgoogle.com/archive/2017/projects/5166409181036544).
 
+## License
 
-# ![GSoC'17](http://cltk.org/assets/GSoC2016Logo.jpg)
+The ownCloud SDK is released under the [MIT License](https://github.com/owncloud/owncloud-sdk/blob/master/LICENSE.md).

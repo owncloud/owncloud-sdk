@@ -231,7 +231,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.createFolder(testFolder).then(status => {
+        return oc.files.createFolder(`files/${config.testUser}/${testFolder}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -250,7 +250,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.createFolder(testSubDir).then(status => {
+        return oc.files.createFolder(`files/${config.testUser}/${testSubDir}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -276,7 +276,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         const promises = testSubFiles.map(file => {
-          return oc.files.putFileContents(file, testContent).then(status => {
+          return oc.files.putFileContents(`files/${config.testUser}/${file}`, testContent).then(status => {
             expect(typeof status).toBe('object')
             expect(typeof status.ETag).toBe('string')
             expect(typeof status['OC-FileId']).toBe('string')
@@ -301,7 +301,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.delete(testFolder).then(status => {
+        return oc.files.delete(`files/${config.testUser}/${testFolder}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -326,7 +326,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.list(testFolder).then(files => {
+        return oc.files.list(`files/${config.testUser}/${testFolder}`).then(files => {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(6)
           expect(files[1].getName()).toEqual('abc.txt')
@@ -357,7 +357,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.list(testFolder, 'infinity')
+        return oc.files.list(`files/${config.testUser}/${testFolder}`, 'infinity')
           .then(files => {
             expect(typeof (files)).toBe('object')
             expect(files.length).toEqual(7)
@@ -388,7 +388,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.list(testFolder, 2).then(files => {
+        return oc.files.list(`files/${config.testUser}/${testFolder}`, 2).then(files => {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(7)
           expect(files[3].getName()).toEqual('subdir')
@@ -417,7 +417,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.list(nonExistentFile).then(files => {
+        return oc.files.list(`files/${config.testUser}/${nonExistentFile}`).then(files => {
           expect(files).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -437,7 +437,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         for (let i = 0; i < testSubFiles.length; i++) {
-          await oc.files.getFileContents(testSubFiles[i], { resolveWithResponseObject: true }).then((resp) => {
+          await oc.files.getFileContents(`files/${config.testUser}/${testSubFiles[i]}`, { resolveWithResponseObject: true }).then((resp) => {
             expect(resp.body).toEqual(testContent)
             expect(resp.headers.ETag).toBeDefined()
           }).catch(error => {
@@ -460,7 +460,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.getFileContents(nonExistentFile).then(content => {
+        return oc.files.getFileContents(`files/${config.testUser}/${nonExistentFile}`).then(content => {
           expect(content).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -488,7 +488,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
         try {
-          const status = await oc.files.putFileContents(newFile, testContent, options)
+          const status = await oc.files.putFileContents(`files/${config.testUser}/${newFile}`, testContent, options)
           expect(typeof status).toBe('object')
 
           // Progress callback is not called for nodejs env
@@ -512,7 +512,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.putFileContents(nonExistentDir + '/' + 'file.txt', testContent).then(status => {
+        return oc.files.putFileContents(`files/${config.testUser}/${nonExistentDir}/file.txt`, testContent).then(status => {
           fail('The request to update non existent file was expected to fail but it passed with status ' + status)
         }).catch(error => {
           expect(error.message).toBe('Files cannot be created in non-existent collections')
@@ -530,7 +530,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        const url = oc.files.getFileUrl('/foo/bar')
+        const url = oc.files.getFileUrl(`files/${config.testUser}/foo/bar`)
         expect(url).toBe(mockServerBaseUrl + 'remote.php/dav/files/' + config.testUser + '/foo/bar')
       })
     })
@@ -546,7 +546,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
 
-        return oc.files.createFolder(newFolder).then(status => {
+        return oc.files.createFolder(`files/${config.testUser}/${newFolder}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -578,7 +578,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.createFolder(testFolder + '/' + nonExistentDir + '/newFolder/').then(status => {
+        return oc.files.createFolder(`files/${config.testUser}/${testFolder}/${nonExistentDir}/newFolder/`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('Parent node does not exist')
@@ -602,7 +602,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.delete(newFolder)
+        return oc.files.delete(`files/${config.testUser}/${newFolder}`)
           .then(status2 => {
             expect(status2).toEqual(true)
           }).catch(error => {
@@ -628,7 +628,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.delete(nonExistentDir).then(status => {
+        return oc.files.delete(`files/${config.testUser}/${nonExistentDir}`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentDir + ' could not be located')
@@ -676,7 +676,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.move(testFolder + '/中文.txt', testFolder + '/中文.txt').then(status => {
+        return oc.files.move(`files/${config.testUser}/${testFolder}/中文.txt`, `files/${config.testUser}/${testFolder}/中文.txt`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error.message).toBe('Source and destination uri are identical.')
@@ -730,7 +730,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.move(testFolder + '/中文.txt', testFolder + '/中文123.txt').then(status => {
+        return oc.files.move(`files/${config.testUser}/${testFolder}/中文.txt`, `files/${config.testUser}/${testFolder}/中文123.txt`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -771,7 +771,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.move(nonExistentFile, '/abcd.txt').then(status => {
+        return oc.files.move(`files/${config.testUser}/${nonExistentFile}`, '/abcd.txt').then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -814,7 +814,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.copy(file, file).then(status => {
+        return oc.files.copy(`files/${config.testUser}/${file}`, `files/${config.testUser}/${file}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error.message).toBe('Source and destination uri are identical.')
@@ -854,7 +854,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.copy(nonExistentFile, '/abcd.txt').then(status => {
+        return oc.files.copy(`files/${config.testUser}/${nonExistentFile}`, `files/${config.testUser}/abcd.txt`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -984,7 +984,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.fileInfo(file, ['{http://owncloud.org/ns}fileid'])
+        return oc.files.fileInfo(`files/${config.testUser}/${file}`, ['{http://owncloud.org/ns}fileid'])
           .then(fileInfo => {
             const fileId = fileInfo.getFileId()
             expect(fileId).toEqual('123456789')
@@ -1091,7 +1091,7 @@ describe('Main: Currently testing files management,', function () {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
 
-        const promise = oc.files.list('')
+        const promise = oc.files.list(`files/${config.testUser}/`)
         await promise.then(entries => {
           const tusSupport = entries[0].getTusSupport()
           expect(tusSupport.resumable).toEqual('1.0.0')
@@ -1118,7 +1118,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        const promise = oc.files.fileInfo(dir)
+        const promise = oc.files.fileInfo(`files/${config.testUser}/${dir}`)
         return promise.then(entry => {
           const tusSupport = entry.getTusSupport()
           expect(tusSupport.resumable).toEqual('1.0.0')
@@ -1141,7 +1141,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        const promise = oc.files.list('')
+        const promise = oc.files.list(`files/${config.testUser}/`)
         return promise.then(entries => {
           expect(entries[0].getTusSupport()).toEqual(null)
           expect(entries[1].getTusSupport()).toEqual(null)
@@ -1190,7 +1190,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.move(srcFilePath, desFilePath).then(status => {
+        return oc.files.move(`files/${config.testUser}/${srcFilePath}`, `files/${config.testUser}/${desFilePath}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1241,7 +1241,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.copy(srcFilePath, desFilePath).then(status => {
+        return oc.files.copy(`files/${config.testUser}/${srcFilePath}`, `files/${config.testUser}/${desFilePath}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1296,7 +1296,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.copy(srcFilePath, desFilePath).then(status => {
+        return oc.files.copy(`files/${config.testUser}/${srcFilePath}`, `files/${config.testUser}/${desFilePath}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1320,7 +1320,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.favorite(file, false)
+        return oc.files.favorite(`files/${config.testUser}/${file}`, false)
           .then(status => {
             expect(status).toEqual(true)
           }).catch(error => {
@@ -1349,7 +1349,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(config.testUser, config.testUserPassword)
         await oc.login()
-        return oc.files.favorite(file)
+        return oc.files.favorite(`files/${config.testUser}/${file}`)
           .then(status => {
             expect(status).toEqual(true)
           }).catch(error => {

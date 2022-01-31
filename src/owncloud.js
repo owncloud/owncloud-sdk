@@ -81,6 +81,7 @@ class ownCloud {
         return helpers.ocs(options)
       }
     }
+    this.cache = {}
   }
 
   /**
@@ -90,7 +91,7 @@ class ownCloud {
    */
   login () {
     const self = this
-    return this.helpers.getCapabilities()
+    return this.getCapabilities()
       .then(() => {
         return Promise.resolve(self.getCurrentUser())
       })
@@ -117,8 +118,16 @@ class ownCloud {
    * @returns {Promise.<capabilities>}    string: ownCloud version
    * @returns {Promise.<reject>}             object: capabilities
    */
-  getCapabilities () {
-    return this.helpers.getCapabilities()
+  getCapabilities (refresh = true) {
+    const self = this
+    // Expensive call, keep a cache if possible (let the client decide)
+    // Might be usefull if called in conjunction with login()
+    if (!refresh && 'capabilities' in this.cache) {
+      return new Promise((resolve) => resolve(self.cache.capabilities))
+    }
+    const promiseCapabilities = this.helpers.getCapabilities()
+    promiseCapabilities.then((capabilities) => { self.cache.capabilities = capabilities })
+    return promiseCapabilities
   }
 
   /**

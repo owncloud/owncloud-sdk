@@ -7,6 +7,8 @@ The following sections list the changes in ownCloud SDK unreleased.
 ## Summary
 
 * Change - Drop Internet Explorer support: [#966](https://github.com/owncloud/owncloud-sdk/pull/966)
+* Change - Pass full file or directory path to methods of Files class: [#971](https://github.com/owncloud/owncloud-sdk/pull/971)
+* Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
 
 ## Details
 
@@ -16,6 +18,26 @@ The following sections list the changes in ownCloud SDK unreleased.
    size.
 
    https://github.com/owncloud/owncloud-sdk/pull/966
+
+
+* Change - Pass full file or directory path to methods of Files class: [#971](https://github.com/owncloud/owncloud-sdk/pull/971)
+
+   Since incompatibility with spaces, we changed the way how the methods of the class
+   Files(filesManagement.js) need to be called. Now it is mandatory to pass the full webDav(v2)
+   path of a file or directory.
+
+   For example, before this change the path was: 'myfile.txt', with this change it is:
+   'files/admin/myfile.txt'
+
+   https://github.com/owncloud/owncloud-sdk/pull/971
+
+
+* Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
+
+   The DAV api now uses dav v2 by default, webdav v1 has been entirely removed.
+
+   https://github.com/owncloud/owncloud-sdk/issues/958
+   https://github.com/owncloud/owncloud-sdk/pull/962
 
 # Changelog for [1.1.0] (2022-01-26)
 

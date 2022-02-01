@@ -1,0 +1,5 @@
+Bugfix: Graceful reject for failing network request in OCS
+
+When the network request inside a _makeOCSrequest failed it terminated the entire application instead of rejecting the promise. We now catch errors on the network request and reject the promise so that applications have a chance to handle the error.
+
+https://github.com/owncloud/owncloud-sdk/pull/977

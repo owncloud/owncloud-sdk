@@ -301,6 +301,9 @@ class helpers {
             data: tree
           })
         })
+        .catch(e => {
+          return reject(e)
+        })
     })
   }
 

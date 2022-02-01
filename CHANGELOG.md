@@ -2,7 +2,7 @@
 
 The following sections list the changes in ownCloud SDK unreleased.
 
-[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...master
+[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.2...master
 
 ## Summary
 
@@ -38,6 +38,26 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/owncloud-sdk/issues/958
    https://github.com/owncloud/owncloud-sdk/pull/962
+
+# Changelog for [1.1.2] (2022-02-01)
+
+The following sections list the changes in ownCloud SDK 1.1.2.
+
+[1.1.2]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...v1.1.2
+
+## Summary
+
+* Bugfix - Graceful reject for failing network request in OCS: [#977](https://github.com/owncloud/owncloud-sdk/pull/977)
+
+## Details
+
+* Bugfix - Graceful reject for failing network request in OCS: [#977](https://github.com/owncloud/owncloud-sdk/pull/977)
+
+   When the network request inside a _makeOCSrequest failed it terminated the entire
+   application instead of rejecting the promise. We now catch errors on the network request and
+   reject the promise so that applications have a chance to handle the error.
+
+   https://github.com/owncloud/owncloud-sdk/pull/977
 
 # Changelog for [1.1.0] (2022-01-26)
 

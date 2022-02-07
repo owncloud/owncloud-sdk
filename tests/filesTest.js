@@ -1570,7 +1570,7 @@ describe('Main: Currently testing files management,', function () {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(1)
           expect(files[0].getName()).toEqual(filename)
-          expect(files[0].getPath()).toEqual('/' + testFolder + '/')
+          expect(files[0].getPath()).toEqual(`/files/${config.testUser}/${testFolder}/`)
           expect(files[0].getSize()).toEqual(6)
         }).catch(error => {
           expect(error).toBe(null)

@@ -3,4 +3,5 @@ Change: Remove webdav v1 api support
 The DAV api now uses dav v2 by default, webdav v1 has been entirely removed.
 
 https://github.com/owncloud/owncloud-sdk/pull/962
+https://github.com/owncloud/owncloud-sdk/pull/985
 https://github.com/owncloud/owncloud-sdk/issues/958

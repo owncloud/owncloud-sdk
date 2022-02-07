@@ -449,7 +449,7 @@ class Files {
         if (result.status !== 207) {
           return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
         } else {
-          return Promise.resolve(this.helpers._parseBody(result.body, 2))
+          return Promise.resolve(this.helpers._parseBody(result.body))
         }
       })
     })

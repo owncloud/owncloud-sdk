@@ -38,6 +38,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/owncloud-sdk/issues/958
    https://github.com/owncloud/owncloud-sdk/pull/962
+   https://github.com/owncloud/owncloud-sdk/pull/985
 
 # Changelog for [1.1.2] (2022-02-01)
 

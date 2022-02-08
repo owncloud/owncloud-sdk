@@ -8,6 +8,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 * Change - Drop Internet Explorer support: [#966](https://github.com/owncloud/owncloud-sdk/pull/966)
 * Change - Pass full file or directory path to methods of Files class: [#971](https://github.com/owncloud/owncloud-sdk/pull/971)
+* Change - Use peerDependencies instead of dependencies: [#979](https://github.com/owncloud/owncloud-sdk/pull/979)
 * Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
 
 ## Details
@@ -32,6 +33,19 @@ The following sections list the changes in ownCloud SDK unreleased.
    https://github.com/owncloud/owncloud-sdk/pull/971
 
 
+* Change - Use peerDependencies instead of dependencies: [#979](https://github.com/owncloud/owncloud-sdk/pull/979)
+
+   In the past, we used dependencies in package.json which lead to a big bundle size and increased
+   the possibility that the same package with 2 different versions is part of the final bundle of
+   the consuming application.
+
+   From now on, dependencies that are required to use the SDK are added to the peerDependencies
+   section in package.json. The consuming application then has to add the dependency on its own
+   and can decide which minor or bugfix version to use.
+
+   https://github.com/owncloud/owncloud-sdk/pull/979
+
+
 * Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
 
    The DAV api now uses dav v2 by default, webdav v1 has been entirely removed.
@@ -44,7 +58,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 The following sections list the changes in ownCloud SDK 1.1.2.
 
-[1.1.2]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...v1.1.2
+[1.1.2]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.1...v1.1.2
 
 ## Summary
 
@@ -60,11 +74,28 @@ The following sections list the changes in ownCloud SDK 1.1.2.
 
    https://github.com/owncloud/owncloud-sdk/pull/977
 
+# Changelog for [1.1.1] (2022-01-26)
+
+The following sections list the changes in ownCloud SDK 1.1.1.
+
+[1.1.1]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...v1.1.1
+
+## Summary
+
+* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
+
+## Details
+
+* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
+
+   We now always require the default axios since the unspecified require eventually lead to
+   problems with unit tests and mocks.
+
+   https://github.com/owncloud/owncloud-sdk/pull/965
+
 # Changelog for [1.1.0] (2022-01-26)
 
 The following sections list the changes in ownCloud SDK 1.1.0.
-
-[1.1.0]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.1...v1.1.0
 
 ## Summary
 
@@ -82,21 +113,4 @@ The following sections list the changes in ownCloud SDK 1.1.0.
 
    https://github.com/owncloud/owncloud-sdk/issues/10
    https://owncloud.github.io/owncloud-sdk/
-
-# Changelog for [1.1.1] (2022-01-26)
-
-The following sections list the changes in ownCloud SDK 1.1.1.
-
-## Summary
-
-* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
-
-## Details
-
-* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
-
-   We now always require the default axios since the unspecified require eventually lead to
-   problems with unit tests and mocks.
-
-   https://github.com/owncloud/owncloud-sdk/pull/965
 

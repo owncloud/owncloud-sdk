@@ -1,0 +1,9 @@
+Change: Use peerDependencies instead of dependencies
+
+In the past, we used dependencies in package.json which lead to a big bundle size and increased the possibility 
+that the same package with 2 different versions is part of the final bundle of the consuming application.
+
+From now on, dependencies that are required to use the SDK are added to the peerDependencies section in package.json. 
+The consuming application then has to add the dependency on its own and can decide which minor or bugfix version to use.
+
+https://github.com/owncloud/owncloud-sdk/pull/979

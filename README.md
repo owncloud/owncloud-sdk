@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/owncloud/owncloud-sdk.svg?branch=master)](https://travis-ci.org/owncloud/owncloud-sdk)
-[![codecov](https://codecov.io/gh/owncloud/owncloud-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/owncloud/owncloud-sdk)
 [![docs](https://img.shields.io/badge/api_docs-online-blue.svg)](https://owncloud.github.io/owncloud-sdk/)
 
 # ownCloud JavaScript SDK
@@ -21,6 +19,18 @@ yarn add owncloud-sdk
 ```
 
 to add the `owncloud-sdk` to your project.
+
+If you haven't done so already, you also need to add the following `peerDependencies` to your dependencies:
+
+```
+npm install axios cross-fetch promise qs semver utf8 uuid webdav xml-js
+```
+
+or
+
+```
+yarn add axios cross-fetch promise qs semver utf8 uuid webdav xml-js
+```
 
 ## Usage
 

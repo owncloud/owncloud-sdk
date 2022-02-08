@@ -28,9 +28,10 @@
     "dist"
   ],
   "scripts": {
-    "depcheck": "depcheck",
     "build:docs": "jsdoc -c jsdoc.conf.json",
     "build:system": "webpack",
+    "build:system:w": "webpack --watch",
+    "depcheck": "depcheck",
     "lint": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require",
     "lint-fix": "eslint tests/**/*.js tests/*.js src/**/*.js src/*.js --color --global requirejs --global require --fix",
     "test-consumer": "jest --runInBand --testPathIgnorePatterns='provider.*'",

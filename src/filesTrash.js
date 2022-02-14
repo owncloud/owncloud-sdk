@@ -47,7 +47,7 @@ class FilesTrash {
       depth,
       headers,
       {
-        query: query
+        query
       }
     ).then(result => {
       if (result.status !== 207) {
@@ -81,7 +81,7 @@ class FilesTrash {
       headers,
       null,
       {
-        query: query
+        query
       }
     ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
@@ -120,7 +120,7 @@ class FilesTrash {
       headers,
       null,
       {
-        query: query
+        query
       }
     ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {

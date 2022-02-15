@@ -1,0 +1,5 @@
+Bugfix: Trashbin query
+
+We've brought back providing a query when listing trashbin contents. This got lost during the switch from webdav v1 to v2.
+
+https://github.com/owncloud/owncloud-sdk/pull/1002

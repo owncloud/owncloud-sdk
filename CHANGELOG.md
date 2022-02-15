@@ -1,3 +1,22 @@
+# Changelog for [2.0.1] (2022-02-15)
+
+The following sections list the changes in ownCloud SDK 2.0.1.
+
+[2.0.1]: https://github.com/owncloud/owncloud-sdk/compare/v2.0.0...v2.0.1
+
+## Summary
+
+* Bugfix - Trashbin query: [#1002](https://github.com/owncloud/owncloud-sdk/pull/1002)
+
+## Details
+
+* Bugfix - Trashbin query: [#1002](https://github.com/owncloud/owncloud-sdk/pull/1002)
+
+   We've brought back providing a query when listing trashbin contents. This got lost during the
+   switch from webdav v1 to v2.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1002
+
 # Changelog for [2.0.0] (2022-02-08)
 
 The following sections list the changes in ownCloud SDK 2.0.0.

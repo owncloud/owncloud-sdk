@@ -45,7 +45,10 @@ class FilesTrash {
       this.helpers._buildFullDAVPath(target),
       properties,
       depth,
-      headers
+      headers,
+      {
+        query
+      }
     ).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
@@ -78,8 +81,7 @@ class FilesTrash {
       headers,
       null,
       {
-        version: 'v2',
-        query: query
+        query
       }
     ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
@@ -118,7 +120,7 @@ class FilesTrash {
       headers,
       null,
       {
-        query: query
+        query
       }
     ).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {

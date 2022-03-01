@@ -1,4 +1,4 @@
-Change: Adjust share management to properly work with spaces
+Enhancement: Adjust share management to properly work with spaces
 
 This includes a new method `shareSpaceWithUser` as well as the possibility to pass URL params to the `deleteShare` method.
 

@@ -91,28 +91,14 @@ class Shares {
   shareFileWithUser (path, username, optionalParams) {
     path = this.helpers._normalizePath(path)
 
-    const postData = {
+    let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_USER,
       shareWith: username,
       path: path
     }
 
     if (optionalParams) {
-      if (optionalParams.permissions) {
-        postData.permissions = optionalParams.permissions
-      }
-
-      if (optionalParams.expirationDate) {
-        postData.expireDate = optionalParams.expirationDate
-      }
-
-      if (optionalParams.attributes) {
-        postData.attributes = optionalParams.attributes
-      }
-
-      if (optionalParams.remoteUser) {
-        postData.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
-      }
+      postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
@@ -134,7 +120,7 @@ class Shares {
    * @returns {Promise.<error>}            string: error message, if any.
    */
   shareSpaceWithUser (path, username, spaceId, optionalParams) {
-    const postData = {
+    let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_SPACE,
       shareWith: username,
       space_ref: spaceId
@@ -145,17 +131,7 @@ class Shares {
     }
 
     if (optionalParams) {
-      if (optionalParams.permissions) {
-        postData.permissions = optionalParams.permissions
-      }
-
-      if (optionalParams.expirationDate) {
-        postData.expireDate = optionalParams.expirationDate
-      }
-
-      if (optionalParams.attributes) {
-        postData.attributes = optionalParams.attributes
-      }
+      postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
@@ -178,24 +154,14 @@ class Shares {
   shareFileWithGroup (path, groupName, optionalParams) {
     path = this.helpers._normalizePath(path)
 
-    const postData = {
+    let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_GROUP,
       shareWith: groupName,
       path: path
     }
 
     if (optionalParams) {
-      if (optionalParams.permissions) {
-        postData.permissions = optionalParams.permissions
-      }
-
-      if (optionalParams.expirationDate) {
-        postData.expireDate = optionalParams.expirationDate
-      }
-
-      if (optionalParams.attributes) {
-        postData.attributes = optionalParams.attributes
-      }
+      postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
@@ -472,6 +438,31 @@ class Shares {
       .then(json => {
         return json.ocs.data
       })
+  }
+
+  /**
+   * @param {object} optionalParams
+   * @returns {object}
+   */
+  _getOptionalParams (optionalParams) {
+    const data = {}
+    if (optionalParams.permissions) {
+      data.permissions = optionalParams.permissions
+    }
+
+    if (optionalParams.expirationDate) {
+      data.expireDate = optionalParams.expirationDate
+    }
+
+    if (optionalParams.attributes) {
+      data.attributes = optionalParams.attributes
+    }
+
+    if (optionalParams.remoteUser) {
+      data.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
+    }
+
+    return data
   }
 }
 

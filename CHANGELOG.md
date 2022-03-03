@@ -6,9 +6,21 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 ## Summary
 
+* Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
 ## Details
+
+* Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
+
+   We've removed a version check that omitted the `X-Request-ID` header value in request headers
+   when the backend version was below v10.1.0. Since ownCloud Infinite Scale follows it's own
+   versioning this caused oCIS not having the X-Request-ID in any request if below this version,
+   hence preventing us from announcing the correct version for oCIS.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1016
+   https://github.com/owncloud/ocis/pull/2918
+
 
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 

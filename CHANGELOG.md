@@ -1,3 +1,22 @@
+# Changelog for [unreleased] (UNRELEASED)
+
+The following sections list the changes in ownCloud SDK unreleased.
+
+[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v2.0.1...master
+
+## Summary
+
+* Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
+
+## Details
+
+* Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
+
+   This includes a new method `shareSpaceWithUser` as well as the possibility to pass URL params
+   to the `deleteShare` method.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1013
+
 # Changelog for [2.0.1] (2022-02-15)
 
 The following sections list the changes in ownCloud SDK 2.0.1.

@@ -23,13 +23,13 @@ to add the `owncloud-sdk` to your project.
 If you haven't done so already, you also need to add the following `peerDependencies` to your dependencies:
 
 ```
-npm install axios cross-fetch promise qs semver utf8 uuid webdav xml-js
+npm install axios cross-fetch promise qs utf8 uuid webdav xml-js
 ```
 
 or
 
 ```
-yarn add axios cross-fetch promise qs semver utf8 uuid webdav xml-js
+yarn add axios cross-fetch promise qs utf8 uuid webdav xml-js
 ```
 
 ## Usage

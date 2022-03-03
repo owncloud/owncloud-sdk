@@ -195,18 +195,8 @@ class helpers {
     if (withAuthHeader) {
       headers.Authorization = this._authHeader
     }
-    if (this.atLeastVersion('10.1.0')) {
-      headers['X-Request-ID'] = uuidv4()
-    }
+    headers['X-Request-ID'] = uuidv4()
     return headers
-  }
-
-  atLeastVersion (minVersion) {
-    if (this._versionNumber === null) {
-      return false
-    }
-    const semver = require('semver')
-    return semver.gte(this._versionNumber, minVersion)
   }
 
   /**

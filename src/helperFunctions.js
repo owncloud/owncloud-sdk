@@ -29,6 +29,7 @@ class helpers {
     this.OCS_SHARE_TYPE_GROUP = 1
     this.OCS_SHARE_TYPE_LINK = 3
     this.OCS_SHARE_TYPE_REMOTE = 6
+    this.OCS_SHARE_TYPE_SPACE = 7
 
     this.instance = null
     this._authHeader = null

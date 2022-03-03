@@ -13,6 +13,7 @@ const ShareInfo = require('./shareInfo.js')
  *          <li>shareFileWithLink</li>
  *          <li>updateShare</li>
  *          <li>shareFileWithUser</li>
+ *          <li>shareSpaceWithUser</li>
  *          <li>shareFileWithGroup</li>
  *          <li>getShares</li>
  *          <li>isShared</li>
@@ -90,28 +91,47 @@ class Shares {
   shareFileWithUser (path, username, optionalParams) {
     path = this.helpers._normalizePath(path)
 
-    const postData = {
+    let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_USER,
       shareWith: username,
       path: path
     }
 
     if (optionalParams) {
-      if (optionalParams.permissions) {
-        postData.permissions = optionalParams.permissions
-      }
+      postData = { ...postData, ...this._getOptionalParams(optionalParams) }
+    }
 
-      if (optionalParams.expirationDate) {
-        postData.expireDate = optionalParams.expirationDate
-      }
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
+      .then(data => {
+        const shareData = data.data.ocs.data
+        const share = new ShareInfo(shareData)
 
-      if (optionalParams.attributes) {
-        postData.attributes = optionalParams.attributes
-      }
+        return Promise.resolve(share)
+      })
+  }
 
-      if (optionalParams.remoteUser) {
-        postData.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
-      }
+  /**
+   * Shares a space with specified user
+   * @param   {string}    path             path to the remote file share
+   * @param   {string}    username         name of the user to share with
+   * @param   {string}    spaceId          id of the space
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: assoc array (at free disposal)}
+   * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
+   * @returns {Promise.<error>}            string: error message, if any.
+   */
+  shareSpaceWithUser (path, username, spaceId, optionalParams) {
+    let postData = {
+      shareType: this.helpers.OCS_SHARE_TYPE_SPACE,
+      shareWith: username,
+      space_ref: spaceId
+    }
+
+    if (path) {
+      postData.path = this.helpers._normalizePath(path)
+    }
+
+    if (optionalParams) {
+      postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
@@ -134,24 +154,14 @@ class Shares {
   shareFileWithGroup (path, groupName, optionalParams) {
     path = this.helpers._normalizePath(path)
 
-    const postData = {
+    let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_GROUP,
       shareWith: groupName,
       path: path
     }
 
     if (optionalParams) {
-      if (optionalParams.permissions) {
-        postData.permissions = optionalParams.permissions
-      }
-
-      if (optionalParams.expirationDate) {
-        postData.expireDate = optionalParams.expirationDate
-      }
-
-      if (optionalParams.attributes) {
-        postData.attributes = optionalParams.attributes
-      }
+      postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
@@ -371,14 +381,23 @@ class Shares {
   /**
    * Deletes a share
    * @param   {number}   shareId   ID of the share to delete
+   * @param   {object}   urlParams   {shareWith: string}
    * @returns {Promise.<status>}    boolean: true if successful
    * @returns {Promise.<error>}     string: error message, if any.
    */
-  deleteShare (shareId) {
+  deleteShare (shareId, urlParams) {
+    let urlParamString = ''
+    if (urlParams) {
+      urlParamString = '?'
+      if (urlParams.shareWith) {
+        urlParamString += `shareWith=${urlParams.shareWith}`
+      }
+    }
+
     return new Promise((resolve, reject) => {
       /* jshint unused: false */
       this.helpers._makeOCSrequest('DELETE', this.helpers.OCS_SERVICE_SHARE,
-        'shares/' + encodeURIComponent(shareId.toString())
+        'shares/' + encodeURIComponent(shareId.toString()) + urlParamString
       ).then(() => {
         resolve(true)
       }).catch(error => {
@@ -419,6 +438,31 @@ class Shares {
       .then(json => {
         return json.ocs.data
       })
+  }
+
+  /**
+   * @param {object} optionalParams
+   * @returns {object}
+   */
+  _getOptionalParams (optionalParams) {
+    const data = {}
+    if (optionalParams.permissions) {
+      data.permissions = optionalParams.permissions
+    }
+
+    if (optionalParams.expirationDate) {
+      data.expireDate = optionalParams.expirationDate
+    }
+
+    if (optionalParams.attributes) {
+      data.attributes = optionalParams.attributes
+    }
+
+    if (optionalParams.remoteUser) {
+      data.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
+    }
+
+    return data
   }
 }
 

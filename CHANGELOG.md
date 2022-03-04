@@ -7,6 +7,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 ## Summary
 
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
+* Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
 ## Details
@@ -20,6 +21,15 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/owncloud-sdk/pull/1016
    https://github.com/owncloud/ocis/pull/2918
+
+
+* Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
+
+   We've added the `X-Requested-With` header to all requests as oC 10 is using this to determine
+   whether it should treat certain requests as ajax requests or not (for example: ajax requests
+   should never show an auth popup).
+
+   https://github.com/owncloud/owncloud-sdk/pull/1020
 
 
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)

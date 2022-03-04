@@ -34,7 +34,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   const {
     xmlResponseHeaders,
-    applicationFormUrlEncoded,
+    applicationFormUrlEncodedContentType,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
     createOwncloud,
@@ -247,8 +247,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
         body: toFormUrlEncoded(formData),
         headers: {
           ...validAuthHeaders,
-          ...applicationFormUrlEncoded
-        }
+          ...applicationFormUrlEncodedContentType
+        },
+        contentType: applicationFormUrlEncodedContentType['Content-Type']
       })
       .willRespondWith({
         status: 200,
@@ -752,8 +753,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
             ),
             headers: {
               ...validAuthHeaders,
-              ...applicationFormUrlEncoded
+              ...applicationFormUrlEncodedContentType
             },
+            contentType: applicationFormUrlEncodedContentType['Content-Type'],
             body: 'shareType=3' + '&path=%2F' + nonExistentFile + '&password=' + publicLinkPassword
           }).willRespondWith({
             status: 200,
@@ -781,8 +783,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
             ),
             headers: {
               ...validAuthHeaders,
-              ...applicationFormUrlEncoded
+              ...applicationFormUrlEncodedContentType
             },
+            contentType: applicationFormUrlEncodedContentType['Content-Type'],
             body: 'shareType=1&shareWith=' + testGroup + '&path=%2F' + nonExistentFile + '&permissions=19'
           }).willRespondWith({
             status: 200,
@@ -881,9 +884,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
             ),
             headers: {
               ...validAuthHeaders,
-              ...applicationFormUrlEncoded
+              ...applicationFormUrlEncodedContentType
             },
-            body: 'shareType=0&shareWith=' + sharee + '&path=' + fileEncoded + '&expireDate=' + expirationDate
+            contentType: applicationFormUrlEncodedContentType['Content-Type'],
           })
           .willRespondWith({
             status: 200,
@@ -915,8 +918,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
             ),
             headers: {
               ...validAuthHeaders,
-              ...applicationFormUrlEncoded
+              ...applicationFormUrlEncodedContentType
             },
+            contentType: applicationFormUrlEncodedContentType['Content-Type'],
             body: toFormUrlEncoded(formData)
           })
           .willRespondWith({

@@ -12,6 +12,7 @@ describe('Main: Currently testing group management,', function () {
     createProvider,
     validAdminAuthHeaders,
     xmlResponseHeaders,
+    applicationFormUrlEncodedContentType,
     ocsMeta,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
@@ -210,9 +211,8 @@ describe('Main: Currently testing group management,', function () {
     provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
-    const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
-
     await givenGroupDoesNotExist(provider, config.testGroup)
+    const headers = { ...validAdminAuthHeaders, ...applicationFormUrlEncodedContentType }
     await provider
       .uponReceiving(`as '${adminUsername}', a POST request to create a group`)
       .withRequest({
@@ -222,6 +222,7 @@ describe('Main: Currently testing group management,', function () {
           '/ocs/v1.php/cloud/groups'
         ),
         headers: headers,
+        contentType: applicationFormUrlEncodedContentType['Content-Type'],
         body: 'groupid=' + config.testGroup
       })
       .willRespondWith({

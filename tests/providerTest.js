@@ -37,6 +37,9 @@ describe('provider testing', () => {
   const { parseString } = require('xml2js')
 
   const {
+    validAdminAuthHeaders,
+    applicationFormUrlEncodedContentType,
+    getAuthHeaders,
     sanitizeUrl,
     getProviderBaseUrl
   } = require('./helpers/pactHelper.js')
@@ -112,6 +115,14 @@ describe('provider testing', () => {
     'group exists': (setup, parameters) => {
       if (setup) {
         createGroup(parameters.groupName)
+        fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups', {
+          method: 'POST',
+          body: 'groupid=' + parameters.groupName,
+          headers: {
+            ...validAdminAuthHeaders,
+            ...applicationFormUrlEncodedContentType
+          }
+        })
         return { description: 'group added' }
       } else {
         deleteGroup(parameters.groupName)
@@ -176,7 +187,6 @@ describe('provider testing', () => {
     'the user is recreated': (setup, parameters) => {
       if (setup) {
         deleteUser(parameters.username)
-
         const result = createUser(parameters.username)
         chai.assert.strictEqual(
           result.status, 200, `creating user '${parameters.username}' failed`

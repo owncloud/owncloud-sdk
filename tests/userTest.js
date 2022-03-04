@@ -19,7 +19,7 @@ describe('Main: Currently testing user management,', function () {
     createProvider,
     validAdminAuthHeaders,
     xmlResponseHeaders,
-    applicationFormUrlEncoded
+    applicationFormUrlEncodedContentType
   } = require('./helpers/pactHelper.js')
 
   const {
@@ -91,8 +91,9 @@ describe('Main: Currently testing user management,', function () {
         ),
         headers: {
           ...validAdminAuthHeaders,
-          ...applicationFormUrlEncoded
+          ...applicationFormUrlEncodedContentType
         },
+        contentType: applicationFormUrlEncodedContentType['Content-Type'],
         body: requestBody
       })
       .willRespondWith({
@@ -130,8 +131,9 @@ describe('Main: Currently testing user management,', function () {
         headers:
           {
             ...validAdminAuthHeaders,
-            ...applicationFormUrlEncoded
+            ...applicationFormUrlEncodedContentType
           },
+        contentType: applicationFormUrlEncodedContentType['Content-Type'],
         body: 'groupid=' + group
       })
       .willRespondWith({
@@ -200,8 +202,9 @@ describe('Main: Currently testing user management,', function () {
         headers:
           {
             ...validAdminAuthHeaders,
-            ...applicationFormUrlEncoded
+            ...applicationFormUrlEncodedContentType
           },
+        contentType: applicationFormUrlEncodedContentType['Content-Type'],
         body: 'groupid=' + group
       })
       .willRespondWith({
@@ -238,8 +241,9 @@ describe('Main: Currently testing user management,', function () {
         headers:
           {
             ...validAdminAuthHeaders,
-            ...applicationFormUrlEncoded
+            ...applicationFormUrlEncodedContentType
           },
+        contentType: applicationFormUrlEncodedContentType['Content-Type'],
         body: 'groupid=' + group
       })
       .willRespondWith({

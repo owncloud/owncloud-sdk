@@ -80,13 +80,13 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
   return res
 }
 
-const applicationXmlResponseHeaders = {
+const applicationXmlContentType = {
   'Content-Type': 'application/xml; charset=utf-8'
 }
 const textPlainResponseHeaders = {
   'Content-Type': MatchersV3.regex('text/plain(;()?charset=(utf|UTF)-8)?', 'text/plain; charset=utf-8')
 }
-const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urlencoded' }
+const applicationFormUrlEncodedContentType = { 'Content-Type': 'application/x-www-form-urlencoded' }
 
 const xmlResponseHeaders = {
   'Content-Type': MatchersV3.regex(
@@ -208,7 +208,7 @@ const getContentsOfFileInteraction = async (
       body: config.testContent
     } : {
       status: 404,
-      headers: applicationXmlResponseHeaders,
+      headers: applicationXmlContentType,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
     })
 }
@@ -388,7 +388,7 @@ const createUserInteraction = function (provider) {
       ),
       headers: {
         ...validAdminAuthHeaders,
-        ...applicationFormUrlEncoded
+        ...applicationFormUrlEncodedContentType
       },
       body: `password=${testUserPassword}&userid=${testUser}`
     })
@@ -410,8 +410,9 @@ const createUserWithGroupMembershipInteraction = async function (provider) {
       ),
       headers: {
         ...validAdminAuthHeaders,
-        ...applicationFormUrlEncoded
+        ...applicationFormUrlEncodedContentType
       },
+      contentType: applicationFormUrlEncodedContentType['Content-Type'],
       body: 'password=' + testUserPassword + '&userid=' + testUser + '&groups%5B0%5D=' + config.testGroup
     })
     .willRespondWith({
@@ -497,7 +498,7 @@ const updateFileInteraction = async function (provider, file, user = adminUserna
   if (file.includes(config.nonExistentDir)) {
     response = {
       status: 409,
-      headers: applicationXmlResponseHeaders,
+      headers: applicationXmlContentType,
       body: webdavExceptionResponseBody(
         'Conflict',
         'Files cannot be created in non-existent collections'
@@ -506,7 +507,7 @@ const updateFileInteraction = async function (provider, file, user = adminUserna
   } else if (file.includes(config.nonExistentFile)) {
     response = {
       status: 404,
-      headers: applicationXmlResponseHeaders,
+      headers: applicationXmlContentType,
       body: webdavExceptionResponseBody(
         'NotFound',
         resourceNotFoundExceptionMessage(config.nonExistentDir)
@@ -528,8 +529,9 @@ const updateFileInteraction = async function (provider, file, user = adminUserna
       path: webdavPath(file, user),
       headers: {
         authorization: getAuthHeaders(user, password),
-        'Content-Type': 'text/plain;charset=utf-8'
+        ...textPlainResponseHeaders
       },
+      contentType: textPlainResponseHeaders['Content-Type'],
       body: config.testContent
     })
     .willRespondWith(response)
@@ -562,12 +564,12 @@ module.exports = {
   invalidAuthHeader,
   xmlResponseHeaders,
   htmlResponseHeaders,
-  applicationFormUrlEncoded,
+  applicationFormUrlEncodedContentType,
   textPlainResponseHeaders,
   accessControlAllowHeaders,
   accessControlAllowMethods,
   unauthorizedXmlResponseBody,
-  applicationXmlResponseHeaders,
+  applicationXmlContentType,
   testSubFiles,
   getCapabilitiesInteraction,
   getCurrentUserInformationInteraction,

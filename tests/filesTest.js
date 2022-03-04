@@ -127,6 +127,7 @@ describe('Main: Currently testing files management,', function () {
           Depth: depth,
           ...xmlResponseHeaders
         },
+        contentType: applicationXmlContentType['Content-Type'],
         body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
           dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
           dPropfind.appendElement('d:prop', '', '')
@@ -195,6 +196,7 @@ describe('Main: Currently testing files management,', function () {
           ...validAuthHeaders,
           ...xmlResponseHeaders
         },
+        contentType: applicationXmlContentType['Content-Type'],
         body: new XmlBuilder('1.0', '', 'd:propertyupdate').build(dPropUpdate => {
           dPropUpdate.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
           dPropUpdate.appendElement('d:set', '', dSet => {
@@ -817,6 +819,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
@@ -880,6 +883,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', dProp => {
@@ -957,6 +961,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
             dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', '')
@@ -1290,6 +1295,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
             ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocFilterFiles.appendElement('d:prop', '', dProp => {
@@ -1359,6 +1365,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
             ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocFilterFiles.appendElement('d:prop', '', dProp => {
@@ -1425,6 +1432,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'oc:search-files').build(ocSearchFiles => {
             ocSearchFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocSearchFiles.appendElement('d:prop', '', dProp => {
@@ -1541,6 +1549,7 @@ describe('Main: Currently testing files management,', function () {
             ...validAuthHeaders,
             ...xmlResponseHeaders
           },
+          contentType: applicationXmlContentType['Content-Type'],
           body: new XmlBuilder('1.0', '', 'oc:filter-files').build(ocFilterFiles => {
             ocFilterFiles.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             ocFilterFiles.appendElement('d:prop', '', dProp => {

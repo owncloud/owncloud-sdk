@@ -19,6 +19,7 @@ describe('oc.publicFiles', function () {
 
   const {
     xmlResponseHeaders,
+    applicationFormUrlEncodedContentType,
     htmlResponseAndAccessControlCombinedHeader,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
@@ -82,9 +83,7 @@ describe('oc.publicFiles', function () {
     let headers = textPlainResponseHeaders
     let responseHeaders = {}
     if (method === 'PUT') {
-      headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+      headers = applicationFormUrlEncodedContentType
       responseHeaders = {
         ETag: MatchersV3.string('f356def9fc42fd4cbddf293eba3efa86'),
         'OC-ETag': MatchersV3.string('f356def9fc42fd4cbddf293eba3efa86')
@@ -117,6 +116,7 @@ describe('oc.publicFiles', function () {
           `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/${testFile}`
         ),
         headers,
+        contentType: headers['Content-Type'],
         body: requestBody
       })
       .willRespondWith({
@@ -236,6 +236,7 @@ describe('oc.publicFiles', function () {
                   ...headers,
                   ...xmlResponseHeaders
                 },
+                contentType: applicationXmlContentType['Content-Type'],
                 body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
                   dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
                   dPropfind.appendElement('d:prop', '', dProp => {
@@ -666,6 +667,7 @@ describe('oc.publicFiles', function () {
                 ...getPublicLinkAuthHeader(data.shareParams.password),
                 ...xmlResponseHeaders
               },
+              contentType: applicationXmlContentType['Content-Type'],
               body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
                 dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
                 dPropfind.appendElement('d:prop', '', dProp => {

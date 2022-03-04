@@ -196,6 +196,7 @@ class helpers {
       headers.Authorization = this._authHeader
     }
     headers['X-Request-ID'] = uuidv4()
+    headers['X-Requested-With'] = 'XMLHttpRequest'
     return headers
   }
 

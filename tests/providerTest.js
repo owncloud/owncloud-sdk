@@ -30,7 +30,7 @@ const delay = (delayTime) => {
 }
 
 describe('provider testing', () => {
-  const { VerifierV3 } = require('@pact-foundation/pact/v3')
+  const { Verifier } = require('@pact-foundation/pact')
   const chai = require('chai')
   const chaiAsPromised = require('chai-as-promised')
   const path = require('path')
@@ -379,7 +379,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -396,7 +396,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -414,7 +414,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -431,7 +431,7 @@ describe('provider testing', () => {
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
         )]
       }
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -450,7 +450,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -467,7 +467,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -485,7 +485,7 @@ describe('provider testing', () => {
         )]
       }
 
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {
@@ -502,7 +502,7 @@ describe('provider testing', () => {
           process.cwd(), 'tests', 'pacts', 'owncloud-sdk-oc-server-pendingOn-oc10-ocis.json'
         )]
       }
-      return new VerifierV3(opts).verifyProvider().then(output => {
+      return new Verifier(opts).verifyProvider().then(output => {
         console.log('Pact Verification Complete!')
         console.log('Result:', output)
       }).catch(function () {

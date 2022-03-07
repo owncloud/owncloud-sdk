@@ -108,7 +108,7 @@ const givenUserShareExists = (
       path,
       shareType: SHARE_TYPE.user,
       shareWith,
-      ...optionalParams
+      ...removeUndefinedKeys(optionalParams)
     })
 }
 
@@ -138,7 +138,8 @@ const givenGroupShareExists = (
       path,
       shareType: SHARE_TYPE.group,
       shareWith,
-      ...optionalParams
+      ...removeUndefinedKeys(optionalParams)
+
     })
 }
 
@@ -168,7 +169,7 @@ const givenPublicShareExists = (
       username,
       path,
       shareType: SHARE_TYPE.public,
-      ...optionalParams
+      ...removeUndefinedKeys(optionalParams)
     })
 }
 
@@ -390,6 +391,20 @@ const givenSignedKeyIsReturned = (provider, username, path) => {
  */
 const givenClientWaits = (provider, delay) => {
   return provider.given('the client waits', { delay })
+}
+
+/**
+ * removes all key-value pairs where the value is 'undefined'
+ * pact does not accept undefined values in given parameters
+ * @param optionalParams
+ * @returns {{}|any}
+ */
+function removeUndefinedKeys (optionalParams) {
+  if (optionalParams === undefined) {
+    return {}
+  } else {
+    return JSON.parse(JSON.stringify(optionalParams))
+  }
 }
 
 module.exports = {

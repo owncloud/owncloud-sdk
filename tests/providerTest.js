@@ -107,7 +107,7 @@ describe('provider testing', () => {
     defaultOpts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
     defaultOpts.publishVerificationResult = true
     defaultOpts.pactBrokerToken = PACTFLOW_TOKEN
-    defaultOpts.consumerVersionTags = DRONE_SOURCE_BRANCH
+    defaultOpts.consumerVersionTags = [DRONE_SOURCE_BRANCH]
     defaultOpts.providerVersion = PROVIDER_VERSION
     defaultOpts.providerVersionTags = PROVIDER_VERSION
   }

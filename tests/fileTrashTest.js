@@ -188,7 +188,7 @@ describe('oc.fileTrash', function () {
         if (!trashEnabled) {
           pending()
         }
-        return oc.fileTrash.list('').then(trashItems => {
+        return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
           expect(trashItems.length).toEqual(1)
           expect(trashItems[0].getName()).toEqual(testUser)
         })
@@ -319,7 +319,7 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
             expect(trashItems.length).toEqual(2)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFolder)
           })
@@ -336,7 +336,7 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
             expect(trashItems.length).toEqual(2)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFolder)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-location')).toEqual(testFolder)
@@ -466,8 +466,8 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.restore(`trash-bin/${testUser}`, deletedFolderId, `files/${testUser}/${originalLocation}`).then(() => {
+            return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(`files/${testUser}/${testFolder}`).then(fileInfo => {
@@ -599,8 +599,8 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.restore(`trash-bin/${testUser}`, deletedFolderId, `files/${testUser}/${originalLocation}`).then(() => {
+            return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(`files/${testUser}/${originalLocation}`).then(fileInfo => {
@@ -710,7 +710,7 @@ describe('oc.fileTrash', function () {
           if (!trashEnabled) {
             pending()
           }
-          return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
             expect(trashItems.length).toEqual(2)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-filename')).toEqual(testFile)
             expect(trashItems[1].getProperty('{http://owncloud.org/ns}trashbin-original-location')).toEqual(`${testFolder}/${testFile}`)
@@ -828,8 +828,8 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.restore(`trash-bin/${testUser}`, deletedFolderId, `files/${testUser}/${originalLocation}`).then(() => {
+            return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(`files/${testUser}/${testFolder}`).then(fileInfo => {
@@ -960,8 +960,8 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.restore(deletedFolderId, originalLocation).then(() => {
-            return oc.fileTrash.list('').then(trashItems => {
+          return oc.fileTrash.restore(`trash-bin/${testUser}`, deletedFolderId, `files/${testUser}/${originalLocation}`).then(() => {
+            return oc.fileTrash.list(`trash-bin/${testUser}/`).then(trashItems => {
               expect(trashItems.length).toEqual(1)
               expect(trashItems[0].getName()).toEqual(testUser)
               return oc.files.fileInfo(`files/${testUser}/${originalLocation}`).then(fileInfo => {
@@ -1022,7 +1022,7 @@ describe('oc.fileTrash', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
-          return oc.fileTrash.restore(deletedFolderId, 'non-existing/new-file.txt').then(() => {
+          return oc.fileTrash.restore(`trash-bin/${testUser}`, deletedFolderId, `files/${testUser}/non-existing/new-file.txt`).then(() => {
             fail('Restoring to non existing location should fail but passed')
           }).catch(error => {
             expect(error.message).toBe('The destination node is not found')

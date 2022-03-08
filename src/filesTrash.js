@@ -39,10 +39,9 @@ class FilesTrash {
     }
 
     const headers = this.helpers.buildHeaders()
-    const target = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + path
 
     return this.davClient.propFind(
-      this.helpers._buildFullDAVPath(target),
+      this.helpers._buildFullDAVPath(path),
       properties,
       depth,
       headers,
@@ -60,24 +59,27 @@ class FilesTrash {
 
   /**
    * Clears the users trash-bin
+   * @param   {string} trashBinPath
    * @param   {?string} item
    * @param   {Object}  query Query parameters dictionary
    * @returns {Promise<void | string | Error>}
    */
-  clearTrashBin (item = null, query = undefined) {
+  clearTrashBin (trashBinPath, item = null, query = undefined) {
+    if (trashBinPath === undefined) {
+      return Promise.reject(new Error('No tashBinPath given to clear'))
+    }
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
 
     const headers = this.helpers.buildHeaders()
-    let target = '/trash-bin/' + this.helpers.getCurrentUser().id + '/'
     if (item !== null) {
-      target += item
+      trashBinPath += '/' + item
     }
 
     return this.davClient.request(
       'DELETE',
-      this.helpers._buildFullDAVPath(target),
+      this.helpers._buildFullDAVPath(trashBinPath),
       headers,
       null,
       {
@@ -94,25 +96,31 @@ class FilesTrash {
 
   /**
    * Restores an item to it's original location.
+   * @param   {string} trashBinPath
    * @param   {string|number} fileId
-   * @param   {string}        originalLocation
+   * @param   {string}        destinationPath
    * @param   {boolean}       overWrite
    * @param   {Object}        query            Query parameters dictionary
    * @returns {Promise<void | string | Error>}
    */
-  restore (fileId, originalLocation, overWrite = false, query = undefined) {
+  restore (trashBinPath, fileId, destinationPath, overWrite = false, query = undefined) {
+    if (trashBinPath === undefined) {
+      return Promise.reject(new Error('No tashBinPath given for restore'))
+    }
     if (fileId === undefined) {
       return Promise.reject(new Error('No fileId given for restore'))
+    }
+    if (destinationPath === undefined) {
+      return Promise.reject(new Error('No destinationPath given for restore'))
     }
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
 
     const headers = this.helpers.buildHeaders()
-    const source = '/trash-bin/' + this.helpers.getCurrentUser().id + '/' + fileId
-    const target = '/files/' + this.helpers.getCurrentUser().id + '/' + originalLocation
+    const source = trashBinPath + '/' + fileId
 
-    headers.Destination = this.helpers._buildFullDAVURL(target)
+    headers.Destination = this.helpers._buildFullDAVURL(destinationPath)
     headers.Overwrite = overWrite ? 'T' : 'F'
     return this.davClient.request(
       'MOVE',

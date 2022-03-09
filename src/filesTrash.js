@@ -105,7 +105,7 @@ class FilesTrash {
    */
   restore (trashBinPath, fileId, destinationPath, overWrite = false, query = undefined) {
     if (trashBinPath === undefined) {
-      return Promise.reject(new Error('No tashBinPath given for restore'))
+      return Promise.reject(new Error('No trashBinPath given for restore'))
     }
     if (fileId === undefined) {
       return Promise.reject(new Error('No fileId given for restore'))

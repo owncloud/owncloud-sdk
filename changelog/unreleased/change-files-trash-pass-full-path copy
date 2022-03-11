@@ -1,0 +1,7 @@
+Change: Pass full trash bin path to methods of FilesTrash class
+
+Since incompatibility with spaces, we changed the way how the methods of the class
+FilesTrash(filesTrash.js) need to be called.
+Now it is mandatory to pass the full webDav(v2) path of the trash bin.
+
+https://github.com/owncloud/owncloud-sdk/pull/1021

@@ -90,18 +90,26 @@ class Shares {
    */
   shareFileWithUser (path, username, optionalParams) {
     path = this.helpers._normalizePath(path)
+    let urlPath = 'shares'
 
     let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_USER,
-      shareWith: username,
-      path: path
+      shareWith: username
+    }
+
+    if (!optionalParams || !optionalParams.spaceRef) {
+      postData.path = path
     }
 
     if (optionalParams) {
+      if (optionalParams.spaceRef) {
+        urlPath += `?space_ref=${optionalParams.spaceRef}`
+      }
+
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
-    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, urlPath, postData)
       .then(data => {
         const shareData = data.data.ocs.data
         const share = new ShareInfo(shareData)
@@ -188,10 +196,17 @@ class Shares {
     if (path !== '') {
       data += '?'
 
-      send.path = this.helpers._normalizePath(path)
+      if (!optionalParams || !optionalParams.spaceRef) {
+        send.path = this.helpers._normalizePath(path)
+      }
+
       optionalParams = this.helpers._convertObjectToBool(optionalParams)
 
       if (optionalParams) {
+        if (optionalParams.spaceRef) {
+          send.space_ref = optionalParams.spaceRef
+        }
+
         if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
           send.reshares = optionalParams.reshares
         }

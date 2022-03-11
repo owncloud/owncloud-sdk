@@ -8,6 +8,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
+* Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
 ## Details
@@ -30,6 +31,15 @@ The following sections list the changes in ownCloud SDK unreleased.
    should never show an auth popup).
 
    https://github.com/owncloud/owncloud-sdk/pull/1020
+
+
+* Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
+
+   Since incompatibility with spaces, we changed the way how the methods of the class
+   FilesTrash(filesTrash.js) need to be called. Now it is mandatory to pass the full webDav(v2)
+   path of the trash bin.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1021
 
 
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)

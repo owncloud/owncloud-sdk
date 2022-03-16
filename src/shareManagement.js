@@ -94,16 +94,14 @@ class Shares {
 
     let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_USER,
-      shareWith: username
-    }
-
-    if (!optionalParams || !optionalParams.spaceRef) {
-      postData.path = path
+      shareWith: username,
+      path: path
     }
 
     if (optionalParams) {
       if (optionalParams.spaceRef) {
         urlParams.append('space_ref', optionalParams.spaceRef)
+        delete postData.path
       }
 
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
@@ -198,15 +196,13 @@ class Shares {
     if (path !== '') {
       data += '?'
 
-      if (!optionalParams || !optionalParams.spaceRef) {
-        send.path = this.helpers._normalizePath(path)
-      }
-
+      send.path = this.helpers._normalizePath(path)
       optionalParams = this.helpers._convertObjectToBool(optionalParams)
 
       if (optionalParams) {
         if (optionalParams.spaceRef) {
           send.space_ref = optionalParams.spaceRef
+          delete send.path
         }
 
         if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {

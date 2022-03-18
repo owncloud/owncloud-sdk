@@ -345,6 +345,10 @@ class helpers {
               body = await res.arrayBuffer()
               break
 
+            case 'blob':
+              body = await res.blob()
+              break
+
             default:
               body = await res.text()
           }

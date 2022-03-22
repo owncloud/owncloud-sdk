@@ -51,6 +51,11 @@ class Shares {
     }
 
     if (optionalParams) {
+      if (optionalParams.spaceRef) {
+        postData.space_ref = optionalParams.spaceRef
+        delete postData.path
+      }
+
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
@@ -90,7 +95,6 @@ class Shares {
    */
   shareFileWithUser (path, username, optionalParams) {
     path = this.helpers._normalizePath(path)
-    const urlParams = new URLSearchParams()
 
     let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_USER,
@@ -100,16 +104,14 @@ class Shares {
 
     if (optionalParams) {
       if (optionalParams.spaceRef) {
-        urlParams.append('space_ref', optionalParams.spaceRef)
+        postData.space_ref = optionalParams.spaceRef
         delete postData.path
       }
 
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
-    const urlPath = urlParams.toString() ? `shares?${urlParams.toString()}` : 'shares'
-
-    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, urlPath, postData)
+    return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)
       .then(data => {
         const shareData = data.data.ocs.data
         const share = new ShareInfo(shareData)
@@ -169,6 +171,11 @@ class Shares {
     }
 
     if (optionalParams) {
+      if (optionalParams.spaceRef) {
+        postData.space_ref = optionalParams.spaceRef
+        delete postData.path
+      }
+
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
     }
 
@@ -194,35 +201,37 @@ class Shares {
     const send = {}
 
     if (path !== '') {
-      data += '?'
-
       send.path = this.helpers._normalizePath(path)
-      optionalParams = this.helpers._convertObjectToBool(optionalParams)
+    }
 
-      if (optionalParams) {
-        if (optionalParams.spaceRef) {
-          send.space_ref = optionalParams.spaceRef
-          delete send.path
-        }
+    optionalParams = this.helpers._convertObjectToBool(optionalParams)
 
-        if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
-          send.reshares = optionalParams.reshares
-        }
-
-        if (optionalParams.subfiles && typeof (optionalParams.subfiles) === 'boolean') {
-          send.subfiles = optionalParams.subfiles
-        }
-
-        /* jshint camelcase: false */
-        if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
-          send.shared_with_me = optionalParams.shared_with_me
-          if (optionalParams.state) {
-            send.state = optionalParams.state
-          }
-        }
-        /* jshint camelcase: true */
+    if (optionalParams) {
+      if (optionalParams.spaceRef) {
+        send.space_ref = optionalParams.spaceRef
+        delete send.path
       }
 
+      if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
+        send.reshares = optionalParams.reshares
+      }
+
+      if (optionalParams.subfiles && typeof (optionalParams.subfiles) === 'boolean') {
+        send.subfiles = optionalParams.subfiles
+      }
+
+      /* jshint camelcase: false */
+      if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
+        send.shared_with_me = optionalParams.shared_with_me
+        if (optionalParams.state) {
+          send.state = optionalParams.state
+        }
+      }
+      /* jshint camelcase: true */
+    }
+
+    if (Object.keys(send).length) {
+      data += '?'
       let urlString = ''
       for (const key in send) {
         urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key])

@@ -200,36 +200,38 @@ class Shares {
     let data = 'shares'
     const send = {}
 
-    if (path !== '' || (optionalParams && optionalParams.spaceRef)) {
-      data += '?'
-
+    if (path !== '') {
       send.path = this.helpers._normalizePath(path)
-      optionalParams = this.helpers._convertObjectToBool(optionalParams)
+    }
 
-      if (optionalParams) {
-        if (optionalParams.spaceRef) {
-          send.space_ref = optionalParams.spaceRef
-          delete send.path
-        }
+    optionalParams = this.helpers._convertObjectToBool(optionalParams)
 
-        if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
-          send.reshares = optionalParams.reshares
-        }
-
-        if (optionalParams.subfiles && typeof (optionalParams.subfiles) === 'boolean') {
-          send.subfiles = optionalParams.subfiles
-        }
-
-        /* jshint camelcase: false */
-        if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
-          send.shared_with_me = optionalParams.shared_with_me
-          if (optionalParams.state) {
-            send.state = optionalParams.state
-          }
-        }
-        /* jshint camelcase: true */
+    if (optionalParams) {
+      if (optionalParams.spaceRef) {
+        send.space_ref = optionalParams.spaceRef
+        delete send.path
       }
 
+      if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
+        send.reshares = optionalParams.reshares
+      }
+
+      if (optionalParams.subfiles && typeof (optionalParams.subfiles) === 'boolean') {
+        send.subfiles = optionalParams.subfiles
+      }
+
+      /* jshint camelcase: false */
+      if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
+        send.shared_with_me = optionalParams.shared_with_me
+        if (optionalParams.state) {
+          send.state = optionalParams.state
+        }
+      }
+      /* jshint camelcase: true */
+    }
+
+    if (Object.keys(send).length) {
+      data += '?'
       let urlString = ''
       for (const key in send) {
         urlString += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(send[key])

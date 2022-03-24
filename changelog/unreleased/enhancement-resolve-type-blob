@@ -1,5 +1,0 @@
-Enhancement: Add blob resolveType
-
-We now support blob as resolveType for requests in addition to text and arrayBuffer.
-
-https://github.com/owncloud/owncloud-sdk/pull/1028

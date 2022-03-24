@@ -1,0 +1,5 @@
+Enhancement: Add blob responseType
+
+We now support blob as responseType for requests in addition to text and arrayBuffer.
+
+https://github.com/owncloud/owncloud-sdk/pull/1028

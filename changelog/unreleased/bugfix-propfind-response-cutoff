@@ -1,0 +1,6 @@
+Bugfix: Dav propfind response cut off
+
+We've fixed an issue where the propfind response was incomplete
+and some child values were beeing cut off
+
+https://github.com/owncloud/owncloud-sdk/pull/1032

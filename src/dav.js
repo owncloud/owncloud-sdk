@@ -282,6 +282,19 @@ export class Dav {
           }
           continue
         }
+        if (node.constructor === Object && Object.keys(node).length !== 0) {
+          const parseChildren = (parseNode) => {
+            Object.entries(parseNode).forEach(([key, value]) => {
+              delete parseNode[key]
+              parseNode[key.split(':')[1]] = value
+              if (value.constructor === Object) {
+                parseChildren(value)
+              }
+            })
+          }
+          parseChildren(propNode)
+          return propNode
+        }
         var nsComponent = key.split(':')[0]
         var localComponent = key.split(':')[1]
         var nsValue = this.xmlNamespacesComponents[nsComponent]

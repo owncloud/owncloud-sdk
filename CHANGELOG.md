@@ -9,6 +9,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
 * Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
+* Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
@@ -41,6 +42,14 @@ The following sections list the changes in ownCloud SDK unreleased.
    path of the trash bin.
 
    https://github.com/owncloud/owncloud-sdk/pull/1021
+
+
+* Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
+
+   We've replaced all occurrences of the deprecated String.prototype.substr() function with
+   String.prototype.slice() which works similarly but isn't deprecated.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1035
 
 
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)

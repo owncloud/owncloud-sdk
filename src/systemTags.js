@@ -52,7 +52,7 @@ class SystemTags {
         return Promise.reject(new Error('Error: ' + result.status))
       } else {
         const contentLocation = result.res.headers['content-location']
-        return Promise.resolve(parseInt(contentLocation.substr(contentLocation.lastIndexOf('/') + 1), 10))
+        return Promise.resolve(parseInt(contentLocation.slice(contentLocation.lastIndexOf('/') + 1), 10))
       }
     })
   }

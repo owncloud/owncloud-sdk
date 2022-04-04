@@ -3,7 +3,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   var config = require('./config/config.json')
 
   // CURRENT TIME
-  var timeRightNow = Math.random().toString(36).substr(2, 9)
+  var timeRightNow = Math.random().toString(36).slice(2, 11)
 
   // LIBRARY INSTANCE
   var oc

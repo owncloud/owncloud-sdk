@@ -260,56 +260,7 @@ export class Dav {
    * @return {string|Array} text content as string or array of subnodes, excluding text nodes
    */
   _parsePropNode (propNode) {
-    var content = null
-    if (propNode.constructor === Object) {
-      if (Object.keys(propNode).length === 0) {
-        return ''
-      }
-      var subNodes = []
-      // Propnode can be any one of these
-      //         { 'oc:share-type': [ '0', '3' ] }
-      //         { 'oc:share-type': '3' }
-      //         { 'd:collection': {} }
-      for (var key in propNode) {
-        var node = propNode[key]
-        if (typeof node !== 'object') {
-          subNodes.push(node)
-          continue
-        }
-        if (Array.isArray(node)) {
-          for (var item of node) {
-            subNodes.push(item)
-          }
-          continue
-        }
-        if (node.constructor === Object && Object.keys(node).length !== 0) {
-          const parseChildren = (parseNode) => {
-            Object.entries(parseNode).forEach(([key, value]) => {
-              delete parseNode[key]
-              parseNode[key.split(':')[1]] = value
-              if (value.constructor === Object) {
-                parseChildren(value)
-              }
-            })
-          }
-          parseChildren(propNode)
-          return propNode
-        }
-        var nsComponent = key.split(':')[0]
-        var localComponent = key.split(':')[1]
-        var nsValue = this.xmlNamespacesComponents[nsComponent]
-        subNodes.push('{' + nsValue + '}' + localComponent)
-      }
-      if (subNodes.length) {
-        content = subNodes
-      }
-    } else if (propNode) {
-      content = propNode
-    } else {
-      content = ''
-    }
-
-    return content
+    return propNode
   }
 
   /**

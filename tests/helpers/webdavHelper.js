@@ -178,9 +178,9 @@ const propfind = function (path, userId, password, properties, type = 'files', f
  *
  * @param {string} user
  * @param {string} password
- * @param {number} depth
+ * @param {number|string} depth
  */
-const getTrashBinElements = function (user, password, depth = 2) {
+const getTrashBinElements = function (user, password, depth = 'infinity') {
   const str = propfind(
     '/',
     user,

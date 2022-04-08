@@ -151,7 +151,7 @@ def ocisService():
             "STORAGE_USERS_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/users",
             "STORAGE_METADATA_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/metadata",
             "STORAGE_SHARING_USER_JSON_FILE": "/srv/app/tmp/ocis/shares.json",
-            "PROXY_OIDC_INSECURE": "true",
+            "OCIS_INSECURE": "true",
             "ACCOUNTS_DATA_PATH": "/srv/app/tmp/ocis-accounts/",
             "PROXY_ENABLE_BASIC_AUTH": True,
             "OCIS_LOG_LEVEL": "debug",

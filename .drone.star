@@ -154,7 +154,7 @@ def ocisService():
             "OCIS_INSECURE": "true",
             "ACCOUNTS_DATA_PATH": "/srv/app/tmp/ocis-accounts/",
             "PROXY_ENABLE_BASIC_AUTH": True,
-            "OCIS_LOG_LEVEL": "debug",
+            "OCIS_LOG_LEVEL": "error",
         },
         "commands": [
             "cd /var/www/owncloud",

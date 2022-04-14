@@ -1,0 +1,8 @@
+Enhancement: Create quicklink
+
+We've added the option to create quicklinks which under the hood is the same as a link expect
+the fact that a quicklink can only exist once per item.
+
+https://github.com/owncloud/owncloud-sdk/pull/1041
+https://github.com/owncloud/web/issues/6605
+https://github.com/cs3org/reva/pull/2715

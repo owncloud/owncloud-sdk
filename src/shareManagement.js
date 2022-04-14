@@ -55,7 +55,6 @@ class Shares {
         postData.space_ref = optionalParams.spaceRef
         delete postData.path
       }
-
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
@@ -73,6 +72,9 @@ class Shares {
       }
       if (optionalParams.attributes) {
         postData.attributes = optionalParams.attributes
+      }
+      if (optionalParams.quicklink) {
+        postData.quicklink = optionalParams.quicklink
       }
     }
 

@@ -2109,14 +2109,7 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axios@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
-  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
-  dependencies:
-    follow-redirects "^1.14.4"
-
-axios@^0.26.0:
+axios@^0.26.0, axios@^0.26.1:
   version "0.26.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
   integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
@@ -2343,6 +2336,13 @@ brace-expansion@^1.1.7:
   dependencies:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
+
+brace-expansion@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-2.0.1.tgz#1edc459e0f0c548486ecf9fc99f2221364b9a0ae"
+  integrity sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==
+  dependencies:
+    balanced-match "^1.0.0"
 
 braces@^2.3.1, braces@^2.3.2:
   version "2.3.2"
@@ -4139,7 +4139,7 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@^1.0.0, follow-redirects@^1.14.4, follow-redirects@^1.14.8:
+follow-redirects@^1.0.0, follow-redirects@^1.14.8:
   version "1.14.8"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
   integrity sha512-1x0S9UVJHsQprFcEC/qnNzBLcIxsjAV905f/UkQxbclCsoTWlacCNOpQa/anodLl2uaEKFhfWOvM2Qg77+15zA==
@@ -6123,6 +6123,13 @@ minimatch@^3.0.4, minimatch@^3.1.2:
   integrity sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==
   dependencies:
     brace-expansion "^1.1.7"
+
+minimatch@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-5.0.1.tgz#fb9022f7528125187c92bd9e9b6366be1cf3415b"
+  integrity sha512-nLDxIFRyhDblz3qMuq+SoRZED4+miJ/G+tdDrjkkkRnjAsBexeGpgjLEQ0blJy7rHhR2b93rhQY4SvyWu9v03g==
+  dependencies:
+    brace-expansion "^2.0.1"
 
 minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5, minimist@^1.2.6:
   version "1.2.6"
@@ -8548,7 +8555,7 @@ url-join@^4.0.0, url-join@^4.0.1:
   resolved "https://registry.yarnpkg.com/url-join/-/url-join-4.0.1.tgz#b642e21a2646808ffa178c4c5fda39844e12cde7"
   integrity sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==
 
-url-parse@^1.5.3:
+url-parse@^1.5.10:
   version "1.5.10"
   resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.10.tgz#9d3c2f736c1d75dd3bd2be507dcc111f1e2ea9c1"
   integrity sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==
@@ -8695,23 +8702,23 @@ watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-webdav@4.8.0:
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/webdav/-/webdav-4.8.0.tgz#b5d7ebe46039d048c177fb021c9da591cf3ac6f0"
-  integrity sha512-CVJvxu0attEfoQUKraDiNh3uMjNPNl+BY0pbcKbyc/X+8IXDnqAT4tT4Ge12w+j49fYuVpFVkpEGwBZabv7Uhw==
+webdav@4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/webdav/-/webdav-4.9.0.tgz#cc12a55102feba8f87be6c6f2cd9bbb093abf22e"
+  integrity sha512-pMuRtZcjBk3i6q1iY5wBHdablKftoBfhrQEWWEejSh2LXgd0J6VE5V0c1tUlMrFHaVDx8iCoB9kupNzy8SMC4A==
   dependencies:
-    axios "^0.24.0"
+    axios "^0.26.1"
     base-64 "^1.0.0"
     fast-xml-parser "^3.19.0"
     he "^1.2.0"
     hot-patcher "^0.5.0"
     layerr "^0.1.2"
     md5 "^2.3.0"
-    minimatch "^3.0.4"
+    minimatch "^5.0.1"
     nested-property "^4.0.0"
     path-posix "^1.0.0"
     url-join "^4.0.1"
-    url-parse "^1.5.3"
+    url-parse "^1.5.10"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"

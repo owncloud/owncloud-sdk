@@ -1,6 +1,6 @@
 const Promise = require('promise')
 const parser = require('./xmlParser.js')
-const ShareInfo = require('./shareInfo.js')
+const { ShareInfo, USER_TYPE_GUEST, SHARE_TYPE_GUEST } = require('./shareInfo.js')
 
 /**
  * @class Shares
@@ -220,8 +220,20 @@ class Shares {
         send.subfiles = optionalParams.subfiles
       }
 
+      if ('include_tags' in optionalParams && typeof (optionalParams.include_tags) === 'boolean') {
+        send.include_tags = optionalParams.include_tags
+      }
+
+      if (optionalParams.share_types && typeof (optionalParams.share_types) === 'string') {
+        send.share_types = optionalParams.share_types
+      }
+
+      if (optionalParams.state && typeof (optionalParams.state) === 'string') {
+        send.state = optionalParams.state
+      }
+
       /* jshint camelcase: false */
-      if (optionalParams.shared_with_me && typeof (optionalParams.shared_with_me) === 'boolean') {
+      if ('shared_with_me' in optionalParams && typeof (optionalParams.shared_with_me) === 'boolean') {
         send.shared_with_me = optionalParams.shared_with_me
         if (optionalParams.state) {
           send.state = optionalParams.state
@@ -255,7 +267,6 @@ class Shares {
             const share = new ShareInfo(elements[i])
             shares.push(share)
           }
-
           resolve(shares)
         }).catch(error => {
           reject(error)
@@ -458,7 +469,20 @@ class Shares {
         throw new Error(response.status + '/' + response.statusText)
       })
       .then(json => {
-        return json.ocs.data
+        const data = json.ocs.data
+
+        /**
+         * oC10 does not emit if a share recipient is a user or a guest,
+         * therefore we check if the property `userType` is present and set to `USER_TYPE_GUEST`,
+         * if so we manipulate the `shareType` property and set it to `SHARE_TYPE_GUEST`
+         */
+        data.users.forEach((user) => {
+          if (user.value.userType === parseInt(USER_TYPE_GUEST)) {
+            user.value.shareType = parseInt(SHARE_TYPE_GUEST)
+          }
+        })
+
+        return data
       })
   }
 

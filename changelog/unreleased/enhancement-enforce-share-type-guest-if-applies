@@ -1,0 +1,7 @@
+Enhancement: Enforce `share_type` guest if applies
+
+With oC10, the `share_type` is not set to guest, if a user shares a resource with a guest user,
+therefore we check check if the property `share_with_user_type` is present and set to `guest`,
+if so we manipulate the `share_type` property and set it to guest.
+
+https://github.com/owncloud/owncloud-sdk/pull/1046

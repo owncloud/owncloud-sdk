@@ -5,17 +5,21 @@
  * @classdesc ShareInfo class, stores information regarding a share
  * @param {object} ShareInfo containing information like id, url etc. of the share
  */
+
+const USER_TYPE_GUEST = '1'
+const SHARE_TYPE_GUEST = '4'
+
 class ShareInfo {
   constructor (shareInfo) {
-    this.shareInfo = {}
+    this.shareInfo = shareInfo
 
-    // Below keys don't need to be stored
-    const notNeededKeys = ['item_type', 'item_source', 'file_source', 'parent', 'storage', 'mail_send']
-
-    for (const key in shareInfo) {
-      if (!(key in notNeededKeys)) {
-        this.shareInfo[key] = shareInfo[key]
-      }
+    /**
+     * oC10 does not use the share type `guest` but `user` for guest shares.
+     * As mitigation it emits `share_with_user_type` with value `0` for user and `1` for guest shares.
+     * We utilize this information to rewrite the `share_type` to guest when needed.
+     */
+    if (this.shareInfo?.share_with_user_type === USER_TYPE_GUEST) {
+      this.shareInfo.share_type = SHARE_TYPE_GUEST
     }
   }
 
@@ -157,4 +161,4 @@ class ShareInfo {
   }
 }
 
-module.exports = ShareInfo
+module.exports = { ShareInfo, USER_TYPE_GUEST, SHARE_TYPE_GUEST }

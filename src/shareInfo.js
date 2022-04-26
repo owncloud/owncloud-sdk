@@ -14,9 +14,9 @@ class ShareInfo {
     this.shareInfo = shareInfo
 
     /**
-     * oC10 does not emit if a share receiver is a user or a guest,
-     * therefore we check if the property `share_with_user_type` is present and set to `USER_TYPE_GUEST`,
-     * if so we manipulate the `share_type` property and set it to `SHARE_TYPE_GUEST`
+     * oC10 does not use the share type `guest` but `user` for guest shares.
+     * As mitigation it emits `share_with_user_type` with value `0` for user and `1` for guest shares.
+     * We utilize this information to rewrite the `share_type` to guest when needed.
      */
     if (this.shareInfo?.share_with_user_type === USER_TYPE_GUEST) {
       this.shareInfo.share_type = SHARE_TYPE_GUEST

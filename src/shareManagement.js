@@ -472,9 +472,9 @@ class Shares {
         const data = json.ocs.data
 
         /**
-         * oC10 does not emit if a share recipient is a user or a guest,
-         * therefore we check if the property `userType` is present and set to `USER_TYPE_GUEST`,
-         * if so we manipulate the `shareType` property and set it to `SHARE_TYPE_GUEST`
+         * oC10 does not use the share type `guest` but `user` for guest shares.
+         * As mitigation it emits `userType` with value `0` for user and `1` for guest shares.
+         * We utilize this information to rewrite the `shareType` to guest when needed.
          */
         data.users.forEach((user) => {
           if (user.value.userType === parseInt(USER_TYPE_GUEST)) {

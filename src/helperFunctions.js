@@ -552,7 +552,8 @@ class helpers {
 
     const remoteIndex = pathSections.findIndex(section => decodeURIComponent(section) === 'remote.php')
     if (remoteIndex === -1) {
-      return null
+      // this is a ocis search result following the '/dav/spaces/' URL scheme. return as is.
+      return path
     }
     if (['webdav', 'dav'].indexOf(decodeURIComponent(pathSections[remoteIndex + 1])) === -1) {
       return null

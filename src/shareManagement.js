@@ -75,6 +75,11 @@ class Shares {
       }
       if (optionalParams.quicklink) {
         postData.quicklink = optionalParams.quicklink
+        postData.attributes = [...postData.attributes || [], {
+          scope: 'files_sharing',
+          key: 'isQuickLink',
+          value: postData.quicklink
+        }]
       }
     }
 

@@ -4,19 +4,20 @@
  */
 
 module.exports = {
-  coverageDirectory: "coverage",
+  coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: [
-    "node_modules/",
-    "vendor/",
-    "tests/"
+    'node_modules/',
+    'vendor/',
+    'tests/'
   ],
-  globalSetup: "<rootDir>/jest.setup.js",
-  "setupFiles": [
-    "<rootDir>/jest.init.js"
+  globalSetup: '<rootDir>/jest.setup.js',
+  setupFiles: [
+    '<rootDir>/jest.init.js'
   ],
   testEnvironment: 'node',
   testMatch: [
+    '**/tests/*.spec.js',
     '**/tests/*Test.js',
     '**/tests/**/*Test.js'
   ]
-};
+}

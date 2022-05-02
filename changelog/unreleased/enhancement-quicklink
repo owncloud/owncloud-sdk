@@ -1,0 +1,8 @@
+Enhancement: Create quicklink
+
+We've added the option to define if a share link is of type quicklink or not.
+
+https://github.com/owncloud/owncloud-sdk/pull/1041
+https://github.com/owncloud/web/issues/6605
+https://github.com/owncloud/core/pull/39167
+https://github.com/cs3org/reva/pull/2715

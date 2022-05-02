@@ -50,12 +50,23 @@ class Shares {
       path: path
     }
 
+    const reflectClassicAttribute = (key, scope, value, exclusive = true) => {
+      const attributes = [...postData.attributes || []]
+      const current = attributes.findIndex(v => v.scope === scope && v.key === key)
+
+      if (current !== -1 && exclusive) {
+        attributes.splice(current, 1)
+      }
+
+      attributes.push({ key, scope, value })
+      postData.attributes = attributes
+    }
+
     if (optionalParams) {
       if (optionalParams.spaceRef) {
         postData.space_ref = optionalParams.spaceRef
         delete postData.path
       }
-
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
@@ -73,6 +84,10 @@ class Shares {
       }
       if (optionalParams.attributes) {
         postData.attributes = optionalParams.attributes
+      }
+      if (optionalParams.quicklink) {
+        postData.quicklink = optionalParams.quicklink
+        reflectClassicAttribute('isQuickLink', 'files_sharing', postData.quicklink)
       }
     }
 

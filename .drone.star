@@ -83,6 +83,8 @@ def cloneOCIS():
             "mkdir -p github.com/owncloud/",
             "cd github.com/owncloud/",
             "git clone -b $OCIS_BRANCH --single-branch --no-tags https://github.com/owncloud/ocis",
+            "cd ocis",
+            "git checkout $OCIS_COMMITID",
         ],
         "volumes": [{
             "name": "server",

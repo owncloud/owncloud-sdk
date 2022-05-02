@@ -70,6 +70,7 @@ def setupServerAndApp():
         "commands": [
             "cd /var/www/owncloud/server/",
             "php occ config:system:set trusted_domains 1 --value=owncloud",
+            "php occ config:system:set dav.propfind.depth_infinity --value=true",
         ],
     }]
 
@@ -83,6 +84,8 @@ def cloneOCIS():
             "mkdir -p github.com/owncloud/",
             "cd github.com/owncloud/",
             "git clone -b $OCIS_BRANCH --single-branch --no-tags https://github.com/owncloud/ocis",
+            "cd ocis",
+            "git checkout $OCIS_COMMITID",
         ],
         "volumes": [{
             "name": "server",

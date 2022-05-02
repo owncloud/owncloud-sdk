@@ -10,6 +10,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
 * Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
 * Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
+* Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
 * Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
@@ -52,6 +53,16 @@ The following sections list the changes in ownCloud SDK unreleased.
    we manipulate the `share_type` property and set it to guest.
 
    https://github.com/owncloud/owncloud-sdk/pull/1046
+
+
+* Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
+
+   We've added the option to define if a share link is of type quicklink or not.
+
+   https://github.com/owncloud/web/issues/6605
+   https://github.com/owncloud/owncloud-sdk/pull/1041
+   https://github.com/owncloud/core/pull/39167
+   https://github.com/cs3org/reva/pull/2715
 
 
 * Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)

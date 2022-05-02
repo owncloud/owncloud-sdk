@@ -83,6 +83,7 @@ def cloneOCIS():
             "mkdir -p github.com/owncloud/",
             "cd github.com/owncloud/",
             "git clone -b $OCIS_BRANCH --single-branch --no-tags https://github.com/owncloud/ocis",
+            "git checkout $OCIS_COMMITID",
         ],
         "volumes": [{
             "name": "server",
@@ -143,7 +144,11 @@ def ocisService():
         "image": OC_CI_GOLANG,
         "detach": True,
         "environment": {
+            "ACCOUNTS_DATA_PATH": "/srv/app/tmp/ocis-accounts/",
+            "OCIS_INSECURE": "true",
+            "OCIS_LOG_LEVEL": "error",
             "OCIS_URL": "https://ocis:9200",
+            "PROXY_ENABLE_BASIC_AUTH": True,
             "STORAGE_HOME_DRIVER": "ocis",
             "STORAGE_USERS_DRIVER": "ocis",
             "STORAGE_USERS_DRIVER_LOCAL_ROOT": "/srv/app/tmp/ocis/local/root",
@@ -151,10 +156,6 @@ def ocisService():
             "STORAGE_USERS_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/users",
             "STORAGE_METADATA_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/metadata",
             "STORAGE_SHARING_USER_JSON_FILE": "/srv/app/tmp/ocis/shares.json",
-            "OCIS_INSECURE": "true",
-            "ACCOUNTS_DATA_PATH": "/srv/app/tmp/ocis-accounts/",
-            "PROXY_ENABLE_BASIC_AUTH": True,
-            "OCIS_LOG_LEVEL": "error",
         },
         "commands": [
             "cd /var/www/owncloud",

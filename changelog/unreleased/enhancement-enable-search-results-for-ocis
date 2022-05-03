@@ -1,0 +1,5 @@
+Enhancement: Enable search results for ocis
+
+We've enabled search results for ocis, which has been skipped before.
+
+https://github.com/owncloud/owncloud-sdk/pull/1057

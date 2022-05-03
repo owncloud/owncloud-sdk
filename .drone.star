@@ -3,6 +3,7 @@ OC_CI_GOLANG = "owncloudci/golang:1.17"
 OC_CI_NODEJS = "owncloudci/nodejs:14"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
+OC10_VERSION = "latest"
 
 def main(ctx):
     basepipelines = checkStarlark() + changelog(ctx) + sonarcloud(ctx)
@@ -378,11 +379,11 @@ def oc10ProviderTestPipeline():
         "depends_on": ["testConsumer-root", "testConsumer-subfolder"],
         "steps": buildSystem() +
                  prepareTestConfig() +
-                 installCore("daily-master-qa") +
+                 installCore(OC10_VERSION) +
                  owncloudLog() +
                  setupServerAndApp() +
                  fixPermissions() +
-                 pactProviderTests("daily-master-qa", "http://owncloud"),
+                 pactProviderTests(OC10_VERSION, "http://owncloud"),
         "services": owncloudService() +
                     databaseService(),
         "trigger": {

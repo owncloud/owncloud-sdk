@@ -4,11 +4,13 @@ OC_CI_NODEJS = "owncloudci/nodejs:14"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 OC10_VERSION = "latest"
+PLUGINS_SLACK = "plugins/slack:1"
+ROCKETCHAT_CHANNEL = "builds"
 
 def main(ctx):
     basepipelines = checkStarlark() + changelog(ctx) + sonarcloud(ctx)
     testpipelines = [consumerTestPipeline(), consumerTestPipeline("/sub/"), oc10ProviderTestPipeline(), ocisProviderTestPipeline()]
-    pipelines = basepipelines + testpipelines + publish(ctx)
+    pipelines = basepipelines + testpipelines + notify() + publish(ctx)
     return pipelines
 
 def buildDocs():
@@ -612,4 +614,37 @@ def sonarcloud(ctx):
                 "refs/pull/**",
             ],
         },
+    }]
+
+def notify():
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "chat-notifications",
+        "clone": {
+            "disable": True,
+        },
+        "steps": [
+            {
+                "name": "notify-rocketchat",
+                "image": PLUGINS_SLACK,
+                "settings": {
+                    "webhook": {
+                        "from_secret": "private_rocketchat",
+                    },
+                    "channel": ROCKETCHAT_CHANNEL,
+                },
+            },
+        ],
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/**",
+            ],
+            "status": [
+                "success",
+                "failure",
+            ],
+        },
+        "depends_on": ["testOc10Provider", "testOCISProvider"],
     }]

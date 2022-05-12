@@ -1,17 +1,209 @@
+# docker images
 OC_CI_ALPINE = "owncloudci/alpine:latest"
 OC_CI_GOLANG = "owncloudci/golang:1.17"
 OC_CI_NODEJS = "owncloudci/nodejs:14"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
-OC10_VERSION = "latest"
 PLUGINS_SLACK = "plugins/slack:1"
+OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS = "owncloudci/drone-cancel-previous-builds"
+MELTWATER_DRONE_CACHE = "meltwater/drone-cache:v1"
+MINIO_MC = "minio/mc:RELEASE.2021-03-23T05-46-11Z"
+
+# constants
 ROCKETCHAT_CHANNEL = "builds"
+OC10_VERSION = "latest"
 
 def main(ctx):
-    basepipelines = checkStarlark() + changelog(ctx) + sonarcloud(ctx)
-    testpipelines = [consumerTestPipeline(), consumerTestPipeline("/sub/"), oc10ProviderTestPipeline(), ocisProviderTestPipeline()]
-    pipelines = basepipelines + testpipelines + notify() + publish(ctx)
-    return pipelines
+    before = beforePipelines(ctx)
+
+    stages = consumerPipelines(ctx)
+    stages += pipelinesDependsOn(providerPipelines(ctx), stages)
+
+    after = pipelinesDependsOn(afterPipelines(ctx), stages)
+
+    purge_caches = pipelinesDependsOn(purgeCachePipelines(ctx), after)
+
+    return before + pipelinesDependsOn(stages, before) + after + purge_caches
+
+def beforePipelines(ctx):
+    return cancelPreviousBuilds() + \
+           checkStarlark() + \
+           changelog(ctx) + \
+           sonarcloud(ctx) + \
+           yarnCache(ctx) + \
+           pipelinesDependsOn(buildSystemCache(ctx), yarnCache(ctx)) + \
+           pipelinesDependsOn(yarnlint(ctx), yarnCache(ctx))
+
+def consumerPipelines(ctx):
+    return consumerTestPipeline(ctx) + consumerTestPipeline(ctx, "/sub/")
+
+def providerPipelines(ctx):
+    return oc10ProviderTestPipeline(ctx) + ocisProviderTestPipeline(ctx)
+
+def afterPipelines(ctx):
+    return notify() + publish(ctx)
+
+def purgeCachePipelines(ctx):
+    return purgeBuildArtifactCache(ctx, "yarn") + purgeBuildArtifactCache(ctx, "dist")
+
+def yarnCache(ctx):
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "cache-yarn",
+        "steps": installYarn() +
+                 rebuildBuildArtifactCache(ctx, "yarn", ".yarn"),
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/**",
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def installYarn():
+    return [{
+        "name": "yarn-install",
+        "image": OC_CI_NODEJS,
+        "commands": [
+            "yarn install --immutable",
+        ],
+    }]
+
+def lint():
+    return [{
+        "name": "lint",
+        "image": OC_CI_NODEJS,
+        "commands": [
+            "yarn lint",
+        ],
+    }]
+
+def yarnlint(ctx):
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "lint",
+        "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
+                 installYarn() +
+                 lint(),
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/**",
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def buildSystemCache(ctx):
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "cache-build-system",
+        "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
+                 installYarn() +
+                 buildSystem() +
+                 rebuildBuildArtifactCache(ctx, "dist", "dist"),
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/**",
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def genericCache(name, action, mounts, cache_key):
+    rebuild = "false"
+    restore = "false"
+    if action == "rebuild":
+        rebuild = "true"
+        action = "rebuild"
+    else:
+        restore = "true"
+        action = "restore"
+
+    return [{
+        "name": "%s_%s" % (action, name),
+        "image": MELTWATER_DRONE_CACHE,
+        "environment": {
+            "AWS_ACCESS_KEY_ID": {
+                "from_secret": "cache_s3_access_key",
+            },
+            "AWS_SECRET_ACCESS_KEY": {
+                "from_secret": "cache_s3_secret_key",
+            },
+        },
+        "settings": {
+            "endpoint": {
+                "from_secret": "cache_s3_endpoint",
+            },
+            "bucket": "cache",
+            "region": "us-east-1",  # not used at all, but fails if not given!
+            "path_style": "true",
+            "cache_key": cache_key,
+            "rebuild": rebuild,
+            "restore": restore,
+            "mount": mounts,
+        },
+    }]
+
+def genericCachePurge(ctx, name, cache_key):
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "purge_%s" % (name),
+        "platform": {
+            "os": "linux",
+            "arch": "amd64",
+        },
+        "steps": [
+            {
+                "name": "purge-cache",
+                "image": MINIO_MC,
+                "failure": "ignore",
+                "environment": {
+                    "MC_HOST_cache": {
+                        "from_secret": "cache_s3_connection_url",
+                    },
+                },
+                "commands": [
+                    "mc rm --recursive --force cache/cache/%s/%s" % (ctx.repo.name, cache_key),
+                ],
+            },
+        ],
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/v*",
+                "refs/pull/**",
+            ],
+            "status": [
+                "success",
+                "failure",
+            ],
+        },
+    }]
+
+def genericBuildArtifactCache(ctx, name, action, path):
+    name = "%s_build_artifact_cache" % (name)
+    cache_key = "%s/%s/%s" % (ctx.repo.slug, ctx.build.commit + "-${DRONE_BUILD_NUMBER}", name)
+    if action == "rebuild" or action == "restore":
+        return genericCache(name, action, [path], cache_key)
+    if action == "purge":
+        return genericCachePurge(ctx, name, cache_key)
+    return []
+
+def rebuildBuildArtifactCache(ctx, name, path):
+    return genericBuildArtifactCache(ctx, name, "rebuild", path)
+
+def restoreBuildArtifactCache(ctx, name, path):
+    return genericBuildArtifactCache(ctx, name, "restore", path)
+
+def purgeBuildArtifactCache(ctx, name):
+    return genericBuildArtifactCache(ctx, name, "purge", [])
 
 def buildDocs():
     return [{
@@ -28,8 +220,6 @@ def buildSystem():
         "name": "build-system",
         "image": OC_CI_NODEJS,
         "commands": [
-            "yarn install --immutable",
-            "yarn lint",
             "yarn build:system",
         ],
     }]
@@ -50,7 +240,7 @@ def prepareTestConfig(subFolderPath = "/"):
     }]
 
 def installCore(version):
-    stepDefinition = {
+    return [{
         "name": "install-core",
         "image": "owncloudci/core",
         "settings": {
@@ -62,9 +252,7 @@ def installCore(version):
             "db_username": "owncloud",
             "db_password": "owncloud",
         },
-    }
-
-    return [stepDefinition]
+    }]
 
 def setupServerAndApp():
     return [{
@@ -302,8 +490,8 @@ def publishSystem():
         },
     }]
 
-def consumerTestPipeline(subFolderPath = "/"):
-    return {
+def consumerTestPipeline(ctx, subFolderPath = "/"):
+    return [{
         "kind": "pipeline",
         "name": "testConsumer-" + ("root" if subFolderPath == "/" else "subfolder"),
         "platform": {
@@ -314,7 +502,8 @@ def consumerTestPipeline(subFolderPath = "/"):
             "base": "/var/www/owncloud",
             "path": "owncloud-sdk",
         },
-        "steps": buildSystem() +
+        "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
+                 installYarn() +
                  prepareTestConfig(subFolderPath) +
                  pactConsumerTests(True if subFolderPath == "/" else False),
         "trigger": {
@@ -324,15 +513,16 @@ def consumerTestPipeline(subFolderPath = "/"):
                 "refs/pull/**",
             ],
         },
-    }
+    }]
 
-def ocisProviderTestPipeline():
+def ocisProviderTestPipeline(ctx):
     extraEnvironment = {
         "NODE_TLS_REJECT_UNAUTHORIZED": 0,
         "NODE_NO_WARNINGS": "1",
         "RUN_ON_OCIS": "true",
     }
-    return {
+
+    return [{
         "kind": "pipeline",
         "name": "testOCISProvider",
         "platform": {
@@ -343,8 +533,8 @@ def ocisProviderTestPipeline():
             "base": "/var/www/owncloud",
             "path": "owncloud-sdk",
         },
-        "depends_on": ["testConsumer-root", "testConsumer-subfolder"],
-        "steps": buildSystem() +
+        "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
+                 installYarn() +
                  prepareTestConfig() +
                  cloneOCIS() +
                  buildOCIS() +
@@ -364,10 +554,10 @@ def ocisProviderTestPipeline():
                 "refs/pull/**",
             ],
         },
-    }
+    }]
 
-def oc10ProviderTestPipeline():
-    return {
+def oc10ProviderTestPipeline(ctx):
+    return [{
         "kind": "pipeline",
         "name": "testOc10Provider",
         "platform": {
@@ -378,8 +568,8 @@ def oc10ProviderTestPipeline():
             "base": "/var/www/owncloud",
             "path": "owncloud-sdk",
         },
-        "depends_on": ["testConsumer-root", "testConsumer-subfolder"],
-        "steps": buildSystem() +
+        "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
+                 installYarn() +
                  prepareTestConfig() +
                  installCore(OC10_VERSION) +
                  owncloudLog() +
@@ -395,7 +585,7 @@ def oc10ProviderTestPipeline():
                 "refs/pull/**",
             ],
         },
-    }
+    }]
 
 def publish(ctx):
     return [{
@@ -409,9 +599,8 @@ def publish(ctx):
             "base": "/var/www/owncloud",
             "path": "owncloud-sdk",
         },
-        "depends_on": ["testConsumer-root", "testConsumer-subfolder", "testOc10Provider", "testOCISProvider"],
         "steps": buildDocs() +
-                 buildSystem() +
+                 restoreBuildArtifactCache(ctx, "dist", "dist") +
                  publishDocs() +
                  publishSystem(),
         "trigger": {
@@ -423,6 +612,7 @@ def publish(ctx):
 
 def changelog(ctx):
     repo_slug = ctx.build.source_repo if ctx.build.source_repo else ctx.repo.slug
+
     return [{
         "kind": "pipeline",
         "type": "docker",
@@ -504,7 +694,6 @@ def changelog(ctx):
                 },
             },
         ],
-        "depends_on": [],
         "trigger": {
             "ref": [
                 "refs/heads/master",
@@ -549,7 +738,6 @@ def checkStarlark():
                 },
             },
         ],
-        "depends_on": [],
         "trigger": {
             "ref": [
                 "refs/pull/**",
@@ -646,5 +834,56 @@ def notify():
                 "failure",
             ],
         },
-        "depends_on": ["testOc10Provider", "testOCISProvider"],
     }]
+
+def cancelPreviousBuilds():
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "cancel-previous-builds",
+        "clone": {
+            "disable": True,
+        },
+        "steps": [{
+            "name": "cancel-previous-builds",
+            "image": OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS,
+            "settings": {
+                "DRONE_TOKEN": {
+                    "from_secret": "drone_token",
+                },
+            },
+        }],
+        "trigger": {
+            "ref": [
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def pipelineDependsOn(pipeline, dependant_pipelines):
+    if "depends_on" in pipeline.keys():
+        pipeline["depends_on"] = pipeline["depends_on"] + getPipelineNames(dependant_pipelines)
+    else:
+        pipeline["depends_on"] = getPipelineNames(dependant_pipelines)
+    return pipeline
+
+def pipelinesDependsOn(pipelines, dependant_pipelines):
+    pipes = []
+    for pipeline in pipelines:
+        pipes.append(pipelineDependsOn(pipeline, dependant_pipelines))
+
+    return pipes
+
+def getPipelineNames(pipelines = []):
+    """getPipelineNames returns names of pipelines as a string array
+
+    Args:
+      pipelines: array of drone pipelines
+
+    Returns:
+      names of the given pipelines as string array
+    """
+    names = []
+    for pipeline in pipelines:
+        names.append(pipeline["name"])
+    return names

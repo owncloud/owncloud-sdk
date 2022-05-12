@@ -1,0 +1,5 @@
+Enhancement: send oc-etag on putFileContents and getFileContents methods
+
+Due to server encoding, the ETag might differ from OC-ETag, therefore we emit both.
+
+https://github.com/owncloud/owncloud-sdk/pull/1067

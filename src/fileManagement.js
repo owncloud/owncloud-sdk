@@ -91,7 +91,7 @@ class Files {
           body: body,
           headers: {
             ETag: response.headers.get('etag'),
-            'OC-ETag': response.headers.get('OC-ETag'),
+            'OC-ETag': response.headers.get('oc-etag'),
             'OC-FileId': response.headers.get('oc-fileid')
           }
         })

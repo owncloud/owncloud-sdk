@@ -14,6 +14,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
 * Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
+* Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
 ## Details
@@ -86,6 +87,13 @@ The following sections list the changes in ownCloud SDK unreleased.
    We now support blob as resolveType for requests in addition to text and arrayBuffer.
 
    https://github.com/owncloud/owncloud-sdk/pull/1028
+
+
+* Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
+
+   Due to server encoding, the ETag might differ from OC-ETag, therefore we emit both.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1067
 
 
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)

@@ -173,7 +173,7 @@ class Files {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve({
           ETag: result.res.headers.etag,
-          'OC-ETag': result.res.headers['OC-ETag'],
+          'OC-ETag': result.res.headers['oc-etag'],
           'OC-FileId': result.res.headers['oc-fileid']
         })
       } else {

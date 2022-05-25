@@ -1,0 +1,5 @@
+Enhancement: Add overwrite flag for file move
+
+We've added an overwrite flag for the file move operation
+
+https://github.com/owncloud/owncloud-sdk/pull/1073

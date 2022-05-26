@@ -261,7 +261,6 @@ def setupServerAndApp():
         "commands": [
             "cd /var/www/owncloud/server/",
             "php occ config:system:set trusted_domains 1 --value=owncloud",
-            "php occ config:system:set dav.propfind.depth_infinity --value=true",
         ],
     }]
 

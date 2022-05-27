@@ -342,35 +342,6 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    it('checking method : list with Infinity depth', async function () {
-      const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
-      await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
-      )
-      await listFolderContentInteraction(
-        provider,
-        'test folder, with infinity depth',
-        testFolder,
-        ['abc.txt', 'file one.txt', 'subdir/in dir.txt', 'zz+z.txt', '中文.txt'], ['subdir'], 'infinity'
-      )
-      return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
-        await oc.login()
-        return oc.files.list(`files/${config.testUser}/${testFolder}`, 'infinity')
-          .then(files => {
-            expect(typeof (files)).toBe('object')
-            expect(files.length).toEqual(7)
-            expect(files[3].getName()).toEqual('subdir')
-            expect(files[3].isDir()).toBe(true)
-            expect(files[4].getPath()).toEqual(`/files/${username}/${testFolder}/subdir/`)
-            expect(files[4].isDir()).toBe(false)
-          }).catch(error => {
-            expect(error).toBe(null)
-          })
-      })
-    })
-
     // [oCIS] request to non-existing file gives empty response body
     // https://github.com/owncloud/ocis/issues/1799
     it('checking method : list with non existent file', async function () {

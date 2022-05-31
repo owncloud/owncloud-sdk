@@ -6,6 +6,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 ## Summary
 
+* Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
 * Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
@@ -19,6 +20,14 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
 ## Details
+
+* Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
+
+   Adds a new `noCache` option to the public links' `download` method, which sets the
+   `Cache-Control: no-cache` header.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1079
+
 
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 

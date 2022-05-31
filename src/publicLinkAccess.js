@@ -69,11 +69,17 @@ class PublicFiles {
    * @param  {string}       token    public share token - may contain the path as well
    * @param  {string|null}  path     path to a file in the share
    * @param  {string|null}  password
+   * @param  {Object}       options
    * @return {Promise<Response>}
    */
-  download (token, path = null, password = null) {
+  download (token, path = null, password = null, options = {}) {
     const headers = this.helpers.buildHeaders(false)
     const url = this.getFileUrl(token, path)
+
+    const noCache = options.noCache || false
+    if (noCache) {
+      headers['Cache-Control'] = 'no-cache'
+    }
 
     if (password) {
       headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')

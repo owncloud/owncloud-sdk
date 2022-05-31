@@ -1,0 +1,5 @@
+Bugfix: Optional no cache for public links
+
+Adds a new  `noCache` option to the public links' `download` method, which sets the `Cache-Control: no-cache` header.
+
+https://github.com/owncloud/owncloud-sdk/pull/1079

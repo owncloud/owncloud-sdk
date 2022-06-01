@@ -22,7 +22,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   ]
 
   it('checking method : list', async function () {
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
@@ -41,7 +41,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : getFileContents', async function () {
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
@@ -64,7 +64,7 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it('checking method : putFileContents', async function () {
     const newFile = config.testFolder + '/' + 'file.txt'
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
@@ -84,7 +84,7 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it('checking method : createFolder', async function () {
     const newFolder = config.testFolder + '/' + 'new folder/'
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
@@ -104,7 +104,7 @@ describe('Unauthorized: Currently testing files management,', function () {
 
   it('checking method : delete', async function () {
     const newFolder = config.testFolder + '/' + 'new folder'
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
@@ -123,7 +123,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : move', async function () {
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
@@ -143,7 +143,7 @@ describe('Unauthorized: Currently testing files management,', function () {
   })
 
   it('checking method : copy', async function () {
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {

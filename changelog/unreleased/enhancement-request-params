@@ -1,0 +1,6 @@
+Enhancement: Add role api parameter and stop deleting other params
+
+We've added the option to define a role when sharing a resource.
+Beside that we've stopped to delete certain other parameters when a `space_ref` is provided.
+
+https://github.com/owncloud/owncloud-sdk/pull/1092

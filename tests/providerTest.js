@@ -10,9 +10,9 @@ const {
   deleteUser,
   createGroup,
   deleteGroup,
-  addUserToGroup,
+  addToGroup,
   makeUserGroupSubadmin
-} = require('./helpers/ocsHelpers')
+} = require('./helpers/ocsHelper')
 
 const TEST_TIMEOUT = 600000
 
@@ -224,7 +224,7 @@ describe('provider testing', () => {
     },
     'user is added to group': (setup, parameters) => {
       if (setup) {
-        const response = addUserToGroup(parameters.username, parameters.groupName)
+        const response = addToGroup(parameters.username, parameters.groupName)
         const { status } = getOCSMeta(response)
         chai.assert.strictEqual(status, 'ok',
           `adding user ${parameters.username} to group ${parameters.groupName} failed`)

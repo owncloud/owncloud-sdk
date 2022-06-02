@@ -1,7 +1,10 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 const config = require('../config/config.json')
-var adminPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
+const { admin } = require('../config/users.json')
+config.adminUsername = admin.username
+config.adminPassword = admin.password
+const adminPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
 
 const path = require('path')
 const OwnCloud = require('../../src/owncloud')

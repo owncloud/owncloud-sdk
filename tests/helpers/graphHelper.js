@@ -7,12 +7,12 @@ const { getProviderBaseUrl } = require('./pactHelper.js')
 exports.createUser = function (
   user,
   password = null,
-  displayName = null,
-  email = null
+  email = null,
+  displayName = null
 ) {
-  displayName = displayName || userHelper.getDisplayNameForUser(user)
   email = email || userHelper.getEmailAddressForUser(user)
   password = password || userHelper.getPasswordForUser(user)
+  displayName = displayName || userHelper.getDisplayNameForUser(user)
 
   const body = JSON.stringify({
     displayName,
@@ -39,9 +39,7 @@ exports.deleteGroup = async function (group) {
 }
 
 async function getGroupId (group) {
-  const response = await httpHelper
-    .getGraph('groups/')
-    .then((res) => res.json())
+  const response = await httpHelper.getGraph('groups/')
 
   for (const key in response.value) {
     if (response.value[key].displayName.toLowerCase() === group.toLowerCase()) {
@@ -51,9 +49,7 @@ async function getGroupId (group) {
 }
 
 async function getUserId (user) {
-  const response = await httpHelper
-    .getGraph(`users/${user}`)
-    .then((res) => res.json())
+  const response = await httpHelper.getGraph(`users/${user}`)
 
   return response.id
 }

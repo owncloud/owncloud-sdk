@@ -12,7 +12,7 @@ const {
   deleteGroup,
   addToGroup,
   makeUserGroupSubadmin
-} = require('./helpers/ocsHelper')
+} = require('./helpers/provisioningHelper')
 
 const TEST_TIMEOUT = 600000
 
@@ -175,11 +175,10 @@ describe('provider testing', () => {
       return { description: 'resource deleted', trashId: id }
     },
     'the user is recreated': (setup, parameters) => {
-      parameters.email = `${parameters.username}@example.com`
       if (setup) {
         deleteUser(parameters.username)
 
-        const result = createUser(parameters)
+        const result = createUser(parameters.username)
         chai.assert.strictEqual(
           result.status, 200, `creating user '${parameters.username}' failed`
         )

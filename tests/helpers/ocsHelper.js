@@ -1,29 +1,39 @@
+const userHelper = require('./userHelper')
 const httpHelper = require('./httpHelper')
 
 const { applicationFormUrlEncoded } = require('./pactHelper.js')
 
-exports.createUser = function (user) {
+exports.createUser = function (
+  user,
+  password = null,
+  email = null,
+  displayName = null
+) {
+  password = password || userHelper.getPasswordForUser(user)
+  email = email || userHelper.getEmailAddressForUser(user)
+  displayName = displayName || userHelper.getDisplayNameForUser(user)
+
   return httpHelper.postOCS(
     '/cloud/users',
-    `userid=${user.username}&password=${user.password}&email=${user.email}`,
+    `userid=${user}&password=${password}&email=${email}`,
     applicationFormUrlEncoded
   )
 }
 
-exports.deleteUser = function (username) {
-  return httpHelper.deleteOCS(`/cloud/users/${username}`)
+exports.deleteUser = function (user) {
+  return httpHelper.deleteOCS(`/cloud/users/${user}`)
 }
 
-exports.createGroup = function (groupName) {
+exports.createGroup = function (group) {
   return httpHelper.postOCS(
     '/cloud/groups',
-    `groupid=${groupName}`,
+    `groupid=${group}`,
     applicationFormUrlEncoded
   )
 }
 
-exports.deleteGroup = function (groupName) {
-  return httpHelper.deleteOCS(`/cloud/groups/${groupName}`)
+exports.deleteGroup = function (group) {
+  return httpHelper.deleteOCS(`/cloud/groups/${group}`)
 }
 
 exports.addToGroup = function (user, group) {

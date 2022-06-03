@@ -1,6 +1,7 @@
+const { join } = require('path')
+const { parseResponseBody } = require('./ocsResponseParser')
 const userHelper = require('./userHelper')
 const httpHelper = require('./httpHelper')
-const { join } = require('path')
 
 const { getProviderBaseUrl } = require('./pactHelper.js')
 
@@ -38,25 +39,27 @@ exports.deleteGroup = async function (group) {
   return httpHelper.deleteGraph(`groups/${groupId}`)
 }
 
-async function getGroupId (group) {
-  const response = await httpHelper.getGraph('groups/')
+function getGroupId (group) {
+  const response = httpHelper.getGraph('groups/')
+  const resObj = parseResponseBody(response)
 
-  for (const key in response.value) {
-    if (response.value[key].displayName.toLowerCase() === group.toLowerCase()) {
-      return response.value[key].id
+  for (const key in resObj.value) {
+    if (resObj.value[key].displayName.toLowerCase() === group.toLowerCase()) {
+      return resObj.value[key].id
     }
   }
 }
 
-async function getUserId (user) {
-  const response = await httpHelper.getGraph(`users/${user}`)
+function getUserId (user) {
+  const response = httpHelper.getGraph(`users/${user}`)
+  const resObj = parseResponseBody(response)
 
-  return response.id
+  return resObj.id
 }
 
-exports.addToGroup = async function (user, group) {
-  const groupId = await getGroupId(group)
-  const userId = await getUserId(user)
+exports.addToGroup = function (user, group) {
+  const groupId = getGroupId(group)
+  const userId = getUserId(user)
 
   const url = join(getProviderBaseUrl(), 'graph/v1.0/users', userId)
   const body = JSON.stringify({

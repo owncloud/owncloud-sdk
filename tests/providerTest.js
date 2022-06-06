@@ -223,9 +223,10 @@ describe('provider testing', () => {
     },
     'user is added to group': (setup, parameters) => {
       if (setup) {
-        const response = addToGroup(parameters.username, parameters.groupName)
-        const { status } = getOCSMeta(response)
-        chai.assert.strictEqual(status, 'ok',
+        const { status } = addToGroup(parameters.username, parameters.groupName)
+        // when running with oCIS, adding user to group returns 204 status code
+        // but the user is added to the group
+        chai.assert.include([200, 204], status,
           `adding user ${parameters.username} to group ${parameters.groupName} failed`)
       }
       return {

@@ -15,13 +15,13 @@ const users = {
     username: config.testUser,
     password: config.testUserPassword,
     displayname: config.testUser,
-    email: 'testuser@example.com'
+    email: `${config.testUser}@example.com`
   },
   [config.testUser2]: {
     username: config.testUser2,
     password: config.testUser2Password,
     displayname: config.testUser2,
-    email: 'testuser2@example.com'
+    email: `${config.testUser2}@example.com`
   }
 }
 

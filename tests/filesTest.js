@@ -15,6 +15,7 @@ describe('Main: Currently testing files management,', function () {
     webdavPath,
     testSubFiles,
     applicationXmlResponseHeaders,
+    xmlResponseHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     getAuthHeaders,
@@ -512,7 +513,7 @@ describe('Main: Currently testing files management,', function () {
         })
         .willRespondWith({
           status: 409,
-          headers: applicationXmlResponseHeaders,
+          headers: xmlResponseHeaders,
           body: webdavExceptionResponseBody('Conflict', 'Parent node does not exist')
         })
 
@@ -1250,7 +1251,7 @@ describe('Main: Currently testing files management,', function () {
     // [oCIS] Favoriting files/folders not implemented
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: unfavorite', async function () {
-      const provider = createProvider(true, true)
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -1280,7 +1281,7 @@ describe('Main: Currently testing files management,', function () {
     // [oCIS] Favoriting files/folders not implemented
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite', async function () {
-      const provider = createProvider(true, true)
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -1302,7 +1303,7 @@ describe('Main: Currently testing files management,', function () {
     // [oCIS] Favoriting files/folders not implemented
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite filter', async function () {
-      const provider = createProvider(true, true)
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword

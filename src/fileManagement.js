@@ -280,7 +280,7 @@ class Files {
    * @returns {Promise.<status>}  boolean: whether the operation was successful
    * @returns {Promise.<error>}   string: error message, if any.
    */
-  copy (source, target) {
+  copy (source, target, overwrite = false) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
@@ -290,6 +290,7 @@ class Files {
     }
 
     const headers = this.helpers.buildHeaders()
+    headers.Overwrite = overwrite ? 'T' : 'F'
     headers.Destination = this.helpers._buildFullDAVURL(target)
     return this.davClient.request('COPY', this.helpers._buildFullDAVPath(source), headers).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {

@@ -337,6 +337,7 @@ def ocisService():
         "detach": True,
         "environment": {
             "OCIS_URL": "https://ocis:9200",
+            "IDM_ADMIN_PASSWORD": "admin",
             "STORAGE_HOME_DRIVER": "ocis",
             "STORAGE_USERS_DRIVER": "ocis",
             "STORAGE_USERS_DRIVER_LOCAL_ROOT": "/srv/app/tmp/ocis/local/root",
@@ -345,7 +346,6 @@ def ocisService():
             "STORAGE_METADATA_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/metadata",
             "STORAGE_SHARING_USER_JSON_FILE": "/srv/app/tmp/ocis/shares.json",
             "OCIS_INSECURE": "true",
-            "ACCOUNTS_DATA_PATH": "/srv/app/tmp/ocis-accounts/",
             "PROXY_ENABLE_BASIC_AUTH": True,
             "OCIS_LOG_LEVEL": "error",
         },
@@ -353,6 +353,7 @@ def ocisService():
             "cd /var/www/owncloud",
             "mkdir -p /srv/app/tmp/ocis/owncloud/data/",
             "mkdir -p /srv/app/tmp/ocis/storage/users/",
+            "./ocis init",
             "./ocis server",
         ],
         "volumes": [{

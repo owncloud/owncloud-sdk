@@ -4,19 +4,22 @@ const {
   getOCSData
 } = require('./helpers/ocsResponseParser')
 
+const { isRunningWithOCIS, isRunningOnCI } = require('./config/env')
+const {
+  createUser,
+  deleteUser,
+  createGroup,
+  deleteGroup,
+  addToGroup,
+  makeUserGroupSubadmin
+} = require('./helpers/provisioningHelper')
+
 const TEST_TIMEOUT = 600000
 
 // environment variables
 const PACTFLOW_TOKEN = process.env.PACTFLOW_TOKEN
 const DRONE_SOURCE_BRANCH = process.env.DRONE_SOURCE_BRANCH
 const PROVIDER_VERSION = process.env.PROVIDER_VERSION
-
-const isRunningWithOCIS = () => {
-  return (process.env.RUN_ON_OCIS === 'true')
-}
-const isRunningOnCI = () => {
-  return (process.env.CI === 'true')
-}
 
 let lastSharedToken = ''
 const crypto = require('crypto')
@@ -31,12 +34,9 @@ describe('provider testing', () => {
   const chai = require('chai')
   const chaiAsPromised = require('chai-as-promised')
   const path = require('path')
-  const fetch = require('sync-fetch')
   const { parseString } = require('xml2js')
 
   const {
-    validAdminAuthHeaders,
-    applicationFormUrlEncoded,
     sanitizeUrl,
     getProviderBaseUrl
   } = require('./helpers/pactHelper.js')
@@ -111,28 +111,15 @@ describe('provider testing', () => {
   defaultOpts.stateHandlers = {
     'group exists': (setup, parameters) => {
       if (setup) {
-        fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups', {
-          method: 'POST',
-          body: 'groupid=' + parameters.groupName,
-          headers: {
-            ...validAdminAuthHeaders,
-            ...applicationFormUrlEncoded
-          }
-        })
+        createGroup(parameters.groupName)
         return { description: 'group added' }
       } else {
-        fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
-          method: 'DELETE',
-          headers: validAdminAuthHeaders
-        })
+        deleteGroup(parameters.groupName)
         return { description: 'group deleted' }
       }
     },
     'group does not exist': (setup, parameters) => {
-      fetch(providerBaseUrl + '/ocs/v1.php/cloud/groups/' + parameters.groupName, {
-        method: 'DELETE',
-        headers: validAdminAuthHeaders
-      })
+      deleteGroup(parameters.groupName)
       return { description: 'group deleted' }
     },
     'folder exists': (setup, parameters) => {
@@ -188,22 +175,10 @@ describe('provider testing', () => {
       return { description: 'resource deleted', trashId: id }
     },
     'the user is recreated': (setup, parameters) => {
-      const email = `${parameters.username}@example.com`
       if (setup) {
-        fetch(providerBaseUrl + '/ocs/v2.php/cloud/users/' + parameters.username, {
-          method: 'DELETE',
-          headers: validAdminAuthHeaders
-        })
+        deleteUser(parameters.username)
 
-        const result = fetch(providerBaseUrl + '/ocs/v2.php/cloud/users',
-          {
-            method: 'POST',
-            body: `userid=${parameters.username}&password=${parameters.password}&email=${email}`,
-            headers: {
-              ...validAdminAuthHeaders,
-              ...applicationFormUrlEncoded
-            }
-          })
+        const result = createUser(parameters.username)
         chai.assert.strictEqual(
           result.status, 200, `creating user '${parameters.username}' failed`
         )
@@ -237,16 +212,7 @@ describe('provider testing', () => {
       // don't try to make users subadmins on OCIS because of
       // https://github.com/owncloud/product/issues/289
       if (setup && !isRunningWithOCIS()) {
-        const response = fetch(providerBaseUrl +
-          '/ocs/v1.php/cloud/users/' + parameters.username +
-          '/subadmins?format=json', {
-          method: 'POST',
-          body: `groupid=${parameters.groupName}`,
-          headers: {
-            ...validAdminAuthHeaders,
-            ...applicationFormUrlEncoded
-          }
-        })
+        const response = makeUserGroupSubadmin(parameters.username, parameters.groupName)
         const { status } = getOCSMeta(response)
         chai.assert.strictEqual(status, 'ok',
           `making user ${parameters.username} subadmin of group ${parameters.groupName} failed`)
@@ -257,18 +223,10 @@ describe('provider testing', () => {
     },
     'user is added to group': (setup, parameters) => {
       if (setup) {
-        const response = fetch(providerBaseUrl +
-          '/ocs/v1.php/cloud/users/' + parameters.username +
-          '/groups?format=json', {
-          method: 'POST',
-          body: `groupid=${parameters.groupName}`,
-          headers: {
-            ...validAdminAuthHeaders,
-            ...applicationFormUrlEncoded
-          }
-        })
-        const { status } = getOCSMeta(response)
-        chai.assert.strictEqual(status, 'ok',
+        const { status } = addToGroup(parameters.username, parameters.groupName)
+        // when running with oCIS, adding user to group returns 204 status code
+        // but the user is added to the group
+        chai.assert.include([200, 204], status,
           `adding user ${parameters.username} to group ${parameters.groupName} failed`)
       }
       return {

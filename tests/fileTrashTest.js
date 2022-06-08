@@ -142,7 +142,7 @@ describe('oc.fileTrash', function () {
 
   describe('when deleting files and folders', function () {
     it('should have the trashbin capability set', async function () {
-      const provider = createProvider(false, true)
+      const provider = createProvider(false, false)
       await getCapabilitiesInteraction(provider)
       await getCurrentUserInformationInteraction(provider)
 

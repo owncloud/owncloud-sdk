@@ -94,7 +94,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
   })
 
   it('checking method : login with correct config.adminUsername and config.adminPassword', async function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider(false, false)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     return provider.executeTest(async () => {

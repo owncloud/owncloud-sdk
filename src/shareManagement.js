@@ -65,7 +65,6 @@ class Shares {
     if (optionalParams) {
       if (optionalParams.spaceRef) {
         postData.space_ref = optionalParams.spaceRef
-        delete postData.path
       }
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
@@ -120,7 +119,6 @@ class Shares {
     if (optionalParams) {
       if (optionalParams.spaceRef) {
         postData.space_ref = optionalParams.spaceRef
-        delete postData.path
       }
 
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
@@ -188,7 +186,6 @@ class Shares {
     if (optionalParams) {
       if (optionalParams.spaceRef) {
         postData.space_ref = optionalParams.spaceRef
-        delete postData.path
       }
 
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
@@ -224,7 +221,6 @@ class Shares {
     if (optionalParams) {
       if (optionalParams.spaceRef) {
         send.space_ref = optionalParams.spaceRef
-        delete send.path
       }
 
       if (optionalParams.reshares && typeof (optionalParams.reshares) === 'boolean') {
@@ -413,6 +409,9 @@ class Shares {
       if (optionalParams.permissions) {
         postData.permissions = optionalParams.permissions
       }
+      if (optionalParams.role) {
+        postData.role = optionalParams.role
+      }
       if (optionalParams.attributes) {
         postData.attributes = optionalParams.attributes
       }
@@ -509,6 +508,10 @@ class Shares {
     const data = {}
     if (optionalParams.permissions) {
       data.permissions = optionalParams.permissions
+    }
+
+    if (optionalParams.role) {
+      data.role = optionalParams.role
     }
 
     if (optionalParams.expirationDate) {

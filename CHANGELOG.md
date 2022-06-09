@@ -10,6 +10,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
 * Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
+* Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
 * Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)
 * Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)
 * Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
@@ -56,6 +57,13 @@ The following sections list the changes in ownCloud SDK unreleased.
    path of the trash bin.
 
    https://github.com/owncloud/owncloud-sdk/pull/1021
+
+
+* Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
+
+   We've added an overwrite flag for the file copy operation
+
+   https://github.com/owncloud/owncloud-sdk/pull/1087
 
 
 * Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)

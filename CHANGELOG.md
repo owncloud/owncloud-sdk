@@ -16,6 +16,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
 * Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
 * Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
+* Enhancement - Add role api parameter and stop deleting other params: [#1092](https://github.com/owncloud/owncloud-sdk/pull/1092)
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
 * Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
@@ -105,6 +106,14 @@ The following sections list the changes in ownCloud SDK unreleased.
    String.prototype.slice() which works similarly but isn't deprecated.
 
    https://github.com/owncloud/owncloud-sdk/pull/1035
+
+
+* Enhancement - Add role api parameter and stop deleting other params: [#1092](https://github.com/owncloud/owncloud-sdk/pull/1092)
+
+   We've added the option to define a role when sharing a resource. Beside that we've stopped to
+   delete certain other parameters when a `space_ref` is provided.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1092
 
 
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)

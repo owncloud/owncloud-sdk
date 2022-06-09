@@ -6,6 +6,8 @@ describe('Signed urls', function () {
   const fetch = require('node-fetch')
   const {
     ocsMeta,
+    xmlResponseHeaders,
+    textPlainResponseHeaders,
     createOwncloud,
     getAuthHeaders,
     getCapabilitiesInteraction,
@@ -28,15 +30,13 @@ describe('Signed urls', function () {
         }
       }).willRespondWith({
         status: 200,
-        headers: {
-          'Content-Type': 'application/xml; charset=utf-8'
-        },
+        headers: xmlResponseHeaders,
         body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
             return ocsMeta(meta, 'ok', '100', 'OK')
           })
             .appendElement('data', '', (data) => {
-              data.appendElement('user', '', MatchersV3.equal(username))
+              data.appendElement('user', '', MatchersV3.string(username))
                 .appendElement('signing-key', '',
                   MatchersV3.regex('(?:^[a-zA-Z0-9\\/\\+]+)$',
                     'YONNpClEO2GVtTDqIwaVsgLBIuDSe03wFhdwcG1WmorRK/iE8xGs7HyHNseftgb3'))
@@ -78,15 +78,13 @@ describe('Signed urls', function () {
         }
       }).willRespondWith({
         status: 200,
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8'
-        },
+        headers: textPlainResponseHeaders,
         body: config.testContent
       })
   }
 
   it('should allow file download with a signUrl', async function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider()
     await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
     // eslint-disable-next-line no-sequences
     await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)

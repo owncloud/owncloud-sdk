@@ -70,7 +70,7 @@ const applicationXmlResponseHeaders = {
   'Content-Type': 'application/xml; charset=utf-8'
 }
 const textPlainResponseHeaders = {
-  'Content-Type': 'text/plain; charset=utf-8'
+  'Content-Type': MatchersV3.regex('text/plain(;()?charset=(utf|UTF)-8)?', 'text/plain; charset=utf-8')
 }
 const applicationFormUrlEncoded = { 'Content-Type': 'application/x-www-form-urlencoded' }
 
@@ -208,7 +208,7 @@ const deleteResourceInteraction = (
   if (resource.includes('nonExistent')) {
     response = {
       status: 404,
-      headers: applicationXmlResponseHeaders,
+      headers: xmlResponseHeaders,
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
@@ -263,7 +263,7 @@ async function getCurrentUserInformationInteraction (
     })
     .willRespondWith({
       status: 200,
-      headers: applicationXmlResponseHeaders,
+      headers: xmlResponseHeaders,
       body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
         ocs.appendElement('meta', '', (meta) => {
           meta.appendElement('status', '', MatchersV3.equal('ok'))
@@ -322,17 +322,11 @@ async function getCapabilitiesInteraction (
             },
             capabilities: {
               files: {
-                privateLinks: true,
-                privateLinksDetailsParam: true,
-                bigfilechunking: true,
-                blacklisted_files: [
-                  '.htaccess'
-                ],
-                favorites: true,
-                file_locking_support: true,
-                file_locking_enable_file_action: false,
-                undelete: true,
-                versioning: true
+                privateLinks: MatchersV3.boolean(true),
+                bigfilechunking: MatchersV3.boolean(true),
+                favorites: MatchersV3.boolean(true),
+                undelete: MatchersV3.boolean(true),
+                versioning: MatchersV3.boolean(true)
               },
               dav: {
                 trashbin: '1.0'

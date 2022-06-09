@@ -9,7 +9,7 @@ describe('oc.publicFiles', function () {
   const { testUser, testUserPassword, testFolder, testFile } = config
 
   const {
-    applicationXmlResponseHeaders,
+    xmlResponseHeaders,
     htmlResponseAndAccessControlCombinedHeader,
     getCapabilitiesInteraction,
     getCurrentUserInformationInteraction,
@@ -254,7 +254,7 @@ describe('oc.publicFiles', function () {
                 path: publicLinkShareTokenPath,
                 headers: {
                   ...headers,
-                  ...applicationXmlResponseHeaders
+                  ...xmlResponseHeaders
                 },
                 body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
                   dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
@@ -274,7 +274,7 @@ describe('oc.publicFiles', function () {
               // https://github.com/owncloud/ocis/issues/1945
               .willRespondWith({
                 status,
-                headers: applicationXmlResponseHeaders,
+                headers: xmlResponseHeaders,
                 body
               })
           }
@@ -328,7 +328,7 @@ describe('oc.publicFiles', function () {
 
             let resStatusCode = 200
             let resBody = testContent
-            let respHeaders = { 'Content-Type': 'application/xml;charset=utf-8' }
+            let respHeaders = xmlResponseHeaders
 
             if (!shallGrantAccess) {
               // https://github.com/owncloud/core/issues/38530
@@ -346,7 +346,7 @@ describe('oc.publicFiles', function () {
                   .appendElement('s:message', '', MatchersV3.equal(errorMessage))
               })
             } else {
-              respHeaders = { 'Content-Type': 'text/plain;charset=UTF-8' }
+              respHeaders = textPlainResponseHeaders
             }
 
             let headers
@@ -383,7 +383,12 @@ describe('oc.publicFiles', function () {
               .willRespondWith({ status: resStatusCode, body: resBody, headers: respHeaders })
           }
 
-          const provider = createProvider(false, true)
+          let provider
+          if (data.shallGrantAccess) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await getFileFromPublicLinkInteraction(provider, data)
@@ -437,7 +442,7 @@ describe('oc.publicFiles', function () {
     }, function (data, description) {
       describe(description, function () {
         it('should create a folder', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await folderInPublicShareInteraction(
@@ -460,7 +465,7 @@ describe('oc.publicFiles', function () {
           })
         })
         it('should get content of a file', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
@@ -489,7 +494,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should update a file', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await publicShareContentInteraction(
@@ -520,7 +525,7 @@ describe('oc.publicFiles', function () {
           const source = config.shareTokenOfPublicLinkFolder + '/' + testFile
           const target = config.shareTokenOfPublicLinkFolder + '/lorem123456.txt'
 
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await provider
@@ -559,7 +564,7 @@ describe('oc.publicFiles', function () {
           const source = config.shareTokenOfPublicLinkFolder + '/' + testFile
           const target = config.shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
 
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await provider
@@ -595,7 +600,7 @@ describe('oc.publicFiles', function () {
         })
 
         it('should move a folder', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await provider
@@ -651,7 +656,7 @@ describe('oc.publicFiles', function () {
               path: publicLinkShareTokenPath,
               headers: {
                 ...getPublicLinkAuthHeader(data.shareParams.password),
-                ...applicationXmlResponseHeaders
+                ...xmlResponseHeaders
               },
               body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
                 dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
@@ -667,7 +672,7 @@ describe('oc.publicFiles', function () {
             })
             .willRespondWith({
               status: 207,
-              headers: applicationXmlResponseHeaders,
+              headers: xmlResponseHeaders,
               body: propfindBody('15')
             })
 

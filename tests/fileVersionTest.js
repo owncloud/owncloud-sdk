@@ -264,7 +264,7 @@ describe('Main: Currently testing file versions management,', function () {
 
     it('restore file version', async function () {
       const destinationWebDavPath = createDavPath(config.testUser, versionedFile)
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       await provider

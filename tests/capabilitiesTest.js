@@ -14,7 +14,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
   } = require('./helpers/pactHelper.js')
 
   it('checking method : getConfig', async () => {
-    const provider = createProvider(false, false)
+    const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
@@ -52,7 +52,7 @@ describe('Main: Currently testing getConfig, getVersion and getCapabilities', ()
   })
 
   it('checking method : getCapabilities', async () => {
-    const provider = createProvider(false, false)
+    const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider.executeTest(async () => {

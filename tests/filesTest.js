@@ -219,7 +219,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('file/folder creation and deletion', function () {
     it('creates the testFolder at instance', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -240,7 +240,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('creates subfolder at instance', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       await createFolderInteraction(
@@ -259,7 +259,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('creates subfiles at instance', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -289,7 +289,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('deletes the test folder at instance', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -367,7 +367,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : getFileContents for existent files', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       for (const file of testSubFiles) {
@@ -418,7 +418,7 @@ describe('Main: Currently testing files management,', function () {
           progressCalled = true
         }
       }
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword
@@ -478,7 +478,7 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : createFolder for an existing parent path', async function () {
       const newFolder = testFolder + '/' + 'new folder'
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       await createFolderInteraction(provider, newFolder, config.testUser, config.testUserPassword)
@@ -529,7 +529,7 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : delete for an existing folder', async function () {
       const newFolder = testSubDir
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -626,7 +626,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : move existent file into different folder', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1093,7 +1093,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('rename existing file', function () {
     it('rename existing file', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1142,7 +1142,7 @@ describe('Main: Currently testing files management,', function () {
 
   describe('copy existent file', function () {
     it('checking method : copy existent file into same folder, different name', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1191,7 +1191,7 @@ describe('Main: Currently testing files management,', function () {
     })
 
     it('checking method : copy existent file into different folder', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(
         provider, config.testUser, config.testUserPassword
       )
@@ -1280,7 +1280,7 @@ describe('Main: Currently testing files management,', function () {
     // [oCIS] Favoriting files/folders not implemented
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite', async function () {
-      const provider = createProvider(false, false)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(
         provider, config.testUser, config.testUserPassword

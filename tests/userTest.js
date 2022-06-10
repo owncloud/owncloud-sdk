@@ -484,7 +484,9 @@ describe('Main: Currently testing user management,', function () {
   // 'createUser' doesn't accept email parameter
   // [oCIS] email is needed for oCIS to create users
   it('checking method : createUser with groups', async function () {
-    const provider = createProvider(true, true)
+    const provider = createProvider(false, true)
+    await provider.given('user doesn\'t exist', { username: config.testUser })
+
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await createUserWithGroupMembershipInteraction(provider)

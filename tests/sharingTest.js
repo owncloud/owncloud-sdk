@@ -122,6 +122,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
       ocs.appendElement('meta', '', (meta) => {
         ocsMeta(meta, 'ok', '100', MatchersV3.regex('(OK)?', ''))
       }).appendElement('data', '', data => {
+        // following elements are matched serially
+        // so any changes in the order (from the server) breaks the tests
         data.appendElement('element', '', element => {
           shareResponseOcsData(element, 0, 101, 1, resource)
             .appendElement('token', '', fromProviderState('${token}', '5Bvt5fDajGxiV3P')) /* eslint-disable-line no-template-curly-in-string */

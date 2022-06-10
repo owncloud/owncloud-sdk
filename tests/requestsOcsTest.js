@@ -13,7 +13,7 @@ describe('Main: Currently testing low level OCS', function () {
   } = require('./helpers/pactHelper.js')
 
   it('checking : capabilities', async function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
 

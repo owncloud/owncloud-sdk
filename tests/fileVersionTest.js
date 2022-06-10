@@ -9,6 +9,8 @@ describe('Main: Currently testing file versions management,', function () {
 
   const {
     applicationXmlResponseHeaders,
+    xmlResponseHeaders,
+    textPlainResponseHeaders,
     getCurrentUserInformationInteraction,
     getCapabilitiesInteraction,
     createOwncloud,
@@ -67,7 +69,7 @@ describe('Main: Currently testing file versions management,', function () {
 
   describe('file versions of non existing file', () => {
     it('retrieves file versions of not existing file', async function () {
-      const provider = createProvider(true, true)
+      const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
       await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
       await provider
@@ -90,7 +92,7 @@ describe('Main: Currently testing file versions management,', function () {
         })
         .willRespondWith({
           status: 404,
-          headers: applicationXmlResponseHeaders,
+          headers: xmlResponseHeaders,
           body: new XmlBuilder('1.0', 'utf-8', 'd:error').build(dError => {
             dError.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:s': 'http://sabredav.org/ns' })
             dError.appendElement('s:exception', '', MatchersV3.equal('Sabre\\DAV\\Exception\\NotFound'))
@@ -225,7 +227,7 @@ describe('Main: Currently testing file versions management,', function () {
         .willRespondWith({
           status: 200,
           body: fileInfo.versionResponseContent[i],
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          headers: textPlainResponseHeaders
         })
     }
 
@@ -262,7 +264,7 @@ describe('Main: Currently testing file versions management,', function () {
 
     it('restore file version', async function () {
       const destinationWebDavPath = createDavPath(config.testUser, versionedFile)
-      const provider = createProvider(false, true)
+      const provider = createProvider()
       await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
       await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
       await provider

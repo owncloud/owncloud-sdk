@@ -32,11 +32,6 @@ describe('Main: Currently testing share recipient,', function () {
         query: { search: 'test', itemType: 'folder', page: '1', perPage: '200', format: 'json' },
         headers: { authorization: getAuthHeaders(sharer, sharerPassword) }
       })
-      /*
-        [oCIS] ocis returns `text/plain` content-type not `application/json` like oc10
-        when requesting with `?format=json`
-        https://github.com/owncloud/ocis/issues/1779
-      */
       .willRespondWith({
         status: 200,
         headers: {
@@ -44,7 +39,7 @@ describe('Main: Currently testing share recipient,', function () {
         },
         body: {
           ocs: {
-            meta: { status: 'ok', statuscode: 200, message: 'OK', totalitems: '', itemsperpage: '' },
+            meta: { status: 'ok', statuscode: 200, message: 'OK' },
             data: {
               exact: { users: [], groups: [], remotes: [] },
               users: [{ label: sharer, value: { shareType: 0, shareWith: sharer } }, { label: receiver, value: { shareType: 0, shareWith: receiver } }],
@@ -57,7 +52,7 @@ describe('Main: Currently testing share recipient,', function () {
   }
 
   it('testing behavior : invalid page', function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider()
 
     return provider.executeTest(() => {
       const oc = createOwncloud(sharer, sharerPassword)
@@ -71,7 +66,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   it('testing behavior : invalid perPage', function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider()
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(sharer, sharerPassword)
@@ -85,7 +80,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   it('testing behavior : negative page', function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider()
 
     return provider.executeTest(async () => {
       const oc = createOwncloud(sharer, sharerPassword)
@@ -99,7 +94,7 @@ describe('Main: Currently testing share recipient,', function () {
   })
 
   it('testing behavior : searching for users and groups', async function () {
-    const provider = createProvider(false, true)
+    const provider = createProvider()
     await getCapabilitiesInteraction(provider, sharer, sharerPassword)
     await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
     await getShareesInteraction(provider)

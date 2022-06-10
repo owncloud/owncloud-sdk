@@ -55,7 +55,7 @@ const shareResponseOcsData = function (node, shareType, id, permissions, fileTar
     .appendElement('uid_file_owner', '', MatchersV3.string(config.adminUsername))
     .appendElement('displayname_file_owner', '', MatchersV3.string(config.adminUsername))
     .appendElement('path', '', MatchersV3.equal(fileTarget))
-    .appendElement('file_target', '', MatchersV3.equal(fileTarget))
+    .appendElement('file_target', '', MatchersV3.includes(fileTarget))
     .appendElement('stime', '', MatchersV3.string(Math.floor(Date.now() / 1000)))
 
   if (shareType === 3) {

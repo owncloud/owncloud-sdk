@@ -20,7 +20,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
   const config = require('./config/config.json')
 
   const {
-    applicationXmlResponseHeaders,
     xmlResponseHeaders,
     applicationFormUrlEncoded,
     getCapabilitiesInteraction,
@@ -259,7 +258,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('sharedFolderByLink,', function () {
       describe('checking the shared folder,', function () {
         it('checking method : isShared with shared folder', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getIsSharedInteraction(
@@ -283,7 +282,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         it('checking method : getShare with existent share', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getShareInteraction(provider, '(public link share)', 3, testFolder, null, 'folder')
@@ -301,7 +300,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('updating share information,', function () {
         it('enabling publicUpload', async function () {
           const formData = { publicUpload: true }
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await updateShareInteraction(
@@ -331,7 +330,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             share_with: MatchersV3.string('***redacted***'),
             share_with_displayname: MatchersV3.string('***redacted***')
           }
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await updateShareInteraction(
@@ -362,7 +361,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('sharedFolderWithUser,', function () {
       describe('checking the shared folder,', function () {
         it('checking method : isShared with shared folder', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getIsSharedInteraction(
@@ -386,7 +385,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         it('checking method : getShare with existent share', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getShareInteraction(provider, '(user share)', 0, testFolder, sharee, 'folder')
@@ -404,7 +403,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('updating shared information,', function () {
         it('updating permissions to read/write', async function () {
           const formData = { permissions: 15 }
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await updateShareInteraction(
@@ -433,7 +432,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('sharedFolderWithGroup,', function () {
       describe('checking the shared folder,', function () {
         it('checking method : isShared with shared folder', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getIsSharedInteraction(
@@ -457,7 +456,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
 
         it('checking method : getShare with existent share', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getShareInteraction(provider, '(group share)', 1, testFolder, testGroup, 'folder')
@@ -475,7 +474,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       describe('updating shared information,', function () {
         it('updating permissions to read/write', async function () {
           const formData = { permissions: 15 }
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await updateShareInteraction(
@@ -524,7 +523,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     describe('sharedFilesByLink,', function () {
       describe('checking the shared files,', function () {
         it('checking method : isShared with shared file', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           for (let i = 0; i < testFiles.length; i++) {
@@ -555,7 +554,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         // https://github.com/pact-foundation/pact-js/issues/604
         it('checking method : getShare with existent share', async function () {
           for (let i = 0; i < testFiles.length; i++) {
-            const provider = createProvider(false, true)
+            const provider = createProvider()
             await getCapabilitiesInteraction(provider, sharer, sharerPassword)
             await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
             await getShareInteraction(provider, '(public link share)', 3, testFiles[i])
@@ -584,7 +583,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           const formData = { permissions: maxPerms }
 
           for (let i = 0; i < testFiles.length; i++) {
-            const provider = createProvider(false, true)
+            const provider = createProvider()
             await getCapabilitiesInteraction(provider, sharer, sharerPassword)
             await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
             await updateShareInteraction(
@@ -612,7 +611,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
       describe('checking method :', function () {
         it('isShared with shared file', async function () {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           for (const file of testFiles) {
@@ -642,7 +641,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         // https://github.com/pact-foundation/pact-js/issues/604
         it('getShare with existent share', async function () {
           for (let i = 0; i < testFiles.length; i++) {
-            const provider = createProvider(false, true)
+            const provider = createProvider()
             await getCapabilitiesInteraction(provider, sharer, sharerPassword)
             await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
             await getShareInteraction(provider, '(user share)', 0, testFiles[i], sharee)
@@ -664,7 +663,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
     describe('sharedFilesWithGroup,', function () {
       it('checking method : isShared with shared file', async function () {
-        const provider = createProvider(false, true)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         for (const file of config.testFiles) {
@@ -694,7 +693,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // https://github.com/pact-foundation/pact-js/issues/604
       it('checking method : getShare with existent share', async function () {
         for (let i = 0; i < testFiles.length; i++) {
-          const provider = createProvider(false, true)
+          const provider = createProvider()
           await getCapabilitiesInteraction(provider, sharer, sharerPassword)
           await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
           await getShareInteraction(provider, '(group share)', 1, testFiles[i], testGroup)
@@ -756,7 +755,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           }).willRespondWith({
             status: 200,
             headers: {
-              ...applicationXmlResponseHeaders
+              ...xmlResponseHeaders
             },
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
@@ -784,7 +783,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             body: 'shareType=1&shareWith=' + testGroup + '&path=%2F' + nonExistentFile + '&permissions=19'
           }).willRespondWith({
             status: 200,
-            headers: applicationXmlResponseHeaders,
+            headers: xmlResponseHeaders,
             body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
               ocs.appendElement('meta', '', (meta) => {
                 ocsMeta(meta, 'failure', 404, 'Wrong path, file/folder doesn\'t exist')
@@ -984,7 +983,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const suffix = '123'
         const fileName = 'newFileCreated' + suffix
 
-        const provider = createProvider(false, true)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         await shareGETExistingNonSharedFile(provider, '', fileName)
@@ -1041,7 +1040,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const suffix = '123'
         const fileName = 'newFileCreated' + suffix
 
-        const provider = createProvider(false, true)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         await shareGETExistingNonSharedFile(provider, 'testing getShares', fileName)

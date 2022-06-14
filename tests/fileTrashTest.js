@@ -108,8 +108,8 @@ describe('oc.fileTrash', function () {
           .appendElement('d:propstat', '', dPropstat => {
             dPropstat.appendElement('d:prop', '', dProp => {
               dProp
-                .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal('testFolder'))
-                .appendElement('oc:trashbin-original-location', '', MatchersV3.equal('testFolder'))
+                .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal(testFolder))
+                .appendElement('oc:trashbin-original-location', '', MatchersV3.equal(testFolder))
                 .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                 .appendElement('d:resourcetype', '', dResourceType => {
                   dResourceType.appendElement('d:collection', '', '')
@@ -274,8 +274,8 @@ describe('oc.fileTrash', function () {
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal('testFolder'))
-                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal('testFolder'))
+                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal(testFolder))
+                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal(testFolder))
                         .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                         .appendElement('d:resourcetype', '', dResourceType => {
                           dResourceType.appendElement('d:collection', '', '')
@@ -296,8 +296,8 @@ describe('oc.fileTrash', function () {
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp
-                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal('testFile.txt'))
-                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal('testFolder/testFile.txt'))
+                        .appendElement('oc:trashbin-original-filename', '', MatchersV3.equal(testFile))
+                        .appendElement('oc:trashbin-original-location', '', MatchersV3.equal(`${testFolder}/${testFile}`))
                         .appendElement('oc:trashbin-delete-timestamp', '', MatchersV3.regex('\\d+', '1615955759'))
                         .appendElement('d:getcontentlength', '', MatchersV3.equal('6'))
                         .appendElement('d:resourcetype', '', '')
@@ -841,6 +841,7 @@ describe('oc.fileTrash', function () {
 
     describe('and when this deleted file is restored to a different location', function () {
       const originalLocation = 'file (restored to a different location).txt'
+      const urlEncodedFile = encodeURIComponent(originalLocation)
 
       const MoveFromTrashbinToDifferentLocation = provider => {
         return provider
@@ -867,7 +868,7 @@ describe('oc.fileTrash', function () {
             ),
             headers: {
               authorization: getAuthHeaders(username, password),
-              Destination: mockServerBaseUrl + 'remote.php/dav/files/' + username + '/file%20(restored%20to%20a%20different%20location).txt'
+              Destination: `${mockServerBaseUrl}remote.php/dav/files/${username}/${urlEncodedFile}`
             }
           })
           .willRespondWith({
@@ -916,7 +917,7 @@ describe('oc.fileTrash', function () {
             method: 'PROPFIND',
             path: MatchersV3.regex(
               `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/.*`,
-              `/remote.php/dav/files/${username}/file%20(restored%20to%20a%20different%20location).txt/`
+              `/remote.php/dav/files/${username}/${urlEncodedFile}/`
             ),
             headers: { authorization: getAuthHeaders(username, password), ...applicationXmlResponseHeaders },
             body: filesListXmlRequestBody
@@ -931,7 +932,7 @@ describe('oc.fileTrash', function () {
                 'xmlns:oc': 'http://owncloud.org/ns'
               })
               dMultistatus.appendElement('d:response', '', dResponse => {
-                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/dav/files/${username}/file%20(restored%20to%20a%20different%20location).txt`))
+                dResponse.appendElement('d:href', '', MatchersV3.equal(`/remote.php/dav/files/${username}/${urlEncodedFile}`))
                   .appendElement('d:propstat', '', dPropstat => {
                     dPropstat.appendElement('d:prop', '', dProp => {
                       dProp

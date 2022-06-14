@@ -1,13 +1,6 @@
 {
     "pactMockHost": "http://localhost",
     "pactMockPort": 1234,
-    "adminUsername": "admin",
-    "adminPassword": "admin",
-    "adminDisplayName": "Admin",
-    "testUser": "test123",
-    "testUserPassword": "test123",
-    "testUser2": "testABC",
-    "testUser2Password": "testABC",
     "testGroup": "testGroup",
     "nonExistentUser": "thisUserShouldNotExist",
     "nonExistentGroup": "thisGroupShouldNotExist",

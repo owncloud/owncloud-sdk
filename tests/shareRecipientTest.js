@@ -2,6 +2,10 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing share recipient,', function () {
   var config = require('./config/config.json')
+  const {
+    Alice: { username: sharer, password: sharerPassword },
+    Brian: { username: receiver, password: receiverPassword }
+  } = require('./config/users.json')
 
   const {
     getAuthHeaders,
@@ -10,11 +14,6 @@ describe('Main: Currently testing share recipient,', function () {
     createOwncloud,
     createProvider
   } = require('./helpers/pactHelper.js')
-
-  const sharer = config.testUser
-  const sharerPassword = config.testUserPassword
-  const receiver = config.testUser2
-  const receiverPassword = config.testUser2Password
 
   const getShareesInteraction = (provider, folder = config.testFolder) => {
     provider

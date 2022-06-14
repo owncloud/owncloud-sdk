@@ -1,6 +1,9 @@
 describe('Main: Currently testing Login and initLibrary,', function () {
   var OwnCloud = require('../src/owncloud')
   var config = require('./config/config.json')
+  const {
+    admin: { username: adminUsername, password: adminPassword }
+  } = require('./config/users.json')
 
   // CURRENT TIME
   var timeRightNow = Math.random().toString(36).slice(2, 11)
@@ -10,6 +13,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   // TESTING CONFIGS
   var nonExistentUser = 'nonExistentUser' + timeRightNow
+  const invalidPassword = config.invalidPassword + timeRightNow
 
   // PACT setup
   const {
@@ -49,7 +53,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with wrong username and password', async function () {
     const provider = createProvider(false, true)
-    await getCapabilitiesWithInvalidAuthInteraction(provider, nonExistentUser, 'config.adminPassword' + timeRightNow)
+    await getCapabilitiesWithInvalidAuthInteraction(provider, nonExistentUser, invalidPassword)
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
@@ -57,7 +61,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
         auth: {
           basic: {
             username: nonExistentUser,
-            password: 'config.adminPassword' + timeRightNow
+            password: invalidPassword
           }
         }
       })
@@ -72,15 +76,15 @@ describe('Main: Currently testing Login and initLibrary,', function () {
 
   it('checking method : login with correct username only', async function () {
     const provider = createProvider(false, true)
-    await getCapabilitiesWithInvalidAuthInteraction(provider, config.adminUsername, 'config.adminPassword' + timeRightNow)
+    await getCapabilitiesWithInvalidAuthInteraction(provider, adminUsername, invalidPassword)
 
     return provider.executeTest(async () => {
       oc = new OwnCloud({
         baseUrl: mockServerBaseUrl,
         auth: {
           basic: {
-            username: config.adminUsername,
-            password: 'config.adminPassword' + timeRightNow
+            username: adminUsername,
+            password: invalidPassword
           }
         }
       })
@@ -93,7 +97,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
     })
   })
 
-  it('checking method : login with correct config.adminUsername and config.adminPassword', async function () {
+  it('checking method : login with correct username and password', async function () {
     const provider = createProvider()
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -102,14 +106,14 @@ describe('Main: Currently testing Login and initLibrary,', function () {
         baseUrl: mockServerBaseUrl,
         auth: {
           basic: {
-            username: config.adminUsername,
-            password: config.adminPassword
+            username: adminUsername,
+            password: adminPassword
           }
         }
       })
 
       return oc.login().then(status => {
-        expect(status).toEqual({ id: config.adminUsername, 'display-name': config.adminUsername, email: {} })
+        expect(status).toEqual({ id: adminUsername, 'display-name': adminUsername, email: {} })
       }).catch(error => {
         fail(error)
       })

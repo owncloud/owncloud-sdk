@@ -17,7 +17,20 @@ const {
 } = require('./helpers/providerStateHelper')
 
 describe('Main: Currently testing file/folder sharing,', function () {
-  const config = require('./config/config.json')
+  const {
+    testGroup,
+    testFolder,
+    nonExistentFile,
+    expirationDate,
+    testFiles,
+    testFilesId,
+    testFilesPath,
+    testFolderId: testFolderShareID
+  } = require('./config/config.json')
+  const {
+    Alice: { username: sharer, password: sharerPassword },
+    Brian: { username: sharee, password: shareePassword }
+  } = require('./config/users.json')
 
   const {
     xmlResponseHeaders,
@@ -32,18 +45,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   } = require('./helpers/pactHelper.js')
 
   // TESTING CONFIGS
-  const testUserPassword = config.testUserPassword
-  const testGroup = config.testGroup
-  const testFolder = config.testFolder
-  const nonExistentFile = config.nonExistentFile
-  const expirationDate = config.expirationDate
-  const testFiles = config.testFiles
-  const testFilesId = config.testFilesId
-
-  const sharer = config.testUser
-  const sharerPassword = config.testUserPassword
-  const sharee = config.testUser2
-  const shareePassword = config.testUser2Password
+  const publicLinkPassword = '1234'
 
   const validAuthHeaders = {
     authorization: getAuthHeaders(sharer, sharerPassword)
@@ -55,7 +57,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
     'test.txt': 14,
     '文件.txt': 19
   }
-  const testFolderShareID = config.testFolderId
 
   // CONSTANTS FROM lib/public/constants.php
   const OCS_PERMISSION_READ = 1
@@ -668,7 +669,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
-        for (const file of config.testFiles) {
+        for (const file of testFiles) {
           await getIsSharedInteraction(
             provider,
             `check whether '${file}' is shared or not (group share)`,
@@ -753,7 +754,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               ...validAuthHeaders,
               ...applicationFormUrlEncoded
             },
-            body: 'shareType=3' + '&path=%2F' + nonExistentFile + '&password=' + testUserPassword
+            body: 'shareType=3' + '&path=%2F' + nonExistentFile + '&password=' + publicLinkPassword
           }).willRespondWith({
             status: 200,
             headers: {
@@ -804,7 +805,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares$',
               '/ocs/v1.php/apps/files_sharing/api/v1/shares'
             ),
-            query: { path: '/' + config.nonExistentFile },
+            query: { path: '/' + nonExistentFile },
             headers: validAuthHeaders
           }).willRespondWith({
             status: 200,
@@ -882,7 +883,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               ...validAuthHeaders,
               ...applicationFormUrlEncoded
             },
-            body: 'shareType=0&shareWith=' + sharee + '&path=' + fileEncoded + '&expireDate=' + config.expirationDate
+            body: 'shareType=0&shareWith=' + sharee + '&path=' + fileEncoded + '&expireDate=' + expirationDate
           })
           .willRespondWith({
             status: 200,
@@ -891,12 +892,12 @@ describe('Main: Currently testing file/folder sharing,', function () {
               ocs.appendElement('meta', '', (meta) => {
                 ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
               }).appendElement('data', '', data => {
-                shareResponseOcsData(data, 0, config.testFilesId[testFiles.indexOf(file)], 19, '/' + file)
+                shareResponseOcsData(data, 0, testFilesId[testFiles.indexOf(file)], 19, '/' + file)
                   // [oCIS] expiration date cannot be set
                   // https://github.com/owncloud/ocis/issues/1328
                   .appendElement(
                     'expiration', '',
-                    MatchersV3.date('yyyy-MM-dd HH:mm:ss', config.expirationDate + ' 00:00:00'))
+                    MatchersV3.date('yyyy-MM-dd HH:mm:ss', expirationDate + ' 00:00:00'))
               })
             })
           })
@@ -939,7 +940,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         return provider.executeTest(async () => {
           const oc = createOwncloud(sharer, sharerPassword)
           await oc.login()
-          return oc.shares.shareFileWithLink(nonExistentFile, { password: testUserPassword }).then(status => {
+          return oc.shares.shareFileWithLink(nonExistentFile, { password: publicLinkPassword }).then(status => {
             expect(status).toBe(null)
           }).catch(error => {
             expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
@@ -1105,8 +1106,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
 
-        for (let i = 0; i < config.testFilesPath.length; i++) {
-          await sharePOSTRequestWithExpirationDateSet(provider, config.testFilesPath[i], testFiles[i])
+        for (let i = 0; i < testFilesPath.length; i++) {
+          await sharePOSTRequestWithExpirationDateSet(provider, testFilesPath[i], testFiles[i])
         }
         return provider.executeTest(async () => {
           const oc = createOwncloud(sharer, sharerPassword)

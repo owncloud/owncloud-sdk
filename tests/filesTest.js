@@ -4,8 +4,16 @@
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing files management,', function () {
-  const config = require('./config/config.json')
-  const username = config.testUser
+  const {
+    testFolder,
+    testFile,
+    testContent,
+    nonExistentFile,
+    nonExistentDir
+  } = require('./config/config.json')
+  const {
+    Alice: { username, password }
+  } = require('./config/users.json')
 
   const {
     getContentsOfFileInteraction,
@@ -33,10 +41,8 @@ describe('Main: Currently testing files management,', function () {
     givenTagIsAssignedToFile,
     givenFolderExists
   } = require('./helpers/providerStateHelper')
-  const validAuthHeaders = { authorization: getAuthHeaders(config.testUser, config.testUserPassword) }
+  const validAuthHeaders = { authorization: getAuthHeaders(username, password) }
 
-  // TESTING CONFIGS
-  const { testFolder, testFile, testContent, nonExistentFile, nonExistentDir } = config
   const testSubDir = testFolder + '/' + 'subdir'
   const mockServerBaseUrl = getMockServerBaseUrl()
 
@@ -100,15 +106,15 @@ describe('Main: Currently testing files management,', function () {
       }
     }
 
-    await givenUserExists(provider, config.testUser, config.testUserPassword)
+    await givenUserExists(provider, username, password)
     if (parentFolder !== nonExistentFile) {
       for (let i = 0; i < files.length; i++) {
-        await givenFileExists(provider, config.testUser, config.testUserPassword, parentFolder + '/' + files[i])
+        await givenFileExists(provider, username, password, parentFolder + '/' + files[i])
       }
     }
     if (parentFolder !== nonExistentFile) {
       for (let i = 0; i < folders.length; i++) {
-        await givenFolderExists(provider, config.testUser, config.testUserPassword, parentFolder + '/' + folders[i])
+        await givenFolderExists(provider, username, password, parentFolder + '/' + folders[i])
       }
     }
     return provider.uponReceiving(`as '${username}', a PROPFIND request to list content of folder, ${requestName}`)
@@ -178,8 +184,8 @@ describe('Main: Currently testing files management,', function () {
   }
 
   const favoriteFileInteraction = async (provider, value, file) => {
-    await givenUserExists(provider, config.testUser, config.testUserPassword)
-    await givenFileExists(provider, config.testUser, config.testUserPassword, file)
+    await givenUserExists(provider, username, password)
+    await givenFileExists(provider, username, password, file)
     return provider.uponReceiving(`as '${username}', a PROPPATCH request to ${value === true ? 'favorite' : 'unfavorite'} a file`)
       .withRequest({
         method: 'PROPPATCH',
@@ -220,18 +226,18 @@ describe('Main: Currently testing files management,', function () {
   describe('file/folder creation and deletion', function () {
     it('creates the testFolder at instance', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await createFolderInteraction(
-        provider, testFolder, config.testUser, config.testUserPassword
+        provider, testFolder, username, password
       )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.createFolder(`files/${config.testUser}/${testFolder}`).then(status => {
+        return oc.files.createFolder(`files/${username}/${testFolder}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -241,16 +247,16 @@ describe('Main: Currently testing files management,', function () {
 
     it('creates subfolder at instance', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
-      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
+      await getCurrentUserInformationInteraction(provider, username, password)
       await createFolderInteraction(
-        provider, testSubDir, config.testUser, config.testUserPassword
+        provider, testSubDir, username, password
       )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.createFolder(`files/${config.testUser}/${testSubDir}`).then(status => {
+        return oc.files.createFolder(`files/${username}/${testSubDir}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -261,22 +267,22 @@ describe('Main: Currently testing files management,', function () {
     it('creates subfiles at instance', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       for (let i = 0; i < testSubFiles.length; i++) {
         await updateFileInteraction(
-          provider, testSubFiles[i], config.testUser, config.testUserPassword
+          provider, testSubFiles[i], username, password
         )
       }
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         const promises = testSubFiles.map(file => {
-          return oc.files.putFileContents(`files/${config.testUser}/${file}`, testContent).then(status => {
+          return oc.files.putFileContents(`files/${username}/${file}`, testContent).then(status => {
             expect(typeof status).toBe('object')
             expect(typeof status.ETag).toBe('string')
             expect(typeof status['OC-FileId']).toBe('string')
@@ -290,18 +296,18 @@ describe('Main: Currently testing files management,', function () {
 
     it('deletes the test folder at instance', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await deleteResourceInteraction(
-        provider, testFolder, 'folder', config.testUser, config.testUserPassword
+        provider, testFolder, 'folder', username, password
       )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.delete(`files/${config.testUser}/${testFolder}`).then(status => {
+        return oc.files.delete(`files/${username}/${testFolder}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -313,9 +319,9 @@ describe('Main: Currently testing files management,', function () {
   describe('list, get content and move file/folder', function () {
     it('checking method : list with no depth specified', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await listFolderContentInteraction(
         provider,
@@ -324,9 +330,9 @@ describe('Main: Currently testing files management,', function () {
         ['abc.txt', 'file one.txt', 'zz+z.txt', '中文.txt'], ['subdir'], '1'
       )
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.list(`files/${config.testUser}/${testFolder}`).then(files => {
+        return oc.files.list(`files/${username}/${testFolder}`).then(files => {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(6)
           expect(files[1].getName()).toEqual('abc.txt')
@@ -346,9 +352,9 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1799
     it('checking method : list with non existent file', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await listFolderContentInteraction(
         provider,
@@ -356,9 +362,9 @@ describe('Main: Currently testing files management,', function () {
         nonExistentFile,
         [], [], '1')
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.list(`files/${config.testUser}/${nonExistentFile}`).then(files => {
+        return oc.files.list(`files/${username}/${nonExistentFile}`).then(files => {
           expect(files).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -368,17 +374,17 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method : getFileContents for existent files', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
-      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
+      await getCurrentUserInformationInteraction(provider, username, password)
       for (const file of testSubFiles) {
-        await getContentsOfFileInteraction(provider, file, config.testUser, config.testUserPassword)
+        await getContentsOfFileInteraction(provider, file, username, password)
       }
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         for (let i = 0; i < testSubFiles.length; i++) {
-          await oc.files.getFileContents(`files/${config.testUser}/${testSubFiles[i]}`, { resolveWithResponseObject: true }).then((resp) => {
+          await oc.files.getFileContents(`files/${username}/${testSubFiles[i]}`, { resolveWithResponseObject: true }).then((resp) => {
             expect(resp.body).toEqual(testContent)
             expect(resp.headers.ETag).toBeDefined()
           }).catch(error => {
@@ -392,16 +398,16 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1799
     it('checking method : getFileContents for non existent file', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await getContentsOfFileInteraction(provider, nonExistentFile, config.testUser, config.testUserPassword)
+      await getContentsOfFileInteraction(provider, nonExistentFile, username, password)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.getFileContents(`files/${config.testUser}/${nonExistentFile}`).then(content => {
+        return oc.files.getFileContents(`files/${username}/${nonExistentFile}`).then(content => {
           expect(content).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -419,17 +425,17 @@ describe('Main: Currently testing files management,', function () {
         }
       }
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await updateFileInteraction(provider, newFile, config.testUser, config.testUserPassword)
+      await updateFileInteraction(provider, newFile, username, password)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         try {
-          const status = await oc.files.putFileContents(`files/${config.testUser}/${newFile}`, testContent, options)
+          const status = await oc.files.putFileContents(`files/${username}/${newFile}`, testContent, options)
           expect(typeof status).toBe('object')
 
           // Progress callback is not called for nodejs env
@@ -444,16 +450,16 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1264
     it('fails with error when uploading to a non-existent parent path', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await updateFileInteraction(provider, nonExistentDir + '/' + 'file.txt', config.testUser, config.testUserPassword)
+      await updateFileInteraction(provider, nonExistentDir + '/' + 'file.txt', username, password)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.putFileContents(`files/${config.testUser}/${nonExistentDir}/file.txt`, testContent).then(status => {
+        return oc.files.putFileContents(`files/${username}/${nonExistentDir}/file.txt`, testContent).then(status => {
           fail('The request to update non existent file was expected to fail but it passed with status ' + status)
         }).catch(error => {
           expect(error.message).toBe('Files cannot be created in non-existent collections')
@@ -463,31 +469,31 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method: getFileUrl', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        const url = oc.files.getFileUrl(`files/${config.testUser}/foo/bar`)
-        expect(url).toBe(mockServerBaseUrl + 'remote.php/dav/files/' + config.testUser + '/foo/bar')
+        const url = oc.files.getFileUrl(`files/${username}/foo/bar`)
+        expect(url).toBe(mockServerBaseUrl + 'remote.php/dav/files/' + username + '/foo/bar')
       })
     })
 
     it('checking method : createFolder for an existing parent path', async function () {
       const newFolder = testFolder + '/' + 'new folder'
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
-      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
-      await createFolderInteraction(provider, newFolder, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
+      await getCurrentUserInformationInteraction(provider, username, password)
+      await createFolderInteraction(provider, newFolder, username, password)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
 
-        return oc.files.createFolder(`files/${config.testUser}/${newFolder}`).then(status => {
+        return oc.files.createFolder(`files/${username}/${newFolder}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -499,9 +505,9 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1799
     it('checking method : createFolder for a non-existent parent path', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await provider
         .uponReceiving(`as '${username}', a MKCOL request to create a folder in a not existing root`)
@@ -517,9 +523,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.createFolder(`files/${config.testUser}/${testFolder}/${nonExistentDir}/newFolder/`).then(status => {
+        return oc.files.createFolder(`files/${username}/${testFolder}/${nonExistentDir}/newFolder/`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('Parent node does not exist')
@@ -531,19 +537,19 @@ describe('Main: Currently testing files management,', function () {
       const newFolder = testSubDir
       const provider = createProvider()
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await deleteResourceInteraction(
-        provider, newFolder, 'folder', config.testUser, config.testUserPassword
+        provider, newFolder, 'folder', username, password
       )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.delete(`files/${config.testUser}/${newFolder}`)
+        return oc.files.delete(`files/${username}/${newFolder}`)
           .then(status2 => {
             expect(status2).toEqual(true)
           }).catch(error => {
@@ -557,19 +563,19 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : delete for a non-existent folder', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await deleteResourceInteraction(
-        provider, nonExistentDir, 'folder', config.testUser, config.testUserPassword
+        provider, nonExistentDir, 'folder', username, password
       )
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.delete(`files/${config.testUser}/${nonExistentDir}`).then(status => {
+        return oc.files.delete(`files/${username}/${nonExistentDir}`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentDir + ' could not be located')
@@ -584,19 +590,19 @@ describe('Main: Currently testing files management,', function () {
       const destinationWebDavPath = `remote.php/dav/files/${username}/${encodedSrcFilePath}`
 
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       provider
         .given('the user is recreated', {
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('file exists', {
           fileName: encodedSrcFilePath,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('provider base url is returned')
       await moveFileInteraction(
@@ -615,9 +621,9 @@ describe('Main: Currently testing files management,', function () {
           body: webdavExceptionResponseBody('Forbidden', 'Source and destination uri are identical.')
         })
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.move(`files/${config.testUser}/${testFolder}/中文.txt`, `files/${config.testUser}/${testFolder}/中文.txt`).then(status => {
+        return oc.files.move(`files/${username}/${testFolder}/中文.txt`, `files/${username}/${testFolder}/中文.txt`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error.message).toBe('Source and destination uri are identical.')
@@ -628,10 +634,10 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : move existent file into different folder', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const srcFilePath = `${testFolder}/中文.txt`
       const desFolder = 'testFolder2'
@@ -639,18 +645,18 @@ describe('Main: Currently testing files management,', function () {
       const destinationWebDavPath = `remote.php/dav/files/${username}/${encodeURI(desFilePath)}`
       provider
         .given('the user is recreated', {
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('folder exists', {
           folderName: desFolder,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('file exists', {
           fileName: srcFilePath,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('provider base url is returned')
         .uponReceiving(`as '${username}', a MOVE request to move existent file into different folder`)
@@ -669,9 +675,9 @@ describe('Main: Currently testing files management,', function () {
           status: 201
         })
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.move(`files/${config.testUser}/${testFolder}/中文.txt`, `files/${config.testUser}/${testFolder}/中文123.txt`).then(status => {
+        return oc.files.move(`files/${username}/${testFolder}/中文.txt`, `files/${username}/${testFolder}/中文123.txt`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -684,11 +690,11 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : move non existent file', async function () {
       const destinationWebDavPath = `remote.php/dav/files/${username}/abcd.txt`
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenUserExists(provider, username, password)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${username}', a MOVE request to move non existent file`)
@@ -710,9 +716,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.move(`files/${config.testUser}/${nonExistentFile}`, '/abcd.txt').then(status => {
+        return oc.files.move(`files/${username}/${nonExistentFile}`, '/abcd.txt').then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -726,12 +732,12 @@ describe('Main: Currently testing files management,', function () {
       const file = `${testFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/${encodeURI('中文.txt')}`
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, file)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, file)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, same name`)
@@ -753,9 +759,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.copy(`files/${config.testUser}/${file}`, `files/${config.testUser}/${file}`).then(status => {
+        return oc.files.copy(`files/${username}/${file}`, `files/${username}/${file}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error.message).toBe('Source and destination uri are identical.')
@@ -768,11 +774,11 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : copy non existent file', async function () {
       const destinationWebDavPath = `remote.php/dav/files/${username}/abcd.txt`
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenUserExists(provider, username, password)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${username}', a COPY request to copy non existent file`)
@@ -793,9 +799,9 @@ describe('Main: Currently testing files management,', function () {
           body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(nonExistentFile))
         })
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.copy(`files/${config.testUser}/${nonExistentFile}`, `files/${config.testUser}/abcd.txt`).then(status => {
+        return oc.files.copy(`files/${username}/${nonExistentFile}`, `files/${username}/abcd.txt`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('File with name ' + nonExistentFile + ' could not be located')
@@ -807,13 +813,13 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1978
     it('resolved the path of a file identified by its fileId', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const file = `${testFolder}/${testFile}`
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, file)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, file)
       await provider
         .uponReceiving(`as '${username}', a PROPFIND request to path for fileId`)
         .withRequest({
@@ -860,7 +866,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.files.getPathForFileId('123456789')
           .then(path => {
@@ -873,13 +879,13 @@ describe('Main: Currently testing files management,', function () {
 
     it('checking method: file info', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const file = `${testFolder}/${testFile}`
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, file)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, file)
       await provider
         .uponReceiving(`as '${username}', a PROPFIND request to file info, fileId`)
         .withRequest({
@@ -923,9 +929,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.fileInfo(`files/${config.testUser}/${file}`, ['{http://owncloud.org/ns}fileid'])
+        return oc.files.fileInfo(`files/${username}/${file}`, ['{http://owncloud.org/ns}fileid'])
           .then(fileInfo => {
             const fileId = fileInfo.getFileId()
             expect(fileId).toEqual('123456789')
@@ -1001,8 +1007,8 @@ describe('Main: Currently testing files management,', function () {
             }).appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/dav\\/files\\/${username}${regexPath}${config.testFile}`,
-                  `/remote.php/dav/files/${username}${examplePath}${config.testFile}`
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}${regexPath}${testFile}`,
+                  `/remote.php/dav/files/${username}${examplePath}${testFile}`
                 )
               )
                 .appendElement('d:propstat', '', dPropstat => {
@@ -1020,19 +1026,19 @@ describe('Main: Currently testing files management,', function () {
 
     it('returns TUS support information when TUS headers are set for a list call', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, config.testFile)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, testFile)
       await tusSupportRequest(provider)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
 
-        const promise = oc.files.list(`files/${config.testUser}/`)
+        const promise = oc.files.list(`files/${username}/`)
         await promise.then(entries => {
           const tusSupport = entries[0].getTusSupport()
           expect(tusSupport.resumable).toEqual('1.0.0')
@@ -1046,20 +1052,20 @@ describe('Main: Currently testing files management,', function () {
 
     it('returns TUS support information when TUS headers are set for a fileinfo call', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const dir = 'somedir'
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFolderExists(provider, config.testUser, config.testUserPassword, dir)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, dir + '/' + config.testFile)
+      await givenUserExists(provider, username, password)
+      await givenFolderExists(provider, username, password, dir)
+      await givenFileExists(provider, username, password, dir + '/' + testFile)
       await tusSupportRequest(provider, true, dir)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        const promise = oc.files.fileInfo(`files/${config.testUser}/${dir}`)
+        const promise = oc.files.fileInfo(`files/${username}/${dir}`)
         return promise.then(entry => {
           const tusSupport = entry.getTusSupport()
           expect(tusSupport.resumable).toEqual('1.0.0')
@@ -1071,18 +1077,18 @@ describe('Main: Currently testing files management,', function () {
 
     it('returns null when TUS headers are not set for a list call', async function () {
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, config.testFile)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, testFile)
       await tusSupportRequest(provider, false)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        const promise = oc.files.list(`files/${config.testUser}/`)
+        const promise = oc.files.list(`files/${username}/`)
         return promise.then(entries => {
           expect(entries[0].getTusSupport()).toEqual(null)
           expect(entries[1].getTusSupport()).toEqual(null)
@@ -1095,23 +1101,23 @@ describe('Main: Currently testing files management,', function () {
     it('rename existing file', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/中文123.txt`
       const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/${encodeURI('中文123.txt')}`
       provider
         .given('the user is recreated', {
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('file exists', {
           fileName: srcFilePath,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('provider base url is returned')
       await moveFileInteraction(
@@ -1129,9 +1135,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.move(`files/${config.testUser}/${srcFilePath}`, `files/${config.testUser}/${desFilePath}`).then(status => {
+        return oc.files.move(`files/${username}/${srcFilePath}`, `files/${username}/${desFilePath}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1144,23 +1150,23 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : copy existent file into same folder, different name', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/中文123.txt`
       const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('file exists', {
           fileName: srcFilePath,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('provider base url is returned')
         .uponReceiving(`as '${username}', a COPY request to copy existent file into same folder, different name`)
@@ -1180,9 +1186,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.copy(`files/${config.testUser}/${srcFilePath}`, `files/${config.testUser}/${desFilePath}`).then(status => {
+        return oc.files.copy(`files/${username}/${srcFilePath}`, `files/${username}/${desFilePath}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1193,10 +1199,10 @@ describe('Main: Currently testing files management,', function () {
     it('checking method : copy existent file into different folder', async function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await provider
       const srcFilePath = `${testFolder}/中文.txt`
@@ -1204,18 +1210,18 @@ describe('Main: Currently testing files management,', function () {
       const destinationWebDavPath = `remote.php/dav/files/${username}/${testFolder}/subdir/${encodeURI('中文123.txt')}`
       await provider
         .given('the user is recreated', {
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('file exists', {
           fileName: srcFilePath,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('folder exists', {
           folderName: `${testFolder}/subdir/`,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: username,
+          password: password
         })
         .given('provider base url is returned')
         .uponReceiving(`as '${username}', a COPY request to copy existent file into different folder`)
@@ -1235,9 +1241,9 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.copy(`files/${config.testUser}/${srcFilePath}`, `files/${config.testUser}/${desFilePath}`).then(status => {
+        return oc.files.copy(`files/${username}/${srcFilePath}`, `files/${username}/${desFilePath}`).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1251,17 +1257,17 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: unfavorite', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       const file = `${testFolder}/${testFile}`
       await favoriteFileInteraction(provider, false, file)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.favorite(`files/${config.testUser}/${file}`, false)
+        return oc.files.favorite(`files/${username}/${file}`, false)
           .then(status => {
             expect(status).toEqual(true)
           }).catch(error => {
@@ -1281,16 +1287,16 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite', async function () {
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
       await favoriteFileInteraction(provider, true, file)
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
-        return oc.files.favorite(`files/${config.testUser}/${file}`)
+        return oc.files.favorite(`files/${username}/${file}`)
           .then(status => {
             expect(status).toEqual(true)
           }).catch(error => {
@@ -1303,20 +1309,20 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1228
     it('checking method: favorite filter', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, file)
-      await givenFileIsMarkedFavorite(provider, config.testUser, config.testUserPassword, file)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, file)
+      await givenFileIsMarkedFavorite(provider, username, password, file)
       await provider
         .uponReceiving(`as '${username}', a REPORT request to get favorite file`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex(
-            '.*\\/remote\\.php\\/dav\\/files\\/' + config.testUser + '\\/$',
-            '/remote.php/dav/files/' + config.testUser + '/'
+            '.*\\/remote\\.php\\/dav\\/files\\/' + username + '\\/$',
+            '/remote.php/dav/files/' + username + '/'
           ),
           headers: {
             ...validAuthHeaders,
@@ -1343,8 +1349,8 @@ describe('Main: Currently testing files management,', function () {
             dMultistatus.appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/dav\\/files\\/${config.testUser}\\/${file}`,
-                  `/remote.php/dav/files/${config.testUser}/${file}`)
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/${file}`,
+                  `/remote.php/dav/files/${username}/${file}`)
               )
                 .appendElement('d:propstat', '', dPropstat => {
                   dPropstat.appendElement('d:prop', '', dProp => {
@@ -1357,7 +1363,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.files.getFavoriteFiles(['{http://owncloud.org/ns}favorite'])
           .then(files => {
@@ -1373,19 +1379,19 @@ describe('Main: Currently testing files management,', function () {
     // REPORT method not implemented in ocis
     it('checking method getFavoriteFiles when there are no favorite files', async () => {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, file)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, file)
       await provider
         .uponReceiving(`as '${username}', a REPORT request to get favorite file when there are no favorites`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex(
-            '.*\\/remote\\.php\\/dav\\/files\\/' + config.testUser + '\\/$',
-            '/remote.php/dav/files/' + config.testUser + '/'
+            '.*\\/remote\\.php\\/dav\\/files\\/' + username + '\\/$',
+            '/remote.php/dav/files/' + username + '/'
           ),
           headers: {
             ...validAuthHeaders,
@@ -1413,7 +1419,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.files.getFavoriteFiles(['{http://owncloud.org/ns}favorite'])
           .then(files => {
@@ -1436,22 +1442,22 @@ describe('Main: Currently testing files management,', function () {
       ]
 
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
 
       const filename = 'abc.txt'
       const filePath = testFolder + '/' + filename
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, filePath)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, filePath)
       await provider
         .uponReceiving(`as '${username}', a REPORT request to search in the instance`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex(
-            '.*\\/remote\\.php\\/dav\\/files\\/' + config.testUser + '\\/$',
-            '/remote.php/dav/files/' + config.testUser + '/'
+            '.*\\/remote\\.php\\/dav\\/files\\/' + username + '\\/$',
+            '/remote.php/dav/files/' + username + '/'
           ),
           headers: {
             ...validAuthHeaders,
@@ -1483,8 +1489,8 @@ describe('Main: Currently testing files management,', function () {
             dMultistatus.appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '',
                 MatchersV3.regex(
-                  `.*\\/remote\\.php\\/dav\\/files\\/${config.testUser}\\/${filePath}`,
-                  `/remote.php/dav/files/${config.testUser}/${filePath}`
+                  `.*\\/remote\\.php\\/dav\\/files\\/${username}\\/${filePath}`,
+                  `/remote.php/dav/files/${username}/${filePath}`
                 )
               )
                 .appendElement('d:propstat', '', dPropstat => {
@@ -1505,13 +1511,13 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.files.search('abc', 30, davProperties).then(files => {
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(1)
           expect(files[0].getName()).toEqual(filename)
-          expect(files[0].getPath()).toEqual(`/files/${config.testUser}/${testFolder}/`)
+          expect(files[0].getPath()).toEqual(`/files/${username}/${testFolder}/`)
           expect(files[0].getSize()).toEqual(6)
         }).catch(error => {
           expect(error).toBe(null)
@@ -1532,7 +1538,7 @@ describe('Main: Currently testing files management,', function () {
               'xmlns:s': 'http://sabredav.org/ns',
               'xmlns:oc': 'http://owncloud.org/ns'
             })
-            const davPath = data === fileId ? 'webdav' : 'dav/files/' + config.testUser
+            const davPath = data === fileId ? 'webdav' : 'dav/files/' + username
             const davPathRegex = davPath.replace(/\//g, '\\\\/')
             dMultistatus.appendElement('d:response', '', dResponse => {
               dResponse.appendElement('d:href', '', MatchersV3.regex(
@@ -1551,22 +1557,22 @@ describe('Main: Currently testing files management,', function () {
         }
       }
       const provider = createProvider(true, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
 
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, testFile)
-      await givenSystemTagExists(provider, config.testUser, config.testUserPassword, newTagName)
-      await givenTagIsAssignedToFile(provider, config.testUser, config.testUserPassword, testFile, newTagName)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, testFile)
+      await givenSystemTagExists(provider, username, password, newTagName)
+      await givenTagIsAssignedToFile(provider, username, password, testFile, newTagName)
       await provider
         .uponReceiving(`as '${username}', a REPORT request to get files by tag`)
         .withRequest({
           method: 'REPORT',
           path: MatchersV3.regex(
-            '.*\\/remote\\.php\\/dav\\/files\\/' + config.testUser + '\\/$',
-            '/remote.php/dav/files/' + config.testUser + '/'
+            '.*\\/remote\\.php\\/dav\\/files\\/' + username + '\\/$',
+            '/remote.php/dav/files/' + username + '/'
           ),
           headers: {
             ...validAuthHeaders,
@@ -1585,7 +1591,7 @@ describe('Main: Currently testing files management,', function () {
         .willRespondWith(getFileInfoBy('tag'))
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.files.getFilesByTags([tagId], ['{http://owncloud.org/ns}fileid'])
           .then(files => {
@@ -1601,13 +1607,13 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1947
     it('checking method: create tag', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
 
       const tagToCreate = newTagName + Date.now()
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
+      await givenUserExists(provider, username, password)
       await provider
         .uponReceiving(`as '${username}', a POST request to create tag`)
         .withRequest({
@@ -1633,7 +1639,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.systemTags.createTag({ name: tagToCreate })
           .catch(error => {
@@ -1646,14 +1652,14 @@ describe('Main: Currently testing files management,', function () {
     // https://github.com/owncloud/ocis/issues/1947
     it('checking method: tag file', async function () {
       const provider = createProvider(false, true)
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, username, password)
       await getCurrentUserInformationInteraction(
-        provider, config.testUser, config.testUserPassword
+        provider, username, password
       )
 
-      await givenUserExists(provider, config.testUser, config.testUserPassword)
-      await givenFileExists(provider, config.testUser, config.testUserPassword, testFile)
-      await givenSystemTagExists(provider, config.testUser, config.testUserPassword, newTagName)
+      await givenUserExists(provider, username, password)
+      await givenFileExists(provider, username, password, testFile)
+      await givenSystemTagExists(provider, username, password, newTagName)
       await provider
         .uponReceiving(`as '${username}', a PUT request to tag file`)
         .withRequest({
@@ -1669,7 +1675,7 @@ describe('Main: Currently testing files management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(username, password)
         await oc.login()
         return oc.systemTags.tagFile(fileId, tagId)
           .catch(error => {

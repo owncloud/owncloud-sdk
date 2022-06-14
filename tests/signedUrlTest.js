@@ -1,6 +1,8 @@
 describe('Main: Currently testing url signing,', function () {
   var OwnCloud = require('../src/owncloud')
-  var config = require('./config/config.json')
+  const {
+    admin: { username: adminUsername, password: adminPassword }
+  } = require('./config/users.json')
 
   const { getMockServerBaseUrl } = require('./helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -33,8 +35,8 @@ describe('Main: Currently testing url signing,', function () {
       baseUrl: mockServerBaseUrl,
       auth: {
         basic: {
-          username: config.adminUsername,
-          password: config.adminPassword
+          username: adminUsername,
+          password: adminPassword
         }
       },
       signingKey: '1234567890',

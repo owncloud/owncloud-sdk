@@ -1,4 +1,4 @@
-const config = require('./config/config.json')
+const { testContent } = require('./config/config.json')
 const {
   getOCSMeta,
   getOCSData
@@ -133,7 +133,7 @@ describe('provider testing', () => {
     },
     'file exists': (setup, parameters) => {
       const dirname = path.dirname(parameters.fileName)
-      const content = parameters.content || config.testContent
+      const content = parameters.content || testContent
       if (setup) {
         if (dirname !== '' && dirname !== '/' && dirname !== '.') {
           const results = createFolderRecursive(

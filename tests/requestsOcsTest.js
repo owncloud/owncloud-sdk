@@ -1,8 +1,10 @@
 import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing low level OCS', function () {
-  const config = require('./config/config.json')
-  const username = config.adminUsername
+  const {
+    admin: { username: adminUsername },
+    Alice
+  } = require('./config/users.json')
 
   const {
     getCapabilitiesInteraction,
@@ -55,7 +57,7 @@ describe('Main: Currently testing low level OCS', function () {
     await getCurrentUserInformationInteraction(provider)
 
     await provider
-      .uponReceiving(`as '${username}', a PUT request to update an unknown user using OCS`)
+      .uponReceiving(`as '${adminUsername}', a PUT request to update an unknown user using OCS`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
@@ -100,18 +102,17 @@ describe('Main: Currently testing low level OCS', function () {
     https://github.com/owncloud/ocis/issues/1702
   */
   it('checking : PUT email', async function () {
-    const { testUser, testUserPassword } = config
     const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
-      .uponReceiving(`as '${username}', a PUT request to update a user using OCS`)
+      .given('the user is recreated', { username: Alice.username, password: Alice.password })
+      .uponReceiving(`as '${adminUsername}', a PUT request to update a user using OCS`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-          '/ocs/v2.php/cloud/users/' + testUser
+          '/ocs/v2.php/cloud/users/' + Alice.username
         ),
         query: { format: 'json' },
         headers: {
@@ -143,7 +144,7 @@ describe('Main: Currently testing low level OCS', function () {
       return oc.requests.ocs({
         method: 'PUT',
         service: 'cloud',
-        action: 'users/' + testUser,
+        action: 'users/' + Alice.username,
         data: { key: 'email', value: 'foo@bar.net' }
       }).then(response => {
         expect(response.ok).toBe(true)

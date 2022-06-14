@@ -2,7 +2,10 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing group management,', function () {
   const config = require('./config/config.json')
-  const username = config.adminUsername
+  const {
+    admin: { username: adminUsername },
+    Alice
+  } = require('./config/users.json')
   let provider = null
 
   const {
@@ -19,7 +22,7 @@ describe('Main: Currently testing group management,', function () {
     await provider
       .given('group exists', { groupName: 'admin' })
       .given('group exists', { groupName: config.testGroup })
-      .uponReceiving(`as '${username}', a GET request to get all groups`)
+      .uponReceiving(`as '${adminUsername}', a GET request to get all groups`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -39,7 +42,7 @@ describe('Main: Currently testing group management,', function () {
               // TODO: adjust the following after the issue is resolved
               // https://github.com/pact-foundation/pact-js/issues/619
               data.appendElement('groups', '', (groups) => {
-                groups.appendElement('element', '', MatchersV3.string(config.adminUsername))
+                groups.appendElement('element', '', MatchersV3.string(adminUsername))
                   .eachLike('element', '', group => {
                     group.appendText(MatchersV3.string(config.testGroup))
                   })
@@ -59,7 +62,7 @@ describe('Main: Currently testing group management,', function () {
     }
 
     await provider
-      .uponReceiving(`as '${username}', a DELETE request to delete a group '${group}'`)
+      .uponReceiving(`as '${adminUsername}', a DELETE request to delete a group '${group}'`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -134,9 +137,9 @@ describe('Main: Currently testing group management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await provider
       .given('group exists', { groupName: config.testGroup })
-      .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
-      .given('user is added to group', { username: config.testUser, groupName: config.testGroup })
-      .uponReceiving(`as '${username}', a GET request to get all members of existing group`)
+      .given('the user is recreated', { username: Alice.username, password: Alice.password })
+      .given('user is added to group', { username: Alice.username, groupName: config.testGroup })
+      .uponReceiving(`as '${adminUsername}', a GET request to get all members of existing group`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -156,7 +159,7 @@ describe('Main: Currently testing group management,', function () {
             // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('users', '', (users) => {
               users.eachLike('element', '', user => {
-                user.appendText(MatchersV3.equal(config.testUser))
+                user.appendText(MatchersV3.equal(Alice.username))
               })
             })
           })
@@ -167,7 +170,7 @@ describe('Main: Currently testing group management,', function () {
       await oc.login()
       return oc.groups.getGroupMembers(config.testGroup).then(data => {
         expect(typeof (data)).toBe('object')
-        expect(data.indexOf(config.testUser)).toBeGreaterThan(-1)
+        expect(data.indexOf(Alice.username)).toBeGreaterThan(-1)
       }).catch(error => {
         expect(error).toBe(null)
       })
@@ -204,7 +207,7 @@ describe('Main: Currently testing group management,', function () {
     const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
     await provider
       .given('group does not exist', { groupName: config.testGroup })
-      .uponReceiving(`as '${username}', a POST request to create a group`)
+      .uponReceiving(`as '${adminUsername}', a POST request to create a group`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(

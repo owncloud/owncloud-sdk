@@ -4,9 +4,18 @@
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.publicFiles', function () {
-  const config = require('./config/config.json')
+  const {
+    shareTokenOfPublicLinkFolder,
+    testFolder,
+    testFile,
+    testFiles,
+    testContent,
+    testFileEtag
+  } = require('./config/config.json')
+  const {
+    Alice: { username, password }
+  } = require('./config/users.json')
   const using = require('jasmine-data-provider')
-  const { testUser, testUserPassword, testFolder, testFile } = config
 
   const {
     xmlResponseHeaders,
@@ -30,7 +39,7 @@ describe('oc.publicFiles', function () {
 
   const publicLinkShareTokenPath = MatchersV3.fromProviderState(
     '/remote.php/dav/public-files/${token}', /* eslint-disable-line no-template-curly-in-string */
-    '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/'
+    '/remote.php/dav/public-files/' + shareTokenOfPublicLinkFolder + '/'
   )
 
   const moveResourceResponse = {
@@ -53,25 +62,25 @@ describe('oc.publicFiles', function () {
       headers = getPublicLinkAuthHeader(password)
     }
     return provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
+      .given('the user is recreated', { username, password })
       .given('folder exists', {
-        username: testUser,
-        password: testUserPassword,
+        username,
+        password,
         folderName: testFolder
       })
       .given('resource is shared', {
-        username: testUser,
-        userPassword: testUserPassword,
+        username,
+        userPassword: password,
         path: testFolder,
         shareType: 3,
         permissions: 15
       })
-      .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
+      .uponReceiving(`as '${username}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
         path: MatchersV3.fromProviderState(
           '/remote.php/dav/public-files/${token}/foo', /* eslint-disable-line no-template-curly-in-string */
-          `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
+          `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/foo`
         ),
         headers
       })
@@ -103,15 +112,15 @@ describe('oc.publicFiles', function () {
       }
     }
     await provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
+      .given('the user is recreated', { username, password })
       .given('folder exists', {
-        username: testUser,
-        password: testUserPassword,
+        username,
+        password,
         folderName: testFolder
       })
       .given('resource is shared', {
-        username: testUser,
-        userPassword: testUserPassword,
+        username,
+        userPassword: password,
         path: testFolder,
         shareType: 3,
         permissions: 15
@@ -122,12 +131,12 @@ describe('oc.publicFiles', function () {
     }
 
     return provider
-      .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
+      .uponReceiving(`as '${username}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
         path: MatchersV3.fromProviderState(
           '/remote.php/dav/public-files/${token}/' + testFile, /* eslint-disable-line no-template-curly-in-string */
-          `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
+          `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/${testFile}`
         ),
         headers,
         body: requestBody
@@ -158,7 +167,7 @@ describe('oc.publicFiles', function () {
       }
     }, function (data, description) {
       it('shall work with ' + description, function () {
-        const oc = createOwncloud(testUser, testUserPassword)
+        const oc = createOwncloud(username, password)
         expect(oc.publicFiles.getFileUrl(data.token, data.path))
           .toBe(mockServerBaseUrl + data.expected)
       })
@@ -195,9 +204,6 @@ describe('oc.publicFiles', function () {
       }
     }, function (data, description) {
       describe(description, function () {
-        // TESTING CONFIGS
-        const testContent = config.testContent
-
         it('should list the folder contents', async function () {
           let provider
           if (data.shallGrantAccess) {
@@ -205,12 +211,12 @@ describe('oc.publicFiles', function () {
           } else {
             provider = createProvider(false, true)
           }
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
 
           const listContentsOfPublicLinkInteraction = async (provider, options) => {
             const { passwordWhenListing, shallGrantAccess } = options
-            let description = `as ${testUser}, a PROPFIND request to list contents of public link folder`
+            let description = `as ${username}, a PROPFIND request to list contents of public link folder`
             if (passwordWhenListing) {
               if (shallGrantAccess) {
                 description += ' with valid password "' + passwordWhenListing + '"'
@@ -238,14 +244,14 @@ describe('oc.publicFiles', function () {
             }
             const status = shallGrantAccess ? 207 : 401
 
-            await givenUserExists(provider, testUser, testUserPassword)
-            for (let fileNum = 0; fileNum < config.testFiles.length; fileNum++) {
-              await givenFileExists(provider, testUser, testUserPassword, config.testFolder + '/' + config.testFiles[fileNum])
+            await givenUserExists(provider, username, password)
+            for (let fileNum = 0; fileNum < testFiles.length; fileNum++) {
+              await givenFileExists(provider, username, password, testFolder + '/' + testFiles[fileNum])
             }
             if (data.shareParams.password) {
-              await givenPublicShareExists(provider, testUser, testUserPassword, config.testFolder, { password: data.shareParams.password })
+              await givenPublicShareExists(provider, username, password, testFolder, { password: data.shareParams.password })
             } else {
-              await givenPublicShareExists(provider, testUser, testUserPassword, config.testFolder)
+              await givenPublicShareExists(provider, username, password, testFolder)
             }
             return provider
               .uponReceiving(description)
@@ -281,29 +287,29 @@ describe('oc.publicFiles', function () {
 
           await listContentsOfPublicLinkInteraction(provider, data)
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
 
-            return oc.publicFiles.list(config.shareTokenOfPublicLinkFolder, data.passwordWhenListing).then(files => {
+            return oc.publicFiles.list(shareTokenOfPublicLinkFolder, data.passwordWhenListing).then(files => {
               if (data.shallGrantAccess) {
                 // test length
                 expect(files.length).toBe(4)
                 // test root folder
-                expect(files[0].getName()).toBe(config.shareTokenOfPublicLinkFolder)
+                expect(files[0].getName()).toBe(shareTokenOfPublicLinkFolder)
                 expect(files[0].getPath()).toBe('/')
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_ITEM_TYPE)).toBe('folder')
-                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(testUser)
+                expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_SHARE_OWNER)).toBe(username)
                 expect(files[0].getProperty(oc.publicFiles.PUBLIC_LINK_PERMISSION)).toBe('1')
 
                 // test folder elements
-                expect(files[1].getName()).toBe(config.testFiles[0])
-                expect(files[1].getPath()).toBe('/' + config.shareTokenOfPublicLinkFolder + '/')
+                expect(files[1].getName()).toBe(testFiles[0])
+                expect(files[1].getPath()).toBe('/' + shareTokenOfPublicLinkFolder + '/')
 
-                expect(files[2].getName()).toBe(config.testFiles[1])
-                expect(files[2].getPath()).toBe('/' + config.shareTokenOfPublicLinkFolder + '/')
+                expect(files[2].getName()).toBe(testFiles[1])
+                expect(files[2].getPath()).toBe('/' + shareTokenOfPublicLinkFolder + '/')
 
-                expect(files[3].getName()).toBe(config.testFiles[2])
-                expect(files[3].getPath()).toBe('/' + config.shareTokenOfPublicLinkFolder + '/')
+                expect(files[3].getName()).toBe(testFiles[2])
+                expect(files[3].getPath()).toBe('/' + shareTokenOfPublicLinkFolder + '/')
               } else {
                 fail(files)
               }
@@ -321,8 +327,8 @@ describe('oc.publicFiles', function () {
           const getFileFromPublicLinkInteraction = async (provider, options) => {
             const method = 'GET'
             const path = MatchersV3.fromProviderState(
-              `/remote.php/dav/public-files/\${token}/${encodeURIComponent(config.testFiles[2])}`,
-              '/remote.php/dav/public-files/' + config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[2])
+              `/remote.php/dav/public-files/\${token}/${encodeURIComponent(testFiles[2])}`,
+              '/remote.php/dav/public-files/' + shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(testFiles[2])
             )
             const { shallGrantAccess, passwordWhenListing } = options
 
@@ -353,7 +359,7 @@ describe('oc.publicFiles', function () {
             if (passwordWhenListing) {
               headers = getPublicLinkAuthHeader(data.passwordWhenListing)
             }
-            let description = `as ${testUser}, a ${method} request to download files from a public shared folder`
+            let description = `as ${username}, a ${method} request to download files from a public shared folder`
             if (passwordWhenListing) {
               if (shallGrantAccess) {
                 description += ' with valid password "' + passwordWhenListing + '"'
@@ -368,12 +374,12 @@ describe('oc.publicFiles', function () {
               }
             }
 
-            await givenUserExists(provider, testUser, testUserPassword)
-            await givenFileExists(provider, testUser, testUserPassword, config.testFolder + '/' + config.testFiles[2])
+            await givenUserExists(provider, username, password)
+            await givenFileExists(provider, username, password, testFolder + '/' + testFiles[2])
             if (data.shareParams.password) {
-              await givenPublicShareExists(provider, testUser, testUserPassword, config.testFolder, { password: data.shareParams.password })
+              await givenPublicShareExists(provider, username, password, testFolder, { password: data.shareParams.password })
             } else {
-              await givenPublicShareExists(provider, testUser, testUserPassword, config.testFolder)
+              await givenPublicShareExists(provider, username, password, testFolder)
             }
             return provider
               .uponReceiving(description)
@@ -389,16 +395,16 @@ describe('oc.publicFiles', function () {
           } else {
             provider = createProvider(false, true)
           }
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
           await getFileFromPublicLinkInteraction(provider, data)
 
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
             await oc.publicFiles.download(
-              config.shareTokenOfPublicLinkFolder,
-              config.testFiles[2],
+              shareTokenOfPublicLinkFolder,
+              testFiles[2],
               data.passwordWhenListing
             ).then(resp => {
               if (data.shallGrantAccess) {
@@ -443,8 +449,8 @@ describe('oc.publicFiles', function () {
       describe(description, function () {
         it('should create a folder', async function () {
           const provider = createProvider()
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
           await folderInPublicShareInteraction(
             provider,
             'create a folder in public share' + ' ' + data.description,
@@ -454,10 +460,10 @@ describe('oc.publicFiles', function () {
           )
 
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
 
-            return oc.publicFiles.createFolder(config.shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then((response) => {
+            return oc.publicFiles.createFolder(shareTokenOfPublicLinkFolder, 'foo', data.shareParams.password).then((response) => {
               expect(response).toBe(true)
             }).catch(error => {
               fail(error)
@@ -466,8 +472,8 @@ describe('oc.publicFiles', function () {
         })
         it('should get content of a file', async function () {
           const provider = createProvider()
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
 
           await publicShareContentInteraction(
             provider,
@@ -475,18 +481,18 @@ describe('oc.publicFiles', function () {
             'GET',
             200,
             undefined,
-            config.testContent,
+            testContent,
             data.shareParams.password
           )
 
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
 
             try {
-              const resp = await oc.publicFiles.download(config.shareTokenOfPublicLinkFolder, testFile, data.shareParams.password)
+              const resp = await oc.publicFiles.download(shareTokenOfPublicLinkFolder, testFile, data.shareParams.password)
               const content = await resp.text()
-              expect(content).toEqual(config.testContent)
+              expect(content).toEqual(testContent)
             } catch (error) {
               fail(error)
             }
@@ -495,8 +501,8 @@ describe('oc.publicFiles', function () {
 
         it('should update a file', async function () {
           const provider = createProvider()
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
           await publicShareContentInteraction(
             provider,
             'update content of public share' + ' ' + data.description + ' and content lorem',
@@ -507,13 +513,13 @@ describe('oc.publicFiles', function () {
             data.shareParams.password
           )
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
             try {
               const options = {
-                previousEntityTag: config.testFileEtag
+                previousEntityTag: testFileEtag
               }
-              const response = await oc.publicFiles.putFileContents(config.shareTokenOfPublicLinkFolder, testFile, data.shareParams.password, 'lorem', options)
+              const response = await oc.publicFiles.putFileContents(shareTokenOfPublicLinkFolder, testFile, data.shareParams.password, 'lorem', options)
               expect(typeof response).toBe('object')
             } catch (error) {
               fail(error)
@@ -522,36 +528,36 @@ describe('oc.publicFiles', function () {
         })
 
         it('should move a file', async function () {
-          const source = config.shareTokenOfPublicLinkFolder + '/' + testFile
-          const target = config.shareTokenOfPublicLinkFolder + '/lorem123456.txt'
+          const source = shareTokenOfPublicLinkFolder + '/' + testFile
+          const target = shareTokenOfPublicLinkFolder + '/lorem123456.txt'
 
           const provider = createProvider()
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
           await provider
             .given('provider base url is returned')
-            .given('the user is recreated', { username: testUser, password: testUserPassword })
-            .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-            .given('resource is shared', { username: testUser, userPassword: testUserPassword, path: testFolder, shareType: 3, permissions: 15 })
+            .given('the user is recreated', { username, password })
+            .given('folder exists', { username, password, folderName: testFolder })
+            .given('resource is shared', { username, userPassword: password, path: testFolder, shareType: 3, permissions: 15 })
             .given('file exists in last shared public share', { fileName: testFile })
-            .uponReceiving(`as '${testUser}', a MOVE request to move a file in public share ${data.description}`)
+            .uponReceiving(`as '${username}', a MOVE request to move a file in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
               path: MatchersV3.fromProviderState(
                 '/remote.php/dav/public-files/${token}/' + testFile, /* eslint-disable-line no-template-curly-in-string */
-                `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
+                `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/${testFile}`
               ),
               headers: {
                 ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/lorem123456.txt', /* eslint-disable-line */
-                  `${mockServerBaseUrl}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/lorem123456.txt`)
+                  `${mockServerBaseUrl}remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/lorem123456.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
 
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
             return oc.publicFiles.move(source, target, data.shareParams.password)
               .catch(error => {
@@ -561,37 +567,37 @@ describe('oc.publicFiles', function () {
         })
 
         it('should move a file to subfolder', async function () {
-          const source = config.shareTokenOfPublicLinkFolder + '/' + testFile
-          const target = config.shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
+          const source = shareTokenOfPublicLinkFolder + '/' + testFile
+          const target = shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
 
           const provider = createProvider()
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
           await provider
             .given('provider base url is returned')
-            .given('the user is recreated', { username: testUser, password: testUserPassword })
-            .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-            .given('resource is shared', { username: testUser, userPassword: testUserPassword, path: testFolder, shareType: 3, permissions: 15 })
+            .given('the user is recreated', { username, password })
+            .given('folder exists', { username, password, folderName: testFolder })
+            .given('resource is shared', { username, userPassword: password, path: testFolder, shareType: 3, permissions: 15 })
             .given('folder exists in last shared public share', { folderName: 'foo' })
             .given('file exists in last shared public share', { fileName: testFile })
-            .uponReceiving(`as '${testUser}', a MOVE request to move a file to subfolder in public share ${data.description}`)
+            .uponReceiving(`as '${username}', a MOVE request to move a file to subfolder in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
               path: MatchersV3.fromProviderState(
                 '/remote.php/dav/public-files/${token}/' + testFile, /* eslint-disable-line no-template-curly-in-string */
-                `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/${testFile}`
+                `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/${testFile}`
               ),
               headers: {
                 ...getPublicLinkAuthHeader(data.shareParams.headers),
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/foo/lorem.txt', /* eslint-disable-line */
-                  `${mockServerBaseUrl}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
+                  `${mockServerBaseUrl}remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/foo/lorem.txt`)
               }
             })
             .willRespondWith(moveResourceResponse)
 
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
             return oc.publicFiles.move(source, target, data.shareParams.password).catch(error => {
               fail(error)
@@ -601,33 +607,33 @@ describe('oc.publicFiles', function () {
 
         it('should move a folder', async function () {
           const provider = createProvider()
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
           await provider
             .given('provider base url is returned')
-            .given('the user is recreated', { username: testUser, password: testUserPassword })
-            .given('folder exists', { username: testUser, password: testUserPassword, folderName: testFolder })
-            .given('resource is shared', { username: testUser, userPassword: testUserPassword, path: testFolder, shareType: 3, permissions: 15 })
+            .given('the user is recreated', { username, password })
+            .given('folder exists', { username, password, folderName: testFolder })
+            .given('resource is shared', { username, userPassword: password, path: testFolder, shareType: 3, permissions: 15 })
             .given('folder exists in last shared public share', { folderName: 'foo' })
-            .uponReceiving(`as '${testUser}', a MOVE request to move a folder to different name in public share ${data.description}`)
+            .uponReceiving(`as '${username}', a MOVE request to move a folder to different name in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
               path: MatchersV3.fromProviderState(
                 '/remote.php/dav/public-files/${token}/foo', /* eslint-disable-line no-template-curly-in-string */
-                `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/foo`
+                `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/foo`
               ),
               headers: {
                 Destination: MatchersV3.fromProviderState(
                   '\${providerBaseURL}/remote.php/dav/public-files/\${token}/bar', /* eslint-disable-line */
-                  `${mockServerBaseUrl}remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/bar`
+                  `${mockServerBaseUrl}remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/bar`
                 )
               }
             }).willRespondWith(moveResourceResponse)
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
-            const source = config.shareTokenOfPublicLinkFolder + '/' + 'foo'
-            const target = config.shareTokenOfPublicLinkFolder + '/' + 'bar'
+            const source = shareTokenOfPublicLinkFolder + '/' + 'foo'
+            const target = shareTokenOfPublicLinkFolder + '/' + 'bar'
 
             return oc.publicFiles.move(source, target, data.shareParams.password).then((response) => {
               expect(response).toBe(true)
@@ -639,18 +645,18 @@ describe('oc.publicFiles', function () {
 
         it('should get fileInfo of shared folder', async function () {
           const provider = createProvider(true, true)
-          await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-          await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+          await getCapabilitiesInteraction(provider, username, password)
+          await getCurrentUserInformationInteraction(provider, username, password)
 
-          await givenUserExists(provider, testUser, testUserPassword)
-          await givenFolderExists(provider, testUser, testUserPassword, config.testFolder)
+          await givenUserExists(provider, username, password)
+          await givenFolderExists(provider, username, password, testFolder)
           if (data.shareParams.password) {
-            await givenPublicShareExists(provider, testUser, testUserPassword, config.testFolder, { password: data.shareParams.password, permissions: 15 })
+            await givenPublicShareExists(provider, username, password, testFolder, { password: data.shareParams.password, permissions: 15 })
           } else {
-            await givenPublicShareExists(provider, testUser, testUserPassword, config.testFolder, { permissions: 15 })
+            await givenPublicShareExists(provider, username, password, testFolder, { permissions: 15 })
           }
           await provider
-            .uponReceiving(`as '${testUser}', a PROPFIND request to get file info of public share ${data.description}`)
+            .uponReceiving(`as '${username}', a PROPFIND request to get file info of public share ${data.description}`)
             .withRequest({
               method: 'PROPFIND',
               path: publicLinkShareTokenPath,
@@ -677,9 +683,9 @@ describe('oc.publicFiles', function () {
             })
 
           return provider.executeTest(async () => {
-            const oc = createOwncloud(testUser, testUserPassword)
+            const oc = createOwncloud(username, password)
             await oc.login()
-            const sharedFolder = config.shareTokenOfPublicLinkFolder
+            const sharedFolder = shareTokenOfPublicLinkFolder
             const folder = await oc.publicFiles.getFileInfo(
               sharedFolder,
               data.shareParams.password
@@ -698,14 +704,14 @@ describe('oc.publicFiles', function () {
   })
 
   function buildPropfindFileList (node) {
-    for (let fileNum = 0; fileNum < config.testFiles.length; fileNum++) {
+    for (let fileNum = 0; fileNum < testFiles.length; fileNum++) {
       node.appendElement('d:response', '', dResponse => {
         dResponse.appendElement('d:href', '',
           MatchersV3.regex(
             '.*\\/remote\\.php\\/dav\\/public-files\\/' +
-            '[A-Za-z0-9]+\\/' + encodeURIComponent(config.testFiles[fileNum]).toLowerCase(),
+            '[A-Za-z0-9]+\\/' + encodeURIComponent(testFiles[fileNum]).toLowerCase(),
             '/remote.php/dav/public-files/' +
-            config.shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(config.testFiles[fileNum]).toLowerCase()
+            shareTokenOfPublicLinkFolder + '/' + encodeURIComponent(testFiles[fileNum]).toLowerCase()
           )
         )
           .appendElement('d:propstat', '', dPropstat => {
@@ -737,14 +743,14 @@ describe('oc.publicFiles', function () {
         .appendElement('d:response', '', dResponse => {
           dResponse.appendElement('d:href', '', MatchersV3.regex(
             '.*\\/remote\\.php\\/dav\\/public-files\\/[A-Za-z0-9]+\\/',
-            `/remote.php/dav/public-files/${config.shareTokenOfPublicLinkFolder}/`)
+            `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/`)
           )
             .appendElement('d:propstat', '', dPropstat => {
               dPropstat.appendElement('d:prop', '', dProp => {
                 dProp
                   .appendElement('oc:public-link-item-type', '', MatchersV3.equal('folder'))
                   .appendElement('oc:public-link-permission', '', MatchersV3.equal(permission))
-                  .appendElement('oc:public-link-share-owner', '', MatchersV3.equal(testUser))
+                  .appendElement('oc:public-link-share-owner', '', MatchersV3.equal(username))
               })
                 .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
             })

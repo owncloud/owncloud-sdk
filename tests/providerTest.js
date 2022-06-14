@@ -187,10 +187,9 @@ describe('provider testing', () => {
     },
     'user doesn\'t exist': (setup, parameters) => {
       if (setup) {
-        const result = deleteUser(parameters.username)
+        const { status } = deleteUser(parameters.username)
 
-        chai.assert.strictEqual(
-          result.status, 200, `deleting user '${parameters.username}' failed`
+        chai.assert.include([200, 204], status, `deleting user '${parameters.username}' failed`
         )
         return { description: 'user deleted' }
       }

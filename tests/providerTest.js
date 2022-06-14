@@ -185,6 +185,15 @@ describe('provider testing', () => {
         return { description: 'user created' }
       }
     },
+    'user doesn\'t exist': (setup, parameters) => {
+      if (setup) {
+        const { status } = deleteUser(parameters.username)
+
+        chai.assert.include([200, 204], status, `deleting user '${parameters.username}' failed`
+        )
+        return { description: 'user deleted' }
+      }
+    },
     'provider base url is returned': () => {
       return { providerBaseURL: providerBaseUrl }
     },

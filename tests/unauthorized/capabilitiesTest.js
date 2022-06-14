@@ -1,5 +1,6 @@
 describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilities', function () {
   const config = require('../config/config.json')
+  const { admin: { username: adminUsername } } = require('../config/users.json')
 
   const {
     getCapabilitiesWithInvalidAuthInteraction,
@@ -12,7 +13,7 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

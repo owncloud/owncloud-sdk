@@ -3,8 +3,8 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 describe('Main: Currently testing share recipient,', function () {
   var config = require('./config/config.json')
   const {
-    Alice: { username: sharer, password: sharerPassword },
-    Brian: { username: receiver, password: receiverPassword }
+    testUser1: { username: sharer, password: sharerPassword },
+    testUser2: { username: receiver, password: receiverPassword }
   } = require('./config/users.json')
 
   const {

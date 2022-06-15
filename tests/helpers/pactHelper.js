@@ -1,6 +1,7 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 const config = require('../config/config.json')
+const { getDisplayNameForUser } = require('../helpers/userHelper')
 
 const {
   admin: { username: adminUsername, password: adminPassword },
@@ -253,7 +254,7 @@ const deleteResourceInteraction = (
 async function getCurrentUserInformationInteraction (
   provider, user = adminUsername, password = adminPassword
 ) {
-  const displayName = user[0].toUpperCase() + user.slice(1)
+  const displayName = getDisplayNameForUser(user)
   if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }

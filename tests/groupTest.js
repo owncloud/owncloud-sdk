@@ -4,7 +4,7 @@ describe('Main: Currently testing group management,', function () {
   const config = require('./config/config.json')
   const {
     admin: { username: adminUsername },
-    Alice
+    testUser1: { username: testUser, password: testUserPassword }
   } = require('./config/users.json')
   let provider = null
 
@@ -137,8 +137,8 @@ describe('Main: Currently testing group management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await provider
       .given('group exists', { groupName: config.testGroup })
-      .given('the user is recreated', { username: Alice.username, password: Alice.password })
-      .given('user is added to group', { username: Alice.username, groupName: config.testGroup })
+      .given('the user is recreated', { username: testUser, password: testUserPassword })
+      .given('user is added to group', { username: testUser, groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all members of existing group`)
       .withRequest({
         method: 'GET',
@@ -159,7 +159,7 @@ describe('Main: Currently testing group management,', function () {
             // https://github.com/pact-foundation/pact-js/issues/619
             data.appendElement('users', '', (users) => {
               users.eachLike('element', '', user => {
-                user.appendText(MatchersV3.equal(Alice.username))
+                user.appendText(MatchersV3.equal(testUser))
               })
             })
           })
@@ -170,7 +170,7 @@ describe('Main: Currently testing group management,', function () {
       await oc.login()
       return oc.groups.getGroupMembers(config.testGroup).then(data => {
         expect(typeof (data)).toBe('object')
-        expect(data.indexOf(Alice.username)).toBeGreaterThan(-1)
+        expect(data.indexOf(testUser)).toBeGreaterThan(-1)
       }).catch(error => {
         expect(error).toBe(null)
       })

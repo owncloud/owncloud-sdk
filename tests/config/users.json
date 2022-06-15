@@ -5,16 +5,16 @@
     "displayname": "Admin",
     "email": "admin@example.com"
   },
-  "Alice": {
-    "username": "Alice",
+  "testUser1": {
+    "username": "testUser1",
     "password": "1234",
-    "displayname": "Alice Hansen",
-    "email": "alice@example.com"
+    "displayname": "Test User1",
+    "email": "testUser1@example.com"
   },
-  "Brian": {
-    "username": "Brian",
+  "testUser2": {
+    "username": "testUser2",
     "password": "1234",
-    "displayname": "Brian Murphy",
-    "email": "brian@example.com"
+    "displayname": "Test User2",
+    "email": "testUser2@example.com"
   }
 }

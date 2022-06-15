@@ -3,7 +3,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 describe('Main: Currently testing low level OCS', function () {
   const {
     admin: { username: adminUsername },
-    Alice
+    testUser1: { username: testUser, password: testUserPassword }
   } = require('./config/users.json')
 
   const {
@@ -106,13 +106,13 @@ describe('Main: Currently testing low level OCS', function () {
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
-      .given('the user is recreated', { username: Alice.username, password: Alice.password })
+      .given('the user is recreated', { username: testUser, password: testUserPassword })
       .uponReceiving(`as '${adminUsername}', a PUT request to update a user using OCS`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
           '.*\\/ocs\\/v2\\.php\\/cloud\\/users\\/.+',
-          '/ocs/v2.php/cloud/users/' + Alice.username
+          '/ocs/v2.php/cloud/users/' + testUser
         ),
         query: { format: 'json' },
         headers: {
@@ -144,7 +144,7 @@ describe('Main: Currently testing low level OCS', function () {
       return oc.requests.ocs({
         method: 'PUT',
         service: 'cloud',
-        action: 'users/' + Alice.username,
+        action: 'users/' + testUser,
         data: { key: 'email', value: 'foo@bar.net' }
       }).then(response => {
         expect(response.ok).toBe(true)

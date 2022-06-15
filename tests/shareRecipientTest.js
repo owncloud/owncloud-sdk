@@ -3,8 +3,8 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 describe('Main: Currently testing share recipient,', function () {
   var config = require('./config/config.json')
   const {
-    testUser1: { username: sharer, password: sharerPassword },
-    testUser2: { username: receiver, password: receiverPassword }
+    testUser1: { username: sharer, password: sharerPassword, displayname: sharerDisplayname },
+    testUser2: { username: receiver, password: receiverPassword, displayname: receiverDisplayname }
   } = require('./config/users.json')
 
   const {
@@ -41,7 +41,10 @@ describe('Main: Currently testing share recipient,', function () {
             meta: { status: 'ok', statuscode: 200, message: 'OK' },
             data: {
               exact: { users: [], groups: [], remotes: [] },
-              users: [{ label: sharer, value: { shareType: 0, shareWith: sharer } }, { label: receiver, value: { shareType: 0, shareWith: receiver } }],
+              users: [
+                { label: MatchersV3.regex(`(${sharerDisplayname}|${sharer})`, sharer), value: { shareType: 0, shareWith: sharer } },
+                { label: MatchersV3.regex(`(${receiverDisplayname}|${receiver})`, receiver), value: { shareType: 0, shareWith: receiver } }
+              ],
               groups: [{ label: config.testGroup, value: { shareType: 1, shareWith: config.testGroup } }],
               remotes: []
             }

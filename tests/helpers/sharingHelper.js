@@ -1,33 +1,12 @@
-const fetch = require('sync-fetch')
+const httpHelper = require('./httpHelper')
 const {
-  getAuthHeaders,
   applicationFormUrlEncoded,
-  sanitizeUrl,
-  getProviderBaseUrl,
   encodeURIPath
 } = require('./pactHelper.js')
 const config = require('../config/config.json')
 
-const shareEndPoint = '/ocs/v1.php/apps/files_sharing/api/v1/shares'
-const publicFilesEndPoint = '/remote.php/dav/public-files'
-
-/**
- * returns the full and sanitized URL of the dav resource
- *
- * @returns {string}
- */
-const getSharingEndPoint = function () {
-  return sanitizeUrl(getProviderBaseUrl() + shareEndPoint)
-}
-
-/**
- * returns the full and sanitized URL of public-files
- *
- * @returns {string}
- */
-const getPublicFilesEndPoint = function () {
-  return sanitizeUrl(getProviderBaseUrl() + publicFilesEndPoint)
-}
+const sharesEndPoint = '/apps/files_sharing/api/v1/shares'
+const publicFilesEndPoint = '/public-files'
 
 /**
  * share a file or folder using webDAV api.
@@ -39,14 +18,12 @@ const getPublicFilesEndPoint = function () {
  */
 const shareResource = function (username, password, shareParams) {
   const params = validateParams(shareParams)
-  return fetch(getSharingEndPoint() + '?format=json', {
-    method: 'POST',
-    body: params,
-    headers: {
-      authorization: getAuthHeaders(username, password),
-      ...applicationFormUrlEncoded
-    }
-  })
+  return httpHelper.postOCS(
+    sharesEndPoint,
+    params,
+    applicationFormUrlEncoded,
+    username
+  )
 }
 
 /**
@@ -58,12 +35,12 @@ const shareResource = function (username, password, shareParams) {
  * @returns {*} result of the fetch request
  */
 const getShareInfoByPath = function (username, userPassword, path) {
-  return fetch(getSharingEndPoint() + `?path=${encodeURIPath(path)}&format=json`, {
-    method: 'GET',
-    headers: {
-      authorization: getAuthHeaders(username, userPassword)
-    }
-  })
+  return httpHelper.getOCS(
+    `${sharesEndPoint}?path=${encodeURIPath(path)}`,
+    null,
+    null,
+    username
+  )
 }
 
 /**
@@ -100,9 +77,7 @@ const validateParams = function (data) {
  * @returns {*} result of the fetch request
  */
 const createFolderInLastPublicShare = function (token, folderName) {
-  return fetch(getPublicFilesEndPoint() + `/${token}/${folderName}?format=json`, {
-    method: 'MKCOL'
-  })
+  return httpHelper.mkcol(`${publicFilesEndPoint}/${token}/${folderName}`)
 }
 
 /**
@@ -113,10 +88,7 @@ const createFolderInLastPublicShare = function (token, folderName) {
  * @returns {*} result of the fetch request
  */
 const createFileInLastPublicShare = function (token, fileName, content = 'a file') {
-  return fetch(getPublicFilesEndPoint() + `/${token}/${fileName}?format=json`, {
-    method: 'PUT',
-    body: content
-  })
+  return httpHelper.put(`${publicFilesEndPoint}/${token}/${fileName}`, content)
 }
 
 /**

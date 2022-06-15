@@ -3,7 +3,7 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 describe('Signed urls', function () {
   var config = require('./config/config.json')
   const {
-    Alice: { username, password }
+    testUser1: { username: testUser, password: testUserPassword }
   } = require('./config/users.json')
 
   const fetch = require('node-fetch')
@@ -88,17 +88,17 @@ describe('Signed urls', function () {
 
   it('should allow file download with a signUrl', async function () {
     const provider = createProvider()
-    await getCapabilitiesInteraction(provider, username, password)
+    await getCapabilitiesInteraction(provider, testUser, testUserPassword)
     // eslint-disable-next-line no-sequences
-    await getCurrentUserInformationInteraction(provider, username, password)
-    await getSigningKeyInteraction(provider, username, password)
-    await downloadWithSignedURLInteraction(provider, username, password)
+    await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+    await getSigningKeyInteraction(provider, testUser, testUserPassword)
+    await downloadWithSignedURLInteraction(provider, testUser, testUserPassword)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, password)
+      const oc = createOwncloud(testUser, testUserPassword)
       await oc.login()
 
-      const url = oc.files.getFileUrl(`files/${username}/${config.testFolder}/${config.testFile}`)
+      const url = oc.files.getFileUrl(`files/${testUser}/${config.testFolder}/${config.testFile}`)
       const signedUrl = await oc.signUrl(url)
       const response = await fetch(signedUrl)
       expect(response.ok).toEqual(true)

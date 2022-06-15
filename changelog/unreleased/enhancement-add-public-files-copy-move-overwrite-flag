@@ -1,0 +1,5 @@
+Enhancement: Add overwrite flag for public files move and copy
+
+We've added an overwrite flag for the public files move and copy operation
+
+https://github.com/owncloud/web/issues/7122

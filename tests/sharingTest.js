@@ -28,8 +28,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
     testFolderId: testFolderShareID
   } = require('./config/config.json')
   const {
-    Alice: { username: sharer, password: sharerPassword },
-    Brian: { username: sharee, password: shareePassword }
+    testUser1: { username: sharer, password: sharerPassword },
+    testUser2: { username: sharee, password: shareePassword }
   } = require('./config/users.json')
 
   const {

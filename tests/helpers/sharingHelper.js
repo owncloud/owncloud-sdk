@@ -1,7 +1,8 @@
 const httpHelper = require('./httpHelper')
 const {
   applicationFormUrlEncoded,
-  encodeURIPath
+  encodeURIPath,
+  getPublicLinkAuthHeader
 } = require('./pactHelper.js')
 const config = require('../config/config.json')
 
@@ -74,10 +75,11 @@ const validateParams = function (data) {
  *
  * @param {string} token
  * @param {string} folderName
+ * @param {string} password
  * @returns {*} result of the fetch request
  */
-const createFolderInLastPublicShare = function (token, folderName) {
-  return httpHelper.mkcol(`${publicFilesEndPoint}/${token}/${folderName}`)
+const createFolderInLastPublicShare = function (token, folderName, password) {
+  return httpHelper.mkcol(`${publicFilesEndPoint}/${token}/${folderName}`, null, getPublicLinkAuthHeader(password))
 }
 
 /**
@@ -85,10 +87,12 @@ const createFolderInLastPublicShare = function (token, folderName) {
  *
  * @param {string} token
  * @param {string} fileName
+ * @param {string} password
+ * @param {string} content
  * @returns {*} result of the fetch request
  */
-const createFileInLastPublicShare = function (token, fileName, content = 'a file') {
-  return httpHelper.put(`${publicFilesEndPoint}/${token}/${fileName}`, content)
+const createFileInLastPublicShare = function (token, fileName, password, content = 'a file') {
+  return httpHelper.put(`${publicFilesEndPoint}/${token}/${fileName}`, content, getPublicLinkAuthHeader(password))
 }
 
 /**

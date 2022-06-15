@@ -11,7 +11,11 @@ const createAuthHeader = function (userId) {
 }
 
 const requestEndpoint = function (path, params, userId = 'admin', header = {}) {
-  const headers = { ...createAuthHeader(userId), ...header }
+  let headers = { ...createAuthHeader(userId), ...header }
+  // do not add default auth header for public-files paths
+  if (path.includes('public-files')) {
+    headers = { ...header }
+  }
   const options = { ...params, headers }
   const url = join(getProviderBaseUrl(), 'remote.php/dav', path)
   return fetch(url, options)

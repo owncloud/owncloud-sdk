@@ -239,7 +239,7 @@ class PublicFiles {
    * @return {Promise.<status>}  boolean: whether the operation was successful
    * @return {Promise.<error>}   string: error message, if any.
    */
-  move (source, target, password = null) {
+  move (source, target, password = null, overwrite = false) {
     const headers = this.helpers.buildHeaders(false)
     const sourceUrl = this.getFileSharePath(source)
     const targetUrl = this.getFileUrl(target)
@@ -247,6 +247,7 @@ class PublicFiles {
     if (password) {
       headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
+    headers.Overwrite = overwrite ? 'T' : 'F'
     headers.Destination = targetUrl
     return this.davClient.request('MOVE', sourceUrl, headers, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
@@ -264,7 +265,7 @@ class PublicFiles {
    * @return {Promise.<status>}  boolean: whether the operation was successful
    * @return {Promise.<error>}   string: error message, if any.
    */
-  copy (source, target, password = null) {
+  copy (source, target, password = null, overwrite = false) {
     const headers = this.helpers.buildHeaders(false)
     const sourceUrl = this.getFileSharePath(source)
     const targetUrl = this.getFileUrl(target)
@@ -272,6 +273,7 @@ class PublicFiles {
     if (password) {
       headers.Authorization = 'Basic ' + Buffer.from('public:' + password).toString('base64')
     }
+    headers.Overwrite = overwrite ? 'T' : 'F'
     headers.Destination = targetUrl
     return this.davClient.request('COPY', sourceUrl, headers, null).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {

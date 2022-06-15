@@ -4,7 +4,7 @@ const config = require('../config/config.json')
 
 const {
   admin: { username: adminUsername, password: adminPassword },
-  Alice
+  testUser1: { username: testUser, password: testUserPassword }
 } = require('../config/users.json')
 
 const adminPasswordHash = Buffer.from(adminUsername + ':' + adminPassword, 'binary').toString('base64')
@@ -387,7 +387,7 @@ const createUserInteraction = function (provider) {
         ...validAdminAuthHeaders,
         ...applicationFormUrlEncoded
       },
-      body: `password=${Alice.password}&userid=${Alice.username}`
+      body: `password=${testUserPassword}&userid=${testUser}`
     }).willRespondWith({
       status: 200,
       headers: xmlResponseHeaders
@@ -408,7 +408,7 @@ const createUserWithGroupMembershipInteraction = function (provider) {
         ...validAdminAuthHeaders,
         ...applicationFormUrlEncoded
       },
-      body: 'password=' + Alice.password + '&userid=' + Alice.username + '&groups%5B0%5D=' + config.testGroup
+      body: 'password=' + testUserPassword + '&userid=' + testUser + '&groups%5B0%5D=' + config.testGroup
     })
     .willRespondWith({
       status: 200,
@@ -427,8 +427,8 @@ const deleteUserInteraction = function (provider) {
     .withRequest({
       method: 'DELETE',
       path: MatchersV3.regex(
-        '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + Alice.username + '$',
-        '/ocs/v1.php/cloud/users/' + Alice.username
+        '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '$',
+        '/ocs/v1.php/cloud/users/' + testUser
       ),
       headers: validAdminAuthHeaders
     }).willRespondWith({

@@ -3,6 +3,7 @@
 
 describe('Unauthorized: Currently testing files management,', function () {
   const config = require('../config/config.json')
+  const { admin: { username: adminUsername } } = require('../config/users.json')
 
   const {
     getCapabilitiesWithInvalidAuthInteraction,
@@ -26,7 +27,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -45,7 +46,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -68,7 +69,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -88,7 +89,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -108,7 +109,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -127,7 +128,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -147,7 +148,7 @@ describe('Unauthorized: Currently testing files management,', function () {
     await getCapabilitiesWithInvalidAuthInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')

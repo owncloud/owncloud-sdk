@@ -2,7 +2,10 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing user management,', function () {
   var config = require('./config/config.json')
-  const adminDisplayName = config.adminDisplayName
+  const {
+    admin: { username: adminUsername, displayname: adminDisplayName },
+    testUser1: { username: testUser, password: testUserPassword }
+  } = require('./config/users.json')
 
   // PACT setup
   const {
@@ -17,12 +20,12 @@ describe('Main: Currently testing user management,', function () {
   } = require('./helpers/pactHelper.js')
   const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./helpers/pactHelper.js')
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
-    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
     }
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a GET request to ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -40,8 +43,8 @@ describe('Main: Currently testing user management,', function () {
 
   const getUsersInteraction = function (provider, requestName, query, bodyData) {
     return provider
-      .given('the user is recreated', { username: config.testUser, password: config.testUserPassword })
-      .uponReceiving(`as '${config.adminUsername}', a GET request to ${requestName}`)
+      .given('the user is recreated', { username: testUser, password: testUserPassword })
+      .uponReceiving(`as '${adminUsername}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -64,13 +67,13 @@ describe('Main: Currently testing user management,', function () {
   }
 
   const changeUserAttributeInteraction = async function (provider, requestName, username, requestBody, response) {
-    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
     }
 
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a PUT request to set user attribute of ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a PUT request to set user attribute of ${requestName}`)
       .withRequest({
         method: 'PUT',
         path: MatchersV3.regex(
@@ -100,9 +103,9 @@ describe('Main: Currently testing user management,', function () {
       ocsStatusCode = 103
       message = 'The requested user could not be found'
     }
-    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
     }
     if (group !== config.nonExistentGroup) {
       await provider
@@ -110,7 +113,7 @@ describe('Main: Currently testing user management,', function () {
     }
 
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a POST request to ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a POST request to ${requestName}`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -144,14 +147,14 @@ describe('Main: Currently testing user management,', function () {
   }
 
   const getGroupOfUserInteraction = async function (provider, requestName, username, responseBody) {
-    if (username !== config.validAdminAuthHeaders && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
         .given('group exists', { groupName: config.testGroup })
         .given('user is added to group', { username: username, groupName: config.testGroup })
     }
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a GET request to get groups of ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a GET request to get groups of ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -174,16 +177,16 @@ describe('Main: Currently testing user management,', function () {
       ocsStatusCode = 103
       message = 'The requested user could not be found'
     }
-    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
     }
     if (group !== config.nonExistentGroup) {
       await provider
         .given('group exists', { groupName: group })
     }
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a DELETE request to remove ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a DELETE request to remove ${requestName}`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -214,16 +217,16 @@ describe('Main: Currently testing user management,', function () {
   }
 
   const addUserToSubAdminGroupInteraction = async function (provider, requestName, username, group, responseOcsMeta) {
-    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
     }
     if (group !== config.nonExistentGroup) {
       await provider
         .given('group exists', { groupName: group })
     }
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a POST request to make ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a POST request to make ${requestName}`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -247,14 +250,14 @@ describe('Main: Currently testing user management,', function () {
   }
 
   const getUsersSubAdminGroupsInteraction = async function (provider, requestName, username, responseBody) {
-    if (username !== config.adminUsername && username !== config.nonExistentUser) {
+    if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
-        .given('the user is recreated', { username: username, password: config.testUserPassword })
+        .given('the user is recreated', { username: username, password: testUserPassword })
         .given('group exists', { groupName: config.testGroup })
         .given('user is made group subadmin', { username: username, groupName: config.testGroup })
     }
     return provider
-      .uponReceiving(`as '${config.adminUsername}', a GET request to get subadmin groups of ${requestName}`)
+      .uponReceiving(`as '${adminUsername}', a GET request to get subadmin groups of ${requestName}`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -286,7 +289,7 @@ describe('Main: Currently testing user management,', function () {
     )
   }
 
-  describe('added testUser to testGroup,', function () {
+  describe('add user to group,', function () {
     it('checking method : getUserGroups with an existent user', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
@@ -294,7 +297,7 @@ describe('Main: Currently testing user management,', function () {
       await getGroupOfUserInteraction(
         provider,
         'existent user',
-        config.testUser,
+        testUser,
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
             ocs.appendElement('meta', '', (meta) => {
@@ -313,7 +316,7 @@ describe('Main: Currently testing user management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
-        return oc.users.getUserGroups(config.testUser).then(data => {
+        return oc.users.getUserGroups(testUser).then(data => {
           expect(typeof (data)).toEqual('object')
           expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1)
         }).catch(error => {
@@ -330,7 +333,7 @@ describe('Main: Currently testing user management,', function () {
       await getGroupOfUserInteraction(
         provider,
         'existent user',
-        config.testUser,
+        testUser,
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
             ocs.appendElement('meta', '', (meta) => {
@@ -346,7 +349,7 @@ describe('Main: Currently testing user management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
-        return oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
+        return oc.users.userIsInGroup(testUser, config.testGroup).then(status => {
           expect(status).toBe(true)
         }).catch(error => {
           expect(error).toBe(null)
@@ -357,7 +360,7 @@ describe('Main: Currently testing user management,', function () {
 
   // [oCIS] subadmin endpoint not implemented
   // https://github.com/owncloud/product/issues/289
-  describe('made testUser as testGroup subAdmin', function () {
+  describe('made user as group subAdmin', function () {
     it('checking method : getUserSubadminGroups with an existent user', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider)
@@ -366,7 +369,7 @@ describe('Main: Currently testing user management,', function () {
       await getUsersSubAdminGroupsInteraction(
         provider,
         'an existent user',
-        config.testUser,
+        testUser,
         new XmlBuilder('1.0', '', 'ocs')
           .build(ocs => {
             ocs.appendElement('meta', '', (meta) => {
@@ -380,7 +383,7 @@ describe('Main: Currently testing user management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud()
         await oc.login()
-        return oc.users.getUserSubadminGroups(config.testUser).then(data => {
+        return oc.users.getUserSubadminGroups(testUser).then(data => {
           expect(typeof (data)).toEqual('object')
           expect(data.indexOf(config.testGroup)).toBeGreaterThan(-1)
         }).catch(error => {
@@ -397,7 +400,7 @@ describe('Main: Currently testing user management,', function () {
     await getUserInformationInteraction(
       provider,
       'get user information of an existing user',
-      config.adminUsername,
+      adminUsername,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
@@ -415,15 +418,15 @@ describe('Main: Currently testing user management,', function () {
               .appendElement(
                 'email', '',
                 MatchersV3.regex(
-                  `(${config.adminUsername}@example.org)?`,
-                  `${config.adminUsername}@example.org`
+                  `(${adminUsername}@example.org)?`,
+                  `${adminUsername}@example.org`
                 )
               )
               .appendElement(
                 'displayname', '',
                 MatchersV3.regex(
-                  `(${config.adminUsername}|${adminDisplayName})`,
-                  config.adminUsername
+                  `(${adminUsername}|${adminDisplayName})`,
+                  adminUsername
                 )
               )
           })
@@ -433,9 +436,9 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.getUser(config.adminUsername).then(data => {
+      return oc.users.getUser(adminUsername).then(data => {
         expect(typeof (data)).toEqual('object')
-        expect(data.displayname).toEqual(config.adminUsername)
+        expect(data.displayname).toEqual(adminUsername)
       }).catch(error => {
         expect(error).toBe(null)
       })
@@ -470,9 +473,9 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.createUser(config.testUser, config.testUserPassword).then(data => {
+      return oc.users.createUser(testUser, testUserPassword).then(data => {
         expect(data).toEqual(true)
-        return oc.users.deleteUser(config.testUser)
+        return oc.users.deleteUser(testUser)
       }).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
@@ -485,7 +488,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] email is needed for oCIS to create users
   it('checking method : createUser with groups', async function () {
     const provider = createProvider(false, true)
-    await provider.given('user doesn\'t exist', { username: config.testUser })
+    await provider.given('user doesn\'t exist', { username: testUser })
 
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -494,7 +497,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.createUser(config.testUser, config.testUserPassword, [config.testGroup]).then((data) => {
+      return oc.users.createUser(testUser, testUserPassword, [config.testGroup]).then((data) => {
         expect(data).toEqual(true)
       }).catch((error) => {
         expect(error).toBe(null)
@@ -514,9 +517,9 @@ describe('Main: Currently testing user management,', function () {
         // TODO: adjust the following after the issue is resolved
         // https://github.com/pact-foundation/pact-js/issues/619
         data.appendElement('users', '', users => {
-          users.appendElement('element', '', MatchersV3.string(config.adminUsername))
+          users.appendElement('element', '', MatchersV3.string(adminUsername))
             .eachLike('element', '', user => {
-              user.appendText(MatchersV3.string(config.testUser))
+              user.appendText(MatchersV3.string(testUser))
             })
         })
       }
@@ -527,8 +530,8 @@ describe('Main: Currently testing user management,', function () {
       await oc.login()
       return oc.users.searchUsers('').then(data => {
         expect(typeof (data)).toEqual('object')
-        expect(data.indexOf(config.adminUsername)).toBeGreaterThan(-1)
-        expect(data.indexOf(config.testUser)).toBeGreaterThan(-1)
+        expect(data.indexOf(adminUsername)).toBeGreaterThan(-1)
+        expect(data.indexOf(testUser)).toBeGreaterThan(-1)
       }).catch(error => {
         expect(error).toBe(null)
       })
@@ -566,10 +569,10 @@ describe('Main: Currently testing user management,', function () {
     await getUsersInteraction(
       provider,
       'check user existence with existing user',
-      { search: config.adminUsername },
+      { search: adminUsername },
       data => {
         data.appendElement('users', '', users => {
-          users.appendElement('element', '', MatchersV3.equal(config.adminUsername))
+          users.appendElement('element', '', MatchersV3.equal(adminUsername))
         })
       }
     )
@@ -577,7 +580,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.userExists(config.adminUsername).then(status => {
+      return oc.users.userExists(adminUsername).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
         expect(error).toBe(null)
@@ -615,15 +618,15 @@ describe('Main: Currently testing user management,', function () {
     await provider
       .given(
         'the user is recreated',
-        { username: config.testUser, password: config.testUserPassword }
+        { username: testUser, password: testUserPassword }
       )
-      .uponReceiving(`as '${config.adminUsername}' a PUT request to enable an existing user`)
+      .uponReceiving(`as '${adminUsername}' a PUT request to enable an existing user`)
       .withRequest({
         headers: validAdminAuthHeaders,
         method: 'PUT',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/enable',
-          '/ocs/v1.php/cloud/users/' + config.testUser + '/enable'
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '\\/enable',
+          '/ocs/v1.php/cloud/users/' + testUser + '/enable'
         )
       }).willRespondWith({
         status: 200,
@@ -639,7 +642,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.enableUser(config.testUser).then((status) => {
+      return oc.users.enableUser(testUser).then((status) => {
         expect(status).toBe(true)
       }).catch(error => {
         expect(error).toBe(null)
@@ -654,15 +657,15 @@ describe('Main: Currently testing user management,', function () {
     await provider
       .given(
         'the user is recreated',
-        { username: config.testUser, password: config.testUserPassword }
+        { username: testUser, password: testUserPassword }
       )
-      .uponReceiving(`as '${config.adminUsername}' a PUT request to disable an existing user`)
+      .uponReceiving(`as '${adminUsername}' a PUT request to disable an existing user`)
       .withRequest({
         headers: validAdminAuthHeaders,
         method: 'PUT',
         path: MatchersV3.regex(
-          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/disable',
-          '/ocs/v1.php/cloud/users/' + config.testUser + '/disable'
+          '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '\\/disable',
+          '/ocs/v1.php/cloud/users/' + testUser + '/disable'
         )
       }).willRespondWith({
         status: 200,
@@ -678,7 +681,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.disableUser(config.testUser).then((status) => {
+      return oc.users.disableUser(testUser).then((status) => {
         expect(status).toBe(true)
       }).catch(error => {
         expect(error).toBe(null)
@@ -690,7 +693,7 @@ describe('Main: Currently testing user management,', function () {
     const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
-    await provider.uponReceiving(`as '${config.adminUsername}' a PUT request to enable a non-existing user`)
+    await provider.uponReceiving(`as '${adminUsername}' a PUT request to enable a non-existing user`)
       .withRequest({
         headers: validAdminAuthHeaders,
         method: 'PUT',
@@ -725,7 +728,7 @@ describe('Main: Currently testing user management,', function () {
     const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
-    await provider.uponReceiving(`as '${config.adminUsername}' a PUT request to  disable a non-existing user`)
+    await provider.uponReceiving(`as '${adminUsername}' a PUT request to  disable a non-existing user`)
       .withRequest({
         headers: validAdminAuthHeaders,
         method: 'PUT',
@@ -763,7 +766,7 @@ describe('Main: Currently testing user management,', function () {
     await changeUserAttributeInteraction(
       provider,
       'an existent user, attribute is allowed',
-      config.testUser,
+      testUser,
       'key=email&value=asd%40a.com',
       meta => {
         ocsMeta(meta, 'ok', 100, MatchersV3.regex('(OK)?', ''))
@@ -773,7 +776,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
+      return oc.users.setUserAttribute(testUser, 'email', 'asd@a.com').then(data => {
         expect(data).toEqual(true)
       }).catch(error => {
         expect(error).toBe(null)
@@ -789,7 +792,7 @@ describe('Main: Currently testing user management,', function () {
     await changeUserAttributeInteraction(
       provider,
       'an existent user, attribute is not allowed',
-      config.testUser,
+      testUser,
       'key=email&value=%C3%83%C2%A4%C3%83%C2%B6%C3%83%C2%BC%C3%83%C2%A4%C3%83%C2%A4_sfsdf%2B%24%25%2F)%25%26%3D',
       meta => {
         // [oCIS] Different ocs status-text and status-code in oCIS and oC10
@@ -806,7 +809,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.setUserAttribute(config.testUser, 'email', 'äöüää_sfsdf+$%/)%&=')
+      return oc.users.setUserAttribute(testUser, 'email', 'äöüää_sfsdf+$%/)%&=')
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
@@ -859,14 +862,14 @@ describe('Main: Currently testing user management,', function () {
     await addUserToGroupInteraction(
       provider,
       'add existent user in a non existent group',
-      config.testUser,
+      testUser,
       config.nonExistentGroup
     )
 
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.addUserToGroup(config.testUser, config.nonExistentGroup)
+      return oc.users.addUserToGroup(testUser, config.nonExistentGroup)
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
@@ -940,7 +943,7 @@ describe('Main: Currently testing user management,', function () {
     await getGroupOfUserInteraction(
       provider,
       'existent user and group that user isn\'t part of',
-      config.testUser,
+      testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
@@ -959,7 +962,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.userIsInGroup(config.testUser, 'admin').then(status => {
+      return oc.users.userIsInGroup(testUser, 'admin').then(status => {
         expect(status).toEqual(false)
       }).catch(error => {
         expect(error).toBe(null)
@@ -974,7 +977,7 @@ describe('Main: Currently testing user management,', function () {
     await getGroupOfUserInteraction(
       provider,
       'existent user and nonexistant group',
-      config.testUser,
+      testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
@@ -993,7 +996,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.userIsInGroup(config.testUser, config.nonExistentGroup)
+      return oc.users.userIsInGroup(testUser, config.nonExistentGroup)
         .then(status => {
           expect(status).toEqual(false)
         }).catch(error => {
@@ -1042,8 +1045,8 @@ describe('Main: Currently testing user management,', function () {
     await getCurrentUserInformationInteraction(provider)
     await getUserInformationInteraction(
       provider,
-      `get user attribute of an existent user '${config.testUser}'`,
-      config.testUser,
+      `get user attribute of an existent user '${testUser}'`,
+      testUser,
 
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
@@ -1054,16 +1057,16 @@ describe('Main: Currently testing user management,', function () {
               .appendElement('quota', '', quota => {
                 quota.appendElement('definition', '', MatchersV3.equal('default'))
               })
-              .appendElement('displayname', '', MatchersV3.equal('test123'))
+              .appendElement('displayname', '', MatchersV3.equal(testUser))
           })
         })
     )
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.getUser(config.testUser).then(data => {
+      return oc.users.getUser(testUser).then(data => {
         expect(typeof (data)).toEqual('object')
-        expect(data.displayname).toEqual(config.testUser)
+        expect(data.displayname).toEqual(testUser)
       }).catch(error => {
         expect(error).toBe(null)
       })
@@ -1094,13 +1097,13 @@ describe('Main: Currently testing user management,', function () {
     await removeUserFromGroupInteraction(
       provider,
       'existent user from a non-existent group',
-      config.testUser,
+      testUser,
       config.nonExistentGroup
     )
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.removeUserFromGroup(config.testUser, config.nonExistentGroup)
+      return oc.users.removeUserFromGroup(testUser, config.nonExistentGroup)
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
@@ -1143,7 +1146,7 @@ describe('Main: Currently testing user management,', function () {
     await addUserToSubAdminGroupInteraction(
       provider,
       'existent user subadmin of non-existent group',
-      config.testUser,
+      testUser,
       config.nonExistentGroup,
       meta => {
         ocsMeta(meta, 'failure', 102, 'Group:' + config.nonExistentGroup + ' does not exist')
@@ -1153,7 +1156,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.addUserToSubadminGroup(config.testUser, config.nonExistentGroup)
+      return oc.users.addUserToSubadminGroup(testUser, config.nonExistentGroup)
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
@@ -1227,7 +1230,7 @@ describe('Main: Currently testing user management,', function () {
     await getUsersSubAdminGroupsInteraction(
       provider,
       'existent user',
-      config.testUser,
+      testUser,
       new XmlBuilder('1.0', '', 'ocs')
         .build(ocs => {
           ocs.appendElement('meta', '', (meta) => {
@@ -1240,7 +1243,7 @@ describe('Main: Currently testing user management,', function () {
     return provider.executeTest(async () => {
       const oc = createOwncloud()
       await oc.login()
-      return oc.users.userIsInSubadminGroup(config.testUser, config.nonExistentGroup)
+      return oc.users.userIsInSubadminGroup(testUser, config.nonExistentGroup)
         .then(status => {
           expect(status).toBe(false)
         }).catch(error => {
@@ -1284,7 +1287,7 @@ describe('Main: Currently testing user management,', function () {
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     await provider
-      .uponReceiving(`as '${config.adminUsername}', a request to delete a non-existent user`)
+      .uponReceiving(`as '${adminUsername}', a request to delete a non-existent user`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(

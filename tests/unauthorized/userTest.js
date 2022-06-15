@@ -7,22 +7,23 @@ describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var config = require('../config/config.json')
-  const username = config.adminUsername
+  const {
+    admin: { username: adminUsername },
+    testUser1: { username: testUser }
+  } = require('../config/users.json')
 
   const {
     invalidAuthHeader,
     xmlResponseHeaders,
     getCapabilitiesWithInvalidAuthInteraction,
-    createOwncloud
-  } = require('../helpers/pactHelper.js')
-  const {
+    createOwncloud,
     unauthorizedXmlResponseBody,
     createProvider
   } = require('../helpers/pactHelper.js')
 
   const invalidAuthInteraction = (provider, requestName, method, path, query) => {
     return provider
-      .uponReceiving(`as '${username}', a ${method} request to ${requestName} with invalid auth`)
+      .uponReceiving(`as '${adminUsername}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
         method: method,
         path: path,
@@ -39,8 +40,8 @@ describe('Unauthorized: Currently testing user management,', function () {
   }
 
   const adminUserEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.adminUsername + '$',
-    '/ocs/v1.php/cloud/users/' + config.adminUsername
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + adminUsername + '$',
+    '/ocs/v1.php/cloud/users/' + adminUsername
   )
 
   const usersEndpointPath = MatchersV3.regex(
@@ -49,18 +50,18 @@ describe('Unauthorized: Currently testing user management,', function () {
   )
 
   const groupsEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/groups$',
-    '/ocs/v1.php/cloud/users/' + config.testUser + '/groups'
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '\\/groups$',
+    '/ocs/v1.php/cloud/users/' + testUser + '/groups'
   )
 
   const subadminsUserEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '\\/subadmins$',
-    '/ocs/v1.php/cloud/users/' + config.testUser + '/subadmins'
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '\\/subadmins$',
+    '/ocs/v1.php/cloud/users/' + testUser + '/subadmins'
   )
 
   const testUserEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-    '/ocs/v1.php/cloud/users/' + config.testUser
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '$',
+    '/ocs/v1.php/cloud/users/' + testUser
   )
 
   const nonExistingUserEndpoint = MatchersV3.regex(
@@ -78,13 +79,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'admin user', 'GET', adminUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUser(config.adminUsername).then(data => {
+      return oc.users.getUser(adminUsername).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -99,7 +100,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'create a user', 'POST', usersEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -120,7 +121,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'search users', 'GET', usersEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -136,19 +137,19 @@ describe('Unauthorized: Currently testing user management,', function () {
 
   it('checking method : userExists', async function () {
     const provider = createProvider(false, true)
-    const query = { search: config.adminUsername }
+    const query = { search: adminUsername }
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
     await invalidAuthInteraction(provider, 'check user existence', 'GET', usersEndpointPath, query)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.userExists(config.adminUsername).then(status => {
+      return oc.users.userExists(adminUsername).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -163,13 +164,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'edit user', 'PUT', testUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.setUserAttribute(config.testUser, 'email', 'asd@a.com').then(data => {
+      return oc.users.setUserAttribute(testUser, 'email', 'asd@a.com').then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -184,13 +185,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'add user to a group', 'POST', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.addUserToGroup(config.testUser, config.testGroup).then(status => {
+      return oc.users.addUserToGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -205,13 +206,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'get users of a group', 'GET', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUserGroups(config.testUser).then(data => {
+      return oc.users.getUserGroups(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -226,13 +227,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'check user existence in a group', 'GET', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.userIsInGroup(config.testUser, config.testGroup).then(status => {
+      return oc.users.userIsInGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -247,13 +248,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'normal user', 'GET', testUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUser(config.testUser).then(data => {
+      return oc.users.getUser(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -268,13 +269,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'remove user from a group', 'DELETE', groupsEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.removeUserFromGroup(config.testUser, config.testGroup).then(status => {
+      return oc.users.removeUserFromGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -289,13 +290,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'add a user to subadmin group', 'POST', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.addUserToSubadminGroup(config.testUser, config.testGroup).then(status => {
+      return oc.users.addUserToSubadminGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -310,13 +311,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'get users of subadmin group', 'GET', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUserSubadminGroups(config.testUser).then(data => {
+      return oc.users.getUserSubadminGroups(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -331,13 +332,13 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'check user existence in subadmin group', 'GET', subadminsUserEndpointPath)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.userIsInSubadminGroup(config.testUser, config.testGroup).then(status => {
+      return oc.users.userIsInSubadminGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -352,7 +353,7 @@ describe('Unauthorized: Currently testing user management,', function () {
     await invalidAuthInteraction(provider, 'delete a non-existent user', 'DELETE', nonExistingUserEndpoint)
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

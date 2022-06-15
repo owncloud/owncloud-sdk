@@ -5,7 +5,9 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing file versions management,', function () {
   const config = require('./config/config.json')
-  const { testUser, testUserPassword } = config
+  const {
+    testUser1: { username: testUser, password: testUserPassword }
+  } = require('./config/users.json')
 
   const {
     applicationXmlResponseHeaders,
@@ -115,34 +117,34 @@ describe('Main: Currently testing file versions management,', function () {
   describe('file versions for existing files', () => {
     const PropfindFileVersionOfExistentFiles = provider => {
       return provider.given('the user is recreated', {
-        username: config.testUser,
-        password: config.testUserPassword
+        username: testUser,
+        password: testUserPassword
       })
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: testUser,
+          password: testUserPassword
         })
         .given('the client waits', { delay: 2000 })
       // re-upload the same file to create a new version
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           content: fileInfo.versions[0].content
         })
         .given('the client waits', { delay: 2000 })
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           content: fileInfo.versions[1].content
         })
         .given('the client waits', { delay: 2000 })
         .given('file version link is returned', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           number: 1
         })
         .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of existent file`)
@@ -186,32 +188,32 @@ describe('Main: Currently testing file versions management,', function () {
     }
     const getFileVersionContents = async (provider, i) => {
       await provider.given('the user is recreated', {
-        username: config.testUser,
-        password: config.testUserPassword
+        username: testUser,
+        password: testUserPassword
       }).given('file exists', {
         fileName: versionedFile,
-        username: config.testUser,
-        password: config.testUserPassword
+        username: testUser,
+        password: testUserPassword
       })
         .given('the client waits', { delay: 2000 })
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           content: fileInfo.versions[0].content
         })
         .given('the client waits', { delay: 2000 })
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           content: fileInfo.versions[1].content
         })
         .given('the client waits', { delay: 2000 })
         .given('file version link is returned', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           number: i + 1
         })
       await provider
@@ -242,13 +244,13 @@ describe('Main: Currently testing file versions management,', function () {
       // https://github.com/pact-foundation/pact-js/issues/604
       for (let i = 0; i < fileInfo.versions.length; i++) {
         const provider = createProvider(true, true)
-        await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
-        await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+        await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+        await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
         await PropfindFileVersionOfExistentFiles(provider)
         await getFileVersionContents(provider, i)
 
         await provider.executeTest(async () => {
-          const oc = createOwncloud(config.testUser, config.testUserPassword)
+          const oc = createOwncloud(testUser, testUserPassword)
           await oc.login()
           await oc.fileVersions.listVersions(fileInfo.id).then(versions => {
             expect(versions.length).toEqual(2)
@@ -263,30 +265,30 @@ describe('Main: Currently testing file versions management,', function () {
     })
 
     it('restore file version', async function () {
-      const destinationWebDavPath = createDavPath(config.testUser, versionedFile)
+      const destinationWebDavPath = createDavPath(testUser, versionedFile)
       const provider = createProvider()
-      await getCapabilitiesInteraction(provider, config.testUser, config.testUserPassword)
-      await getCurrentUserInformationInteraction(provider, config.testUser, config.testUserPassword)
+      await getCapabilitiesInteraction(provider, testUser, testUserPassword)
+      await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
       await provider
         .given('the user is recreated', {
-          username: config.testUser,
-          password: config.testUserPassword
+          username: testUser,
+          password: testUserPassword
         })
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: testUser,
+          password: testUserPassword
         })
         // re-upload the same file to create a new version
         .given('file exists', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword
+          username: testUser,
+          password: testUserPassword
         })
         .given('file version link is returned', {
           fileName: versionedFile,
-          username: config.testUser,
-          password: config.testUserPassword,
+          username: testUser,
+          password: testUserPassword,
           number: 1
         })
         .given('provider base url is returned')
@@ -300,7 +302,7 @@ describe('Main: Currently testing file versions management,', function () {
             `/remote.php/dav/meta/${fileInfo.id}/v/${fileInfo.versions[0].versionId}`
           ),
           headers: {
-            authorization: getAuthHeaders(config.testUser, config.testUserPassword),
+            authorization: getAuthHeaders(testUser, testUserPassword),
             Destination: MatchersV3.fromProviderState(
               `\${providerBaseURL}${destinationWebDavPath}`,
               `${mockServerBaseUrl}${destinationWebDavPath}`
@@ -312,7 +314,7 @@ describe('Main: Currently testing file versions management,', function () {
         })
 
       return provider.executeTest(async () => {
-        const oc = createOwncloud(config.testUser, config.testUserPassword)
+        const oc = createOwncloud(testUser, testUserPassword)
         await oc.login()
         return oc.fileVersions.restoreFileVersion(fileInfo.id, fileInfo.versions[0].versionId, versionedFile).then(status => {
           expect(status).toBe(true)

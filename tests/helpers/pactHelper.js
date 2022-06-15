@@ -1,7 +1,14 @@
 import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 const config = require('../config/config.json')
-var adminPasswordHash = Buffer.from(config.adminUsername + ':' + config.adminPassword, 'binary').toString('base64')
+const { getDisplayNameForUser } = require('../helpers/userHelper')
+
+const {
+  admin: { username: adminUsername, password: adminPassword },
+  testUser1: { username: testUser, password: testUserPassword }
+} = require('../config/users.json')
+
+const adminPasswordHash = Buffer.from(adminUsername + ':' + adminPassword, 'binary').toString('base64')
 
 const path = require('path')
 const OwnCloud = require('../../src/owncloud')
@@ -49,11 +56,11 @@ const ocsMeta = function (meta, status, statusCode, Message = null) {
 const shareResponseOcsData = function (node, shareType, id, permissions, fileTarget) {
   const res = node.appendElement('id', '', MatchersV3.string(id))
     .appendElement('share_type', '', MatchersV3.equal(shareType.toString()))
-    .appendElement('uid_owner', '', MatchersV3.string(config.adminUsername))
-    .appendElement('displayname_owner', '', MatchersV3.string(config.adminUsername))
+    .appendElement('uid_owner', '', MatchersV3.string(adminUsername))
+    .appendElement('displayname_owner', '', MatchersV3.string(adminUsername))
     .appendElement('permissions', '', MatchersV3.number(permissions))
-    .appendElement('uid_file_owner', '', MatchersV3.string(config.adminUsername))
-    .appendElement('displayname_file_owner', '', MatchersV3.string(config.adminUsername))
+    .appendElement('uid_file_owner', '', MatchersV3.string(adminUsername))
+    .appendElement('displayname_file_owner', '', MatchersV3.string(adminUsername))
     .appendElement('path', '', MatchersV3.equal(fileTarget))
     .appendElement('file_target', '', MatchersV3.includes(fileTarget))
     .appendElement('stime', '', MatchersV3.string(Math.floor(Date.now() / 1000)))
@@ -150,7 +157,7 @@ const sanitizeUrl = (url) => {
   return url.replace(/([^:])\/{2,}/g, '$1/')
 }
 
-const createOwncloud = function (username = config.adminUsername, password = config.adminPassword) {
+const createOwncloud = function (username = adminUsername, password = adminPassword) {
   const oc = new OwnCloud({
     baseUrl: getMockServerBaseUrl(),
     auth: {
@@ -166,10 +173,10 @@ const createOwncloud = function (username = config.adminUsername, password = con
 // https://github.com/owncloud/ocis/issues/1282
 const getContentsOfFileInteraction = (
   provider, file,
-  user = config.adminUsername,
-  password = config.adminPassword
+  user = adminUsername,
+  password = adminPassword
 ) => {
-  if (user !== config.adminUsername) {
+  if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (file !== config.nonExistentFile) {
@@ -199,10 +206,10 @@ const getContentsOfFileInteraction = (
 
 const deleteResourceInteraction = (
   provider, resource, type = 'folder',
-  user = config.adminUsername, password = config.adminPassword
+  user = adminUsername, password = adminPassword
 ) => {
   let response
-  if (user !== config.adminUsername) {
+  if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (resource.includes('nonExistent')) {
@@ -245,10 +252,10 @@ const deleteResourceInteraction = (
 }
 
 async function getCurrentUserInformationInteraction (
-  provider, user = config.adminUsername, password = config.adminPassword
+  provider, user = adminUsername, password = adminPassword
 ) {
-  const displayName = user[0].toUpperCase() + user.slice(1)
-  if (user !== config.adminUsername) {
+  const displayName = getDisplayNameForUser(user)
+  if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
   await provider
@@ -279,9 +286,9 @@ async function getCurrentUserInformationInteraction (
 }
 
 async function getCapabilitiesInteraction (
-  provider, user = config.adminUsername, password = config.adminPassword
+  provider, user = adminUsername, password = adminPassword
 ) {
-  if (user !== config.adminUsername) {
+  if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
   await provider
@@ -340,7 +347,7 @@ async function getCapabilitiesInteraction (
 
 // [OCIS] HTTP 401 Unauthorized responses don't contain a body
 // https://github.com/owncloud/ocis/issues/1293
-const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = config.adminUsername, password = config.invalidPassword) {
+const getCapabilitiesWithInvalidAuthInteraction = function (provider, username = adminUsername, password = config.invalidPassword) {
   return provider.uponReceiving(`as '${username}', a GET request to get capabilities with invalid auth`)
     .withRequest({
       method: 'GET',
@@ -370,7 +377,7 @@ const getCapabilitiesWithInvalidAuthInteraction = function (provider, username =
 }
 
 const createUserInteraction = function (provider) {
-  provider.uponReceiving(`as '${config.adminUsername}', a POST request to create a user`)
+  provider.uponReceiving(`as '${adminUsername}', a POST request to create a user`)
     .withRequest({
       method: 'POST',
       path: MatchersV3.regex(
@@ -381,7 +388,7 @@ const createUserInteraction = function (provider) {
         ...validAdminAuthHeaders,
         ...applicationFormUrlEncoded
       },
-      body: `password=${config.testUserPassword}&userid=${config.testUser}`
+      body: `password=${testUserPassword}&userid=${testUser}`
     }).willRespondWith({
       status: 200,
       headers: xmlResponseHeaders
@@ -391,7 +398,7 @@ const createUserInteraction = function (provider) {
 const createUserWithGroupMembershipInteraction = function (provider) {
   return provider
     .given('group exists', { groupName: config.testGroup })
-    .uponReceiving(`as '${config.adminUsername}', a POST request to create a user with group membership`)
+    .uponReceiving(`as '${adminUsername}', a POST request to create a user with group membership`)
     .withRequest({
       method: 'POST',
       path: MatchersV3.regex(
@@ -402,7 +409,7 @@ const createUserWithGroupMembershipInteraction = function (provider) {
         ...validAdminAuthHeaders,
         ...applicationFormUrlEncoded
       },
-      body: 'password=' + config.testUserPassword + '&userid=' + config.testUser + '&groups%5B0%5D=' + config.testGroup
+      body: 'password=' + testUserPassword + '&userid=' + testUser + '&groups%5B0%5D=' + config.testGroup
     })
     .willRespondWith({
       status: 200,
@@ -417,12 +424,12 @@ const createUserWithGroupMembershipInteraction = function (provider) {
 }
 
 const deleteUserInteraction = function (provider) {
-  provider.uponReceiving(`as '${config.adminUsername}', a DELETE request to delete a user`)
+  provider.uponReceiving(`as '${adminUsername}', a DELETE request to delete a user`)
     .withRequest({
       method: 'DELETE',
       path: MatchersV3.regex(
-        '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + config.testUser + '$',
-        '/ocs/v1.php/cloud/users/' + config.testUser
+        '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '$',
+        '/ocs/v1.php/cloud/users/' + testUser
       ),
       headers: validAdminAuthHeaders
     }).willRespondWith({
@@ -440,9 +447,9 @@ const deleteUserInteraction = function (provider) {
 }
 
 const createFolderInteraction = function (
-  provider, folderName, user = config.adminUsername, password = config.adminPassword
+  provider, folderName, user = adminUsername, password = adminPassword
 ) {
-  if (user !== config.adminUsername) {
+  if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
 
@@ -475,9 +482,9 @@ const createFolderInteraction = function (
     })
 }
 
-const updateFileInteraction = function (provider, file, user = config.adminUsername, password = config.adminPassword
+const updateFileInteraction = function (provider, file, user = adminUsername, password = adminPassword
 ) {
-  if (user !== config.adminUsername) {
+  if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (!file.includes('nonExistent')) {

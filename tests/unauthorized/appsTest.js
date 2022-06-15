@@ -2,7 +2,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Unauthorized: Currently testing apps management,', function () {
   const config = require('../config/config.json')
-  const username = config.adminUsername
+  const { admin: { username: adminUsername } } = require('../config/users.json')
 
   const {
     unauthorizedXmlResponseBody,
@@ -25,7 +25,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
 
   const getAppsInvalidAuthInteraction = async (provider, query) => {
     return provider
-      .uponReceiving(`as '${username}', a GET request to get all apps with invalid auth`)
+      .uponReceiving(`as '${adminUsername}', a GET request to get all apps with invalid auth`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -40,7 +40,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
 
   const appRequestInvalidAuthInteraction = async (provider, requestName, method, app) => {
     return provider
-      .uponReceiving(`as '${username}', a ${method} request to ${requestName} with invalid auth`)
+      .uponReceiving(`as '${adminUsername}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
         method: method,
         path: MatchersV3.regex(
@@ -59,7 +59,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     await getAppsInvalidAuthInteraction(provider, { filter: 'enabled' })
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -80,7 +80,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     await appRequestInvalidAuthInteraction(provider, 'enable app', 'POST', 'files')
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
@@ -101,7 +101,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     await appRequestInvalidAuthInteraction(provider, 'disable app', 'DELETE', 'files')
 
     await provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {

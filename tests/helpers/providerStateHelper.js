@@ -1,5 +1,3 @@
-const config = require('../config/config.json')
-
 const SHARE_TYPE = Object.freeze({
   user: 0,
   group: 1,
@@ -214,7 +212,7 @@ const givenResourceIsShared = async (
       }
     )
   } else if (shareType === SHARE_TYPE.user) {
-    await givenUserExists(provider, shareWith, config.testUser2Password)
+    await givenUserExists(provider, shareWith)
     return givenUserShareExists(
       provider,
       username,

@@ -2,7 +2,9 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing apps management,', function () {
   const nonExistentApp = 'nonExistentApp123'
-  const { adminUsername: username } = require('./config/config.json')
+  const {
+    admin: { username: adminUsername }
+  } = require('./config/users.json')
 
   // PACT setup
   const {
@@ -32,7 +34,7 @@ describe('Main: Currently testing apps management,', function () {
       })
     }
     return provider
-      .uponReceiving(`as '${username}', a ${method} request to ${action} an app`)
+      .uponReceiving(`as '${adminUsername}', a ${method} request to ${action} an app`)
       .withRequest({
         method,
         path: MatchersV3.regex(
@@ -50,7 +52,7 @@ describe('Main: Currently testing apps management,', function () {
 
   const getAppsInteraction = (provider, query) => {
     return provider
-      .uponReceiving(`as '${username}', a GET request to get all apps`)
+      .uponReceiving(`as '${adminUsername}', a GET request to get all apps`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(

@@ -4,7 +4,15 @@
 const { MatchersV3 } = require('@pact-foundation/pact/v3')
 
 describe('Unauthorized: Currently testing file/folder sharing,', function () {
-  const config = require('../config/config.json')
+  const {
+    testFile,
+    testGroup,
+    invalidPassword
+  } = require('../config/config.json')
+  const {
+    admin: { username: adminUsername },
+    testUser1: { username: testUser }
+  } = require('../config/users.json')
 
   const {
     invalidAuthHeader,
@@ -13,15 +21,6 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     createOwncloud,
     createProvider
   } = require('../helpers/pactHelper.js')
-
-  // TESTING CONFIGS
-  const {
-    testUser,
-    testFile,
-    testGroup,
-    adminUsername: username,
-    invalidPassword
-  } = config
 
   const invalidAuthHeaderObject = {
     authorization: invalidAuthHeader
@@ -82,10 +81,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await createShareInteraction(provider, `as '${username}', a POST request to create public link share with invalid auth`)
+    await createShareInteraction(provider, `as '${adminUsername}', a POST request to create public link share with invalid auth`)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -105,10 +104,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await createShareInteraction(provider, `as '${username}', a POST request to share a file to a user with invalid auth`)
+    await createShareInteraction(provider, `as '${adminUsername}', a POST request to share a file to a user with invalid auth`)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -128,10 +127,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await createShareInteraction(provider, `as '${username}', a POST request to share a file to a group with invalid auth`)
+    await createShareInteraction(provider, `as '${adminUsername}', a POST request to share a file to a group with invalid auth`)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -153,10 +152,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await getSharesInteraction(provider, `as '${username}', a GET request to check whether a file is shared or not with invalid auth`, testFile)
+    await getSharesInteraction(provider, `as '${adminUsername}', a GET request to check whether a file is shared or not with invalid auth`, testFile)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -176,10 +175,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await getShareInteraction(provider, `as '${username}', a GET request to get single share of a file with invalid auth`, 'GET')
+    await getShareInteraction(provider, `as '${adminUsername}', a GET request to get single share of a file with invalid auth`, 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -199,10 +198,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await getSharesInteraction(provider, `as '${username}', a GET request to get shares of a file with invalid auth`, testFile)
+    await getSharesInteraction(provider, `as '${adminUsername}', a GET request to get shares of a file with invalid auth`, testFile)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -222,10 +221,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await getShareInteraction(provider, `as '${username}', a PUT request to update a share with invalid auth`, 'PUT')
+    await getShareInteraction(provider, `as '${adminUsername}', a PUT request to update a share with invalid auth`, 'PUT')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -245,10 +244,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     const provider = createProvider(false, true)
 
     await getCapabilitiesWithInvalidAuthInteraction(provider)
-    await getShareInteraction(provider, `as '${username}', a DELETE request to delete a share with invalid auth`, 'DELETE')
+    await getShareInteraction(provider, `as '${adminUsername}', a DELETE request to delete a share with invalid auth`, 'DELETE')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(username, invalidPassword)
+      const oc = createOwncloud(adminUsername, invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')

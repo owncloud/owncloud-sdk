@@ -1,7 +1,11 @@
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('oc.shares', function () {
-  const config = require('./config/config.json')
+  const { testFile } = require('./config/config.json')
+  const {
+    testUser1: { username: sharer, password: sharerPassword },
+    testUser2: { username: receiver, password: receiverPassword }
+  } = require('./config/users.json')
 
   const {
     xmlResponseHeaders,
@@ -15,16 +19,12 @@ describe('oc.shares', function () {
     getAuthHeaders
   } = require('./helpers/pactHelper.js')
 
-  // TESTING CONFIGS
-  const { testUser, testUserPassword, testFile } = config
   const shareAttributes = {
     attributes: [
       { scope: 'ownCloud', key: 'read', value: 'true' },
       { scope: 'ownCloud', key: 'share', value: 'true' }
     ]
   }
-  const shareeName = config.testUser2
-  const shareePassword = config.testUser2Password
 
   const shareAttributesResponse = () => {
     const response = []
@@ -37,10 +37,10 @@ describe('oc.shares', function () {
 
   const sharingWithAttributes = (provider) => {
     return provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
-      .given('the user is recreated', { username: shareeName, password: shareePassword })
-      .given('file exists', { username: testUser, password: testUserPassword, fileName: testFile, testContent: 'a test file' })
-      .uponReceiving(`as '${testUser}', a POST request to share a file with permissions in attributes`)
+      .given('the user is recreated', { username: sharer, password: sharerPassword })
+      .given('the user is recreated', { username: receiver, password: receiverPassword })
+      .given('file exists', { username: sharer, password: sharerPassword, fileName: testFile, testContent: 'a test file' })
+      .uponReceiving(`as '${sharer}', a POST request to share a file with permissions in attributes`)
       .withRequest({
         method: 'POST',
         path: MatchersV3.regex(
@@ -48,10 +48,10 @@ describe('oc.shares', function () {
           '/ocs/v1.php/apps/files_sharing/api/v1/shares'
         ),
         headers: {
-          authorization: getAuthHeaders(testUser, testUserPassword),
+          authorization: getAuthHeaders(sharer, sharerPassword),
           ...applicationFormUrlEncoded
         },
-        body: 'shareType=0&shareWith=' + shareeName + '&path=%2F' + testFile +
+        body: 'shareType=0&shareWith=' + receiver + '&path=%2F' + testFile +
           '&attributes%5B0%5D%5Bscope%5D=' + shareAttributes.attributes[0].scope +
           '&attributes%5B0%5D%5Bkey%5D=' + shareAttributes.attributes[0].key +
           '&attributes%5B0%5D%5Bvalue%5D=' + shareAttributes.attributes[0].value +
@@ -68,8 +68,8 @@ describe('oc.shares', function () {
           })
             .appendElement('data', '', (data) => {
               shareResponseOcsData(data, 0, 7, 17, '/' + testFile)
-                .appendElement('share_with', '', MatchersV3.equal(shareeName))
-                .appendElement('share_with_displayname', '', MatchersV3.equal(shareeName))
+                .appendElement('share_with', '', MatchersV3.equal(receiver))
+                .appendElement('share_with_displayname', '', MatchersV3.equal(receiver))
                 .appendElement('attributes', '', MatchersV3.equal(shareAttributesResponse()))
             })
         })
@@ -78,14 +78,14 @@ describe('oc.shares', function () {
 
   it('shall share with permissions in attributes', async function () {
     const provider = createProvider(false, true)
-    await getCapabilitiesInteraction(provider, testUser, testUserPassword)
-    await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+    await getCapabilitiesInteraction(provider, sharer, sharerPassword)
+    await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
     await sharingWithAttributes(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(testUser, testUserPassword)
+      const oc = createOwncloud(sharer, sharerPassword)
       await oc.login()
-      return oc.shares.shareFileWithUser(testFile, shareeName, shareAttributes).then(share => {
+      return oc.shares.shareFileWithUser(testFile, receiver, shareAttributes).then(share => {
         expect(share.getPermissions()).toBe(17)
       })
     })

@@ -5,7 +5,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Unauthorized: Currently testing group management,', function () {
   const config = require('../config/config.json')
-  const username = config.adminUsername
+  const { admin: { username: adminUsername } } = require('../config/users.json')
 
   const {
     unauthorizedXmlResponseBody,
@@ -28,7 +28,7 @@ describe('Unauthorized: Currently testing group management,', function () {
 
   const groupsInteraction = (provider, requestName, method) => {
     return provider
-      .uponReceiving(`as '${username}', a ${method} request to ${requestName} with invalid auth`)
+      .uponReceiving(`as '${adminUsername}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
         method: method,
         path: MatchersV3.regex(
@@ -42,7 +42,7 @@ describe('Unauthorized: Currently testing group management,', function () {
 
   const deleteGroupInteraction = (provider) => {
     return provider
-      .uponReceiving(`as '${username}', a DELETE request to delete a group with invalid auth`)
+      .uponReceiving(`as '${adminUsername}', a DELETE request to delete a group with invalid auth`)
       .withRequest({
         method: 'DELETE',
         path: MatchersV3.regex(
@@ -56,7 +56,7 @@ describe('Unauthorized: Currently testing group management,', function () {
 
   const getGroupMembersInteraction = (provider) => {
     return provider
-      .uponReceiving(`as '${username}', a GET request to get members of a group with invalid auth`)
+      .uponReceiving(`as '${adminUsername}', a GET request to get members of a group with invalid auth`)
       .withRequest({
         method: 'GET',
         path: MatchersV3.regex(
@@ -75,7 +75,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await groupsInteraction(provider, 'get all groups', 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -98,7 +98,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await groupsInteraction(provider, 'create a group', 'POST')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -121,7 +121,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await groupsInteraction(provider, 'check group existence', 'GET')
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -144,7 +144,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await deleteGroupInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')
@@ -167,7 +167,7 @@ describe('Unauthorized: Currently testing group management,', function () {
     await getGroupMembersInteraction(provider)
 
     return provider.executeTest(async () => {
-      const oc = createOwncloud(config.adminUsername, config.invalidPassword)
+      const oc = createOwncloud(adminUsername, config.invalidPassword)
 
       await oc.login().then(() => {
         fail('not expected to log in')

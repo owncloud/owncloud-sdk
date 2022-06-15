@@ -3,8 +3,8 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 describe('oc.shares', function () {
   const { testFile } = require('./config/config.json')
   const {
-    Alice: { username: sharer, password: sharerPassword },
-    Brian: { username: receiver, password: receiverPassword }
+    testUser1: { username: sharer, password: sharerPassword },
+    testUser2: { username: receiver, password: receiverPassword }
   } = require('./config/users.json')
 
   const {

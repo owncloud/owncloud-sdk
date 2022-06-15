@@ -9,7 +9,10 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     testGroup,
     invalidPassword
   } = require('../config/config.json')
-  const { admin: { username: adminUsername }, Alice } = require('../config/users.json')
+  const {
+    admin: { username: adminUsername },
+    testUser1: { username: testUser }
+  } = require('../config/users.json')
 
   const {
     invalidAuthHeader,
@@ -112,7 +115,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
         expect(err).toBe('Unauthorized')
       })
 
-      return oc.shares.shareFileWithUser(testFile, Alice.username).then(share => {
+      return oc.shares.shareFileWithUser(testFile, testUser).then(share => {
         expect(share).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')

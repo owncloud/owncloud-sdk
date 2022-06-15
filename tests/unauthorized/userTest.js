@@ -7,7 +7,10 @@ describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
   var timeRightNow = new Date().getTime()
   var config = require('../config/config.json')
-  const { admin: { username: adminUsername }, Alice } = require('../config/users.json')
+  const {
+    admin: { username: adminUsername },
+    testUser1: { username: testUser }
+  } = require('../config/users.json')
 
   const {
     invalidAuthHeader,
@@ -47,18 +50,18 @@ describe('Unauthorized: Currently testing user management,', function () {
   )
 
   const groupsEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + Alice.username + '\\/groups$',
-    '/ocs/v1.php/cloud/users/' + Alice.username + '/groups'
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '\\/groups$',
+    '/ocs/v1.php/cloud/users/' + testUser + '/groups'
   )
 
   const subadminsUserEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + Alice.username + '\\/subadmins$',
-    '/ocs/v1.php/cloud/users/' + Alice.username + '/subadmins'
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '\\/subadmins$',
+    '/ocs/v1.php/cloud/users/' + testUser + '/subadmins'
   )
 
   const testUserEndpointPath = MatchersV3.regex(
-    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + Alice.username + '$',
-    '/ocs/v1.php/cloud/users/' + Alice.username
+    '.*\\/ocs\\/v1\\.php\\/cloud\\/users\\/' + testUser + '$',
+    '/ocs/v1.php/cloud/users/' + testUser
   )
 
   const nonExistingUserEndpoint = MatchersV3.regex(
@@ -167,7 +170,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.setUserAttribute(Alice.username, 'email', 'asd@a.com').then(data => {
+      return oc.users.setUserAttribute(testUser, 'email', 'asd@a.com').then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -188,7 +191,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.addUserToGroup(Alice.username, config.testGroup).then(status => {
+      return oc.users.addUserToGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -209,7 +212,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUserGroups(Alice.username).then(data => {
+      return oc.users.getUserGroups(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -230,7 +233,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.userIsInGroup(Alice.username, config.testGroup).then(status => {
+      return oc.users.userIsInGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -251,7 +254,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUser(Alice.username).then(data => {
+      return oc.users.getUser(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -272,7 +275,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.removeUserFromGroup(Alice.username, config.testGroup).then(status => {
+      return oc.users.removeUserFromGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -293,7 +296,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.addUserToSubadminGroup(Alice.username, config.testGroup).then(status => {
+      return oc.users.addUserToSubadminGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -314,7 +317,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.getUserSubadminGroups(Alice.username).then(data => {
+      return oc.users.getUserSubadminGroups(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')
@@ -335,7 +338,7 @@ describe('Unauthorized: Currently testing user management,', function () {
       }).catch((err) => {
         expect(err).toBe('Unauthorized')
       })
-      return oc.users.userIsInSubadminGroup(Alice.username, config.testGroup).then(status => {
+      return oc.users.userIsInSubadminGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
         expect(error).toMatch('Unauthorized')

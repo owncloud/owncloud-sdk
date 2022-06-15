@@ -1,9 +1,7 @@
-const fetch = require('sync-fetch')
 const path = require('path')
 const convert = require('xml-js')
+const httpHelper = require('./httpHelper')
 const {
-  getAuthHeaders,
-  getProviderBaseUrl,
   encodeURIPath
 } = require('./pactHelper.js')
 
@@ -14,25 +12,13 @@ const {
  * @param {string} type (files|versions)
  */
 const createDavPath = function (userId, element, type = 'files') {
-  const parts = ['/remote.php/dav']
+  const parts = []
   if (type === 'versions') {
     parts.push('meta', element, 'v')
   } else {
     parts.push(type, userId, encodeURIPath(element))
   }
   return path.join(...parts)
-}
-
-/**
- * returns the full and sanitized URL of the dav resource
- * @param {string} userId
- * @param {string} resource
- * @param {string} type (files|versions)
- * @returns {string}
- */
-const createFullDavUrl = function (userId, resource, type = 'files') {
-  return (getProviderBaseUrl() + createDavPath(userId, resource, type))
-    .replace(/([^:])\/{2,}/g, '$1/')
 }
 
 /**
@@ -53,10 +39,12 @@ const createFolderRecursive = function (user, password, folderName) {
     for (let j = 0; j <= i; j++) {
       recursivePath += path.sep + folders[j]
     }
-    results[i] = fetch(createFullDavUrl(user, recursivePath), {
-      method: 'MKCOL',
-      headers: { authorization: getAuthHeaders(user, password) }
-    })
+    results[i] = httpHelper.mkcol(
+      createDavPath(user, recursivePath),
+      null,
+      null,
+      user
+    )
   }
   return results
 }
@@ -71,11 +59,7 @@ const createFolderRecursive = function (user, password, folderName) {
  * @returns {*} result of the fetch request
  */
 const createFile = function (user, password, fileName, contents = '') {
-  return fetch(createFullDavUrl(user, fileName), {
-    method: 'PUT',
-    headers: { authorization: getAuthHeaders(user, password) },
-    body: contents
-  })
+  return httpHelper.put(createDavPath(user, fileName), contents, null, user)
 }
 
 /**
@@ -87,21 +71,20 @@ const createFile = function (user, password, fileName, contents = '') {
  * @returns {*} result of the fetch request
  */
 const deleteItem = function (user, password, itemName) {
-  return fetch(createFullDavUrl(user, itemName), {
-    method: 'DELETE',
-    headers: { authorization: getAuthHeaders(user, password) }
-  })
+  return httpHelper.delete(createDavPath(user, itemName), null, null, user)
 }
 
 const getFileId = function (user, password, itemName) {
-  const fileIdResult = fetch(createFullDavUrl(user, itemName), {
-    method: 'PROPFIND',
-    body: '<?xml version="1.0"?>' +
-          '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
-          '<d:prop><oc:fileid /></d:prop>' +
-          '</d:propfind>',
-    headers: { authorization: getAuthHeaders(user, password) }
-  })
+  const fileIdResult = httpHelper.propfind(
+    createDavPath(user, itemName),
+    '<?xml version="1.0"?>' +
+      '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
+      '<d:prop><oc:fileid /></d:prop>' +
+      '</d:propfind>',
+    null,
+    user
+  )
+
   if (fileIdResult.status !== 207) {
     throw new Error(`could not get fileId for '${itemName}'`)
   }
@@ -109,10 +92,12 @@ const getFileId = function (user, password, itemName) {
 }
 
 const listVersionsFolder = function (user, password, fileId) {
-  const listResult = fetch(createFullDavUrl(user, fileId, 'versions'), {
-    method: 'PROPFIND',
-    headers: { authorization: getAuthHeaders(user, password) }
-  })
+  const listResult = httpHelper.propfind(
+    createDavPath(user, fileId, 'versions'),
+    null,
+    null,
+    user
+  )
   if (listResult.status !== 207) {
     throw new Error(`could not list versions folder of fileId '${fileId}'`)
   }
@@ -120,13 +105,12 @@ const listVersionsFolder = function (user, password, fileId) {
 }
 
 const getSignKey = function (username, password) {
-  const endpoint = getProviderBaseUrl() + '/ocs/v1.php/cloud/user/signing-key?format=json'
-  const response = fetch(endpoint, {
-    method: 'GET',
-    headers: {
-      authorization: getAuthHeaders(username, password)
-    }
-  })
+  const response = httpHelper.getOCS(
+    '/cloud/user/signing-key',
+    null,
+    null,
+    username
+  )
   if (response.status !== 200) {
     throw new Error(`Could not get signed Key for username ${username}`)
   }
@@ -154,11 +138,12 @@ const propfind = function (path, userId, password, properties, type = 'files', f
                 <d:prop>${propertyBody}</d:prop>
                 </d:propfind>`
 
-  const result = fetch(createFullDavUrl(userId, path, type), {
-    method: 'PROPFIND',
+  const result = httpHelper.propfind(
+    createDavPath(userId, path, type),
     body,
-    headers: { authorization: getAuthHeaders(userId, password), Depth: folderDepth }
-  })
+    { Depth: folderDepth },
+    userId
+  )
   if (result.status !== 207) {
     throw new Error('could not list trashbin folders')
   }
@@ -226,16 +211,17 @@ const getTrashBinElements = function (user, password, depth = '1') {
  * @returns {*} result of the fetch request
  */
 const markAsFavorite = function (username, password, fileName) {
-  return fetch(createFullDavUrl(username, fileName), {
-    method: 'PROPPATCH',
-    headers: { authorization: getAuthHeaders(username, password) },
-    body: '<?xml version="1.0"?>' +
+  return httpHelper.proppatch(
+    createDavPath(username, fileName),
+    '<?xml version="1.0"?>' +
       '<d:propertyupdate  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
       '<d:set><d:prop>' +
       '<oc:favorite>true</oc:favorite>' +
       '</d:prop></d:set>' +
-      '</d:propertyupdate>'
-  })
+      '</d:propertyupdate>',
+    null,
+    username
+  )
 }
 
 /**
@@ -246,20 +232,18 @@ const markAsFavorite = function (username, password, fileName) {
  * @returns {*} result of the fetch request
  */
 const createASystemTag = function (username, password, tag) {
-  return fetch(getProviderBaseUrl() + '/remote.php/dav/systemtags', {
-    method: 'POST',
-    headers: {
-      authorization: getAuthHeaders(username, password),
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
+  return httpHelper.post(
+    '/systemtags',
+    JSON.stringify({
       name: tag,
       canAssign: true,
       userEditable: true,
       userAssignable: true,
       userVisible: true
-    })
-  })
+    }),
+    { 'Content-Type': 'application/json' },
+    username
+  )
 }
 
 /**
@@ -273,14 +257,12 @@ const createASystemTag = function (username, password, tag) {
 const assignTagToFile = function (username, password, fileName, tagName) {
   const fileId = getFileId(username, password, fileName)
   const tagId = getTagId(username, password, tagName)
-  return fetch(getProviderBaseUrl() +
-    '/remote.php/dav/systemtags-relations/files/' +
-    fileId + '/' + tagId, {
-    method: 'PUT',
-    headers: {
-      authorization: getAuthHeaders(username, password)
-    }
-  })
+  return httpHelper.put(
+    `/systemtags-relations/files/${fileId}/${tagId}`,
+    null,
+    null,
+    username
+  )
 }
 
 /**
@@ -294,11 +276,9 @@ const getTagId = function (username, password, tagName) {
   const xmlReq = '<?xml version="1.0" encoding="utf-8" ?>' +
     '<a:propfind xmlns:a="DAV:" xmlns:oc="http://owncloud.org/ns">' +
     '<a:prop><oc:display-name/><oc:id/></a:prop></a:propfind>'
-  const res = fetch(getProviderBaseUrl() + '/remote.php/dav/systemtags', {
-    method: 'PROPFIND',
-    body: xmlReq,
-    headers: { authorization: getAuthHeaders(username, password) }
-  })
+
+  const res = httpHelper.propfind('/systemtags', xmlReq, null, username)
+
   if (res.status !== 207) {
     throw new Error('could not get tags list')
   }

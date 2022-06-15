@@ -59,6 +59,8 @@ module.exports = {
   // dav request methods
   get: (url, body, header, userId) =>
     requestEndpoint(url, { body, method: 'GET' }, userId, header),
+  post: (url, body, header, userId) =>
+    requestEndpoint(url, { body, method: 'POST' }, userId, header),
   put: (url, body, header, userId) =>
     requestEndpoint(url, { body, method: 'PUT' }, userId, header),
   delete: (url, body, header, userId) =>
@@ -69,6 +71,8 @@ module.exports = {
     requestEndpoint(url, { body, method: 'MKCOL' }, userId, header),
   propfind: (url, body, header, userId) =>
     requestEndpoint(url, { body, method: 'PROPFIND' }, userId, header),
+  proppatch: (url, body, header, userId) =>
+    requestEndpoint(url, { body, method: 'PROPPATCH' }, userId, header),
   // graph Api requests
   postGraph: (url, body, header, userId) =>
     requestGraphEndpoint(url, { body, method: 'POST' }, userId, header),

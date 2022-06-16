@@ -29,7 +29,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   } = require('./config/config.json')
   const {
     testUser1: { username: sharer, password: sharerPassword },
-    testUser2: { username: sharee, password: shareePassword }
+    testUser2: { username: sharee }
   } = require('./config/users.json')
 
   const {
@@ -72,7 +72,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     resourceType = 'file'
   ) {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
-    await givenUserExists(provider, sharer, sharerPassword)
+    await givenUserExists(provider, sharer)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
     await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
 
@@ -108,10 +108,10 @@ describe('Main: Currently testing file/folder sharing,', function () {
   }
 
   const getSharesInteraction = async function (provider, resource, resourceType = 'file') {
-    await givenUserExists(provider, sharer, sharerPassword)
+    await givenUserExists(provider, sharer)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
 
-    await givenUserExists(provider, sharee, shareePassword)
+    await givenUserExists(provider, sharee)
     await givenGroupExists(provider, testGroup)
     // shares file/folder with user, group and public link
     await givenPublicShareExists(provider, sharer, sharerPassword, resource)
@@ -168,7 +168,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
     resourceType
   ) => {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
-    await givenUserExists(provider, sharer, sharerPassword)
+    await givenUserExists(provider, sharer)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
     await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
     resource = '/' + resource
@@ -212,7 +212,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
   ) => {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
     let permissions = 1
-    await givenUserExists(provider, sharer, sharerPassword)
+    await givenUserExists(provider, sharer)
     await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
     await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
 
@@ -742,7 +742,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // [oCIS] Trying to share non-existing file responds with empty body
       // https://github.com/owncloud/ocis/issues/1799
       async function linkSharePOSTNonExistentFile (provider) {
-        await givenUserExists(provider, sharer, sharerPassword)
+        await givenUserExists(provider, sharer)
         return provider.uponReceiving(`as '${sharer}', a POST request to create a public link share with non-existent file`)
           .withRequest({
             method: 'POST',
@@ -770,7 +770,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // [oCIS] Trying to share non-existing file responds with empty body
       // https://github.com/owncloud/ocis/issues/1799
       async function groupSharePOSTNonExistentFile (provider) {
-        await givenUserExists(provider, sharer, sharerPassword)
+        await givenUserExists(provider, sharer)
         await givenGroupExists(provider, testGroup)
         return provider.uponReceiving(`as '${sharer}', a POST request to share non-existent file with existing group`)
           .withRequest({
@@ -797,7 +797,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       // [oCIS] Different responses in oCIS and oC10
       // https://github.com/owncloud/ocis/issues/1777
       async function shareGETNonExistentFile (provider, name = '') {
-        await givenUserExists(provider, sharer, sharerPassword)
+        await givenUserExists(provider, sharer)
         return provider.uponReceiving(`as '${sharer}', a GET request to get share information of non-existent file '${name}'`)
           .withRequest({
             method: 'GET',
@@ -820,7 +820,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       async function shareGETExistingNonSharedFile (provider, name, fileName) {
-        await givenUserExists(provider, sharer, sharerPassword)
+        await givenUserExists(provider, sharer)
         await givenFileFolderIsCreated(provider, sharer, sharerPassword, fileName)
         return provider
           .uponReceiving(`as '${sharer}', a GET request to get share information of existent but non-shared file '${name}'`)
@@ -868,8 +868,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
           })
       }
       async function sharePOSTRequestWithExpirationDateSet (provider, fileEncoded, file) {
-        await givenUserExists(provider, sharer, sharerPassword)
-        await givenUserExists(provider, sharee, shareePassword)
+        await givenUserExists(provider, sharer)
+        await givenUserExists(provider, sharee)
         await givenFileFolderIsCreated(provider, sharer, sharerPassword, file)
         return provider
           .uponReceiving(`as '${sharer}', a POST request to share a file '${file}' to user with expiration date set`)

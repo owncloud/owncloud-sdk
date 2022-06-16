@@ -289,7 +289,7 @@ describe('provider testing', () => {
       if (setup) {
         let url = providerBaseUrl + `/remote.php/dav/files/${parameters.username}/${parameters.path}`
         url = sanitizeUrl(url)
-        const signKey = getSignKey(parameters.username, parameters.password)
+        const signKey = getSignKey(parameters.username)
         url = new URL(url)
         const date = new Date().toISOString()
         url.searchParams.set('OC-Credential', parameters.username)

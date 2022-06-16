@@ -375,6 +375,18 @@ const givenFileExistsInLastPublicShare = (
   })
 }
 
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} path
+ */
+const givenSignedKeyIsReturned = (provider, username, path) => {
+  return provider.given('signed-key is returned', {
+    username,
+    path
+  })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -396,5 +408,6 @@ module.exports = {
   givenUserIsMadeGroupSubadmin,
   givenUserIsAddedToGroup,
   givenFolderExistsInLastPublicShare,
-  givenFileExistsInLastPublicShare
+  givenFileExistsInLastPublicShare,
+  givenSignedKeyIsReturned
 }

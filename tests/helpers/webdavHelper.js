@@ -101,7 +101,7 @@ const listVersionsFolder = function (user, fileId) {
   return listResult.text()
 }
 
-const getSignKey = function (username, password) {
+const getSignKey = function (username) {
   const response = httpHelper.getOCS(
     '/cloud/user/signing-key',
     null,

@@ -21,6 +21,8 @@ describe('Main: Currently testing file versions management,', function () {
     getMockServerBaseUrl
   } = require('./helpers/pactHelper.js')
 
+  const { givenFileExists } = require('./helpers/providerStateHelper')
+
   const mockServerBaseUrl = getMockServerBaseUrl()
   const { createDavPath } = require('./helpers/webdavHelper.js')
   // TESTING CONFIGS
@@ -115,31 +117,29 @@ describe('Main: Currently testing file versions management,', function () {
   })
 
   describe('file versions for existing files', () => {
-    const PropfindFileVersionOfExistentFiles = provider => {
-      return provider.given('the user is recreated', {
+    const PropfindFileVersionOfExistentFiles = async (provider) => {
+      await provider.given('the user is recreated', {
         username: testUser,
         password: testUserPassword
       })
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword
-        })
+      await givenFileExists(provider, testUser, versionedFile)
+      await provider
         .given('the client waits', { delay: 2000 })
       // re-upload the same file to create a new version
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          content: fileInfo.versions[0].content
-        })
-        .given('the client waits', { delay: 2000 })
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          content: fileInfo.versions[1].content
-        })
+      await givenFileExists(
+        provider,
+        testUser,
+        versionedFile,
+        fileInfo.versions[0].content
+      )
+      await provider.given('the client waits', { delay: 2000 })
+      await givenFileExists(
+        provider,
+        testUser,
+        versionedFile,
+        fileInfo.versions[1].content
+      )
+      return provider
         .given('the client waits', { delay: 2000 })
         .given('file version link is returned', {
           fileName: versionedFile,
@@ -190,26 +190,23 @@ describe('Main: Currently testing file versions management,', function () {
       await provider.given('the user is recreated', {
         username: testUser,
         password: testUserPassword
-      }).given('file exists', {
-        fileName: versionedFile,
-        username: testUser,
-        password: testUserPassword
       })
-        .given('the client waits', { delay: 2000 })
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          content: fileInfo.versions[0].content
-        })
-        .given('the client waits', { delay: 2000 })
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          content: fileInfo.versions[1].content
-        })
-        .given('the client waits', { delay: 2000 })
+      await givenFileExists(provider, testUser, versionedFile)
+      await provider.given('the client waits', { delay: 2000 })
+      await givenFileExists(
+        provider,
+        testUser,
+        versionedFile,
+        fileInfo.versions[0].content
+      )
+      await provider.given('the client waits', { delay: 2000 })
+      await givenFileExists(
+        provider,
+        testUser,
+        versionedFile,
+        fileInfo.versions[1].content
+      )
+      await provider.given('the client waits', { delay: 2000 })
         .given('file version link is returned', {
           fileName: versionedFile,
           username: testUser,
@@ -274,17 +271,10 @@ describe('Main: Currently testing file versions management,', function () {
           username: testUser,
           password: testUserPassword
         })
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword
-        })
-        // re-upload the same file to create a new version
-        .given('file exists', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword
-        })
+      await givenFileExists(provider, testUser, versionedFile)
+      // re-upload the same file to create a new version
+      await givenFileExists(provider, testUser, versionedFile, 'new content')
+      await provider
         .given('file version link is returned', {
           fileName: versionedFile,
           username: testUser,

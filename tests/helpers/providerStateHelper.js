@@ -28,16 +28,26 @@ const givenGroupExists = (provider, group) => {
 }
 
 /**
+ * provider state: deletes a given group
+ *
+ * @param {object} provider
+ * @param {string} group
+ */
+const givenGroupDoesNotExist = (provider, group) => {
+  return provider.given('group does not exist', { groupName: group })
+}
+
+/**
  * provider state: creates given file
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} resource file name
+ * @param {string} resource file name
+ * @param {string} content
  */
-const givenFileExists = (provider, username, password, resource) => {
+const givenFileExists = (provider, username, resource, content) => {
   return provider
-    .given('file exists', { username, password, fileName: resource })
+    .given('file exists', { username, fileName: resource, content })
 }
 
 /**
@@ -45,12 +55,11 @@ const givenFileExists = (provider, username, password, resource) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} resource folder name
+ * @param {string} resource folder name
  */
-const givenFolderExists = (provider, username, password, resource) => {
+const givenFolderExists = (provider, username, resource) => {
   return provider
-    .given('folder exists', { username, password, folderName: resource })
+    .given('folder exists', { username, folderName: resource })
 }
 
 /**
@@ -163,9 +172,9 @@ const givenPublicShareExists = (
  */
 const givenFileFolderIsCreated = (provider, username, password, resource, resourceType) => {
   if (resourceType === 'folder') {
-    return givenFolderExists(provider, username, password, resource)
+    return givenFolderExists(provider, username, resource)
   } else {
-    return givenFileExists(provider, username, password, resource)
+    return givenFileExists(provider, username, resource)
   }
 }
 
@@ -287,6 +296,7 @@ const givenTagIsAssignedToFile = (provider, username, password, fileName, tagNam
 module.exports = {
   givenUserExists,
   givenGroupExists,
+  givenGroupDoesNotExist,
   givenFileExists,
   givenFolderExists,
   givenUserShareExists,

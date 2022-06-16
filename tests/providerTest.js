@@ -125,7 +125,8 @@ describe('provider testing', () => {
     'folder exists': (setup, parameters) => {
       if (setup) {
         const results = createFolderRecursive(
-          parameters.username, parameters.password, parameters.folderName
+          parameters.username,
+          parameters.folderName
         )
         assertFoldersCreatedSuccessfully(results, parameters.folderName)
       }
@@ -136,13 +137,11 @@ describe('provider testing', () => {
       const content = parameters.content || testContent
       if (setup) {
         if (dirname !== '' && dirname !== '/' && dirname !== '.') {
-          const results = createFolderRecursive(
-            parameters.username, parameters.password, dirname
-          )
+          const results = createFolderRecursive(parameters.username, dirname)
           assertFoldersCreatedSuccessfully(results, dirname)
         }
         const result = createFile(
-          parameters.username, parameters.password, parameters.fileName, content
+          parameters.username, parameters.fileName, content
         )
         chai.assert.isBelow(
           result.status, 300, `creating file '${parameters.fileName}' failed`

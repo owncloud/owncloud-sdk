@@ -19,6 +19,8 @@ describe('oc.shares', function () {
     getAuthHeaders
   } = require('./helpers/pactHelper.js')
 
+  const { givenFileExists } = require('./helpers/providerStateHelper')
+
   const shareAttributes = {
     attributes: [
       { scope: 'ownCloud', key: 'read', value: 'true' },
@@ -35,11 +37,12 @@ describe('oc.shares', function () {
     return `[${response}]`
   }
 
-  const sharingWithAttributes = (provider) => {
-    return provider
+  const sharingWithAttributes = async (provider) => {
+    await provider
       .given('the user is recreated', { username: sharer, password: sharerPassword })
       .given('the user is recreated', { username: receiver, password: receiverPassword })
-      .given('file exists', { username: sharer, password: sharerPassword, fileName: testFile, testContent: 'a test file' })
+    await givenFileExists(provider, sharer, testFile, 'a test file')
+    return provider
       .uponReceiving(`as '${sharer}', a POST request to share a file with permissions in attributes`)
       .withRequest({
         method: 'POST',

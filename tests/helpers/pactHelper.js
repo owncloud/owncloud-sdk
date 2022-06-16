@@ -13,6 +13,12 @@ const adminPasswordHash = Buffer.from(adminUsername + ':' + adminPassword, 'bina
 const path = require('path')
 const OwnCloud = require('../../src/owncloud')
 
+const {
+  givenGroupExists,
+  givenFolderExists,
+  givenFileExists
+} = require('../helpers/providerStateHelper')
+
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE,HEAD,LOCK,UNLOCK'
 const origin = 'http://localhost:9876'
@@ -178,7 +184,7 @@ const createOwncloud = function (username = adminUsername, password = adminPassw
 }
 // [OCIS] Trying to access a non-existing resource returns an empty body
 // https://github.com/owncloud/ocis/issues/1282
-const getContentsOfFileInteraction = (
+const getContentsOfFileInteraction = async (
   provider, file,
   user = adminUsername,
   password = adminPassword
@@ -187,12 +193,7 @@ const getContentsOfFileInteraction = (
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (file !== config.nonExistentFile) {
-    provider
-      .given('file exists', {
-        fileName: file,
-        username: user,
-        password: password
-      })
+    await givenFileExists(provider, user, file)
   }
   return provider
     .uponReceiving(`as '${user}', a GET request to get contents of a file '${file}'`)
@@ -211,7 +212,7 @@ const getContentsOfFileInteraction = (
     })
 }
 
-const deleteResourceInteraction = (
+const deleteResourceInteraction = async (
   provider, resource, type = 'folder',
   user = adminUsername, password = adminPassword
 ) => {
@@ -226,11 +227,7 @@ const deleteResourceInteraction = (
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
-    provider.given('file exists', {
-      fileName: resource,
-      username: user,
-      password: password
-    })
+    await givenFileExists(provider, user, resource)
     response = {
       status: 200,
       headers: xmlResponseHeaders,
@@ -241,11 +238,7 @@ const deleteResourceInteraction = (
       })
     }
   } else {
-    provider.given('folder exists', {
-      folderName: resource,
-      username: user,
-      password: password
-    })
+    await givenFolderExists(provider, user, resource)
     response = {
       status: 204
     }
@@ -402,9 +395,9 @@ const createUserInteraction = function (provider) {
     })
 }
 
-const createUserWithGroupMembershipInteraction = function (provider) {
+const createUserWithGroupMembershipInteraction = async function (provider) {
+  await givenGroupExists(provider, config.testGroup)
   return provider
-    .given('group exists', { groupName: config.testGroup })
     .uponReceiving(`as '${adminUsername}', a POST request to create a user with group membership`)
     .withRequest({
       method: 'POST',
@@ -453,7 +446,7 @@ const deleteUserInteraction = function (provider) {
     })
 }
 
-const createFolderInteraction = function (
+const createFolderInteraction = async function (
   provider, folderName, user = adminUsername, password = adminPassword
 ) {
   if (user !== adminUsername) {
@@ -467,11 +460,7 @@ const createFolderInteraction = function (
     recrusivePath += path.sep + folders[i]
   }
   if (recrusivePath !== '') {
-    provider.given('folder exists', {
-      folderName: recrusivePath,
-      username: user,
-      password: password
-    })
+    await givenFolderExists(provider, user, recrusivePath)
   }
   const encodedFolderName = encodeURIPath(folderName)
   return provider
@@ -489,17 +478,13 @@ const createFolderInteraction = function (
     })
 }
 
-const updateFileInteraction = function (provider, file, user = adminUsername, password = adminPassword
+const updateFileInteraction = async function (provider, file, user = adminUsername, password = adminPassword
 ) {
   if (user !== adminUsername) {
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (!file.includes('nonExistent')) {
-    provider.given('folder exists', {
-      folderName: path.dirname(file),
-      username: user,
-      password: password
-    })
+    await givenFolderExists(provider, user, path.dirname(file))
   }
 
   const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)

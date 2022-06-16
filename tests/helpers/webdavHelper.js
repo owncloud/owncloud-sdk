@@ -25,11 +25,10 @@ const createDavPath = function (userId, element, type = 'files') {
  * Create a folder using webDAV api.
  *
  * @param {string} user
- * @param {string} password
  * @param {string} folderName
  * @returns {[]} all fetch results
  */
-const createFolderRecursive = function (user, password, folderName) {
+const createFolderRecursive = function (user, folderName) {
   const results = []
   folderName = folderName.replace(/\/$/, '')
   folderName = folderName.replace(/^\//, '')
@@ -53,12 +52,11 @@ const createFolderRecursive = function (user, password, folderName) {
  * Create a file using webDAV api.
  *
  * @param {string} user
- * @param {string} password
  * @param {string} fileName
  * @param {string} contents
  * @returns {*} result of the fetch request
  */
-const createFile = function (user, password, fileName, contents = '') {
+const createFile = function (user, fileName, contents = '') {
   return httpHelper.put(createDavPath(user, fileName), contents, null, user)
 }
 

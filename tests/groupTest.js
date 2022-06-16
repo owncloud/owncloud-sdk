@@ -18,10 +18,15 @@ describe('Main: Currently testing group management,', function () {
     createOwncloud
   } = require('./helpers/pactHelper.js')
 
+  const {
+    givenGroupExists,
+    givenGroupDoesNotExist
+  } = require('./helpers/providerStateHelper')
+
   async function getGroupsInteraction (provider) {
+    await givenGroupExists(provider, 'admin')
+    await givenGroupExists(provider, config.testGroup)
     await provider
-      .given('group exists', { groupName: 'admin' })
-      .given('group exists', { groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all groups`)
       .withRequest({
         method: 'GET',
@@ -54,11 +59,9 @@ describe('Main: Currently testing group management,', function () {
 
   async function deleteGroupInteraction (provider, group, responseBody) {
     if (group === config.nonExistentGroup) {
-      await provider
-        .given('group does not exist', { groupName: group })
+      await givenGroupDoesNotExist(provider, group)
     } else {
-      await provider
-        .given('group exists', { groupName: group })
+      await givenGroupExists(provider, group)
     }
 
     await provider
@@ -135,8 +138,9 @@ describe('Main: Currently testing group management,', function () {
     provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
+
+    await givenGroupExists(provider, config.testGroup)
     await provider
-      .given('group exists', { groupName: config.testGroup })
       .given('the user is recreated', { username: testUser, password: testUserPassword })
       .given('user is added to group', { username: testUser, groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all members of existing group`)
@@ -205,8 +209,9 @@ describe('Main: Currently testing group management,', function () {
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
+
+    await givenGroupDoesNotExist(provider, config.testGroup)
     await provider
-      .given('group does not exist', { groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a POST request to create a group`)
       .withRequest({
         method: 'POST',

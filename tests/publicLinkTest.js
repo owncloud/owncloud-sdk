@@ -35,7 +35,8 @@ describe('oc.publicFiles', function () {
     givenUserExists,
     givenPublicShareExists,
     givenFolderExists,
-    givenFileExists
+    givenFileExists,
+    givenProviderBaseUrlIsReturned
   } = require('./helpers/providerStateHelper')
 
   const publicLinkShareTokenPath = MatchersV3.fromProviderState(
@@ -525,8 +526,7 @@ describe('oc.publicFiles', function () {
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
-          await provider
-            .given('provider base url is returned')
+          await givenProviderBaseUrlIsReturned(provider)
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {
@@ -578,8 +578,7 @@ describe('oc.publicFiles', function () {
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
-          await provider
-            .given('provider base url is returned')
+          await givenProviderBaseUrlIsReturned(provider)
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {
@@ -628,8 +627,7 @@ describe('oc.publicFiles', function () {
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
-          await provider
-            .given('provider base url is returned')
+          await givenProviderBaseUrlIsReturned(provider)
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {

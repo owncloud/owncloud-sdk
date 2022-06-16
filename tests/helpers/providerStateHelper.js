@@ -313,6 +313,14 @@ const givenTagIsAssignedToFile = (provider, username, password, fileName, tagNam
     .given('a tag is assigned to a file', { username, password, fileName, tagName })
 }
 
+/**
+ *
+ * @param {object} provider
+ */
+const givenProviderBaseUrlIsReturned = (provider) => {
+  return provider.given('provider base url is returned')
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -328,5 +336,6 @@ module.exports = {
   givenResourceIsShared,
   givenFileIsMarkedFavorite,
   givenSystemTagExists,
-  givenTagIsAssignedToFile
+  givenTagIsAssignedToFile,
+  givenProviderBaseUrlIsReturned
 }

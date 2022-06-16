@@ -39,7 +39,8 @@ describe('Main: Currently testing files management,', function () {
     givenFileIsMarkedFavorite,
     givenSystemTagExists,
     givenTagIsAssignedToFile,
-    givenFolderExists
+    givenFolderExists,
+    givenProviderBaseUrlIsReturned
   } = require('./helpers/providerStateHelper')
   const validAuthHeaders = { authorization: getAuthHeaders(testUser, testUserPassword) }
 
@@ -597,7 +598,7 @@ describe('Main: Currently testing files management,', function () {
 
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, encodedSrcFilePath)
-      provider.given('provider base url is returned')
+      await givenProviderBaseUrlIsReturned(provider)
       await moveFileInteraction(
         provider,
         'same name',
@@ -640,8 +641,8 @@ describe('Main: Currently testing files management,', function () {
       await givenUserExists(provider, testUser)
       await givenFolderExists(provider, testUser, desFolder)
       await givenFileExists(provider, testUser, srcFilePath)
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
-        .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a MOVE request to move existent file into different folder`)
         .withRequest({
           method: 'MOVE',
@@ -678,8 +679,8 @@ describe('Main: Currently testing files management,', function () {
         provider, testUser, testUserPassword
       )
       await givenUserExists(provider, testUser, testUserPassword)
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
-        .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a MOVE request to move non existent file`)
         .withRequest({
           method: 'MOVE',
@@ -721,8 +722,8 @@ describe('Main: Currently testing files management,', function () {
       )
       await givenUserExists(provider, testUser, testUserPassword)
       await givenFileExists(provider, testUser, file)
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
-        .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into same folder, same name`)
         .withRequest({
           method: 'COPY',
@@ -761,9 +762,10 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, testUser, testUserPassword
       )
+
       await givenUserExists(provider, testUser, testUserPassword)
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
-        .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy non existent file`)
         .withRequest({
           method: 'COPY',
@@ -1095,7 +1097,7 @@ describe('Main: Currently testing files management,', function () {
 
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, srcFilePath)
-      provider.given('provider base url is returned')
+      await givenProviderBaseUrlIsReturned(provider)
       await moveFileInteraction(
         provider,
         'different name',
@@ -1137,8 +1139,8 @@ describe('Main: Currently testing files management,', function () {
 
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, srcFilePath)
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
-        .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into same folder, different name`)
         .withRequest({
           method: 'COPY',
@@ -1182,8 +1184,8 @@ describe('Main: Currently testing files management,', function () {
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, srcFilePath)
       await givenFolderExists(provider, testUser, `${testFolder}/subdir/`)
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
-        .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into different folder`)
         .withRequest({
           method: 'COPY',

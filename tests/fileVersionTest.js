@@ -23,7 +23,8 @@ describe('Main: Currently testing file versions management,', function () {
 
   const {
     givenFileExists,
-    givenUserExists
+    givenUserExists,
+    givenProviderBaseUrlIsReturned
   } = require('./helpers/providerStateHelper')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -273,8 +274,7 @@ describe('Main: Currently testing file versions management,', function () {
           password: testUserPassword,
           number: 1
         })
-        .given('provider base url is returned')
-
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
         .uponReceiving(`as '${testUser}', a COPY request to restore file versions`)
         .withRequest({

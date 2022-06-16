@@ -16,6 +16,16 @@ const givenUserExists = (provider, username) => {
 }
 
 /**
+ * provider state: deletes a given user
+ *
+ * @param {object} provider
+ * @param {string} username
+ */
+const givenUserDoesNotExist = (provider, username) => {
+  return provider.given('user doesn\'t exist', { username })
+}
+
+/**
  * provider state: creates a given group
  *
  * @param {object} provider
@@ -305,6 +315,7 @@ const givenTagIsAssignedToFile = (provider, username, password, fileName, tagNam
 
 module.exports = {
   givenUserExists,
+  givenUserDoesNotExist,
   givenGroupExists,
   givenGroupDoesNotExist,
   givenFileExists,

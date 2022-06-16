@@ -24,7 +24,8 @@ describe('Main: Currently testing user management,', function () {
 
   const {
     givenGroupExists,
-    givenUserExists
+    givenUserExists,
+    givenUserDoesNotExist
   } = require('./helpers/providerStateHelper')
 
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
@@ -486,7 +487,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] email is needed for oCIS to create users
   it('checking method : createUser with groups', async function () {
     const provider = createProvider(false, true)
-    await provider.given('user doesn\'t exist', { username: testUser })
+    await givenUserDoesNotExist(provider, testUser)
 
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)

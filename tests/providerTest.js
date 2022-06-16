@@ -198,8 +198,8 @@ describe('provider testing', () => {
     },
     'file version link is returned': (setup, parameters) => {
       if (setup) {
-        const fileId = getFileId(parameters.username, parameters.password, parameters.fileName)
-        const versionsResult = listVersionsFolder(parameters.username, parameters.password, fileId)
+        const fileId = getFileId(parameters.username, parameters.fileName)
+        const versionsResult = listVersionsFolder(parameters.username, fileId)
         let nodeValue = ''
         parseString(versionsResult, function (err, result) {
           if (

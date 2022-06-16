@@ -71,7 +71,7 @@ const deleteItem = function (user, itemName) {
   return httpHelper.delete(createDavPath(user, itemName), null, null, user)
 }
 
-const getFileId = function (user, password, itemName) {
+const getFileId = function (user, itemName) {
   const fileIdResult = httpHelper.propfind(
     createDavPath(user, itemName),
     '<?xml version="1.0"?>' +
@@ -88,7 +88,7 @@ const getFileId = function (user, password, itemName) {
   return fileIdResult.text().match(/<oc:fileid>([^<]*)<\/oc:fileid>/)[1]
 }
 
-const listVersionsFolder = function (user, password, fileId) {
+const listVersionsFolder = function (user, fileId) {
   const listResult = httpHelper.propfind(
     createDavPath(user, fileId, 'versions'),
     null,

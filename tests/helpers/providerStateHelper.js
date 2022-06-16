@@ -321,6 +321,20 @@ const givenProviderBaseUrlIsReturned = (provider) => {
   return provider.given('provider base url is returned')
 }
 
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} fileName
+ * @param {string} number
+ */
+const givenFileVersionLinkIsReturned = (provider, username, fileName, number) => {
+  return provider.given('file version link is returned', {
+    username,
+    fileName,
+    number
+  })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -337,5 +351,6 @@ module.exports = {
   givenFileIsMarkedFavorite,
   givenSystemTagExists,
   givenTagIsAssignedToFile,
-  givenProviderBaseUrlIsReturned
+  givenProviderBaseUrlIsReturned,
+  givenFileVersionLinkIsReturned
 }

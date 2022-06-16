@@ -335,6 +335,18 @@ const givenFileVersionLinkIsReturned = (provider, username, fileName, number) =>
   })
 }
 
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} groupName
+ */
+const givenUserIsMadeGroupSubadmin = (provider, username, groupName) => {
+  return provider.given('user is made group subadmin', {
+    username,
+    groupName
+  })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -352,5 +364,6 @@ module.exports = {
   givenSystemTagExists,
   givenTagIsAssignedToFile,
   givenProviderBaseUrlIsReturned,
-  givenFileVersionLinkIsReturned
+  givenFileVersionLinkIsReturned,
+  givenUserIsMadeGroupSubadmin
 }

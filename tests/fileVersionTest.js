@@ -25,7 +25,8 @@ describe('Main: Currently testing file versions management,', function () {
     givenFileExists,
     givenUserExists,
     givenProviderBaseUrlIsReturned,
-    givenFileVersionLinkIsReturned
+    givenFileVersionLinkIsReturned,
+    givenClientWaits
   } = require('./helpers/providerStateHelper')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -123,8 +124,7 @@ describe('Main: Currently testing file versions management,', function () {
     const PropfindFileVersionOfExistentFiles = async (provider) => {
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, versionedFile)
-      await provider
-        .given('the client waits', { delay: 2000 })
+      await givenClientWaits(provider, 2000)
       // re-upload the same file to create a new version
       await givenFileExists(
         provider,
@@ -132,15 +132,14 @@ describe('Main: Currently testing file versions management,', function () {
         versionedFile,
         fileInfo.versions[0].content
       )
-      await provider.given('the client waits', { delay: 2000 })
+      await givenClientWaits(provider, 2000)
       await givenFileExists(
         provider,
         testUser,
         versionedFile,
         fileInfo.versions[1].content
       )
-      await provider
-        .given('the client waits', { delay: 2000 })
+      await givenClientWaits(provider, 2000)
       await givenFileVersionLinkIsReturned(provider, testUser, versionedFile, 1)
       return provider
         .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of existent file`)
@@ -185,21 +184,21 @@ describe('Main: Currently testing file versions management,', function () {
     const getFileVersionContents = async (provider, i) => {
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, versionedFile)
-      await provider.given('the client waits', { delay: 2000 })
+      await givenClientWaits(provider, 2000)
       await givenFileExists(
         provider,
         testUser,
         versionedFile,
         fileInfo.versions[0].content
       )
-      await provider.given('the client waits', { delay: 2000 })
+      await givenClientWaits(provider, 2000)
       await givenFileExists(
         provider,
         testUser,
         versionedFile,
         fileInfo.versions[1].content
       )
-      await provider.given('the client waits', { delay: 2000 })
+      await givenClientWaits(provider, 2000)
       await givenFileVersionLinkIsReturned(provider, testUser, versionedFile, i + 1)
       await provider
         .uponReceiving(`as '${testUser}', a GET request to get file version ${i} contents`)

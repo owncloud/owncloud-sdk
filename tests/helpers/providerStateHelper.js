@@ -387,6 +387,14 @@ const givenSignedKeyIsReturned = (provider, username, path) => {
   })
 }
 
+/**
+ * @param {object} provider
+ * @param {number} delay
+ */
+const givenClientWaits = (provider, delay) => {
+  return provider.given('the client waits', { delay })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -409,5 +417,6 @@ module.exports = {
   givenUserIsAddedToGroup,
   givenFolderExistsInLastPublicShare,
   givenFileExistsInLastPublicShare,
-  givenSignedKeyIsReturned
+  givenSignedKeyIsReturned,
+  givenClientWaits
 }

@@ -263,12 +263,11 @@ const givenResourceIsShared = async (
  *
  * @param {object} provider
  * @param {string} username
- * @param {string} password
  * @param {string} path
  */
-const givenFileIsMarkedFavorite = (provider, username, password, path) => {
+const givenFileIsMarkedFavorite = (provider, username, path) => {
   return provider
-    .given('file is marked as favorite', { username, password, path })
+    .given('file is marked as favorite', { username, path })
 }
 
 /**
@@ -276,12 +275,11 @@ const givenFileIsMarkedFavorite = (provider, username, password, path) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {string} password
  * @param {string} tag tag name
  */
-const givenSystemTagExists = (provider, username, password, tag) => {
+const givenSystemTagExists = (provider, username, tag) => {
   return provider
-    .given('a system tag is created', { username, password, tag })
+    .given('a system tag is created', { username, tag })
 }
 
 /**
@@ -289,13 +287,12 @@ const givenSystemTagExists = (provider, username, password, tag) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {string} password
  * @param {string} fileName
  * @param {string} tagName
  */
-const givenTagIsAssignedToFile = (provider, username, password, fileName, tagName) => {
+const givenTagIsAssignedToFile = (provider, username, fileName, tagName) => {
   return provider
-    .given('a tag is assigned to a file', { username, password, fileName, tagName })
+    .given('a tag is assigned to a file', { username, fileName, tagName })
 }
 
 /**

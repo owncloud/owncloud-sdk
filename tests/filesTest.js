@@ -1277,7 +1277,7 @@ describe('Main: Currently testing files management,', function () {
       )
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, file)
-      await givenFileIsMarkedFavorite(provider, testUser, testUserPassword, file)
+      await givenFileIsMarkedFavorite(provider, testUser, file)
       await provider
         .uponReceiving(`as '${testUser}', a REPORT request to get favorite file`)
         .withRequest({
@@ -1526,8 +1526,8 @@ describe('Main: Currently testing files management,', function () {
 
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, testFile)
-      await givenSystemTagExists(provider, testUser, testUserPassword, newTagName)
-      await givenTagIsAssignedToFile(provider, testUser, testUserPassword, testFile, newTagName)
+      await givenSystemTagExists(provider, testUser, newTagName)
+      await givenTagIsAssignedToFile(provider, testUser, testFile, newTagName)
       await provider
         .uponReceiving(`as '${testUser}', a REPORT request to get files by tag`)
         .withRequest({
@@ -1621,7 +1621,7 @@ describe('Main: Currently testing files management,', function () {
 
       await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, testFile)
-      await givenSystemTagExists(provider, testUser, testUserPassword, newTagName)
+      await givenSystemTagExists(provider, testUser, newTagName)
       await provider
         .uponReceiving(`as '${testUser}', a PUT request to tag file`)
         .withRequest({

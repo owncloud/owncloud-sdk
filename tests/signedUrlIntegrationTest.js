@@ -18,6 +18,8 @@ describe('Signed urls', function () {
     createProvider
   } = require('./helpers/pactHelper.js')
 
+  const { givenFileExists } = require('./helpers/providerStateHelper')
+
   const getSigningKeyInteraction = (provider, username, password) => {
     return provider
       .given('the user is recreated', { username: username, password: password })
@@ -49,12 +51,8 @@ describe('Signed urls', function () {
   }
 
   const downloadWithSignedURLInteraction = async (provider, username, password) => {
+    await givenFileExists(provider, username, password, `${config.testFolder}/${config.testFile}`)
     await provider
-      .given('file exists', {
-        fileName: `${config.testFolder}/${config.testFile}`,
-        username: username,
-        password: password
-      })
       .given('signed-key is returned', {
         username: username,
         password: password,

@@ -42,12 +42,13 @@ const givenGroupDoesNotExist = (provider, group) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} resource file name
+ * @param {string} password
+ * @param {string} resource file name
+ * @param {string} content
  */
-const givenFileExists = (provider, username, password, resource) => {
+const givenFileExists = (provider, username, password, resource, content) => {
   return provider
-    .given('file exists', { username, password, fileName: resource })
+    .given('file exists', { username, password, fileName: resource, content })
 }
 
 /**

@@ -15,7 +15,8 @@ const OwnCloud = require('../../src/owncloud')
 
 const {
   givenGroupExists,
-  givenFolderExists
+  givenFolderExists,
+  givenFileExists
 } = require('../helpers/providerStateHelper')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
@@ -183,7 +184,7 @@ const createOwncloud = function (username = adminUsername, password = adminPassw
 }
 // [OCIS] Trying to access a non-existing resource returns an empty body
 // https://github.com/owncloud/ocis/issues/1282
-const getContentsOfFileInteraction = (
+const getContentsOfFileInteraction = async (
   provider, file,
   user = adminUsername,
   password = adminPassword
@@ -192,12 +193,7 @@ const getContentsOfFileInteraction = (
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (file !== config.nonExistentFile) {
-    provider
-      .given('file exists', {
-        fileName: file,
-        username: user,
-        password: password
-      })
+    await givenFileExists(provider, user, password, file)
   }
   return provider
     .uponReceiving(`as '${user}', a GET request to get contents of a file '${file}'`)
@@ -231,11 +227,7 @@ const deleteResourceInteraction = async (
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
-    provider.given('file exists', {
-      fileName: resource,
-      username: user,
-      password: password
-    })
+    await givenFileExists(provider, user, password, resource)
     response = {
       status: 200,
       headers: xmlResponseHeaders,

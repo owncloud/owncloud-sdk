@@ -599,12 +599,8 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-        .given('file exists', {
-          fileName: encodedSrcFilePath,
-          username: testUser,
-          password: testUserPassword
-        })
-        .given('provider base url is returned')
+      await givenFileExists(provider, testUser, testUserPassword, encodedSrcFilePath)
+      provider.given('provider base url is returned')
       await moveFileInteraction(
         provider,
         'same name',
@@ -649,12 +645,8 @@ describe('Main: Currently testing files management,', function () {
           password: testUserPassword
         })
       await givenFolderExists(provider, testUser, testUserPassword, desFolder)
+      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
       await provider
-        .given('file exists', {
-          fileName: srcFilePath,
-          username: testUser,
-          password: testUserPassword
-        })
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a MOVE request to move existent file into different folder`)
         .withRequest({
@@ -1111,12 +1103,8 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-        .given('file exists', {
-          fileName: srcFilePath,
-          username: testUser,
-          password: testUserPassword
-        })
-        .given('provider base url is returned')
+      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
+      provider.given('provider base url is returned')
       await moveFileInteraction(
         provider,
         'different name',
@@ -1160,11 +1148,8 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-        .given('file exists', {
-          fileName: srcFilePath,
-          username: testUser,
-          password: testUserPassword
-        })
+      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
+      await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into same folder, different name`)
         .withRequest({
@@ -1210,11 +1195,7 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-        .given('file exists', {
-          fileName: srcFilePath,
-          username: testUser,
-          password: testUserPassword
-        })
+      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
       await givenFolderExists(provider, testUser, testUserPassword, `${testFolder}/subdir/`)
       await provider
         .given('provider base url is returned')

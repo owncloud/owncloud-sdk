@@ -18,7 +18,10 @@ describe('Main: Currently testing group management,', function () {
     createOwncloud
   } = require('./helpers/pactHelper.js')
 
-  const { givenGroupExists } = require('./helpers/providerStateHelper')
+  const {
+    givenGroupExists,
+    givenGroupDoesNotExist
+  } = require('./helpers/providerStateHelper')
 
   async function getGroupsInteraction (provider) {
     await givenGroupExists(provider, 'admin')
@@ -56,8 +59,7 @@ describe('Main: Currently testing group management,', function () {
 
   async function deleteGroupInteraction (provider, group, responseBody) {
     if (group === config.nonExistentGroup) {
-      await provider
-        .given('group does not exist', { groupName: group })
+      await givenGroupDoesNotExist(provider, group)
     } else {
       await givenGroupExists(provider, group)
     }
@@ -207,8 +209,9 @@ describe('Main: Currently testing group management,', function () {
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
     const headers = { ...validAdminAuthHeaders, ...{ 'Content-Type': 'application/x-www-form-urlencoded' } }
+
+    await givenGroupDoesNotExist(provider, config.testGroup)
     await provider
-      .given('group does not exist', { groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a POST request to create a group`)
       .withRequest({
         method: 'POST',

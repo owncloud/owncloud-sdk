@@ -114,9 +114,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
     await givenUserExists(provider, sharee)
     await givenGroupExists(provider, testGroup)
     // shares file/folder with user, group and public link
-    await givenPublicShareExists(provider, sharer, sharerPassword, resource)
-    await givenUserShareExists(provider, sharer, sharerPassword, resource, sharee)
-    await givenGroupShareExists(provider, sharer, sharerPassword, resource, testGroup)
+    await givenPublicShareExists(provider, sharer, resource)
+    await givenUserShareExists(provider, sharer, resource, sharee)
+    await givenGroupShareExists(provider, sharer, resource, testGroup)
 
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {

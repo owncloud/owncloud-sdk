@@ -87,8 +87,7 @@ const givenResourceIsDeleted = (provider, username, resource) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} path
+ * @param {string} path
  * @param {string} shareWith
  * @param {object} optionalParams
  * available optional parameters
@@ -99,7 +98,6 @@ const givenResourceIsDeleted = (provider, username, resource) => {
 const givenUserShareExists = (
   provider,
   username,
-  userPassword,
   path,
   shareWith,
   optionalParams
@@ -107,7 +105,6 @@ const givenUserShareExists = (
   return provider
     .given('resource is shared', {
       username,
-      userPassword,
       path,
       shareType: SHARE_TYPE.user,
       shareWith,
@@ -120,8 +117,7 @@ const givenUserShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} path
+ * @param {string} path
  * @param {string} shareWith
  * @param {object} optionalParams
  * available optional parameters
@@ -132,7 +128,6 @@ const givenUserShareExists = (
 const givenGroupShareExists = (
   provider,
   username,
-  userPassword,
   path,
   shareWith,
   optionalParams
@@ -140,7 +135,6 @@ const givenGroupShareExists = (
   return provider
     .given('resource is shared', {
       username,
-      userPassword,
       path,
       shareType: SHARE_TYPE.group,
       shareWith,
@@ -153,8 +147,7 @@ const givenGroupShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} path
+ * @param {string} path
  * @param {object} optionalParams
  * available optional parameters
  * - name
@@ -167,14 +160,12 @@ const givenGroupShareExists = (
 const givenPublicShareExists = (
   provider,
   username,
-  userPassword,
   path,
   optionalParams
 ) => {
   return provider
     .given('resource is shared', {
       username,
-      userPassword,
       path,
       shareType: SHARE_TYPE.public,
       ...optionalParams
@@ -186,9 +177,9 @@ const givenPublicShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} resource
- * @param {sring} resourceType
+ * @param {string} password
+ * @param {string} resource
+ * @param {string} resourceType
  */
 const givenFileFolderIsCreated = (provider, username, password, resource, resourceType) => {
   if (resourceType === 'folder') {
@@ -203,10 +194,9 @@ const givenFileFolderIsCreated = (provider, username, password, resource, resour
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} resource
+ * @param {string} resource
  * @param {number} shareType
- * @param {sring} shareWith
+ * @param {string} shareWith
  * @param {number} permissions
  * @param {string} expireDate
  * @param {object} attributes
@@ -216,7 +206,6 @@ const givenFileFolderIsCreated = (provider, username, password, resource, resour
 const givenResourceIsShared = async (
   provider,
   username,
-  userPassword,
   resource,
   shareType,
   shareWith,
@@ -230,7 +219,6 @@ const givenResourceIsShared = async (
     return givenPublicShareExists(
       provider,
       username,
-      userPassword,
       resource,
       {
         permissions,
@@ -245,7 +233,6 @@ const givenResourceIsShared = async (
     return givenUserShareExists(
       provider,
       username,
-      userPassword,
       resource,
       shareWith,
       {
@@ -259,7 +246,6 @@ const givenResourceIsShared = async (
     return givenGroupShareExists(
       provider,
       username,
-      userPassword,
       resource,
       shareWith,
       {
@@ -278,8 +264,8 @@ const givenResourceIsShared = async (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} path
+ * @param {string} password
+ * @param {string} path
  */
 const givenFileIsMarkedFavorite = (provider, username, password, path) => {
   return provider
@@ -291,8 +277,8 @@ const givenFileIsMarkedFavorite = (provider, username, password, path) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} tag tag name
+ * @param {string} password
+ * @param {string} tag tag name
  */
 const givenSystemTagExists = (provider, username, password, tag) => {
   return provider
@@ -304,9 +290,9 @@ const givenSystemTagExists = (provider, username, password, tag) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} fileName
- * @param {sring} tagName
+ * @param {string} password
+ * @param {string} fileName
+ * @param {string} tagName
  */
 const givenTagIsAssignedToFile = (provider, username, password, fileName, tagName) => {
   return provider

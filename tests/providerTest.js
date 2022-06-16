@@ -243,8 +243,8 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
-        const { username, userPassword, ...shareParams } = parameters
-        const response = shareResource(username, userPassword, shareParams)
+        const { username, ...shareParams } = parameters
+        const response = shareResource(username, shareParams)
         const { status } = getOCSMeta(response)
 
         chai.assert.strictEqual(status, 'ok', `Sharing file/folder '${parameters.path}' failed`)

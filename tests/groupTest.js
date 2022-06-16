@@ -18,10 +18,12 @@ describe('Main: Currently testing group management,', function () {
     createOwncloud
   } = require('./helpers/pactHelper.js')
 
+  const { givenGroupExists } = require('./helpers/providerStateHelper')
+
   async function getGroupsInteraction (provider) {
+    await givenGroupExists(provider, 'admin')
+    await givenGroupExists(provider, config.testGroup)
     await provider
-      .given('group exists', { groupName: 'admin' })
-      .given('group exists', { groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all groups`)
       .withRequest({
         method: 'GET',
@@ -57,8 +59,7 @@ describe('Main: Currently testing group management,', function () {
       await provider
         .given('group does not exist', { groupName: group })
     } else {
-      await provider
-        .given('group exists', { groupName: group })
+      await givenGroupExists(provider, group)
     }
 
     await provider
@@ -135,8 +136,9 @@ describe('Main: Currently testing group management,', function () {
     provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
+
+    await givenGroupExists(provider, config.testGroup)
     await provider
-      .given('group exists', { groupName: config.testGroup })
       .given('the user is recreated', { username: testUser, password: testUserPassword })
       .given('user is added to group', { username: testUser, groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all members of existing group`)

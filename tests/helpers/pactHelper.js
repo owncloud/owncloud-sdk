@@ -13,6 +13,8 @@ const adminPasswordHash = Buffer.from(adminUsername + ':' + adminPassword, 'bina
 const path = require('path')
 const OwnCloud = require('../../src/owncloud')
 
+const { givenGroupExists } = require('./helpers/providerStateHelper')
+
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
 const accessControlAllowMethods = 'GET,OPTIONS,POST,PUT,DELETE,MKCOL,PROPFIND,PATCH,PROPPATCH,REPORT,COPY,MOVE,HEAD,LOCK,UNLOCK'
 const origin = 'http://localhost:9876'
@@ -402,9 +404,9 @@ const createUserInteraction = function (provider) {
     })
 }
 
-const createUserWithGroupMembershipInteraction = function (provider) {
+const createUserWithGroupMembershipInteraction = async function (provider) {
+  await givenGroupExists(provider, config.testGroup)
   return provider
-    .given('group exists', { groupName: config.testGroup })
     .uponReceiving(`as '${adminUsername}', a POST request to create a user with group membership`)
     .withRequest({
       method: 'POST',

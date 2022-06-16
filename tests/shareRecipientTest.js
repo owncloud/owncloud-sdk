@@ -15,11 +15,14 @@ describe('Main: Currently testing share recipient,', function () {
     createProvider
   } = require('./helpers/pactHelper.js')
 
-  const getShareesInteraction = (provider, folder = config.testFolder) => {
+  const { givenGroupExists } = require('./helpers/providerStateHelper')
+
+  const getShareesInteraction = async (provider, folder = config.testFolder) => {
     provider
       .given('the user is recreated', { username: sharer, password: sharerPassword })
       .given('the user is recreated', { username: receiver, password: receiverPassword })
-      .given('group exists', { groupName: config.testGroup })
+    await givenGroupExists(provider, config.testGroup)
+
     return provider
       .uponReceiving(`as '${sharer}', a GET request to get share recipients (both users and groups)`)
       .withRequest({

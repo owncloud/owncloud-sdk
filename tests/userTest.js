@@ -18,7 +18,14 @@ describe('Main: Currently testing user management,', function () {
     createOwncloud,
     createProvider
   } = require('./helpers/pactHelper.js')
-  const { validAdminAuthHeaders, xmlResponseHeaders, applicationFormUrlEncoded } = require('./helpers/pactHelper.js')
+  const {
+    validAdminAuthHeaders,
+    xmlResponseHeaders,
+    applicationFormUrlEncoded
+  } = require('./helpers/pactHelper.js')
+
+  const { givenGroupExists } = require('./helpers/providerStateHelper')
+
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
     if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
@@ -108,8 +115,7 @@ describe('Main: Currently testing user management,', function () {
         .given('the user is recreated', { username: username, password: testUserPassword })
     }
     if (group !== config.nonExistentGroup) {
-      await provider
-        .given('group exists', { groupName: group })
+      await givenGroupExists(provider, group)
     }
 
     return provider
@@ -150,8 +156,8 @@ describe('Main: Currently testing user management,', function () {
     if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
         .given('the user is recreated', { username: username, password: testUserPassword })
-        .given('group exists', { groupName: config.testGroup })
-        .given('user is added to group', { username: username, groupName: config.testGroup })
+      await givenGroupExists(provider, config.testGroup)
+      await provider.given('user is added to group', { username: username, groupName: config.testGroup })
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a GET request to get groups of ${requestName}`)
@@ -182,8 +188,7 @@ describe('Main: Currently testing user management,', function () {
         .given('the user is recreated', { username: username, password: testUserPassword })
     }
     if (group !== config.nonExistentGroup) {
-      await provider
-        .given('group exists', { groupName: group })
+      await givenGroupExists(provider, group)
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a DELETE request to remove ${requestName}`)
@@ -222,8 +227,7 @@ describe('Main: Currently testing user management,', function () {
         .given('the user is recreated', { username: username, password: testUserPassword })
     }
     if (group !== config.nonExistentGroup) {
-      await provider
-        .given('group exists', { groupName: group })
+      await givenGroupExists(provider, group)
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a POST request to make ${requestName}`)
@@ -253,8 +257,8 @@ describe('Main: Currently testing user management,', function () {
     if (username !== adminUsername && username !== config.nonExistentUser) {
       await provider
         .given('the user is recreated', { username: username, password: testUserPassword })
-        .given('group exists', { groupName: config.testGroup })
-        .given('user is made group subadmin', { username: username, groupName: config.testGroup })
+      await givenGroupExists(provider, config.testGroup)
+      await provider.given('user is made group subadmin', { username: username, groupName: config.testGroup })
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a GET request to get subadmin groups of ${requestName}`)

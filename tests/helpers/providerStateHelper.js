@@ -357,6 +357,25 @@ const givenFolderExistsInLastPublicShare = (provider, folderName, password) => {
   })
 }
 
+/**
+ * @param {object} provider
+ * @param {string} fileName
+ * @param {string} password
+ * @param {string} content
+ */
+const givenFileExistsInLastPublicShare = (
+  provider,
+  fileName,
+  password,
+  content
+) => {
+  return provider.given('file exists in last shared public share', {
+    fileName,
+    password,
+    content
+  })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -377,5 +396,6 @@ module.exports = {
   givenFileVersionLinkIsReturned,
   givenUserIsMadeGroupSubadmin,
   givenUserIsAddedToGroup,
-  givenFolderExistsInLastPublicShare
+  givenFolderExistsInLastPublicShare,
+  givenFileExistsInLastPublicShare
 }

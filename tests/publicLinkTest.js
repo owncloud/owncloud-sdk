@@ -36,7 +36,8 @@ describe('oc.publicFiles', function () {
     givenPublicShareExists,
     givenFolderExists,
     givenFileExists,
-    givenProviderBaseUrlIsReturned
+    givenProviderBaseUrlIsReturned,
+    givenFolderExistsInLastPublicShare
   } = require('./helpers/providerStateHelper')
 
   const publicLinkShareTokenPath = MatchersV3.fromProviderState(
@@ -562,7 +563,8 @@ describe('oc.publicFiles', function () {
               permissions: data.shareParams.permissions
             }
           )
-          await provider.given('folder exists in last shared public share', { folderName: 'foo', password: data.shareParams.password })
+          await givenFolderExistsInLastPublicShare(provider, 'foo', data.shareParams.password)
+          await provider
             .given('file exists in last shared public share', { fileName: testFile, password: data.shareParams.password })
             .uponReceiving(`as '${testUser}', a MOVE request to move a file to subfolder in public share ${data.description}`)
             .withRequest({
@@ -606,7 +608,8 @@ describe('oc.publicFiles', function () {
               permissions: data.shareParams.permissions
             }
           )
-          await provider.given('folder exists in last shared public share', { folderName: 'foo', password: data.shareParams.password })
+          await givenFolderExistsInLastPublicShare(provider, 'foo', data.shareParams.password)
+          await provider
             .uponReceiving(`as '${testUser}', a MOVE request to move a folder to different name in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',

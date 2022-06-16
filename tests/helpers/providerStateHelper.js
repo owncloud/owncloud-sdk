@@ -345,6 +345,18 @@ const givenUserIsAddedToGroup = (provider, username, groupName) => {
   })
 }
 
+/**
+ * @param {object} provider
+ * @param {string} folderName
+ * @param {string} password
+ */
+const givenFolderExistsInLastPublicShare = (provider, folderName, password) => {
+  return provider.given('folder exists in last shared public share', {
+    folderName,
+    password
+  })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -364,5 +376,6 @@ module.exports = {
   givenProviderBaseUrlIsReturned,
   givenFileVersionLinkIsReturned,
   givenUserIsMadeGroupSubadmin,
-  givenUserIsAddedToGroup
+  givenUserIsAddedToGroup,
+  givenFolderExistsInLastPublicShare
 }

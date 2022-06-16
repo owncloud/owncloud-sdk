@@ -122,14 +122,13 @@ describe('Main: Currently testing file versions management,', function () {
         username: testUser,
         password: testUserPassword
       })
-      await givenFileExists(provider, testUser, testUserPassword, versionedFile)
+      await givenFileExists(provider, testUser, versionedFile)
       await provider
         .given('the client waits', { delay: 2000 })
       // re-upload the same file to create a new version
       await givenFileExists(
         provider,
         testUser,
-        testUserPassword,
         versionedFile,
         fileInfo.versions[0].content
       )
@@ -137,7 +136,6 @@ describe('Main: Currently testing file versions management,', function () {
       await givenFileExists(
         provider,
         testUser,
-        testUserPassword,
         versionedFile,
         fileInfo.versions[1].content
       )
@@ -149,77 +147,43 @@ describe('Main: Currently testing file versions management,', function () {
           password: testUserPassword,
           number: 1
         })
-        .uponReceiving(
-          `as '${testUser}', a PROPFIND request to get file versions of existent file`
-        )
+        .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of existent file`)
         .withRequest({
           method: 'PROPFIND',
           path: MatchersV3.fromProviderState(
-            '/remote.php/dav/meta/${fileId}/v' /* eslint-disable-line no-template-curly-in-string */,
+            '/remote.php/dav/meta/${fileId}/v', /* eslint-disable-line no-template-curly-in-string */
             `/remote.php/dav/meta/${fileInfo.id}/v`
           ),
-          headers: {
-            authorization: getAuthHeaders(testUser, testUserPassword),
-            ...applicationXmlResponseHeaders
-          },
-          body: new XmlBuilder('1.0', '', 'd:propfind').build((dPropfind) => {
-            dPropfind.setAttributes({
-              'xmlns:d': 'DAV:',
-              'xmlns:oc': 'http://owncloud.org/ns'
-            })
+          headers: { authorization: getAuthHeaders(testUser, testUserPassword), ...applicationXmlResponseHeaders },
+          body: new XmlBuilder('1.0', '', 'd:propfind').build(dPropfind => {
+            dPropfind.setAttributes({ 'xmlns:d': 'DAV:', 'xmlns:oc': 'http://owncloud.org/ns' })
             dPropfind.appendElement('d:prop', '', '')
           })
         })
         .willRespondWith({
           status: 207,
           headers: applicationXmlResponseHeaders,
-          body: new XmlBuilder('1.0', '', 'd:multistatus').build(
-            (dMultistatus) => {
-              dMultistatus.setAttributes({
-                'xmlns:d': 'DAV:',
-                'xmlns:s': 'http://sabredav.org/ns',
-                'xmlns:oc': 'http://owncloud.org/ns'
-              })
-              const node = dMultistatus.appendElement(
-                'd:response',
-                '',
-                (dResponse) => {
-                  dResponse
-                    .appendElement(
-                      'd:href',
-                      '',
-                      MatchersV3.regex(
-                        '.*\\/remote\\.php\\/dav\\/meta\\/.*\\/v$',
-                        `/remote.php/dav/meta/${fileInfo.id}/v/`
-                      )
-                    )
-                    .appendElement('d:propstat', '', (dPropstat) => {
-                      dPropstat
-                        .appendElement('d:prop', '', (dProp) => {
-                          dProp.appendElement(
-                            'd:resourcetype',
-                            '',
-                            (dResourceType) => {
-                              dResourceType.appendElement(
-                                'd:collection',
-                                '',
-                                ''
-                              )
-                            }
-                          )
-                        })
-                        .appendElement(
-                          'd:status',
-                          '',
-                          MatchersV3.equal('HTTP/1.1 200 OK')
-                        )
-                    })
-                }
-              )
-              propfindFileVersionsResponse(node, 1, 14)
-              propfindFileVersionsResponse(node, 0, 6)
-            }
-          )
+          body: new XmlBuilder('1.0', '', 'd:multistatus').build(dMultistatus => {
+            dMultistatus.setAttributes({
+              'xmlns:d': 'DAV:',
+              'xmlns:s': 'http://sabredav.org/ns',
+              'xmlns:oc': 'http://owncloud.org/ns'
+            })
+            const node = dMultistatus.appendElement('d:response', '', dResponse => {
+              dResponse.appendElement('d:href', '', MatchersV3.regex('.*\\/remote\\.php\\/dav\\/meta\\/.*\\/v$', `/remote.php/dav/meta/${fileInfo.id}/v/`))
+                .appendElement('d:propstat', '', dPropstat => {
+                  dPropstat.appendElement('d:prop', '', dProp => {
+                    dProp
+                      .appendElement('d:resourcetype', '', dResourceType => {
+                        dResourceType.appendElement('d:collection', '', '')
+                      })
+                  })
+                    .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
+                })
+            })
+            propfindFileVersionsResponse(node, 1, 14)
+            propfindFileVersionsResponse(node, 0, 6)
+          })
         })
     }
     const getFileVersionContents = async (provider, i) => {
@@ -227,12 +191,11 @@ describe('Main: Currently testing file versions management,', function () {
         username: testUser,
         password: testUserPassword
       })
-      await givenFileExists(provider, testUser, testUserPassword, versionedFile)
+      await givenFileExists(provider, testUser, versionedFile)
       await provider.given('the client waits', { delay: 2000 })
       await givenFileExists(
         provider,
         testUser,
-        testUserPassword,
         versionedFile,
         fileInfo.versions[0].content
       )
@@ -240,7 +203,6 @@ describe('Main: Currently testing file versions management,', function () {
       await givenFileExists(
         provider,
         testUser,
-        testUserPassword,
         versionedFile,
         fileInfo.versions[1].content
       )
@@ -309,9 +271,9 @@ describe('Main: Currently testing file versions management,', function () {
           username: testUser,
           password: testUserPassword
         })
-      await givenFileExists(provider, testUser, testUserPassword, versionedFile)
+      await givenFileExists(provider, testUser, versionedFile)
       // re-upload the same file to create a new version
-      await givenFileExists(provider, testUser, testUserPassword, versionedFile, 'new content')
+      await givenFileExists(provider, testUser, versionedFile, 'new content')
       await provider
         .given('file version link is returned', {
           fileName: versionedFile,

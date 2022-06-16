@@ -211,7 +211,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: testFolder,
@@ -239,7 +239,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: testFolder,
@@ -360,7 +360,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: path.join(testFolder, testFile),
@@ -406,7 +406,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in original location`)
           .withRequest({
@@ -483,7 +483,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: path.join(testFolder, testFile),
@@ -534,7 +534,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFolderExists(provider, testUser, testUserPassword, originalLocation)
+        await givenFolderExists(provider, testUser, originalLocation)
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in new location`)
           .withRequest({
@@ -609,8 +609,8 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFolderExists(provider, testUser, testUserPassword, testFolder)
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFolderExists(provider, testUser, testFolder)
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: path.join(testFolder, testFile),
@@ -703,7 +703,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: path.join(testFolder, testFile),
@@ -746,7 +746,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored file in original location`)
           .withRequest({
@@ -823,7 +823,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: path.join(testFolder, testFile),
@@ -853,7 +853,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, '/file (restored to a different location).txt')
+        await givenFileExists(provider, testUser, '/file (restored to a different location).txt')
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to trash items after restoring deleting file to new location`)
           .withRequest({
@@ -875,7 +875,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, '/file (restored to a different location).txt')
+        await givenFileExists(provider, testUser, '/file (restored to a different location).txt')
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored file in new location`)
           .withRequest({
@@ -946,7 +946,7 @@ describe('oc.fileTrash', function () {
             username: testUser,
             password: testUserPassword
           })
-        await givenFileExists(provider, testUser, testUserPassword, path.join(testFolder, testFile))
+        await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .given('resource is deleted', {
             resourcePath: path.join(testFolder, testFile),

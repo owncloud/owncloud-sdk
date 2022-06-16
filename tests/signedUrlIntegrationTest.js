@@ -51,7 +51,7 @@ describe('Signed urls', function () {
   }
 
   const downloadWithSignedURLInteraction = async (provider, username, password) => {
-    await givenFileExists(provider, username, password, `${config.testFolder}/${config.testFile}`)
+    await givenFileExists(provider, username, `${config.testFolder}/${config.testFile}`)
     await provider
       .given('signed-key is returned', {
         username: username,

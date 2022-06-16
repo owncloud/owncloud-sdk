@@ -193,7 +193,7 @@ const getContentsOfFileInteraction = async (
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (file !== config.nonExistentFile) {
-    await givenFileExists(provider, user, password, file)
+    await givenFileExists(provider, user, file)
   }
   return provider
     .uponReceiving(`as '${user}', a GET request to get contents of a file '${file}'`)
@@ -227,7 +227,7 @@ const deleteResourceInteraction = async (
       body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentDir))
     }
   } else if (type === 'file') {
-    await givenFileExists(provider, user, password, resource)
+    await givenFileExists(provider, user, resource)
     response = {
       status: 200,
       headers: xmlResponseHeaders,
@@ -238,7 +238,7 @@ const deleteResourceInteraction = async (
       })
     }
   } else {
-    await givenFolderExists(provider, user, password, resource)
+    await givenFolderExists(provider, user, resource)
     response = {
       status: 204
     }
@@ -460,7 +460,7 @@ const createFolderInteraction = async function (
     recrusivePath += path.sep + folders[i]
   }
   if (recrusivePath !== '') {
-    await givenFolderExists(provider, user, password, recrusivePath)
+    await givenFolderExists(provider, user, recrusivePath)
   }
   const encodedFolderName = encodeURIPath(folderName)
   return provider
@@ -484,7 +484,7 @@ const updateFileInteraction = async function (provider, file, user = adminUserna
     provider.given('the user is recreated', { username: user, password: password })
   }
   if (!file.includes('nonExistent')) {
-    await givenFolderExists(provider, user, password, path.dirname(file))
+    await givenFolderExists(provider, user, path.dirname(file))
   }
 
   const etagMatcher = MatchersV3.regex(/^"[a-f0-9:.]{1,32}"$/, config.testFileEtag)

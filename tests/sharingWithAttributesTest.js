@@ -41,7 +41,7 @@ describe('oc.shares', function () {
     await provider
       .given('the user is recreated', { username: sharer, password: sharerPassword })
       .given('the user is recreated', { username: receiver, password: receiverPassword })
-    await givenFileExists(provider, sharer, sharerPassword, testFile, 'a test file')
+    await givenFileExists(provider, sharer, testFile, 'a test file')
     return provider
       .uponReceiving(`as '${sharer}', a POST request to share a file with permissions in attributes`)
       .withRequest({

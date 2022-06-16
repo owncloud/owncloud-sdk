@@ -109,12 +109,12 @@ describe('Main: Currently testing files management,', function () {
     await givenUserExists(provider, testUser, testUserPassword)
     if (parentFolder !== nonExistentFile) {
       for (let i = 0; i < files.length; i++) {
-        await givenFileExists(provider, testUser, testUserPassword, parentFolder + '/' + files[i])
+        await givenFileExists(provider, testUser, parentFolder + '/' + files[i])
       }
     }
     if (parentFolder !== nonExistentFile) {
       for (let i = 0; i < folders.length; i++) {
-        await givenFolderExists(provider, testUser, testUserPassword, parentFolder + '/' + folders[i])
+        await givenFolderExists(provider, testUser, parentFolder + '/' + folders[i])
       }
     }
     return provider.uponReceiving(`as '${testUser}', a PROPFIND request to list content of folder, ${requestName}`)
@@ -185,7 +185,7 @@ describe('Main: Currently testing files management,', function () {
 
   const favoriteFileInteraction = async (provider, value, file) => {
     await givenUserExists(provider, testUser, testUserPassword)
-    await givenFileExists(provider, testUser, testUserPassword, file)
+    await givenFileExists(provider, testUser, file)
     return provider.uponReceiving(`as '${testUser}', a PROPPATCH request to ${value === true ? 'favorite' : 'unfavorite'} a file`)
       .withRequest({
         method: 'PROPPATCH',
@@ -599,7 +599,7 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-      await givenFileExists(provider, testUser, testUserPassword, encodedSrcFilePath)
+      await givenFileExists(provider, testUser, encodedSrcFilePath)
       provider.given('provider base url is returned')
       await moveFileInteraction(
         provider,
@@ -644,8 +644,8 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-      await givenFolderExists(provider, testUser, testUserPassword, desFolder)
-      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
+      await givenFolderExists(provider, testUser, desFolder)
+      await givenFileExists(provider, testUser, srcFilePath)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a MOVE request to move existent file into different folder`)
@@ -726,7 +726,7 @@ describe('Main: Currently testing files management,', function () {
         provider, testUser, testUserPassword
       )
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, file)
+      await givenFileExists(provider, testUser, file)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into same folder, same name`)
@@ -808,7 +808,7 @@ describe('Main: Currently testing files management,', function () {
       )
       const file = `${testFolder}/${testFile}`
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, file)
+      await givenFileExists(provider, testUser, file)
       await provider
         .uponReceiving(`as '${testUser}', a PROPFIND request to path for fileId`)
         .withRequest({
@@ -874,7 +874,7 @@ describe('Main: Currently testing files management,', function () {
       )
       const file = `${testFolder}/${testFile}`
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, file)
+      await givenFileExists(provider, testUser, file)
       await provider
         .uponReceiving(`as '${testUser}', a PROPFIND request to file info, fileId`)
         .withRequest({
@@ -1020,7 +1020,7 @@ describe('Main: Currently testing files management,', function () {
         provider, testUser, testUserPassword
       )
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, testFile)
+      await givenFileExists(provider, testUser, testFile)
       await tusSupportRequest(provider)
 
       return provider.executeTest(async () => {
@@ -1047,8 +1047,8 @@ describe('Main: Currently testing files management,', function () {
       )
       const dir = 'somedir'
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFolderExists(provider, testUser, testUserPassword, dir)
-      await givenFileExists(provider, testUser, testUserPassword, dir + '/' + testFile)
+      await givenFolderExists(provider, testUser, dir)
+      await givenFileExists(provider, testUser, dir + '/' + testFile)
       await tusSupportRequest(provider, true, dir)
 
       return provider.executeTest(async () => {
@@ -1071,7 +1071,7 @@ describe('Main: Currently testing files management,', function () {
         provider, testUser, testUserPassword
       )
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, testFile)
+      await givenFileExists(provider, testUser, testFile)
       await tusSupportRequest(provider, false)
 
       return provider.executeTest(async () => {
@@ -1103,7 +1103,7 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
+      await givenFileExists(provider, testUser, srcFilePath)
       provider.given('provider base url is returned')
       await moveFileInteraction(
         provider,
@@ -1148,7 +1148,7 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
+      await givenFileExists(provider, testUser, srcFilePath)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into same folder, different name`)
@@ -1195,8 +1195,8 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-      await givenFileExists(provider, testUser, testUserPassword, srcFilePath)
-      await givenFolderExists(provider, testUser, testUserPassword, `${testFolder}/subdir/`)
+      await givenFileExists(provider, testUser, srcFilePath)
+      await givenFolderExists(provider, testUser, `${testFolder}/subdir/`)
       await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into different folder`)
@@ -1289,7 +1289,7 @@ describe('Main: Currently testing files management,', function () {
         provider, testUser, testUserPassword
       )
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, file)
+      await givenFileExists(provider, testUser, file)
       await givenFileIsMarkedFavorite(provider, testUser, testUserPassword, file)
       await provider
         .uponReceiving(`as '${testUser}', a REPORT request to get favorite file`)
@@ -1359,7 +1359,7 @@ describe('Main: Currently testing files management,', function () {
         provider, testUser, testUserPassword
       )
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, file)
+      await givenFileExists(provider, testUser, file)
       await provider
         .uponReceiving(`as '${testUser}', a REPORT request to get favorite file when there are no favorites`)
         .withRequest({
@@ -1425,7 +1425,7 @@ describe('Main: Currently testing files management,', function () {
       const filename = 'abc.txt'
       const filePath = testFolder + '/' + filename
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, filePath)
+      await givenFileExists(provider, testUser, filePath)
       await provider
         .uponReceiving(`as '${testUser}', a REPORT request to search in the instance`)
         .withRequest({
@@ -1538,7 +1538,7 @@ describe('Main: Currently testing files management,', function () {
       )
 
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, testFile)
+      await givenFileExists(provider, testUser, testFile)
       await givenSystemTagExists(provider, testUser, testUserPassword, newTagName)
       await givenTagIsAssignedToFile(provider, testUser, testUserPassword, testFile, newTagName)
       await provider
@@ -1633,7 +1633,7 @@ describe('Main: Currently testing files management,', function () {
       )
 
       await givenUserExists(provider, testUser, testUserPassword)
-      await givenFileExists(provider, testUser, testUserPassword, testFile)
+      await givenFileExists(provider, testUser, testFile)
       await givenSystemTagExists(provider, testUser, testUserPassword, newTagName)
       await provider
         .uponReceiving(`as '${testUser}', a PUT request to tag file`)

@@ -177,11 +177,10 @@ const givenPublicShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {string} password
  * @param {string} resource
  * @param {string} resourceType
  */
-const givenFileFolderIsCreated = (provider, username, password, resource, resourceType) => {
+const givenFileFolderIsCreated = (provider, username, resource, resourceType) => {
   if (resourceType === 'folder') {
     return givenFolderExists(provider, username, resource)
   } else {

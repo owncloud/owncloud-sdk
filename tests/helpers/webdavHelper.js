@@ -250,7 +250,7 @@ const createASystemTag = function (username, password, tag) {
  * @returns {*} result of the fetch request
  */
 const assignTagToFile = function (username, password, fileName, tagName) {
-  const fileId = getFileId(username, password, fileName)
+  const fileId = getFileId(username, fileName)
   const tagId = getTagId(username, password, tagName)
   return httpHelper.put(
     `/systemtags-relations/files/${fileId}/${tagId}`,

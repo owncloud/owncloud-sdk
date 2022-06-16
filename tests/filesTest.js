@@ -643,16 +643,13 @@ describe('Main: Currently testing files management,', function () {
       const desFolder = 'testFolder2'
       const desFilePath = `${desFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/${encodeURI(desFilePath)}`
-      provider
+      await provider
         .given('the user is recreated', {
           username: testUser,
           password: testUserPassword
         })
-        .given('folder exists', {
-          folderName: desFolder,
-          username: testUser,
-          password: testUserPassword
-        })
+      await givenFolderExists(provider, testUser, testUserPassword, desFolder)
+      await provider
         .given('file exists', {
           fileName: srcFilePath,
           username: testUser,
@@ -1218,11 +1215,8 @@ describe('Main: Currently testing files management,', function () {
           username: testUser,
           password: testUserPassword
         })
-        .given('folder exists', {
-          folderName: `${testFolder}/subdir/`,
-          username: testUser,
-          password: testUserPassword
-        })
+      await givenFolderExists(provider, testUser, testUserPassword, `${testFolder}/subdir/`)
+      await provider
         .given('provider base url is returned')
         .uponReceiving(`as '${testUser}', a COPY request to copy existent file into different folder`)
         .withRequest({

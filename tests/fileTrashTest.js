@@ -24,6 +24,8 @@ describe('oc.fileTrash', function () {
     webdavExceptionResponseBody
   } = require('./helpers/pactHelper.js')
 
+  const { givenFolderExists } = require('./helpers/providerStateHelper')
+
   const mockServerBaseUrl = getMockServerBaseUrl()
 
   const deletedFolderId = '2147596415'
@@ -538,17 +540,14 @@ describe('oc.fileTrash', function () {
           ))
       }
 
-      const PropfindToARestoredFolderInNewLocation = provider => {
-        return provider
+      const PropfindToARestoredFolderInNewLocation = async (provider) => {
+        await provider
           .given('the user is recreated', {
             username: testUser,
             password: testUserPassword
           })
-          .given('folder exists', {
-            folderName: originalLocation,
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenFolderExists(provider, testUser, testUserPassword, originalLocation)
+        return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in new location`)
           .withRequest({
             method: 'PROPFIND',
@@ -616,17 +615,14 @@ describe('oc.fileTrash', function () {
 
   describe('when a file is deleted', function () {
     describe('and file is not restored', function () {
-      const propfindTrashItemsBeforeDeletingFile = provider => {
-        return provider
+      const propfindTrashItemsBeforeDeletingFile = async (provider) => {
+        await provider
           .given('the user is recreated', {
             username: testUser,
             password: testUserPassword
           })
-          .given('folder exists', {
-            folderName: testFolder,
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenFolderExists(provider, testUser, testUserPassword, testFolder)
+        return provider
           .given('file exists', {
             fileName: path.join(testFolder, testFile),
             username: testUser,

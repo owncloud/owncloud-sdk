@@ -63,6 +63,17 @@ const givenFolderExists = (provider, username, resource) => {
 }
 
 /**
+ * provider state: delete a given resource
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} resource
+ */
+const givenResourceIsDeleted = (provider, username, resource) => {
+  return provider.given('resource is deleted', { username, resourcePath: resource })
+}
+
+/**
  * provider state: creates a user share
  *
  * @param {object} provider
@@ -299,6 +310,7 @@ module.exports = {
   givenGroupDoesNotExist,
   givenFileExists,
   givenFolderExists,
+  givenResourceIsDeleted,
   givenUserShareExists,
   givenGroupShareExists,
   givenPublicShareExists,

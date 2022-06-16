@@ -26,7 +26,8 @@ describe('oc.fileTrash', function () {
 
   const {
     givenFolderExists,
-    givenFileExists
+    givenFileExists,
+    givenResourceIsDeleted
   } = require('./helpers/providerStateHelper')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -212,12 +213,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, testFolder)
         return provider
-          .given('resource is deleted', {
-            resourcePath: testFolder,
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a PROPFIND request to list trashbin items`)
           .withRequest(requestMethod(
             'PROPFIND',
@@ -240,12 +237,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, testFolder)
         return provider
-          .given('resource is deleted', {
-            resourcePath: testFolder,
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a PROPFIND request to list item within a deleted folder`)
           .withRequest(requestMethod(
             'PROPFIND',
@@ -361,12 +354,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
-          .given('resource is deleted', {
-            resourcePath: path.join(testFolder, testFile),
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a MOVE request to restore folder from trashbin to fileslist to original location`)
           .withRequest({
             method: 'MOVE',
@@ -484,12 +473,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
-          .given('resource is deleted', {
-            resourcePath: path.join(testFolder, testFile),
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a MOVE request to restore folder from trashbin to fileslist to a different location`)
           .withRequest({
             method: 'MOVE',
@@ -611,12 +596,8 @@ describe('oc.fileTrash', function () {
           })
         await givenFolderExists(provider, testUser, testFolder)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
-          .given('resource is deleted', {
-            resourcePath: path.join(testFolder, testFile),
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a PROPFIND request to trash items before deleting file`)
           .withRequest(requestMethod(
             'PROPFIND',
@@ -704,12 +685,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
-          .given('resource is deleted', {
-            resourcePath: path.join(testFolder, testFile),
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a MOVE request to restore file from trashbin to fileslist to a different location`)
           .withRequest({
             method: 'MOVE',
@@ -824,12 +801,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
-          .given('resource is deleted', {
-            resourcePath: path.join(testFolder, testFile),
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a MOVE request to restore file from trashbin to a new location`)
           .withRequest({
             method: 'MOVE',
@@ -947,12 +920,8 @@ describe('oc.fileTrash', function () {
             password: testUserPassword
           })
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
+        await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
-          .given('resource is deleted', {
-            resourcePath: path.join(testFolder, testFile),
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a MOVE request to restore file from trashbin to a non existing location`)
           .withRequest({
             method: 'MOVE',

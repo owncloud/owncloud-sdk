@@ -21,7 +21,8 @@ describe('Main: Currently testing group management,', function () {
   const {
     givenGroupExists,
     givenGroupDoesNotExist,
-    givenUserExists
+    givenUserExists,
+    givenUserIsAddedToGroup
   } = require('./helpers/providerStateHelper')
 
   async function getGroupsInteraction (provider) {
@@ -142,8 +143,8 @@ describe('Main: Currently testing group management,', function () {
 
     await givenGroupExists(provider, config.testGroup)
     await givenUserExists(provider, testUser)
+    await givenUserIsAddedToGroup(provider, testUser, config.testGroup)
     await provider
-      .given('user is added to group', { username: testUser, groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all members of existing group`)
       .withRequest({
         method: 'GET',

@@ -347,6 +347,18 @@ const givenUserIsMadeGroupSubadmin = (provider, username, groupName) => {
   })
 }
 
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} groupName
+ */
+const givenUserIsAddedToGroup = (provider, username, groupName) => {
+  return provider.given('user is added to group', {
+    username,
+    groupName
+  })
+}
+
 module.exports = {
   givenUserExists,
   givenUserDoesNotExist,
@@ -365,5 +377,6 @@ module.exports = {
   givenTagIsAssignedToFile,
   givenProviderBaseUrlIsReturned,
   givenFileVersionLinkIsReturned,
-  givenUserIsMadeGroupSubadmin
+  givenUserIsMadeGroupSubadmin,
+  givenUserIsAddedToGroup
 }

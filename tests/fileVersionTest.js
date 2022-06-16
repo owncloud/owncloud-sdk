@@ -304,7 +304,7 @@ describe('Main: Currently testing file versions management,', function () {
           headers: {
             authorization: getAuthHeaders(testUser, testUserPassword),
             Destination: MatchersV3.fromProviderState(
-              `\${providerBaseURL}${destinationWebDavPath}`,
+              `\${providerBaseURL}/remote.php/dav/${destinationWebDavPath}`,
               `${mockServerBaseUrl}${destinationWebDavPath}`
             )
           }

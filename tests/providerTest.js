@@ -259,8 +259,8 @@ describe('provider testing', () => {
     },
     'folder exists in last shared public share': (setup, parameters) => {
       if (setup) {
-        const { folderName } = parameters
-        const response = createFolderInLastPublicShare(lastSharedToken, folderName)
+        const { folderName, password } = parameters
+        const response = createFolderInLastPublicShare(lastSharedToken, folderName, password)
 
         const { status } = response
         // 405 means that the folder already exists
@@ -274,9 +274,10 @@ describe('provider testing', () => {
       if (setup) {
         const {
           fileName,
+          password,
           content
         } = parameters
-        const response = createFileInLastPublicShare(lastSharedToken, fileName, content)
+        const response = createFileInLastPublicShare(lastSharedToken, fileName, password, content)
 
         const { status } = response
         if (status !== 201 && status !== 204) {

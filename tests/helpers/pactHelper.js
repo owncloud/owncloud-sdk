@@ -97,6 +97,13 @@ const getAuthHeaders = (username, password) => {
   return 'Basic ' + buff.toString('base64')
 }
 
+const getPublicLinkAuthHeader = (password) => {
+  if (!password) {
+    return {}
+  }
+  return { Authorization: 'Basic ' + Buffer.from('public:' + password, 'binary').toString('base64') }
+}
+
 const invalidAuthHeader = 'Basic YWRtaW46bm90QVZhbGlkUGFzc3dvcmQ='
 
 const unauthorizedXmlResponseBody = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -551,6 +558,7 @@ const getMockServerBaseUrl = function () {
 
 module.exports = {
   getAuthHeaders,
+  getPublicLinkAuthHeader,
   getContentsOfFileInteraction,
   deleteResourceInteraction,
   ocsMeta,

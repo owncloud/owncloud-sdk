@@ -27,7 +27,8 @@ describe('oc.fileTrash', function () {
   const {
     givenFolderExists,
     givenFileExists,
-    givenResourceIsDeleted
+    givenResourceIsDeleted,
+    givenUserExists
   } = require('./helpers/providerStateHelper')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -174,11 +175,9 @@ describe('oc.fileTrash', function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
       await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+
+      await givenUserExists(provider, testUser)
       await provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
         .uponReceiving(`as '${testUser}', a PROPFIND request to list empty trash`)
         .withRequest(requestMethod(
           'PROPFIND',
@@ -207,11 +206,7 @@ describe('oc.fileTrash', function () {
   describe('when a folder is deleted', function () {
     describe('and folder is not restored', function () {
       const propfindForTrashbinWithItems = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, testFolder)
         return provider
@@ -231,11 +226,7 @@ describe('oc.fileTrash', function () {
           ))
       }
       const listItemWithinADeletedFolder = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, testFolder)
         return provider
@@ -348,11 +339,7 @@ describe('oc.fileTrash', function () {
     describe('and when this deleted folder is restored to its original location', function () {
       const originalLocation = testFolder
       const moveFolderFromTrashbinToFilesList = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
@@ -390,11 +377,7 @@ describe('oc.fileTrash', function () {
       }
 
       const propfindToARestoredFolderInOriginalLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in original location`)
@@ -467,11 +450,7 @@ describe('oc.fileTrash', function () {
       const urlEncodedFolder = encodeURIComponent(originalLocation)
 
       const MoveFromTrashbinToDifferentLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
@@ -493,12 +472,9 @@ describe('oc.fileTrash', function () {
           ))
       }
 
-      const PropfindToAnEmptytrashbinAfterRestoring = provider => {
+      const PropfindToAnEmptytrashbinAfterRestoring = async (provider) => {
+        await givenUserExists(provider, testUser)
         return provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
           .uponReceiving(`as '${testUser}', a PROPFIND request to an empty trashbin after restoring`)
           .withRequest(requestMethod(
             'PROPFIND',
@@ -514,11 +490,7 @@ describe('oc.fileTrash', function () {
       }
 
       const PropfindToARestoredFolderInNewLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFolderExists(provider, testUser, originalLocation)
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored folder in new location`)
@@ -589,11 +561,7 @@ describe('oc.fileTrash', function () {
   describe('when a file is deleted', function () {
     describe('and file is not restored', function () {
       const propfindTrashItemsBeforeDeletingFile = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFolderExists(provider, testUser, testFolder)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
@@ -679,11 +647,7 @@ describe('oc.fileTrash', function () {
     describe('and when this deleted file is restored to its original location', function () {
       const originalLocation = testFile
       const MoveFromTrashbinToDifferentLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
@@ -718,11 +682,7 @@ describe('oc.fileTrash', function () {
       }
 
       const propfindToARestoredFileInOriginalLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored file in original location`)
@@ -795,11 +755,7 @@ describe('oc.fileTrash', function () {
       const urlEncodedFile = encodeURIComponent(originalLocation)
 
       const MoveFromTrashbinToDifferentLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider
@@ -821,11 +777,7 @@ describe('oc.fileTrash', function () {
           })
       }
       const propfindToARestoredFileInNewLocationEmpty = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, '/file (restored to a different location).txt')
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to trash items after restoring deleting file to new location`)
@@ -843,11 +795,7 @@ describe('oc.fileTrash', function () {
       }
 
       const propfindToARestoredFileInNewLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, '/file (restored to a different location).txt')
         return provider
           .uponReceiving(`as '${testUser}', a PROPFIND request to a restored file in new location`)
@@ -914,11 +862,7 @@ describe('oc.fileTrash', function () {
     // Deleted file cannot be restored to different location
     describe('Trashbin errors should be handled correctly', function () {
       const MoveFromTrashbinToNonExistingLocation = async (provider) => {
-        await provider
-          .given('the user is recreated', {
-            username: testUser,
-            password: testUserPassword
-          })
+        await givenUserExists(provider, testUser)
         await givenFileExists(provider, testUser, path.join(testFolder, testFile))
         await givenResourceIsDeleted(provider, testUser, path.join(testFolder, testFile))
         return provider

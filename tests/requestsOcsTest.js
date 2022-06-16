@@ -3,7 +3,7 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 describe('Main: Currently testing low level OCS', function () {
   const {
     admin: { username: adminUsername },
-    testUser1: { username: testUser, password: testUserPassword }
+    testUser1: { username: testUser }
   } = require('./config/users.json')
 
   const {
@@ -13,6 +13,8 @@ describe('Main: Currently testing low level OCS', function () {
     createOwncloud,
     createProvider
   } = require('./helpers/pactHelper.js')
+
+  const { givenUserExists } = require('./helpers/providerStateHelper')
 
   it('checking : capabilities', async function () {
     const provider = createProvider()
@@ -105,8 +107,9 @@ describe('Main: Currently testing low level OCS', function () {
     const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
+
+    await givenUserExists(provider, testUser)
     await provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
       .uponReceiving(`as '${adminUsername}', a PUT request to update a user using OCS`)
       .withRequest({
         method: 'PUT',

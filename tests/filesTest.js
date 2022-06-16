@@ -594,11 +594,8 @@ describe('Main: Currently testing files management,', function () {
       await getCurrentUserInformationInteraction(
         provider, testUser, testUserPassword
       )
-      provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
+
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, encodedSrcFilePath)
       provider.given('provider base url is returned')
       await moveFileInteraction(
@@ -639,11 +636,8 @@ describe('Main: Currently testing files management,', function () {
       const desFolder = 'testFolder2'
       const desFilePath = `${desFolder}/中文.txt`
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/${encodeURI(desFilePath)}`
-      await provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
+
+      await givenUserExists(provider, testUser)
       await givenFolderExists(provider, testUser, desFolder)
       await givenFileExists(provider, testUser, srcFilePath)
       await provider
@@ -1098,11 +1092,8 @@ describe('Main: Currently testing files management,', function () {
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/中文123.txt`
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/${testFolder}/${encodeURI('中文123.txt')}`
-      provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
+
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, srcFilePath)
       provider.given('provider base url is returned')
       await moveFileInteraction(
@@ -1143,11 +1134,8 @@ describe('Main: Currently testing files management,', function () {
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/中文123.txt`
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/${testFolder}/${encodeURI('中文123.txt')}`
-      await provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
+
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, srcFilePath)
       await provider
         .given('provider base url is returned')
@@ -1190,11 +1178,8 @@ describe('Main: Currently testing files management,', function () {
       const srcFilePath = `${testFolder}/中文.txt`
       const desFilePath = `${testFolder}/subdir/中文123.txt`
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/${testFolder}/subdir/${encodeURI('中文123.txt')}`
-      await provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
+
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, srcFilePath)
       await givenFolderExists(provider, testUser, `${testFolder}/subdir/`)
       await provider

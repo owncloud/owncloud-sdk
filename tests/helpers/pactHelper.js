@@ -16,7 +16,8 @@ const OwnCloud = require('../../src/owncloud')
 const {
   givenGroupExists,
   givenFolderExists,
-  givenFileExists
+  givenFileExists,
+  givenUserExists
 } = require('../helpers/providerStateHelper')
 
 const accessControlAllowHeaders = 'OC-Checksum,OC-Total-Length,OCS-APIREQUEST,X-OC-Mtime,Accept,Authorization,Brief,Content-Length,Content-Range,Content-Type,Date,Depth,Destination,Host,If,If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since,Location,Lock-Token,Overwrite,Prefer,Range,Schedule-Reply,Timeout,User-Agent,X-Expected-Entity-Length,Accept-Language,Access-Control-Request-Method,Access-Control-Allow-Origin,ETag,OC-Autorename,OC-CalDav-Import,OC-Chunked,OC-Etag,OC-FileId,OC-LazyOps,OC-Total-File-Length,Origin,X-Request-ID,X-Requested-With'
@@ -190,7 +191,7 @@ const getContentsOfFileInteraction = async (
   password = adminPassword
 ) => {
   if (user !== adminUsername) {
-    provider.given('the user is recreated', { username: user, password: password })
+    await givenUserExists(provider, user)
   }
   if (file !== config.nonExistentFile) {
     await givenFileExists(provider, user, file)
@@ -218,7 +219,7 @@ const deleteResourceInteraction = async (
 ) => {
   let response
   if (user !== adminUsername) {
-    provider.given('the user is recreated', { username: user, password: password })
+    await givenUserExists(provider, user)
   }
   if (resource.includes('nonExistent')) {
     response = {
@@ -256,7 +257,7 @@ async function getCurrentUserInformationInteraction (
 ) {
   const displayName = getDisplayNameForUser(user)
   if (user !== adminUsername) {
-    provider.given('the user is recreated', { username: user, password: password })
+    await givenUserExists(provider, user)
   }
   await provider
     .uponReceiving(`as '${user}', a GET to get current user information`)
@@ -289,7 +290,7 @@ async function getCapabilitiesInteraction (
   provider, user = adminUsername, password = adminPassword
 ) {
   if (user !== adminUsername) {
-    provider.given('the user is recreated', { username: user, password: password })
+    await givenUserExists(provider, user)
   }
   await provider
     .uponReceiving(`as '${user}', a GET request to get capabilities with valid authentication`)
@@ -450,7 +451,7 @@ const createFolderInteraction = async function (
   provider, folderName, user = adminUsername, password = adminPassword
 ) {
   if (user !== adminUsername) {
-    provider.given('the user is recreated', { username: user, password: password })
+    await givenUserExists(provider, user)
   }
 
   // if a subfolder is to be created the higher level folder needs to be created in the provider state
@@ -481,7 +482,7 @@ const createFolderInteraction = async function (
 const updateFileInteraction = async function (provider, file, user = adminUsername, password = adminPassword
 ) {
   if (user !== adminUsername) {
-    provider.given('the user is recreated', { username: user, password: password })
+    await givenUserExists(provider, user)
   }
   if (!file.includes('nonExistent')) {
     await givenFolderExists(provider, user, path.dirname(file))

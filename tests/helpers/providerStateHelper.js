@@ -9,11 +9,10 @@ const SHARE_TYPE = Object.freeze({
  *
  * @param {object} provider
  * @param {string} username user to create
- * @param {sring} password
  */
-const givenUserExists = (provider, username, password) => {
+const givenUserExists = (provider, username) => {
   return provider
-    .given('the user is recreated', { username, password })
+    .given('the user is recreated', { username })
 }
 
 /**

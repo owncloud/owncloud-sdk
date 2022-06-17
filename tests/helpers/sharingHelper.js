@@ -13,11 +13,10 @@ const publicFilesEndPoint = '/public-files'
  * share a file or folder using webDAV api.
  *
  * @param {string} username
- * @param {string} password
  * @param {object} shareParams
  * @returns {*} result of the fetch request
  */
-const shareResource = function (username, password, shareParams) {
+const shareResource = function (username, shareParams) {
   const params = validateParams(shareParams)
   return httpHelper.postOCS(
     sharesEndPoint,

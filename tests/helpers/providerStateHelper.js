@@ -87,8 +87,7 @@ const givenResourceIsDeleted = (provider, username, resource) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} path
+ * @param {string} path
  * @param {string} shareWith
  * @param {object} optionalParams
  * available optional parameters
@@ -99,7 +98,6 @@ const givenResourceIsDeleted = (provider, username, resource) => {
 const givenUserShareExists = (
   provider,
   username,
-  userPassword,
   path,
   shareWith,
   optionalParams
@@ -107,7 +105,6 @@ const givenUserShareExists = (
   return provider
     .given('resource is shared', {
       username,
-      userPassword,
       path,
       shareType: SHARE_TYPE.user,
       shareWith,
@@ -120,8 +117,7 @@ const givenUserShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} path
+ * @param {string} path
  * @param {string} shareWith
  * @param {object} optionalParams
  * available optional parameters
@@ -132,7 +128,6 @@ const givenUserShareExists = (
 const givenGroupShareExists = (
   provider,
   username,
-  userPassword,
   path,
   shareWith,
   optionalParams
@@ -140,7 +135,6 @@ const givenGroupShareExists = (
   return provider
     .given('resource is shared', {
       username,
-      userPassword,
       path,
       shareType: SHARE_TYPE.group,
       shareWith,
@@ -153,8 +147,7 @@ const givenGroupShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} path
+ * @param {string} path
  * @param {object} optionalParams
  * available optional parameters
  * - name
@@ -167,14 +160,12 @@ const givenGroupShareExists = (
 const givenPublicShareExists = (
   provider,
   username,
-  userPassword,
   path,
   optionalParams
 ) => {
   return provider
     .given('resource is shared', {
       username,
-      userPassword,
       path,
       shareType: SHARE_TYPE.public,
       ...optionalParams
@@ -186,11 +177,10 @@ const givenPublicShareExists = (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} resource
- * @param {sring} resourceType
+ * @param {string} resource
+ * @param {string} resourceType
  */
-const givenFileFolderIsCreated = (provider, username, password, resource, resourceType) => {
+const givenFileFolderIsCreated = (provider, username, resource, resourceType) => {
   if (resourceType === 'folder') {
     return givenFolderExists(provider, username, resource)
   } else {
@@ -203,10 +193,9 @@ const givenFileFolderIsCreated = (provider, username, password, resource, resour
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} userPassword
- * @param {sring} resource
+ * @param {string} resource
  * @param {number} shareType
- * @param {sring} shareWith
+ * @param {string} shareWith
  * @param {number} permissions
  * @param {string} expireDate
  * @param {object} attributes
@@ -216,7 +205,6 @@ const givenFileFolderIsCreated = (provider, username, password, resource, resour
 const givenResourceIsShared = async (
   provider,
   username,
-  userPassword,
   resource,
   shareType,
   shareWith,
@@ -230,7 +218,6 @@ const givenResourceIsShared = async (
     return givenPublicShareExists(
       provider,
       username,
-      userPassword,
       resource,
       {
         permissions,
@@ -245,7 +232,6 @@ const givenResourceIsShared = async (
     return givenUserShareExists(
       provider,
       username,
-      userPassword,
       resource,
       shareWith,
       {
@@ -259,7 +245,6 @@ const givenResourceIsShared = async (
     return givenGroupShareExists(
       provider,
       username,
-      userPassword,
       resource,
       shareWith,
       {
@@ -278,8 +263,8 @@ const givenResourceIsShared = async (
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} path
+ * @param {string} password
+ * @param {string} path
  */
 const givenFileIsMarkedFavorite = (provider, username, password, path) => {
   return provider
@@ -291,8 +276,8 @@ const givenFileIsMarkedFavorite = (provider, username, password, path) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} tag tag name
+ * @param {string} password
+ * @param {string} tag tag name
  */
 const givenSystemTagExists = (provider, username, password, tag) => {
   return provider
@@ -304,9 +289,9 @@ const givenSystemTagExists = (provider, username, password, tag) => {
  *
  * @param {object} provider
  * @param {string} username
- * @param {sring} password
- * @param {sring} fileName
- * @param {sring} tagName
+ * @param {string} password
+ * @param {string} fileName
+ * @param {string} tagName
  */
 const givenTagIsAssignedToFile = (provider, username, password, fileName, tagName) => {
   return provider
@@ -319,6 +304,75 @@ const givenTagIsAssignedToFile = (provider, username, password, fileName, tagNam
  */
 const givenProviderBaseUrlIsReturned = (provider) => {
   return provider.given('provider base url is returned')
+}
+
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} fileName
+ * @param {string} number
+ */
+const givenFileVersionLinkIsReturned = (provider, username, fileName, number) => {
+  return provider.given('file version link is returned', {
+    username,
+    fileName,
+    number
+  })
+}
+
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} groupName
+ */
+const givenUserIsMadeGroupSubadmin = (provider, username, groupName) => {
+  return provider.given('user is made group subadmin', {
+    username,
+    groupName
+  })
+}
+
+/**
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} groupName
+ */
+const givenUserIsAddedToGroup = (provider, username, groupName) => {
+  return provider.given('user is added to group', {
+    username,
+    groupName
+  })
+}
+
+/**
+ * @param {object} provider
+ * @param {string} folderName
+ * @param {string} password
+ */
+const givenFolderExistsInLastPublicShare = (provider, folderName, password) => {
+  return provider.given('folder exists in last shared public share', {
+    folderName,
+    password
+  })
+}
+
+/**
+ * @param {object} provider
+ * @param {string} fileName
+ * @param {string} password
+ * @param {string} content
+ */
+const givenFileExistsInLastPublicShare = (
+  provider,
+  fileName,
+  password,
+  content
+) => {
+  return provider.given('file exists in last shared public share', {
+    fileName,
+    password,
+    content
+  })
 }
 
 module.exports = {
@@ -337,5 +391,10 @@ module.exports = {
   givenFileIsMarkedFavorite,
   givenSystemTagExists,
   givenTagIsAssignedToFile,
-  givenProviderBaseUrlIsReturned
+  givenProviderBaseUrlIsReturned,
+  givenFileVersionLinkIsReturned,
+  givenUserIsMadeGroupSubadmin,
+  givenUserIsAddedToGroup,
+  givenFolderExistsInLastPublicShare,
+  givenFileExistsInLastPublicShare
 }

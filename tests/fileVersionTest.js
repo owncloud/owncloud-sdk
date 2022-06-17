@@ -24,7 +24,8 @@ describe('Main: Currently testing file versions management,', function () {
   const {
     givenFileExists,
     givenUserExists,
-    givenProviderBaseUrlIsReturned
+    givenProviderBaseUrlIsReturned,
+    givenFileVersionLinkIsReturned
   } = require('./helpers/providerStateHelper')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
@@ -138,14 +139,10 @@ describe('Main: Currently testing file versions management,', function () {
         versionedFile,
         fileInfo.versions[1].content
       )
-      return provider
+      await provider
         .given('the client waits', { delay: 2000 })
-        .given('file version link is returned', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          number: 1
-        })
+      await givenFileVersionLinkIsReturned(provider, testUser, versionedFile, 1)
+      return provider
         .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of existent file`)
         .withRequest({
           method: 'PROPFIND',
@@ -203,12 +200,7 @@ describe('Main: Currently testing file versions management,', function () {
         fileInfo.versions[1].content
       )
       await provider.given('the client waits', { delay: 2000 })
-        .given('file version link is returned', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          number: i + 1
-        })
+      await givenFileVersionLinkIsReturned(provider, testUser, versionedFile, i + 1)
       await provider
         .uponReceiving(`as '${testUser}', a GET request to get file version ${i} contents`)
         .withRequest({
@@ -267,13 +259,7 @@ describe('Main: Currently testing file versions management,', function () {
       await givenFileExists(provider, testUser, versionedFile)
       // re-upload the same file to create a new version
       await givenFileExists(provider, testUser, versionedFile, 'new content')
-      await provider
-        .given('file version link is returned', {
-          fileName: versionedFile,
-          username: testUser,
-          password: testUserPassword,
-          number: 1
-        })
+      await givenFileVersionLinkIsReturned(provider, testUser, versionedFile, 1)
       await givenProviderBaseUrlIsReturned(provider)
       await provider
         .uponReceiving(`as '${testUser}', a COPY request to restore file versions`)

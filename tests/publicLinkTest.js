@@ -36,7 +36,9 @@ describe('oc.publicFiles', function () {
     givenPublicShareExists,
     givenFolderExists,
     givenFileExists,
-    givenProviderBaseUrlIsReturned
+    givenProviderBaseUrlIsReturned,
+    givenFolderExistsInLastPublicShare,
+    givenFileExistsInLastPublicShare
   } = require('./helpers/providerStateHelper')
 
   const publicLinkShareTokenPath = MatchersV3.fromProviderState(
@@ -59,15 +61,8 @@ describe('oc.publicFiles', function () {
 
     await givenUserExists(provider, testUser)
     await givenFolderExists(provider, testUser, testFolder)
+    await givenPublicShareExists(provider, testUser, testFolder, { password, permissions: 15 })
     return provider
-      .given('resource is shared', {
-        username: testUser,
-        userPassword: testUserPassword,
-        path: testFolder,
-        shareType: 3,
-        permissions: 15,
-        password
-      })
       .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
         method: method,
@@ -107,18 +102,10 @@ describe('oc.publicFiles', function () {
 
     await givenUserExists(provider, testUser)
     await givenFolderExists(provider, testUser, testFolder)
-    await provider
-      .given('resource is shared', {
-        username: testUser,
-        userPassword: testUserPassword,
-        path: testFolder,
-        shareType: 3,
-        permissions: 15,
-        password
-      })
+    await givenPublicShareExists(provider, testUser, testFolder, { password, permissions: 15 })
 
     if (method === 'GET' || statusCode === 204) {
-      await provider.given('file exists in last shared public share', { fileName: testFile, content: responseBody, password })
+      await givenFileExistsInLastPublicShare(provider, testFile, password, responseBody)
     }
 
     return provider
@@ -239,11 +226,7 @@ describe('oc.publicFiles', function () {
             for (let fileNum = 0; fileNum < testFiles.length; fileNum++) {
               await givenFileExists(provider, testUser, testFolder + '/' + testFiles[fileNum])
             }
-            if (data.shareParams.password) {
-              await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { password: data.shareParams.password })
-            } else {
-              await givenPublicShareExists(provider, testUser, testUserPassword, testFolder)
-            }
+            await givenPublicShareExists(provider, testUser, testFolder, { password: data.shareParams.password })
             return provider
               .uponReceiving(description)
               .withRequest({
@@ -367,11 +350,7 @@ describe('oc.publicFiles', function () {
 
             await givenUserExists(provider, testUser)
             await givenFileExists(provider, testUser, testFolder + '/' + testFiles[2])
-            if (data.shareParams.password) {
-              await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { password: data.shareParams.password })
-            } else {
-              await givenPublicShareExists(provider, testUser, testUserPassword, testFolder)
-            }
+            await givenPublicShareExists(provider, testUser, testFolder, { password: data.shareParams.password })
             return provider
               .uponReceiving(description)
               .withRequest({ method, path, headers })
@@ -529,21 +508,17 @@ describe('oc.publicFiles', function () {
           await givenProviderBaseUrlIsReturned(provider)
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
-          if (data.shareParams.password) {
-            await givenPublicShareExists(
-              provider,
-              testUser,
-              testUserPassword,
-              testFolder,
-              {
-                password: data.shareParams.password,
-                permissions: data.shareParams.permissions
-              }
-            )
-          } else {
-            await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { permissions: data.shareParams.permissions })
-          }
-          await provider.given('file exists in last shared public share', { fileName: testFile, password: data.shareParams.password })
+          await givenPublicShareExists(
+            provider,
+            testUser,
+            testFolder,
+            {
+              password: data.shareParams.password,
+              permissions: data.shareParams.permissions
+            }
+          )
+          await givenFileExistsInLastPublicShare(provider, testFile, data.shareParams.password)
+          await provider
             .uponReceiving(`as '${testUser}', a MOVE request to move a file in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
@@ -581,22 +556,18 @@ describe('oc.publicFiles', function () {
           await givenProviderBaseUrlIsReturned(provider)
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
-          if (data.shareParams.password) {
-            await givenPublicShareExists(
-              provider,
-              testUser,
-              testUserPassword,
-              testFolder,
-              {
-                password: data.shareParams.password,
-                permissions: data.shareParams.permissions
-              }
-            )
-          } else {
-            await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { permissions: data.shareParams.permissions })
-          }
-          await provider.given('folder exists in last shared public share', { folderName: 'foo', password: data.shareParams.password })
-            .given('file exists in last shared public share', { fileName: testFile, password: data.shareParams.password })
+          await givenPublicShareExists(
+            provider,
+            testUser,
+            testFolder,
+            {
+              password: data.shareParams.password,
+              permissions: data.shareParams.permissions
+            }
+          )
+          await givenFolderExistsInLastPublicShare(provider, 'foo', data.shareParams.password)
+          await givenFileExistsInLastPublicShare(provider, testFile, data.shareParams.password)
+          await provider
             .uponReceiving(`as '${testUser}', a MOVE request to move a file to subfolder in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
@@ -630,21 +601,17 @@ describe('oc.publicFiles', function () {
           await givenProviderBaseUrlIsReturned(provider)
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
-          if (data.shareParams.password) {
-            await givenPublicShareExists(
-              provider,
-              testUser,
-              testUserPassword,
-              testFolder,
-              {
-                password: data.shareParams.password,
-                permissions: data.shareParams.permissions
-              }
-            )
-          } else {
-            await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { permissions: data.shareParams.permissions })
-          }
-          await provider.given('folder exists in last shared public share', { folderName: 'foo', password: data.shareParams.password })
+          await givenPublicShareExists(
+            provider,
+            testUser,
+            testFolder,
+            {
+              password: data.shareParams.password,
+              permissions: data.shareParams.permissions
+            }
+          )
+          await givenFolderExistsInLastPublicShare(provider, 'foo', data.shareParams.password)
+          await provider
             .uponReceiving(`as '${testUser}', a MOVE request to move a folder to different name in public share ${data.description}`)
             .withRequest({
               method: 'MOVE',
@@ -681,20 +648,15 @@ describe('oc.publicFiles', function () {
 
           await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
-          if (data.shareParams.password) {
-            await givenPublicShareExists(
-              provider,
-              testUser,
-              testUserPassword,
-              testFolder,
-              {
-                password: data.shareParams.password,
-                permissions: data.shareParams.permissions
-              }
-            )
-          } else {
-            await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { permissions: data.shareParams.permissions })
-          }
+          await givenPublicShareExists(
+            provider,
+            testUser,
+            testFolder,
+            {
+              password: data.shareParams.password,
+              permissions: data.shareParams.permissions
+            }
+          )
           await provider
             .uponReceiving(`as '${testUser}', a PROPFIND request to get file info of public share ${data.description}`)
             .withRequest({

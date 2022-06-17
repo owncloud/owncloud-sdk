@@ -198,8 +198,8 @@ describe('provider testing', () => {
     },
     'file version link is returned': (setup, parameters) => {
       if (setup) {
-        const fileId = getFileId(parameters.username, parameters.password, parameters.fileName)
-        const versionsResult = listVersionsFolder(parameters.username, parameters.password, fileId)
+        const fileId = getFileId(parameters.username, parameters.fileName)
+        const versionsResult = listVersionsFolder(parameters.username, fileId)
         let nodeValue = ''
         parseString(versionsResult, function (err, result) {
           if (
@@ -243,8 +243,8 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
-        const { username, userPassword, ...shareParams } = parameters
-        const response = shareResource(username, userPassword, shareParams)
+        const { username, ...shareParams } = parameters
+        const response = shareResource(username, shareParams)
         const { status } = getOCSMeta(response)
 
         chai.assert.strictEqual(status, 'ok', `Sharing file/folder '${parameters.path}' failed`)

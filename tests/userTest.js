@@ -25,7 +25,9 @@ describe('Main: Currently testing user management,', function () {
   const {
     givenGroupExists,
     givenUserExists,
-    givenUserDoesNotExist
+    givenUserDoesNotExist,
+    givenUserIsMadeGroupSubadmin,
+    givenUserIsAddedToGroup
   } = require('./helpers/providerStateHelper')
 
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
@@ -155,7 +157,7 @@ describe('Main: Currently testing user management,', function () {
     if (username !== adminUsername && username !== config.nonExistentUser) {
       await givenUserExists(provider, username)
       await givenGroupExists(provider, config.testGroup)
-      await provider.given('user is added to group', { username: username, groupName: config.testGroup })
+      await givenUserIsAddedToGroup(provider, username, config.testGroup)
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a GET request to get groups of ${requestName}`)
@@ -253,7 +255,7 @@ describe('Main: Currently testing user management,', function () {
     if (username !== adminUsername && username !== config.nonExistentUser) {
       await givenUserExists(provider, username)
       await givenGroupExists(provider, config.testGroup)
-      await provider.given('user is made group subadmin', { username: username, groupName: config.testGroup })
+      await givenUserIsMadeGroupSubadmin(provider, username, config.testGroup)
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a GET request to get subadmin groups of ${requestName}`)

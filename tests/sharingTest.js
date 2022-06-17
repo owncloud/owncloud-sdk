@@ -73,8 +73,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
   ) {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
     await givenUserExists(provider, sharer)
-    await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
-    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
+    await givenFileFolderIsCreated(provider, sharer, resource, resourceType)
+    await givenResourceIsShared(provider, sharer, resource, shareType, shareWith)
 
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -109,14 +109,14 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   const getSharesInteraction = async function (provider, resource, resourceType = 'file') {
     await givenUserExists(provider, sharer)
-    await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
+    await givenFileFolderIsCreated(provider, sharer, resource, resourceType)
 
     await givenUserExists(provider, sharee)
     await givenGroupExists(provider, testGroup)
     // shares file/folder with user, group and public link
-    await givenPublicShareExists(provider, sharer, sharerPassword, resource)
-    await givenUserShareExists(provider, sharer, sharerPassword, resource, sharee)
-    await givenGroupShareExists(provider, sharer, sharerPassword, resource, testGroup)
+    await givenPublicShareExists(provider, sharer, resource)
+    await givenUserShareExists(provider, sharer, resource, sharee)
+    await givenGroupShareExists(provider, sharer, resource, testGroup)
 
     resource = '/' + resource
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -169,8 +169,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
   ) => {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
     await givenUserExists(provider, sharer)
-    await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
-    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
+    await givenFileFolderIsCreated(provider, sharer, resource, resourceType)
+    await givenResourceIsShared(provider, sharer, resource, shareType, shareWith)
     resource = '/' + resource
 
     const body = new XmlBuilder('1.0', '', 'ocs').build(ocs => {
@@ -213,8 +213,8 @@ describe('Main: Currently testing file/folder sharing,', function () {
     const { shareId, shareToken } = getShareIdToken(resource, resourceType)
     let permissions = 1
     await givenUserExists(provider, sharer)
-    await givenFileFolderIsCreated(provider, sharer, sharerPassword, resource, resourceType)
-    await givenResourceIsShared(provider, sharer, sharerPassword, resource, shareType, shareWith)
+    await givenFileFolderIsCreated(provider, sharer, resource, resourceType)
+    await givenResourceIsShared(provider, sharer, resource, shareType, shareWith)
 
     if (formData.permissions) {
       permissions = formData.permissions
@@ -821,7 +821,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }
       async function shareGETExistingNonSharedFile (provider, name, fileName) {
         await givenUserExists(provider, sharer)
-        await givenFileFolderIsCreated(provider, sharer, sharerPassword, fileName)
+        await givenFileFolderIsCreated(provider, sharer, fileName)
         return provider
           .uponReceiving(`as '${sharer}', a GET request to get share information of existent but non-shared file '${name}'`)
           .withRequest({
@@ -870,7 +870,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       async function sharePOSTRequestWithExpirationDateSet (provider, fileEncoded, file) {
         await givenUserExists(provider, sharer)
         await givenUserExists(provider, sharee)
-        await givenFileFolderIsCreated(provider, sharer, sharerPassword, file)
+        await givenFileFolderIsCreated(provider, sharer, file)
         return provider
           .uponReceiving(`as '${sharer}', a POST request to share a file '${file}' to user with expiration date set`)
           .withRequest({

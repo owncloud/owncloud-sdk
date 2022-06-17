@@ -289,7 +289,7 @@ describe('provider testing', () => {
       if (setup) {
         let url = providerBaseUrl + `/remote.php/dav/files/${parameters.username}/${parameters.path}`
         url = sanitizeUrl(url)
-        const signKey = getSignKey(parameters.username, parameters.password)
+        const signKey = getSignKey(parameters.username)
         url = new URL(url)
         const date = new Date().toISOString()
         url.searchParams.set('OC-Credential', parameters.username)
@@ -315,8 +315,8 @@ describe('provider testing', () => {
     },
     'file is marked as favorite': (setup, parameters) => {
       if (setup) {
-        const { username, password, path } = parameters
-        const { status } = markAsFavorite(username, password, path)
+        const { username, path } = parameters
+        const { status } = markAsFavorite(username, path)
 
         if (status !== 207) {
           chai.assert.fail(`Failed to mark file '${path}' as favorite.`)
@@ -325,11 +325,11 @@ describe('provider testing', () => {
     },
     'a system tag is created': (setup, parameters) => {
       if (setup) {
-        const { username, password, tag } = parameters
-        const response = createASystemTag(username, password, tag)
+        const { username, tag } = parameters
+        const response = createASystemTag(username, tag)
         let tagId
         if (response.status === 409 && response.text().includes('Tag already exists')) {
-          tagId = getTagId(username, password, tag)
+          tagId = getTagId(username, tag)
         } else if (response.status === 201) {
           tagId = response.headers.get('Content-Location').split('/').pop()
         }
@@ -345,12 +345,12 @@ describe('provider testing', () => {
     },
     'a tag is assigned to a file': (setup, parameters) => {
       if (setup) {
-        const { username, password, fileName, tagName } = parameters
+        const { username, fileName, tagName } = parameters
         // tagging not implement on oCIS
         if (isRunningWithOCIS()) {
           return
         }
-        const { status } = assignTagToFile(username, password, fileName, tagName)
+        const { status } = assignTagToFile(username, fileName, tagName)
 
         if (status !== 201) {
           chai.assert.fail('Failed to assign last created tag to last created file')

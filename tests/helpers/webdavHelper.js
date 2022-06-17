@@ -101,7 +101,7 @@ const listVersionsFolder = function (user, fileId) {
   return listResult.text()
 }
 
-const getSignKey = function (username, password) {
+const getSignKey = function (username) {
   const response = httpHelper.getOCS(
     '/cloud/user/signing-key',
     null,
@@ -201,11 +201,10 @@ const getTrashBinElements = function (user, depth = '1') {
 /**
  * favorites a file
  * @param {string} username
- * @param {string} password
  * @param {string} fileName
  * @returns {*} result of the fetch request
  */
-const markAsFavorite = function (username, password, fileName) {
+const markAsFavorite = function (username, fileName) {
   return httpHelper.proppatch(
     createDavPath(username, fileName),
     '<?xml version="1.0"?>' +
@@ -222,11 +221,10 @@ const markAsFavorite = function (username, password, fileName) {
 /**
  * creates a system tag
  * @param {string} username
- * @param {string} password
  * @param {string} tag tag name
  * @returns {*} result of the fetch request
  */
-const createASystemTag = function (username, password, tag) {
+const createASystemTag = function (username, tag) {
   return httpHelper.post(
     '/systemtags',
     JSON.stringify({
@@ -244,14 +242,13 @@ const createASystemTag = function (username, password, tag) {
 /**
  * assigns a tag to a file
  * @param {string} username
- * @param {string} password
  * @param {string} fileName
  * @param {string} tagName
  * @returns {*} result of the fetch request
  */
-const assignTagToFile = function (username, password, fileName, tagName) {
+const assignTagToFile = function (username, fileName, tagName) {
   const fileId = getFileId(username, fileName)
-  const tagId = getTagId(username, password, tagName)
+  const tagId = getTagId(username, tagName)
   return httpHelper.put(
     `/systemtags-relations/files/${fileId}/${tagId}`,
     null,
@@ -263,11 +260,10 @@ const assignTagToFile = function (username, password, fileName, tagName) {
 /**
  * gets tagid by tagName
  * @param {string} username
- * @param {string} password
  * @param {string} tagName
  * @returns {*} result of the fetch request
  */
-const getTagId = function (username, password, tagName) {
+const getTagId = function (username, tagName) {
   const xmlReq = '<?xml version="1.0" encoding="utf-8" ?>' +
     '<a:propfind xmlns:a="DAV:" xmlns:oc="http://owncloud.org/ns">' +
     '<a:prop><oc:display-name/><oc:id/></a:prop></a:propfind>'

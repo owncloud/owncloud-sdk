@@ -378,7 +378,8 @@ const getCapabilitiesWithInvalidAuthInteraction = function (provider, username =
 }
 
 const createUserInteraction = function (provider) {
-  provider.uponReceiving(`as '${adminUsername}', a POST request to create a user`)
+  return provider
+    .uponReceiving(`as '${adminUsername}', a POST request to create a user`)
     .withRequest({
       method: 'POST',
       path: MatchersV3.regex(
@@ -390,7 +391,8 @@ const createUserInteraction = function (provider) {
         ...applicationFormUrlEncoded
       },
       body: `password=${testUserPassword}&userid=${testUser}`
-    }).willRespondWith({
+    })
+    .willRespondWith({
       status: 200,
       headers: xmlResponseHeaders
     })
@@ -425,7 +427,8 @@ const createUserWithGroupMembershipInteraction = async function (provider) {
 }
 
 const deleteUserInteraction = function (provider) {
-  provider.uponReceiving(`as '${adminUsername}', a DELETE request to delete a user`)
+  return provider
+    .uponReceiving(`as '${adminUsername}', a DELETE request to delete a user`)
     .withRequest({
       method: 'DELETE',
       path: MatchersV3.regex(
@@ -433,7 +436,8 @@ const deleteUserInteraction = function (provider) {
         '/ocs/v1.php/cloud/users/' + testUser
       ),
       headers: validAdminAuthHeaders
-    }).willRespondWith({
+    })
+    .willRespondWith({
       status: 200,
       headers: xmlResponseHeaders,
 

@@ -30,11 +30,10 @@ const shareResource = function (username, shareParams) {
  * get shares of a file/folder
  *
  * @param {string} username
- * @param {string} userPassword
  * @param {string} path
  * @returns {*} result of the fetch request
  */
-const getShareInfoByPath = function (username, userPassword, path) {
+const getShareInfoByPath = function (username, path) {
   return httpHelper.getOCS(
     `${sharesEndPoint}?path=${encodeURIPath(path)}`,
     null,
@@ -113,8 +112,8 @@ const toFormUrlEncoded = function (obj) {
 }
 
 /**
- * @param {sring} resource
- * @param {sring} resourceType
+ * @param {string} resource
+ * @param {string} resourceType
  *
  * @returns {object} shareId and shareToken
  */

@@ -16,20 +16,21 @@ describe('Main: Currently testing user management,', function () {
     deleteUserInteraction,
     createUserWithGroupMembershipInteraction,
     createOwncloud,
-    createProvider
-  } = require('./helpers/pactHelper.js')
-  const {
+    createProvider,
     validAdminAuthHeaders,
     xmlResponseHeaders,
     applicationFormUrlEncoded
   } = require('./helpers/pactHelper.js')
 
-  const { givenGroupExists } = require('./helpers/providerStateHelper')
+  const {
+    givenGroupExists,
+    givenUserExists,
+    givenUserDoesNotExist
+  } = require('./helpers/providerStateHelper')
 
   const getUserInformationInteraction = async function (provider, requestName, username, responseBody) {
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
     }
     return provider
       .uponReceiving(`as '${adminUsername}', a GET request to ${requestName}`)
@@ -48,9 +49,9 @@ describe('Main: Currently testing user management,', function () {
       })
   }
 
-  const getUsersInteraction = function (provider, requestName, query, bodyData) {
+  const getUsersInteraction = async function (provider, requestName, query, bodyData) {
+    await givenUserExists(provider, testUser)
     return provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
       .uponReceiving(`as '${adminUsername}', a GET request to ${requestName}`)
       .withRequest({
         method: 'GET',
@@ -75,8 +76,7 @@ describe('Main: Currently testing user management,', function () {
 
   const changeUserAttributeInteraction = async function (provider, requestName, username, requestBody, response) {
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
     }
 
     return provider
@@ -111,8 +111,7 @@ describe('Main: Currently testing user management,', function () {
       message = 'The requested user could not be found'
     }
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
     }
     if (group !== config.nonExistentGroup) {
       await givenGroupExists(provider, group)
@@ -154,8 +153,7 @@ describe('Main: Currently testing user management,', function () {
 
   const getGroupOfUserInteraction = async function (provider, requestName, username, responseBody) {
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
       await givenGroupExists(provider, config.testGroup)
       await provider.given('user is added to group', { username: username, groupName: config.testGroup })
     }
@@ -184,8 +182,7 @@ describe('Main: Currently testing user management,', function () {
       message = 'The requested user could not be found'
     }
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
     }
     if (group !== config.nonExistentGroup) {
       await givenGroupExists(provider, group)
@@ -223,8 +220,7 @@ describe('Main: Currently testing user management,', function () {
 
   const addUserToSubAdminGroupInteraction = async function (provider, requestName, username, group, responseOcsMeta) {
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
     }
     if (group !== config.nonExistentGroup) {
       await givenGroupExists(provider, group)
@@ -255,8 +251,7 @@ describe('Main: Currently testing user management,', function () {
 
   const getUsersSubAdminGroupsInteraction = async function (provider, requestName, username, responseBody) {
     if (username !== adminUsername && username !== config.nonExistentUser) {
-      await provider
-        .given('the user is recreated', { username: username, password: testUserPassword })
+      await givenUserExists(provider, username)
       await givenGroupExists(provider, config.testGroup)
       await provider.given('user is made group subadmin', { username: username, groupName: config.testGroup })
     }
@@ -492,7 +487,7 @@ describe('Main: Currently testing user management,', function () {
   // [oCIS] email is needed for oCIS to create users
   it('checking method : createUser with groups', async function () {
     const provider = createProvider(false, true)
-    await provider.given('user doesn\'t exist', { username: testUser })
+    await givenUserDoesNotExist(provider, testUser)
 
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
@@ -619,11 +614,9 @@ describe('Main: Currently testing user management,', function () {
     const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
+
+    await givenUserExists(provider, testUser)
     await provider
-      .given(
-        'the user is recreated',
-        { username: testUser, password: testUserPassword }
-      )
       .uponReceiving(`as '${adminUsername}' a PUT request to enable an existing user`)
       .withRequest({
         headers: validAdminAuthHeaders,
@@ -658,11 +651,9 @@ describe('Main: Currently testing user management,', function () {
     const provider = createProvider(false, true)
     await getCapabilitiesInteraction(provider)
     await getCurrentUserInformationInteraction(provider)
+
+    await givenUserExists(provider, testUser)
     await provider
-      .given(
-        'the user is recreated',
-        { username: testUser, password: testUserPassword }
-      )
       .uponReceiving(`as '${adminUsername}' a PUT request to disable an existing user`)
       .withRequest({
         headers: validAdminAuthHeaders,

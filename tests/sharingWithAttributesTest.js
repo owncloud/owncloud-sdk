@@ -4,7 +4,7 @@ describe('oc.shares', function () {
   const { testFile } = require('./config/config.json')
   const {
     testUser1: { username: sharer, password: sharerPassword },
-    testUser2: { username: receiver, password: receiverPassword }
+    testUser2: { username: receiver }
   } = require('./config/users.json')
 
   const {
@@ -19,7 +19,10 @@ describe('oc.shares', function () {
     getAuthHeaders
   } = require('./helpers/pactHelper.js')
 
-  const { givenFileExists } = require('./helpers/providerStateHelper')
+  const {
+    givenFileExists,
+    givenUserExists
+  } = require('./helpers/providerStateHelper')
 
   const shareAttributes = {
     attributes: [
@@ -38,9 +41,8 @@ describe('oc.shares', function () {
   }
 
   const sharingWithAttributes = async (provider) => {
-    await provider
-      .given('the user is recreated', { username: sharer, password: sharerPassword })
-      .given('the user is recreated', { username: receiver, password: receiverPassword })
+    await givenUserExists(provider, sharer)
+    await givenUserExists(provider, receiver)
     await givenFileExists(provider, sharer, testFile, 'a test file')
     return provider
       .uponReceiving(`as '${sharer}', a POST request to share a file with permissions in attributes`)

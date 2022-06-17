@@ -9,11 +9,20 @@ const SHARE_TYPE = Object.freeze({
  *
  * @param {object} provider
  * @param {string} username user to create
- * @param {sring} password
  */
-const givenUserExists = (provider, username, password) => {
+const givenUserExists = (provider, username) => {
   return provider
-    .given('the user is recreated', { username, password })
+    .given('the user is recreated', { username })
+}
+
+/**
+ * provider state: deletes a given user
+ *
+ * @param {object} provider
+ * @param {string} username
+ */
+const givenUserDoesNotExist = (provider, username) => {
+  return provider.given('user doesn\'t exist', { username })
 }
 
 /**
@@ -60,6 +69,17 @@ const givenFileExists = (provider, username, resource, content) => {
 const givenFolderExists = (provider, username, resource) => {
   return provider
     .given('folder exists', { username, folderName: resource })
+}
+
+/**
+ * provider state: delete a given resource
+ *
+ * @param {object} provider
+ * @param {string} username
+ * @param {string} resource
+ */
+const givenResourceIsDeleted = (provider, username, resource) => {
+  return provider.given('resource is deleted', { username, resourcePath: resource })
 }
 
 /**
@@ -293,12 +313,22 @@ const givenTagIsAssignedToFile = (provider, username, password, fileName, tagNam
     .given('a tag is assigned to a file', { username, password, fileName, tagName })
 }
 
+/**
+ *
+ * @param {object} provider
+ */
+const givenProviderBaseUrlIsReturned = (provider) => {
+  return provider.given('provider base url is returned')
+}
+
 module.exports = {
   givenUserExists,
+  givenUserDoesNotExist,
   givenGroupExists,
   givenGroupDoesNotExist,
   givenFileExists,
   givenFolderExists,
+  givenResourceIsDeleted,
   givenUserShareExists,
   givenGroupShareExists,
   givenPublicShareExists,
@@ -306,5 +336,6 @@ module.exports = {
   givenResourceIsShared,
   givenFileIsMarkedFavorite,
   givenSystemTagExists,
-  givenTagIsAssignedToFile
+  givenTagIsAssignedToFile,
+  givenProviderBaseUrlIsReturned
 }

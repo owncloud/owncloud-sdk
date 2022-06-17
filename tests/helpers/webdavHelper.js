@@ -64,11 +64,10 @@ const createFile = function (user, fileName, contents = '') {
  * Delete a file or folder using webDAV api.
  *
  * @param {string} user
- * @param {string} password
  * @param {string} itemName
  * @returns {*} result of the fetch request
  */
-const deleteItem = function (user, password, itemName) {
+const deleteItem = function (user, itemName) {
   return httpHelper.delete(createDavPath(user, itemName), null, null, user)
 }
 
@@ -123,7 +122,7 @@ const getSignKey = function (username, password) {
  * @param {string} type
  * @param {number} folderDepth
  */
-const propfind = function (path, userId, password, properties, type = 'files', folderDepth = '1') {
+const propfind = function (path, userId, properties, type = 'files', folderDepth = '1') {
   let propertyBody = ''
   properties.map(prop => {
     propertyBody += `<${prop}/>`
@@ -160,14 +159,12 @@ const propfind = function (path, userId, password, properties, type = 'files', f
  * },...]
  *
  * @param {string} user
- * @param {string} password
  * @param {number|string} depth
  */
-const getTrashBinElements = function (user, password, depth = '1') {
+const getTrashBinElements = function (user, depth = '1') {
   const str = propfind(
     '/',
     user,
-    password,
     [
       'oc:trashbin-original-filename',
       'oc:trashbin-original-location',

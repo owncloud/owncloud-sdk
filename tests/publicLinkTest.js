@@ -35,7 +35,8 @@ describe('oc.publicFiles', function () {
     givenUserExists,
     givenPublicShareExists,
     givenFolderExists,
-    givenFileExists
+    givenFileExists,
+    givenProviderBaseUrlIsReturned
   } = require('./helpers/providerStateHelper')
 
   const publicLinkShareTokenPath = MatchersV3.fromProviderState(
@@ -55,8 +56,8 @@ describe('oc.publicFiles', function () {
     if (password) {
       headers = getPublicLinkAuthHeader(password)
     }
-    await provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
+
+    await givenUserExists(provider, testUser)
     await givenFolderExists(provider, testUser, testFolder)
     return provider
       .given('resource is shared', {
@@ -103,8 +104,8 @@ describe('oc.publicFiles', function () {
         ...getPublicLinkAuthHeader(password)
       }
     }
-    await provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
+
+    await givenUserExists(provider, testUser)
     await givenFolderExists(provider, testUser, testFolder)
     await provider
       .given('resource is shared', {
@@ -234,7 +235,7 @@ describe('oc.publicFiles', function () {
             }
             const status = shallGrantAccess ? 207 : 401
 
-            await givenUserExists(provider, testUser, testUserPassword)
+            await givenUserExists(provider, testUser)
             for (let fileNum = 0; fileNum < testFiles.length; fileNum++) {
               await givenFileExists(provider, testUser, testFolder + '/' + testFiles[fileNum])
             }
@@ -364,7 +365,7 @@ describe('oc.publicFiles', function () {
               }
             }
 
-            await givenUserExists(provider, testUser, testUserPassword)
+            await givenUserExists(provider, testUser)
             await givenFileExists(provider, testUser, testFolder + '/' + testFiles[2])
             if (data.shareParams.password) {
               await givenPublicShareExists(provider, testUser, testUserPassword, testFolder, { password: data.shareParams.password })
@@ -524,9 +525,9 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
-          await provider
-            .given('provider base url is returned')
-            .given('the user is recreated', { username: testUser, password: testUserPassword })
+
+          await givenProviderBaseUrlIsReturned(provider)
+          await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {
             await givenPublicShareExists(
@@ -576,9 +577,9 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
-          await provider
-            .given('provider base url is returned')
-            .given('the user is recreated', { username: testUser, password: testUserPassword })
+
+          await givenProviderBaseUrlIsReturned(provider)
+          await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {
             await givenPublicShareExists(
@@ -625,9 +626,9 @@ describe('oc.publicFiles', function () {
           const provider = createProvider()
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
-          await provider
-            .given('provider base url is returned')
-            .given('the user is recreated', { username: testUser, password: testUserPassword })
+
+          await givenProviderBaseUrlIsReturned(provider)
+          await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {
             await givenPublicShareExists(
@@ -678,7 +679,7 @@ describe('oc.publicFiles', function () {
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
-          await givenUserExists(provider, testUser, testUserPassword)
+          await givenUserExists(provider, testUser)
           await givenFolderExists(provider, testUser, testFolder)
           if (data.shareParams.password) {
             await givenPublicShareExists(

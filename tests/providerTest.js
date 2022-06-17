@@ -153,16 +153,16 @@ describe('provider testing', () => {
       if (!setup) {
         return
       }
-      const dirname = parameters.resourcePath
-      const result = deleteItem(parameters.username, parameters.password, dirname)
+      const resourcePath = parameters.resourcePath
+      const result = deleteItem(parameters.username, resourcePath)
       chai.assert.isBelow(
-        result.status, 300, `Deleting path '${dirname}' failed`
+        result.status, 300, `Deleting path '${resourcePath}' failed`
       )
-      const items = getTrashBinElements(parameters.username, parameters.password)
+      const items = getTrashBinElements(parameters.username)
       let found = false
       let id
       for (const item of items) {
-        if (item.originalLocation === parameters.resourcePath) {
+        if (item.originalLocation === resourcePath) {
           found = true
           const parts = item.href.split('/').filter(el => el !== '')
           id = parts[parts.length - 1]

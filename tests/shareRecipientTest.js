@@ -4,7 +4,7 @@ describe('Main: Currently testing share recipient,', function () {
   var config = require('./config/config.json')
   const {
     testUser1: { username: sharer, password: sharerPassword, displayname: sharerDisplayname },
-    testUser2: { username: receiver, password: receiverPassword, displayname: receiverDisplayname }
+    testUser2: { username: receiver, displayname: receiverDisplayname }
   } = require('./config/users.json')
 
   const {
@@ -15,14 +15,15 @@ describe('Main: Currently testing share recipient,', function () {
     createProvider
   } = require('./helpers/pactHelper.js')
 
-  const { givenGroupExists } = require('./helpers/providerStateHelper')
+  const {
+    givenGroupExists,
+    givenUserExists
+  } = require('./helpers/providerStateHelper')
 
   const getShareesInteraction = async (provider, folder = config.testFolder) => {
-    provider
-      .given('the user is recreated', { username: sharer, password: sharerPassword })
-      .given('the user is recreated', { username: receiver, password: receiverPassword })
+    await givenUserExists(provider, sharer)
+    await givenUserExists(provider, receiver)
     await givenGroupExists(provider, config.testGroup)
-
     return provider
       .uponReceiving(`as '${sharer}', a GET request to get share recipients (both users and groups)`)
       .withRequest({

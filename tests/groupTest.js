@@ -4,7 +4,7 @@ describe('Main: Currently testing group management,', function () {
   const config = require('./config/config.json')
   const {
     admin: { username: adminUsername },
-    testUser1: { username: testUser, password: testUserPassword }
+    testUser1: { username: testUser }
   } = require('./config/users.json')
   let provider = null
 
@@ -20,7 +20,8 @@ describe('Main: Currently testing group management,', function () {
 
   const {
     givenGroupExists,
-    givenGroupDoesNotExist
+    givenGroupDoesNotExist,
+    givenUserExists
   } = require('./helpers/providerStateHelper')
 
   async function getGroupsInteraction (provider) {
@@ -140,8 +141,8 @@ describe('Main: Currently testing group management,', function () {
     await getCurrentUserInformationInteraction(provider)
 
     await givenGroupExists(provider, config.testGroup)
+    await givenUserExists(provider, testUser)
     await provider
-      .given('the user is recreated', { username: testUser, password: testUserPassword })
       .given('user is added to group', { username: testUser, groupName: config.testGroup })
       .uponReceiving(`as '${adminUsername}', a GET request to get all members of existing group`)
       .withRequest({

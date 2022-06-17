@@ -21,7 +21,11 @@ describe('Main: Currently testing file versions management,', function () {
     getMockServerBaseUrl
   } = require('./helpers/pactHelper.js')
 
-  const { givenFileExists } = require('./helpers/providerStateHelper')
+  const {
+    givenFileExists,
+    givenUserExists,
+    givenProviderBaseUrlIsReturned
+  } = require('./helpers/providerStateHelper')
 
   const mockServerBaseUrl = getMockServerBaseUrl()
   const { createDavPath } = require('./helpers/webdavHelper.js')
@@ -76,11 +80,9 @@ describe('Main: Currently testing file versions management,', function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
       await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
+
+      await givenUserExists(provider, testUser)
       await provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
         .uponReceiving(`as '${testUser}', a PROPFIND request to get file versions of non existent file`)
         .withRequest({
           method: 'PROPFIND',
@@ -118,10 +120,7 @@ describe('Main: Currently testing file versions management,', function () {
 
   describe('file versions for existing files', () => {
     const PropfindFileVersionOfExistentFiles = async (provider) => {
-      await provider.given('the user is recreated', {
-        username: testUser,
-        password: testUserPassword
-      })
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, versionedFile)
       await provider
         .given('the client waits', { delay: 2000 })
@@ -187,10 +186,7 @@ describe('Main: Currently testing file versions management,', function () {
         })
     }
     const getFileVersionContents = async (provider, i) => {
-      await provider.given('the user is recreated', {
-        username: testUser,
-        password: testUserPassword
-      })
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, versionedFile)
       await provider.given('the client waits', { delay: 2000 })
       await givenFileExists(
@@ -266,11 +262,8 @@ describe('Main: Currently testing file versions management,', function () {
       const provider = createProvider()
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
       await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
-      await provider
-        .given('the user is recreated', {
-          username: testUser,
-          password: testUserPassword
-        })
+
+      await givenUserExists(provider, testUser)
       await givenFileExists(provider, testUser, versionedFile)
       // re-upload the same file to create a new version
       await givenFileExists(provider, testUser, versionedFile, 'new content')
@@ -281,8 +274,7 @@ describe('Main: Currently testing file versions management,', function () {
           password: testUserPassword,
           number: 1
         })
-        .given('provider base url is returned')
-
+      await givenProviderBaseUrlIsReturned(provider)
       await provider
         .uponReceiving(`as '${testUser}', a COPY request to restore file versions`)
         .withRequest({

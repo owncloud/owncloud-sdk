@@ -18,11 +18,11 @@ describe('Signed urls', function () {
     createProvider
   } = require('./helpers/pactHelper.js')
 
-  const { givenFileExists } = require('./helpers/providerStateHelper')
+  const { givenFileExists, givenUserExists } = require('./helpers/providerStateHelper')
 
-  const getSigningKeyInteraction = (provider, username, password) => {
+  const getSigningKeyInteraction = async (provider, username, password) => {
+    await givenUserExists(provider, username)
     return provider
-      .given('the user is recreated', { username: username, password: password })
       .uponReceiving(`as '${username}', a GET request to get a signing key`)
       .withRequest({
         method: 'GET',

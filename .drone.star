@@ -231,7 +231,7 @@ def prepareTestConfig(subFolderPath = "/"):
         "commands": [
             "apt update",
             "apt install gettext -y",
-            "envsubst < tests/config/config.drone.json > tests/config/config.json",
+            "envsubst < tests/config/config.sample.json > tests/config/config.json",
             "cat tests/config/config.json",
         ],
         "environment": {

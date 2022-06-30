@@ -1,14 +1,17 @@
 /**
  * @class FileInfo
  * @classdesc FileInfo class, stores information regarding a file/folder
- * @param   {string}    name     name of file/folder
- * @param   {string}    type     "file" => file ; "dir" => folder
- * @param   {string}    attr     attributes of file like size, time added etc.
+ * @param   {string}    name            name of file/folder
+ * @param   {string}    type            "file" => file ; "dir" => folder
+ * @param   {string}    attr            attributes of file like size, time added etc.
+ * @param   {boolean}   processing
  */
 class FileInfo {
-  constructor (name, type, attr) {
+  constructor (name, type, attr, processing = false) {
     this.name = name
     this.type = type
+    this.type = type
+    this.processing = processing
     this.fileInfo = {}
     this.tusSupport = null
 

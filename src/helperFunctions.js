@@ -582,7 +582,16 @@ class helpers {
     }
     const name = path
 
-    if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
+    if (response.propStat.length === 0) {
+      return null
+    }
+
+    const ok = response.propStat[0].status === 'HTTP/1.1 200 OK'
+    const processing = response.propStat[0].status === 'HTTP/1.1 425 TOO EARLY'
+
+    const cont = ok || processing
+
+    if (!cont) {
       return null
     }
 
@@ -596,7 +605,7 @@ class helpers {
       }
     }
 
-    return new FileInfo(name, fileType, props)
+    return new FileInfo(name, fileType, props, processing)
   }
 
   _parseTusHeaders (response) {

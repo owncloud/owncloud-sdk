@@ -1,0 +1,5 @@
+Enhancement: Resource processing
+
+We've added a processing property to the fileinfo if the server response is `HTTP/1.1 425 TOO EARLY`
+
+https://github.com/owncloud/owncloud-sdk/pull/1109

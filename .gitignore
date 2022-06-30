@@ -1,7 +1,6 @@
 .DS_Store
 .drone.yml
 coverage
-dist
 docs
 docs-swagger/node_modules
 swagger.config.js

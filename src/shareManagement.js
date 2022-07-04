@@ -406,9 +406,6 @@ class Shares {
       if (optionalParams.publicUpload && typeof (optionalParams.publicUpload) === 'boolean') {
         postData.publicUpload = optionalParams.publicUpload.toString().toLowerCase()
       }
-      if (optionalParams.permissions) {
-        postData.permissions = optionalParams.permissions
-      }
       if (optionalParams.role) {
         postData.role = optionalParams.role
       }

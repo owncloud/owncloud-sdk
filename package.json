@@ -117,6 +117,9 @@
   "dependenciesMeta": {
     "@pact-foundation/pact": {
       "built": true
+    },
+    "@pact-foundation/pact-core": {
+      "built": true
     }
   }
 }

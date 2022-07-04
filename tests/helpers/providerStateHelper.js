@@ -347,7 +347,7 @@ const givenUserIsAddedToGroup = (provider, username, groupName) => {
  * @param {string} folderName
  * @param {string} password
  */
-const givenFolderExistsInLastPublicShare = (provider, folderName, password) => {
+const givenFolderExistsInLastPublicShare = (provider, folderName, password = '') => {
   return provider.given('folder exists in last shared public share', {
     folderName,
     password
@@ -363,7 +363,7 @@ const givenFolderExistsInLastPublicShare = (provider, folderName, password) => {
 const givenFileExistsInLastPublicShare = (
   provider,
   fileName,
-  password,
+  password= '',
   content = ''
 ) => {
   return provider.given('file exists in last shared public share', {

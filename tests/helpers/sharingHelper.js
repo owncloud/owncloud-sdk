@@ -2,7 +2,7 @@ const httpHelper = require('./httpHelper')
 const {
   applicationFormUrlEncoded,
   encodeURIPath,
-  getPublicLinkAuthHeader
+  getPublicLinkAuthHeader,
   getAuthHeaders,
   applicationFormUrlEncodedContentType,
   sanitizeUrl,

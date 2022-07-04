@@ -54,7 +54,7 @@ const givenGroupDoesNotExist = (provider, group) => {
  * @param {string} resource file name
  * @param {string} content
  */
-const givenFileExists = (provider, username, resource, content) => {
+const givenFileExists = (provider, username, resource, content= '') => {
   return provider
     .given('file exists', { username, fileName: resource, content })
 }
@@ -181,7 +181,7 @@ const givenPublicShareExists = (
  * @param {string} resource
  * @param {string} resourceType
  */
-const givenFileFolderIsCreated = (provider, username, resource, resourceType) => {
+const givenFileFolderIsCreated = (provider, username, resource, resourceType = 'file') => {
   if (resourceType === 'folder') {
     return givenFolderExists(provider, username, resource)
   } else {
@@ -364,7 +364,7 @@ const givenFileExistsInLastPublicShare = (
   provider,
   fileName,
   password,
-  content
+  content = ''
 ) => {
   return provider.given('file exists in last shared public share', {
     fileName,

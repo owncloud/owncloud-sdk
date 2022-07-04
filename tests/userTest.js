@@ -1,7 +1,7 @@
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing user management,', function () {
-  var config = require('./config/config.json')
+  const config = require('./config/config.json')
   const {
     admin: { username: adminUsername, displayname: adminDisplayName },
     testUser1: { username: testUser, password: testUserPassword }
@@ -61,7 +61,7 @@ describe('Main: Currently testing user management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/users$',
           '/ocs/v1.php/cloud/users'
         ),
-        query: query,
+        query,
         headers: validAdminAuthHeaders
       })
 

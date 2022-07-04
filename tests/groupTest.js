@@ -221,7 +221,7 @@ describe('Main: Currently testing group management,', function () {
           /.*\/ocs\/v1\.php\/cloud\/groups$/,
           '/ocs/v1.php/cloud/groups'
         ),
-        headers: headers,
+        headers,
         body: 'groupid=' + config.testGroup
       })
       .willRespondWith({

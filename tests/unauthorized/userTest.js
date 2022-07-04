@@ -5,8 +5,8 @@ import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Unauthorized: Currently testing user management,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
-  var config = require('../config/config.json')
+  const timeRightNow = new Date().getTime()
+  const config = require('../config/config.json')
   const {
     admin: { username: adminUsername },
     testUser1: { username: testUser }
@@ -25,12 +25,12 @@ describe('Unauthorized: Currently testing user management,', function () {
     return provider
       .uponReceiving(`as '${adminUsername}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
-        method: method,
-        path: path,
+        method,
+        path,
         headers: {
           authorization: invalidAuthHeader
         },
-        query: query
+        query
       })
       .willRespondWith({
         status: 401,
@@ -70,7 +70,7 @@ describe('Unauthorized: Currently testing user management,', function () {
   )
 
   // TESTING CONFIGS
-  var testUserPassword = 'password'
+  const testUserPassword = 'password'
 
   it('checking method : getUser', async function () {
     const provider = createProvider(false, true)

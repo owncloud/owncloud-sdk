@@ -105,7 +105,7 @@ module.exports = class SignUrl {
       return httpCodes.BAD_REQUEST
     }
 
-    var expires = url.searchParams.get('OC-Expires')
+    let expires = url.searchParams.get('OC-Expires')
     if (expires === null) {
       return httpCodes.BAD_REQUEST
     }

@@ -1,19 +1,19 @@
 describe('Unauthenticated: Currently testing user management,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../../src')
-  var config = require('../config/config.json')
+  const timeRightNow = new Date().getTime()
+  const OwnCloud = require('../../src')
+  const config = require('../config/config.json')
   const { getMockServerBaseUrl } = require('../helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testUser = 'testUser' + timeRightNow
-  var testUserPassword = 'password'
-  var testGroup = 'testGroup' + timeRightNow
-  var nonExistentUser = 'nonExistentUser' + timeRightNow
+  const testUser = 'testUser' + timeRightNow
+  const testUserPassword = 'password'
+  const testGroup = 'testGroup' + timeRightNow
+  const nonExistentUser = 'nonExistentUser' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({

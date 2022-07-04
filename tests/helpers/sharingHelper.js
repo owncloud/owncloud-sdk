@@ -101,13 +101,13 @@ const createFileInLastPublicShare = function (token, fileName, password, content
  */
 const toFormUrlEncoded = function (obj) {
   if (obj) {
-    for (const key in obj) {
+    Object.keys(obj).forEach(key => {
       let value = obj[key]
       if (key === 'publicUpload') {
         value = obj[key].toString().toLowerCase()
       }
       return `${key}=${value}`
-    }
+    })
   }
 }
 

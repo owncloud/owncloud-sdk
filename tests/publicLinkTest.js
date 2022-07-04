@@ -65,7 +65,7 @@ describe('oc.publicFiles', function () {
     return provider
       .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
-        method: method,
+        method,
         path: MatchersV3.fromProviderState(
           '/remote.php/dav/public-files/${token}/foo', /* eslint-disable-line no-template-curly-in-string */
           `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/foo`
@@ -111,7 +111,7 @@ describe('oc.publicFiles', function () {
     return provider
       .uponReceiving(`as '${testUser}', a ${method} request to ${description}`)
       .withRequest({
-        method: method,
+        method,
         path: MatchersV3.fromProviderState(
           '/remote.php/dav/public-files/${token}/' + testFile, /* eslint-disable-line no-template-curly-in-string */
           `/remote.php/dav/public-files/${shareTokenOfPublicLinkFolder}/${testFile}`

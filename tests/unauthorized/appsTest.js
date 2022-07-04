@@ -32,7 +32,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
           '.*\\/ocs\\/v1\\.php\\/cloud\\/apps$',
           '/ocs/v1.php/cloud/apps'
         ),
-        query: query,
+        query,
         headers: invalidAuthHeaderObject
       })
       .willRespondWith(unauthorizedResponseObject)
@@ -42,7 +42,7 @@ describe('Unauthorized: Currently testing apps management,', function () {
     return provider
       .uponReceiving(`as '${adminUsername}', a ${method} request to ${requestName} with invalid auth`)
       .withRequest({
-        method: method,
+        method,
         path: MatchersV3.regex(
           '.*\\/ocs\\/v1\\.php\\/cloud\\/apps\\/.*',
           `/ocs/v1.php/cloud/apps/${app}`

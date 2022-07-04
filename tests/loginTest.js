@@ -1,18 +1,18 @@
 describe('Main: Currently testing Login and initLibrary,', function () {
-  var OwnCloud = require('../src/owncloud')
-  var config = require('./config/config.json')
+  const OwnCloud = require('../src/owncloud')
+  const config = require('./config/config.json')
   const {
     admin: { username: adminUsername, password: adminPassword }
   } = require('./config/users.json')
 
   // CURRENT TIME
-  var timeRightNow = Math.random().toString(36).slice(2, 11)
+  const timeRightNow = Math.random().toString(36).slice(2, 11)
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var nonExistentUser = 'nonExistentUser' + timeRightNow
+  const nonExistentUser = 'nonExistentUser' + timeRightNow
   const invalidPassword = config.invalidPassword + timeRightNow
 
   // PACT setup

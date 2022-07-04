@@ -88,7 +88,7 @@ class Files {
       const resolveWithResponseObject = options.resolveWithResponseObject || false
       if (resolveWithResponseObject) {
         return Promise.resolve({
-          body: body,
+          body,
           headers: {
             ETag: response.headers.get('etag'),
             'OC-ETag': response.headers.get('oc-etag'),

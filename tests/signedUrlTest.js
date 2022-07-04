@@ -1,5 +1,5 @@
 describe('Main: Currently testing url signing,', function () {
-  var OwnCloud = require('../src/owncloud')
+  const OwnCloud = require('../src/owncloud')
   const {
     admin: { username: adminUsername, password: adminPassword }
   } = require('./config/users.json')
@@ -8,7 +8,7 @@ describe('Main: Currently testing url signing,', function () {
   const mockServerBaseUrl = getMockServerBaseUrl()
 
   // saved date object
-  var realDate
+  let realDate
 
   beforeEach(function () {
     // Setup

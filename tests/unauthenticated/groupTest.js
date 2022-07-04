@@ -1,16 +1,16 @@
 describe('Unauthenticated: Currently testing group management,', function () {
-  var OwnCloud = require('../../src')
+  const OwnCloud = require('../../src')
   const { getMockServerBaseUrl } = require('../helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
 
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
+  const timeRightNow = new Date().getTime()
 
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testGroup = 'testGroup' + timeRightNow
+  const testGroup = 'testGroup' + timeRightNow
 
   beforeEach(function () {
     oc = new OwnCloud({

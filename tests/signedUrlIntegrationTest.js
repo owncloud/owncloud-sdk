@@ -1,7 +1,7 @@
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 
 describe('Signed urls', function () {
-  var config = require('./config/config.json')
+  const config = require('./config/config.json')
   const {
     testUser1: { username: testUser, password: testUserPassword }
   } = require('./config/users.json')

@@ -51,7 +51,7 @@ class Users {
   createUser (userName, password, groups) {
     return new Promise((resolve, reject) => {
       const params = {
-        password: password,
+        password,
         userid: userName
       }
 

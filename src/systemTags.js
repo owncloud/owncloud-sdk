@@ -1,4 +1,4 @@
-var Promise = require('promise')
+const Promise = require('promise')
 const { Dav } = require('./dav')
 
 /**

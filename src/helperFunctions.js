@@ -166,7 +166,7 @@ class helpers {
     const signUrl = new SignUrl({
       credential: user.id,
       secretKey: key,
-      ttl: ttl,
+      ttl,
       algorithm: 'sha512'
     })
     return signUrl.generateSignedUrl(url, httpMethod)
@@ -232,8 +232,8 @@ class helpers {
     // Configure the request
     const options = {
       url: this.instance + path,
-      method: method,
-      headers: headers
+      method,
+      headers
     }
     const serialize = function (element, key, list = []) {
       if (typeof (element) === 'object') {
@@ -253,9 +253,9 @@ class helpers {
 
     return new Promise((resolve, reject) => {
       fetch(this.instance + path, {
-        method: method,
+        method,
         body: options.body,
-        headers: headers
+        headers
       })
         .then(res => {
           if (res.status >= 400) {
@@ -288,7 +288,7 @@ class helpers {
           res.statusCode = res.status
           resolve({
             response: res,
-            body: body,
+            body,
             data: tree
           })
         })
@@ -333,7 +333,7 @@ class helpers {
       }
       fetch(url, {
         method: 'GET',
-        headers: headers
+        headers
       })
         .then(async res => {
           res.statusCode = res.status
@@ -658,13 +658,13 @@ class helpers {
     options = Object.assign({}, defaults, options)
     const action = options.action.includes('?') ? options.action + '&format=json' : options.action + '?format=json'
     const url = this.instance + this.OCS_BASEPATH_V2 + options.service + '/' + action
-    var headers = this.buildHeaders()
+    let headers = this.buildHeaders()
     headers['OCS-APIREQUEST'] = 'true'
     headers = Object.assign({}, headers, options.headers)
     const init = {
       method: options.method,
       mode: 'cors',
-      headers: headers
+      headers
     }
     if (options.data !== null) {
       init.body = JSON.stringify(options.data)

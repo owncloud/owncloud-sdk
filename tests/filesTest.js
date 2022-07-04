@@ -100,7 +100,7 @@ describe('Main: Currently testing files management,', function () {
                     .appendElement('d:status', '', MatchersV3.equal('HTTP/1.1 200 OK'))
                 })
             })
-          listFolderContentResponse(items).map(item => {
+          listFolderContentResponse(items).forEach(item => {
             dMultistatus.appendElement('d:response', '', item)
           })
         })

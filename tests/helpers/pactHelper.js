@@ -202,15 +202,17 @@ const getContentsOfFileInteraction = async (
       method: 'GET',
       path: webdavPath(file, user),
       headers: { authorization: getAuthHeaders(user, password) }
-    }).willRespondWith(file !== config.nonExistentFile ? {
-      status: 200,
-      headers: textPlainResponseHeaders,
-      body: config.testContent
-    } : {
-      status: 404,
-      headers: applicationXmlResponseHeaders,
-      body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
-    })
+    }).willRespondWith(file !== config.nonExistentFile
+      ? {
+          status: 200,
+          headers: textPlainResponseHeaders,
+          body: config.testContent
+        }
+      : {
+          status: 404,
+          headers: applicationXmlResponseHeaders,
+          body: webdavExceptionResponseBody('NotFound', resourceNotFoundExceptionMessage(config.nonExistentFile))
+        })
 }
 
 const deleteResourceInteraction = async (

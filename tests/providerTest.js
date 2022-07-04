@@ -25,7 +25,7 @@ let lastSharedToken = ''
 const crypto = require('crypto')
 
 const delay = (delayTime) => {
-  var start = new Date().getTime()
+  const start = new Date().getTime()
   while (new Date().getTime() < start + delayTime);
 }
 
@@ -303,8 +303,8 @@ describe('provider testing', () => {
           10000
         )
         return {
-          hashedKey: hashedKey,
-          date: date
+          hashedKey,
+          date
         }
       }
     },

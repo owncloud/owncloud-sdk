@@ -75,9 +75,9 @@ const getFileId = function (user, itemName) {
   const fileIdResult = httpHelper.propfind(
     createDavPath(user, itemName),
     '<?xml version="1.0"?>' +
-      '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
-      '<d:prop><oc:fileid /></d:prop>' +
-      '</d:propfind>',
+    '<d:propfind  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
+    '<d:prop><oc:fileid /></d:prop>' +
+    '</d:propfind>',
     null,
     user
   )
@@ -124,7 +124,7 @@ const getSignKey = function (username) {
  */
 const propfind = function (path, userId, properties, type = 'files', folderDepth = '1') {
   let propertyBody = ''
-  properties.map(prop => {
+  properties.forEach(prop => {
     propertyBody += `<${prop}/>`
   })
   const body = `<?xml version="1.0"?>
@@ -176,7 +176,7 @@ const getTrashBinElements = function (user, depth = '1') {
   )
   const trashData = convert.xml2js(str, { compact: true })['d:multistatus']['d:response']
   const trashItems = []
-  trashData.map(trash => {
+  trashData.forEach(trash => {
     let propstat
     if (Array.isArray(trash['d:propstat'])) {
       propstat = trash['d:propstat'][0]
@@ -208,11 +208,11 @@ const markAsFavorite = function (username, fileName) {
   return httpHelper.proppatch(
     createDavPath(username, fileName),
     '<?xml version="1.0"?>' +
-      '<d:propertyupdate  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
-      '<d:set><d:prop>' +
-      '<oc:favorite>true</oc:favorite>' +
-      '</d:prop></d:set>' +
-      '</d:propertyupdate>',
+    '<d:propertyupdate  xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">' +
+    '<d:set><d:prop>' +
+    '<oc:favorite>true</oc:favorite>' +
+    '</d:prop></d:set>' +
+    '</d:propertyupdate>',
     null,
     username
   )

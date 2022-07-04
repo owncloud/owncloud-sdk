@@ -1,16 +1,16 @@
 describe('Unauthenticated: Currently testing files management,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../../src')
+  const timeRightNow = new Date().getTime()
+  const OwnCloud = require('../../src')
   const { getMockServerBaseUrl } = require('../helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testContent = 'testContent'
-  var testFolder = '/testFolder' + timeRightNow
-  var testSubFiles = [
+  const testContent = 'testContent'
+  const testFolder = '/testFolder' + timeRightNow
+  const testSubFiles = [
     testFolder + '/' + 'file one.txt',
     testFolder + '/' + 'zz+z.txt',
     testFolder + '/' + '中文.txt',
@@ -35,9 +35,9 @@ describe('Unauthenticated: Currently testing files management,', function () {
   })
 
   it('checking method : getFileContents', function (done) {
-    var count = 0
+    let count = 0
 
-    for (var i = 0; i < testSubFiles.length; i++) {
+    for (let i = 0; i < testSubFiles.length; i++) {
       oc.files.getFileContents(testSubFiles[i]).then(content => {
         expect(content).toBe(null)
         done()
@@ -52,7 +52,7 @@ describe('Unauthenticated: Currently testing files management,', function () {
   })
 
   it('checking method : putFileContents', function (done) {
-    var newFile = testFolder + '/' + 'file.txt'
+    const newFile = testFolder + '/' + 'file.txt'
 
     oc.files.putFileContents(newFile, testContent).then(status => {
       expect(status).toBe(null)
@@ -64,7 +64,7 @@ describe('Unauthenticated: Currently testing files management,', function () {
   })
 
   it('checking method : createFolder', function (done) {
-    var newFolder = testFolder + '/' + 'new folder/'
+    const newFolder = testFolder + '/' + 'new folder/'
 
     oc.files.createFolder(newFolder).then(status => {
       expect(status).toBe(null)
@@ -76,7 +76,7 @@ describe('Unauthenticated: Currently testing files management,', function () {
   })
 
   it('checking method : delete', function (done) {
-    var newFolder = testFolder + '/' + 'new folder'
+    const newFolder = testFolder + '/' + 'new folder'
 
     oc.files.delete(newFolder).then(status => {
       expect(status).toBe(null)
@@ -88,7 +88,7 @@ describe('Unauthenticated: Currently testing files management,', function () {
   })
 
   it('checking method : getFile', function (done) {
-    var file = 'tempFile' + timeRightNow
+    const file = 'tempFile' + timeRightNow
 
     oc.files.putFileContents(file, testContent).then(status => {
       expect(status).toBe(null)

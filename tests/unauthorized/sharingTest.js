@@ -67,7 +67,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
     return provider
       .uponReceiving(requestName)
       .withRequest({
-        method: method,
+        method,
         path: MatchersV3.regex(
           '.*\\/ocs\\/v1\\.php\\/apps\\/files_sharing\\/api\\/v1\\/shares/1$',
           '/ocs/v1.php/apps/files_sharing/api/v1/shares/1'

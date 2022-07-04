@@ -1,7 +1,7 @@
 import { MatchersV3 } from '@pact-foundation/pact/v3'
 
 describe('Main: Currently testing share recipient,', function () {
-  var config = require('./config/config.json')
+  const config = require('./config/config.json')
   const {
     testUser1: { username: sharer, password: sharerPassword, displayname: sharerDisplayname },
     testUser2: { username: receiver, displayname: receiverDisplayname }

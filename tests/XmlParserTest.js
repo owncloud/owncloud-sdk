@@ -1,16 +1,16 @@
 describe('Main: Currently testing XmlParser,', function () {
-  var parser = require('../src/xmlParser.js').xml2js
+  const parser = require('../src/xmlParser.js').xml2js
 
-  var sampleXml1 =
+  const sampleXml1 =
         '<cont:contact xmlns:cont = "www.tutorialspoint.com/profile">' +
         '   <cont:name>Tanmay Patil</cont:name>' +
         '   <cont:company>TutorialsPoint</cont:company>' +
         '   <cont:phone>(011) 123-4567</cont:phone>' +
         '</cont:contact>'
-  var sampleNS1 = {
+  const sampleNS1 = {
     cont: 'www.tutorialspoint.com/profile'
   }
-  var parsedXml1 = {
+  const parsedXml1 = {
     '{www.tutorialspoint.com/profile}contact': {
       _attributes: {
         'xmlns:cont': 'www.tutorialspoint.com/profile'
@@ -21,7 +21,7 @@ describe('Main: Currently testing XmlParser,', function () {
     }
   }
 
-  var sampleXml2 =
+  const sampleXml2 =
         '<d:response>' +
         '    <d:href>/core/remote.php/webdav/</d:href>' +
         '    <d:propstat>' +
@@ -36,13 +36,13 @@ describe('Main: Currently testing XmlParser,', function () {
         '        <d:status>HTTP/1.1 200 OK</d:status>' +
         '    </d:propstat>' +
         '</d:response>'
-  var sampleNS2 = {
+  const sampleNS2 = {
     d: 'DAV:',
     s: 'http://sabredav.org/ns',
     oc: 'http://owncloud.org/ns',
     x: 'customns'
   }
-  var parsedXml2 = {
+  const parsedXml2 = {
     '{DAV:}response': {
       '{DAV:}href': '/core/remote.php/webdav/',
       '{DAV:}propstat': {
@@ -63,14 +63,14 @@ describe('Main: Currently testing XmlParser,', function () {
 
   describe('testing 1st XML', function () {
     it('tests XML', function () {
-      var parsedXml = parser(sampleXml1, sampleNS1)
+      const parsedXml = parser(sampleXml1, sampleNS1)
       expect(parsedXml).toEqual(parsedXml1)
     })
   })
 
   describe('testing 2nd XML', function () {
     it('tests XML', function () {
-      var parsedXml = parser(sampleXml2, sampleNS2)
+      const parsedXml = parser(sampleXml2, sampleNS2)
       expect(parsedXml).toEqual(parsedXml2)
     })
   })

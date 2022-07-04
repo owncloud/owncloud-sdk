@@ -87,7 +87,7 @@ class PublicFiles {
     const init = {
       method: 'GET',
       mode: 'cors',
-      headers: headers
+      headers
     }
 
     return this.helpers.fetch(url, init).then(resp => {

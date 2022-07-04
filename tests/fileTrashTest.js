@@ -135,17 +135,17 @@ describe('oc.fileTrash', function () {
   }
   const requestMethod = function (method, path, headers, body = null) {
     return {
-      method: method,
-      path: path,
-      headers: headers,
-      body: body
+      method,
+      path,
+      headers,
+      body
     }
   }
   const responseMethod = function (status, headers = {}, body = null) {
     return {
-      status: status,
-      headers: headers,
-      body: body
+      status,
+      headers,
+      body
     }
   }
 

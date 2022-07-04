@@ -46,7 +46,7 @@ describe('Main: Currently testing apps management,', function () {
       .willRespondWith({
         status: 200,
         headers: responseHeader,
-        body: body
+        body
       })
   }
 
@@ -59,7 +59,7 @@ describe('Main: Currently testing apps management,', function () {
           /.*\/ocs\/v1\.php\/cloud\/apps$/,
           '/ocs/v1.php/cloud/apps'
         ),
-        query: query,
+        query,
         headers: validAdminAuthHeaders
       })
       .willRespondWith({

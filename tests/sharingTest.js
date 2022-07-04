@@ -1117,7 +1117,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             return oc.shares.shareFileWithUser(
               file,
               sharee,
-              { expirationDate: expirationDate }
+              { expirationDate }
             ).then(share => {
               expect(share).not.toBe(null)
               expect(typeof share).toBe('object')

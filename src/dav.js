@@ -56,22 +56,22 @@ export class Dav {
 
     headers = { ...headers, Depth: depth, ...applicationXmlResponseHeaders }
 
-    var body =
+    let body =
           '<?xml version="1.0"?>\n' +
           '<d:propfind '
-    var namespace
+    let namespace
     for (namespace in this.xmlNamespaces) {
       body += ' xmlns:' + this.xmlNamespaces[namespace] + '="' + namespace + '"'
     }
     body += '>\n' +
           '  <d:prop>\n'
 
-    for (var ii in properties) {
+    for (const ii in properties) {
       if (!Object.hasOwnProperty.call(properties, ii)) {
         continue
       }
 
-      var property = this.parseClarkNotation(properties[ii])
+      const property = this.parseClarkNotation(properties[ii])
       if (this.xmlNamespaces[property.namespace]) {
         body += '    <' + this.xmlNamespaces[property.namespace] + ':' + property.name + ' />\n'
       } else {
@@ -100,17 +100,17 @@ export class Dav {
    * @return {String} XML "<d:set>" block
    */
   _renderPropSet (properties) {
-    var body = '  <d:set>\n' +
+    let body = '  <d:set>\n' +
           '   <d:prop>\n'
 
-    for (var ii in properties) {
+    for (const ii in properties) {
       if (!Object.hasOwnProperty.call(properties, ii)) {
         continue
       }
 
-      var property = this.parseClarkNotation(ii)
+      const property = this.parseClarkNotation(ii)
       var propName
-      var propValue = properties[ii]
+      let propValue = properties[ii]
       if (this.xmlNamespaces[property.namespace]) {
         propName = this.xmlNamespaces[property.namespace] + ':' + property.name
       } else {
@@ -142,10 +142,10 @@ export class Dav {
 
     headers = { ...headers, ...applicationXmlResponseHeaders }
 
-    var body =
+    let body =
           '<?xml version="1.0"?>\n' +
           '<d:propertyupdate '
-    var namespace
+    let namespace
     for (namespace in this.xmlNamespaces) {
       body += ' xmlns:' + this.xmlNamespaces[namespace] + '="' + namespace + '"'
     }
@@ -173,7 +173,7 @@ export class Dav {
    * @return {Promise}
    */
   mkcol (url, properties, headers) {
-    var body = ''
+    let body = ''
     headers = headers || {}
     headers['Content-Type'] = 'application/xml; charset=utf-8'
 
@@ -181,7 +181,7 @@ export class Dav {
       body =
               '<?xml version="1.0"?>\n' +
               '<d:mkcol'
-      var namespace
+      let namespace
       for (namespace in this.xmlNamespaces) {
         body += ' xmlns:' + this.xmlNamespaces[namespace] + '="' + namespace + '"'
       }
@@ -229,7 +229,7 @@ export class Dav {
     return new Promise((resolve) => {
       return reqClient.customRequest('', requestOptions)
         .then(res => {
-          var resultBody = res.data
+          let resultBody = res.data
           if (res.status === 207) {
             resultBody = this.parseMultiStatus(resultBody)
           }
@@ -260,31 +260,31 @@ export class Dav {
    * @return {string|Array} text content as string or array of subnodes, excluding text nodes
    */
   _parsePropNode (propNode) {
-    var content = null
+    let content = null
     if (propNode.constructor === Object) {
       if (Object.keys(propNode).length === 0) {
         return ''
       }
-      var subNodes = []
+      const subNodes = []
       // Propnode can be any one of these
       //         { 'oc:share-type': [ '0', '3' ] }
       //         { 'oc:share-type': '3' }
       //         { 'd:collection': {} }
-      for (var key in propNode) {
-        var node = propNode[key]
+      for (const key in propNode) {
+        const node = propNode[key]
         if (typeof node !== 'object') {
           subNodes.push(node)
           continue
         }
         if (Array.isArray(node)) {
-          for (var item of node) {
+          for (const item of node) {
             subNodes.push(item)
           }
           continue
         }
-        var nsComponent = key.split(':')[0]
-        var localComponent = key.split(':')[1]
-        var nsValue = this.xmlNamespacesComponents[nsComponent]
+        const nsComponent = key.split(':')[0]
+        const localComponent = key.split(':')[1]
+        const nsValue = this.xmlNamespacesComponents[nsComponent]
         subNodes.push('{' + nsValue + '}' + localComponent)
       }
       if (subNodes.length) {
@@ -307,40 +307,40 @@ export class Dav {
   parseMultiStatus (xmlBody) {
     const doc = parser.xml2js(xmlBody)
 
-    var responseIterator = doc['d:multistatus']['d:response'] || []
+    let responseIterator = doc['d:multistatus']['d:response'] || []
     if (responseIterator.constructor !== Array) {
       responseIterator = [responseIterator]
     }
-    var result = []
+    const result = []
     responseIterator.forEach(responseNode => {
-      var response = {
+      const response = {
         href: null,
         propStat: []
       }
 
       response.href = responseNode['d:href']
 
-      var propStatIterator = responseNode['d:propstat']
+      let propStatIterator = responseNode['d:propstat']
 
       if (propStatIterator.constructor !== Array) {
         propStatIterator = [propStatIterator]
       }
       propStatIterator.forEach(propStatNode => {
-        var propStat = {
+        const propStat = {
           status: propStatNode['d:status'],
           properties: {}
         }
 
-        var propIterator = propStatNode['d:prop']
+        let propIterator = propStatNode['d:prop']
         if (propIterator.constructor !== Array) {
           propIterator = [propIterator]
         }
         propIterator.forEach(propNode => {
-          for (var key in propNode) {
-            var content = this._parsePropNode(propNode[key])
-            var nsComponent = key.split(':')[0]
-            var localComponent = key.split(':')[1]
-            var nsValue = this.xmlNamespacesComponents[nsComponent]
+          for (const key in propNode) {
+            const content = this._parsePropNode(propNode[key])
+            const nsComponent = key.split(':')[0]
+            const localComponent = key.split(':')[1]
+            const nsValue = this.xmlNamespacesComponents[nsComponent]
             propStat.properties['{' + nsValue + '}' + localComponent] = content
           }
         })
@@ -353,7 +353,7 @@ export class Dav {
   }
 
   parseClarkNotation (propertyName) {
-    var result = propertyName.match(/^{([^}]+)}(.*)$/)
+    const result = propertyName.match(/^{([^}]+)}(.*)$/)
     if (!result) {
       return
     }

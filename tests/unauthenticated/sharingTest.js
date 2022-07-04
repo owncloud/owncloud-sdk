@@ -1,19 +1,19 @@
 describe('Unauthenticated: Currently testing file/folder sharing,', function () {
   // CURRENT TIME
-  var timeRightNow = new Date().getTime()
-  var OwnCloud = require('../../src')
+  const timeRightNow = new Date().getTime()
+  const OwnCloud = require('../../src')
   const { getMockServerBaseUrl } = require('../helpers/pactHelper.js')
   const mockServerBaseUrl = getMockServerBaseUrl()
   // LIBRARY INSTANCE
-  var oc
+  let oc
 
   // TESTING CONFIGS
-  var testUser = 'testUser' + timeRightNow
-  var testGroup = 'testGroup' + timeRightNow
-  var testFolder = '/testFolder' + timeRightNow
-  var nonExistentFile = 'nonExistentFile' + timeRightNow
+  const testUser = 'testUser' + timeRightNow
+  const testGroup = 'testGroup' + timeRightNow
+  const testFolder = '/testFolder' + timeRightNow
+  const nonExistentFile = 'nonExistentFile' + timeRightNow
 
-  var testFile = '/文件' + timeRightNow + '.txt'
+  const testFile = '/文件' + timeRightNow + '.txt'
 
   beforeEach(function () {
     oc = new OwnCloud({

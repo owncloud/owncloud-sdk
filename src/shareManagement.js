@@ -47,7 +47,7 @@ class Shares {
 
     const postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_LINK,
-      path: path
+      path
     }
 
     const reflectClassicAttribute = (key, scope, value, exclusive = true) => {
@@ -113,7 +113,7 @@ class Shares {
     let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_USER,
       shareWith: username,
-      path: path
+      path
     }
 
     if (optionalParams) {
@@ -180,7 +180,7 @@ class Shares {
     let postData = {
       shareType: this.helpers.OCS_SHARE_TYPE_GROUP,
       shareWith: groupName,
-      path: path
+      path
     }
 
     if (optionalParams) {

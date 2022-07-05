@@ -1,6 +1,5 @@
 const httpHelper = require('./httpHelper')
 const {
-  applicationFormUrlEncoded,
   encodeURIPath,
   getPublicLinkAuthHeader,
   getAuthHeaders,
@@ -22,22 +21,12 @@ const publicFilesEndPoint = '/public-files'
  */
 const shareResource = function (username, shareParams) {
   const params = validateParams(shareParams)
-  // return httpHelper.postOCS(
-  //   sharesEndPoint,
-  //   params,
-  //   applicationFormUrlEncoded,
-  //   username
-  // )
-  // TODO use httpHelper.postOCS
-  return fetch(sharesEndPoint + '?format=json', {
-    method: 'POST',
-    body: params,
-    headers: {
-      authorization: getAuthHeaders(username, password),
-      ...applicationFormUrlEncodedContentType
-    },
-    contentType: applicationFormUrlEncodedContentType['Content-Type']
-  })
+  return httpHelper.postOCS(
+    sharesEndPoint,
+    params,
+    applicationFormUrlEncodedContentType,
+    username
+  )
 }
 
 /**

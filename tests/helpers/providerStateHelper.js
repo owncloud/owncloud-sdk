@@ -56,7 +56,7 @@ const givenGroupDoesNotExist = (provider, group) => {
  */
 const givenFileExists = (provider, username, resource, content= '') => {
   return provider
-    .given('file exists', { username, fileName: resource, content })
+    .given('file exists ', { username, fileName: resource, content })
 }
 
 /**

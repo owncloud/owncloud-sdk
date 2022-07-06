@@ -388,9 +388,9 @@ const createUserInteraction = function (provider) {
       ),
       headers: {
         ...validAdminAuthHeaders,
-        ...applicationFormUrlEncodedContentType
       },
-      body: `password=${testUserPassword}&userid=${testUser}`
+      body: `password=${testUserPassword}&userid=${testUser}`,
+      contentType: applicationFormUrlEncodedContentType['Content-Type']
     })
     .willRespondWith({
       status: 200,
@@ -531,7 +531,6 @@ const updateFileInteraction = async function (provider, file, user = adminUserna
         authorization: getAuthHeaders(user, password),
         ...textPlainResponseHeaders
       },
-      contentType: textPlainResponseHeaders['Content-Type'],
       body: config.testContent
     })
     .willRespondWith(response)

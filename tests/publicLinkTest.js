@@ -18,6 +18,7 @@ describe('oc.publicFiles', function () {
   const using = require('jasmine-data-provider')
 
   const {
+    applicationXmlContentType,
     xmlResponseHeaders,
     applicationFormUrlEncodedContentType,
     htmlResponseAndAccessControlCombinedHeader,

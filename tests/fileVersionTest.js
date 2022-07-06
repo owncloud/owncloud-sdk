@@ -10,7 +10,7 @@ describe('Main: Currently testing file versions management,', function () {
   } = require('./config/users.json')
 
   const {
-    applicationXmlResponseHeaders,
+    applicationXmlContentType,
     xmlResponseHeaders,
     textPlainResponseHeaders,
     getCurrentUserInformationInteraction,

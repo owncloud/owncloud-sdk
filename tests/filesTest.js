@@ -30,7 +30,8 @@ describe('Main: Currently testing files management,', function () {
     updateFileInteraction,
     createOwncloud,
     createProvider,
-    getMockServerBaseUrl
+    getMockServerBaseUrl,
+    applicationXmlContentType
   } = require('./helpers/pactHelper.js')
 
   const {

@@ -1,7 +1,7 @@
 const userHelper = require('./userHelper')
 const httpHelper = require('./httpHelper')
 
-const { applicationFormUrlEncoded } = require('./pactHelper.js')
+const { applicationFormUrlEncodedContentType } = require('./pactHelper.js')
 
 exports.createUser = function (
   user,
@@ -16,7 +16,7 @@ exports.createUser = function (
   return httpHelper.postOCS(
     '/cloud/users',
     `userid=${user}&password=${password}&email=${email}`,
-    applicationFormUrlEncoded
+    applicationFormUrlEncodedContentType
   )
 }
 
@@ -28,7 +28,7 @@ exports.createGroup = function (group) {
   return httpHelper.postOCS(
     '/cloud/groups',
     `groupid=${group}`,
-    applicationFormUrlEncoded
+    applicationFormUrlEncodedContentType
   )
 }
 
@@ -40,7 +40,7 @@ exports.addToGroup = function (user, group) {
   return httpHelper.postOCS(
     `/cloud/users/${user}/groups`,
     `groupid=${group}`,
-    applicationFormUrlEncoded
+    applicationFormUrlEncodedContentType
   )
 }
 
@@ -48,6 +48,6 @@ exports.makeUserGroupSubadmin = function (user, group) {
   return httpHelper.postOCS(
     `/cloud/users/${user}/subadmins`,
     `groupid=${group}`,
-    applicationFormUrlEncoded
+    applicationFormUrlEncodedContentType
   )
 }

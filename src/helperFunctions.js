@@ -589,7 +589,6 @@ class helpers {
     const props = response.propStat[0].properties
     let fileType = 'file'
     const resType = props['{DAV:}resourcetype']
-    console.log(props)
     if (resType) {
       const node = resType[0]
       if (node === '{DAV:}collection') {

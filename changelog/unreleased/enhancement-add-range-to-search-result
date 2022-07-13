@@ -1,0 +1,6 @@
+Enhancement: Add range to search result
+
+We've added the range property to the search result, so we can retrieve the found items,
+even if the search limit will be exceeded.
+
+https://github.com/owncloud/owncloud-sdk/pull/1112

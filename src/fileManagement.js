@@ -331,7 +331,7 @@ class Files {
    * @param   {string} pattern        pattern to be searched for
    * @param   {number} limit          maximum number of results
    * @param   {string[]} properties   list of DAV properties which are expected in the response
-   * @returns {Promise.<FileInfo[]>}  boolean: whether the operation was successful
+   * @returns {Promise.Object}        boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
    */
   search (pattern, limit, properties) {
@@ -355,7 +355,14 @@ class Files {
       '  </oc:search>\n' +
       '</oc:search-files>'
 
-    return this._sendDavReport(body)
+    return new Promise((resolve, reject) => {
+      this._sendDavReport(body, true).then(reportResponse => {
+        return resolve({
+          results: this.helpers._parseBody(reportResponse.body),
+          range: reportResponse.res?.headers?.['content-range']
+        })
+      }).catch((e) => reject(e))
+    })
   }
 
   /**
@@ -438,7 +445,7 @@ class Files {
     return this._sendDavReport(body)
   }
 
-  _sendDavReport (body) {
+  _sendDavReport (body, plainResult = false) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
@@ -453,7 +460,9 @@ class Files {
         if (result.status !== 207) {
           return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
         } else {
-          return Promise.resolve(this.helpers._parseBody(result.body))
+          return plainResult
+            ? Promise.resolve(result)
+            : Promise.resolve(this.helpers._parseBody(result.body))
         }
       })
     })

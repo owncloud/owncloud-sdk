@@ -208,22 +208,23 @@ class helpers {
    * @param   {string} service    service (cloud, privatedata etc.)
    * @param   {string} action     action (apps?filter=enabled, capabilities etc.)
    * @param   {string} [data]     formData for POST and PUT requests
+   * @param   {boolean} authRequired     use an auth header for the request
    * @returns {Promise.<data>}    object: {response: response, body: request body}
    * @returns {Promise.<error>}   string: error message, if any.
    */
-  _makeOCSrequest (method, service, action, data) {
+  _makeOCSrequest (method, service, action, data, authRequired = true) {
     const self = this
 
     if (!self.instance) {
       return Promise.reject('Please specify a server URL first')
     }
 
-    if (!self._authHeader) {
+    if (authRequired && !self._authHeader) {
       return Promise.reject('Please specify an authorization first.')
     }
 
     // Set the headers
-    const headers = this.buildHeaders()
+    const headers = this.buildHeaders(authRequired)
     let slash = ''
 
     if (service) {

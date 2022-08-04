@@ -505,7 +505,7 @@ class Shares {
    */
   getProtectedTokenInfo (token) {
     return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, '/' + this.helpers.OCS_PROTECTED_TOKEN_INFO + '/' + token)
+      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, this.helpers.OCS_PROTECTED_TOKEN_INFO + '/' + token)
         .then(data => {
           const tokenInfo = data.data.ocs.data
           resolve(tokenInfo)
@@ -523,7 +523,7 @@ class Shares {
    */
   getUnprotectedTokenInfo (token) {
     return new Promise((resolve, reject) => {
-      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, '/' + this.helpers.OCS_UNPROTECTED_TOKEN_INFO + '/' + token)
+      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, this.helpers.OCS_UNPROTECTED_TOKEN_INFO + '/' + token, null, false)
         .then(data => {
           const tokenInfo = data.data.ocs.data
           resolve(tokenInfo)

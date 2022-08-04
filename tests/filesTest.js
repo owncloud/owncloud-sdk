@@ -1475,7 +1475,8 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(testUser, testUserPassword)
         await oc.login()
-        return oc.files.search('abc', 30, davProperties).then(files => {
+        return oc.files.search('abc', 30, davProperties).then(response => {
+          const files = response.results
           expect(typeof (files)).toBe('object')
           expect(files.length).toEqual(1)
           expect(files[0].getName()).toEqual(filename)

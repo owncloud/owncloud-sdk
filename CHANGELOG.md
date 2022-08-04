@@ -13,6 +13,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
 * Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)
 * Enhancement - Add overwrite flag for public files move and copy: [#7122](https://github.com/owncloud/web/issues/7122)
+* Enhancement - Add range to search result: [#1112](https://github.com/owncloud/owncloud-sdk/pull/1112)
 * Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)
 * Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
 * Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
@@ -81,6 +82,14 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/web/issues/7122
    https://github.com/owncloud/owncloud-sdk/pull/1097
+
+
+* Enhancement - Add range to search result: [#1112](https://github.com/owncloud/owncloud-sdk/pull/1112)
+
+   We've added the range property to the search result, so we can retrieve the found items, even if
+   the search limit will be exceeded.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1112
 
 
 * Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)

@@ -41,6 +41,13 @@ class Tags {
     })
   }
 
+  /**
+   * Remove tags from resource
+   * @param   {string}    spaceRef          the space ref
+   * @param   {array}     tags              the tags
+   * @returns {Promise.<number>}            id of the newly created system tag
+   * @returns {Promise.<error>}             string: error message, if any.
+   */
   removeResourceTag (spaceRef, tags) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')

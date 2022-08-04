@@ -4,7 +4,7 @@ const { Dav } = require('./dav')
 /**
  * @class Tags
  * @classdesc
- * <b><i> The SystemTags class, has all the methods for ownCloud system tags management.</i></b><br><br>
+ * <b><i> The Tags class, has all the methods for OCIS tags management.</i></b><br><br>
  *
  * @version 1.0.0
  * @param   {helpers}    helperFile  instance of the helpers class

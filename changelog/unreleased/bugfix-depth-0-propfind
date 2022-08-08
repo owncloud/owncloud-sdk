@@ -1,0 +1,5 @@
+Bugfix: Depth 0 PROPFIND on empty responses
+
+We fixed a bug where depth 0 PROPFINDs resulted in an exception when the response is empty. This was happening when requesting only certain props in the PROPFIND and those were not present.
+
+https://github.com/owncloud/owncloud-sdk/pull/1128

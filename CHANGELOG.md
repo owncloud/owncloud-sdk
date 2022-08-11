@@ -6,6 +6,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 ## Summary
 
+* Bugfix - Depth 0 PROPFIND on empty responses: [#1128](https://github.com/owncloud/owncloud-sdk/pull/1128)
 * Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
@@ -24,6 +25,14 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
 
 ## Details
+
+* Bugfix - Depth 0 PROPFIND on empty responses: [#1128](https://github.com/owncloud/owncloud-sdk/pull/1128)
+
+   We fixed a bug where depth 0 PROPFINDs resulted in an exception when the response is empty. This
+   was happening when requesting only certain props in the PROPFIND and those were not present.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1128
+
 
 * Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
 
@@ -238,7 +247,7 @@ The following sections list the changes in ownCloud SDK 2.0.0.
 
 The following sections list the changes in ownCloud SDK 1.1.2.
 
-[1.1.2]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...v1.1.2
+[1.1.2]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.1...v1.1.2
 
 ## Summary
 
@@ -254,11 +263,28 @@ The following sections list the changes in ownCloud SDK 1.1.2.
 
    https://github.com/owncloud/owncloud-sdk/pull/977
 
+# Changelog for [1.1.1] (2022-01-26)
+
+The following sections list the changes in ownCloud SDK 1.1.1.
+
+[1.1.1]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.0...v1.1.1
+
+## Summary
+
+* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
+
+## Details
+
+* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
+
+   We now always require the default axios since the unspecified require eventually lead to
+   problems with unit tests and mocks.
+
+   https://github.com/owncloud/owncloud-sdk/pull/965
+
 # Changelog for [1.1.0] (2022-01-26)
 
 The following sections list the changes in ownCloud SDK 1.1.0.
-
-[1.1.0]: https://github.com/owncloud/owncloud-sdk/compare/v1.1.1...v1.1.0
 
 ## Summary
 
@@ -276,21 +302,4 @@ The following sections list the changes in ownCloud SDK 1.1.0.
 
    https://github.com/owncloud/owncloud-sdk/issues/10
    https://owncloud.github.io/owncloud-sdk/
-
-# Changelog for [1.1.1] (2022-01-26)
-
-The following sections list the changes in ownCloud SDK 1.1.1.
-
-## Summary
-
-* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
-
-## Details
-
-* Bugfix - Always require default axios: [#965](https://github.com/owncloud/owncloud-sdk/pull/965)
-
-   We now always require the default axios since the unspecified require eventually lead to
-   problems with unit tests and mocks.
-
-   https://github.com/owncloud/owncloud-sdk/pull/965
 

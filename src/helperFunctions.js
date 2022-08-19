@@ -578,18 +578,19 @@ class helpers {
    * @private
    */
   _parseFileInfo (response, leftTrimComponents = 0) {
+    if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
+      return null
+    }
+
     const path = this._extractPath(response.href, leftTrimComponents)
     // invalid subpath
     if (path === null) {
       return null
     }
-    const name = path
-
-    if (response.propStat.length === 0 || response.propStat[0].status !== 'HTTP/1.1 200 OK') {
-      return null
-    }
 
     const props = response.propStat[0].properties
+    const name = props['{http://owncloud.org/ns}name'] ? props['{http://owncloud.org/ns}name'] : path
+
     let fileType = 'file'
     const resType = props['{DAV:}resourcetype']
     if (resType) {

@@ -1,0 +1,5 @@
+Enhancement: Use the resource name WebDAV property
+
+The newly added WebDAV property "name" will now be used when parsing the file info. It falls back to the extracted path to ensure backwards compatibility.
+
+https://github.com/owncloud/owncloud-sdk/pull/1134

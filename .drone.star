@@ -4,14 +4,58 @@ OC_CI_GOLANG = "owncloudci/golang:1.18"
 OC_CI_NODEJS = "owncloudci/nodejs:14"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
-PLUGINS_SLACK = "plugins/slack:1"
 OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS = "owncloudci/drone-cancel-previous-builds"
+OC_CI_WAIT_FOR = "owncloudci/wait-for:latest"
+PLUGINS_SLACK = "plugins/slack:1"
 MELTWATER_DRONE_CACHE = "meltwater/drone-cache:v1"
-MINIO_MC = "minio/mc:RELEASE.2021-03-23T05-46-11Z"
+MINIO_MC = "minio/mc:RELEASE.2021-10-07T04-19-58Z"
 
 # constants
 ROCKETCHAT_CHANNEL = "builds"
 OC10_VERSION = "latest"
+
+# directory dictionary
+dirs = {
+    "base": "/var/www/owncloud",
+    "ocis": "/var/www/owncloud/ocis-build",
+}
+
+# config dictionary
+config = {
+    "app": "owncloud-sdk",
+}
+
+sdk_workspace = {
+    "base": dirs["base"],
+    "path": config["app"],
+}
+
+# minio mc environment variables
+minio_mc_environment = {
+    "CACHE_BUCKET": {
+        "from_secret": "cache_public_s3_bucket",
+    },
+    "MC_HOST": {
+        "from_secret": "cache_s3_endpoint",
+    },
+    "AWS_ACCESS_KEY_ID": {
+        "from_secret": "cache_s3_access_key",
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+        "from_secret": "cache_s3_secret_key",
+    },
+}
+
+go_step_volumes = [{
+    "name": "server",
+    "path": "/srv/app",
+}, {
+    "name": "gopath",
+    "path": "/go",
+}, {
+    "name": "configs",
+    "path": "/srv/config",
+}]
 
 def main(ctx):
     before = beforePipelines(ctx)
@@ -30,6 +74,7 @@ def beforePipelines(ctx):
            checkStarlark() + \
            changelog(ctx) + \
            sonarcloud(ctx) + \
+           cacheOcisPipeline(ctx) + \
            yarnCache(ctx) + \
            pipelinesDependsOn(buildSystemCache(ctx), yarnCache(ctx)) + \
            pipelinesDependsOn(yarnlint(ctx), yarnCache(ctx))
@@ -106,6 +151,31 @@ def buildSystemCache(ctx):
                  installYarn() +
                  buildSystem() +
                  rebuildBuildArtifactCache(ctx, "dist", "dist"),
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/tags/**",
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def cacheOcisPipeline(ctx):
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "cache-ocis",
+        "workspace": sdk_workspace,
+        "clone": {
+            "disable": True,
+        },
+        "steps": checkForExistingOcisCache(ctx) +
+                 buildOcis() +
+                 cacheOcis(),
+        "volumes": [{
+            "name": "gopath",
+            "temp": {},
+        }],
         "trigger": {
             "ref": [
                 "refs/heads/master",
@@ -265,110 +335,6 @@ def setupServerAndApp():
         ],
     }]
 
-def cloneOCIS():
-    return [{
-        "name": "clone-ocis",
-        "image": OC_CI_GOLANG,
-        "commands": [
-            "source .drone.env",
-            "cd $GOPATH/src",
-            "mkdir -p github.com/owncloud/",
-            "cd github.com/owncloud/",
-            "git clone -b $OCIS_BRANCH --single-branch --no-tags https://github.com/owncloud/ocis",
-            "cd ocis",
-            "git checkout $OCIS_COMMITID",
-        ],
-        "volumes": [{
-            "name": "server",
-            "path": "/srv/app",
-        }, {
-            "name": "gopath",
-            "path": "/go",
-        }, {
-            "name": "configs",
-            "path": "/srv/config",
-        }],
-    }]
-
-def buildOCIS():
-    return [
-        {
-            "name": "generate-ocis",
-            "image": OC_CI_NODEJS,
-            "commands": [
-                "cd /go/src/github.com/owncloud/ocis",
-                "make ci-node-generate",
-            ],
-            "volumes": [{
-                "name": "server",
-                "path": "/srv/app",
-            }, {
-                "name": "gopath",
-                "path": "/go",
-            }, {
-                "name": "configs",
-                "path": "/srv/config",
-            }],
-        },
-        {
-            "name": "build-ocis",
-            "image": OC_CI_GOLANG,
-            "commands": [
-                "cd $GOPATH/src/github.com/owncloud/ocis/ocis",
-                "make build",
-                "cp bin/ocis /var/www/owncloud",
-            ],
-            "volumes": [{
-                "name": "server",
-                "path": "/srv/app",
-            }, {
-                "name": "gopath",
-                "path": "/go",
-            }, {
-                "name": "configs",
-                "path": "/srv/config",
-            }],
-        },
-    ]
-
-def ocisService():
-    return [{
-        "name": "ocis",
-        "image": OC_CI_GOLANG,
-        "detach": True,
-        "environment": {
-            "OCIS_URL": "https://ocis:9200",
-            "IDM_ADMIN_PASSWORD": "admin",
-            "STORAGE_HOME_DRIVER": "ocis",
-            "STORAGE_USERS_DRIVER": "ocis",
-            "STORAGE_USERS_DRIVER_LOCAL_ROOT": "/srv/app/tmp/ocis/local/root",
-            "STORAGE_USERS_DRIVER_OWNCLOUD_DATADIR": "/srv/app/tmp/ocis/owncloud/data",
-            "STORAGE_USERS_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/users",
-            "STORAGE_METADATA_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/metadata",
-            "STORAGE_SHARING_USER_JSON_FILE": "/srv/app/tmp/ocis/shares.json",
-            "OCIS_INSECURE": "true",
-            "PROXY_ENABLE_BASIC_AUTH": True,
-            "OCIS_LOG_LEVEL": "error",
-        },
-        "commands": [
-            "cd /var/www/owncloud",
-            "mkdir -p /srv/app/tmp/ocis/owncloud/data/",
-            "mkdir -p /srv/app/tmp/ocis/storage/users/",
-            "./ocis init",
-            "./ocis server",
-        ],
-        "volumes": [{
-            "name": "server",
-            "path": "/srv/app",
-        }, {
-            "name": "gopath",
-            "path": "/go",
-        }, {
-            "name": "configs",
-            "path": "/srv/config",
-        }],
-    }]
-
 def fixPermissions():
     return [{
         "name": "fix-permissions",
@@ -499,10 +465,7 @@ def consumerTestPipeline(ctx, subFolderPath = "/"):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": {
-            "base": "/var/www/owncloud",
-            "path": "owncloud-sdk",
-        },
+        "workspace": sdk_workspace,
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig(subFolderPath) +
@@ -530,16 +493,13 @@ def ocisProviderTestPipeline(ctx):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": {
-            "base": "/var/www/owncloud",
-            "path": "owncloud-sdk",
-        },
+        "workspace": sdk_workspace,
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig() +
-                 cloneOCIS() +
-                 buildOCIS() +
+                 restoreOcisCache() +
                  ocisService() +
+                 waitForOcisService() +
                  pactProviderTests("ocis-master", "https://ocis:9200", extraEnvironment),
         "volumes": [{
             "name": "configs",
@@ -548,6 +508,7 @@ def ocisProviderTestPipeline(ctx):
             "name": "gopath",
             "temp": {},
         }],
+        "depends_on": getPipelineNames(cacheOcisPipeline(ctx)),
         "trigger": {
             "ref": [
                 "refs/heads/master",
@@ -565,10 +526,7 @@ def oc10ProviderTestPipeline(ctx):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": {
-            "base": "/var/www/owncloud",
-            "path": "owncloud-sdk",
-        },
+        "workspace": sdk_workspace,
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig() +
@@ -596,10 +554,7 @@ def publish(ctx):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": {
-            "base": "/var/www/owncloud",
-            "path": "owncloud-sdk",
-        },
+        "workspace": sdk_workspace,
         "steps": buildDocs() +
                  restoreBuildArtifactCache(ctx, "dist", "dist") +
                  publishDocs() +
@@ -888,3 +843,124 @@ def getPipelineNames(pipelines = []):
     for pipeline in pipelines:
         names.append(pipeline["name"])
     return names
+
+def checkForExistingOcisCache(ctx):
+    sdk_repo_path = "https://raw.githubusercontent.com/owncloud/owncloud-sdk/%s" % ctx.build.commit
+    return [
+        {
+            "name": "check-for-exisiting-cache",
+            "image": OC_UBUNTU,
+            "environment": minio_mc_environment,
+            "commands": [
+                "curl -o .drone.env %s/.drone.env" % sdk_repo_path,
+                "curl -o check-oCIS-cache.sh %s/tests/drone/check-oCIS-cache.sh" % sdk_repo_path,
+                ". ./.drone.env",
+                "bash check-oCIS-cache.sh",
+            ],
+        },
+    ]
+
+def buildOcis():
+    ocis_repo_url = "https://github.com/owncloud/ocis.git"
+    return [
+        {
+            "name": "clone-ocis",
+            "image": OC_CI_GOLANG,
+            "commands": [
+                "source .drone.env",
+                "cd $GOPATH/src",
+                "mkdir -p github.com/owncloud",
+                "cd github.com/owncloud",
+                "git clone -b $OCIS_BRANCH --single-branch %s" % ocis_repo_url,
+                "cd ocis",
+                "git checkout $OCIS_COMMITID",
+            ],
+            "volumes": go_step_volumes,
+        },
+        {
+            "name": "generate-ocis",
+            "image": OC_CI_NODEJS,
+            "commands": [
+                # we cannot use the $GOPATH here because of different base image
+                "cd /go/src/github.com/owncloud/ocis/",
+                "retry -t 3 'make ci-node-generate'",
+            ],
+            "volumes": go_step_volumes,
+        },
+        {
+            "name": "build-ocis",
+            "image": OC_CI_GOLANG,
+            "commands": [
+                "source .drone.env",
+                "cd $GOPATH/src/github.com/owncloud/ocis/ocis",
+                "retry -t 3 'make build'",
+                "mkdir -p %s/$OCIS_COMMITID" % dirs["base"],
+                "cp bin/ocis %s/$OCIS_COMMITID" % dirs["base"],
+                "ls -la %s/$OCIS_COMMITID" % dirs["base"],
+            ],
+            "volumes": go_step_volumes,
+        },
+    ]
+
+def cacheOcis():
+    return [{
+        "name": "upload-ocis-cache",
+        "image": MINIO_MC,
+        "environment": minio_mc_environment,
+        "commands": [
+            ". ./.drone.env",
+            "mc alias set s3 $MC_HOST $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY",
+            "mc cp -r -a %s/$OCIS_COMMITID/ocis s3/$CACHE_BUCKET/ocis-build/$OCIS_COMMITID" % dirs["base"],
+            "mc ls --recursive s3/$CACHE_BUCKET/ocis-build",
+        ],
+    }]
+
+def restoreOcisCache():
+    return [{
+        "name": "restore-ocis-cache",
+        "image": MINIO_MC,
+        "environment": minio_mc_environment,
+        "commands": [
+            ". ./.drone.env",
+            "rm -rf %s" % dirs["ocis"],
+            "mkdir -p %s" % dirs["ocis"],
+            "mc alias set s3 $MC_HOST $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY",
+            "mc cp -r -a s3/$CACHE_BUCKET/ocis-build/$OCIS_COMMITID/ocis %s" % dirs["ocis"],
+        ],
+    }]
+
+def ocisService():
+    return [{
+        "name": "ocis",
+        "image": OC_CI_GOLANG,
+        "detach": True,
+        "environment": {
+            "OCIS_URL": "https://ocis:9200",
+            "IDM_ADMIN_PASSWORD": "admin",
+            "STORAGE_HOME_DRIVER": "ocis",
+            "STORAGE_USERS_DRIVER": "ocis",
+            "STORAGE_USERS_DRIVER_LOCAL_ROOT": "/srv/app/tmp/ocis/local/root",
+            "STORAGE_USERS_DRIVER_OWNCLOUD_DATADIR": "/srv/app/tmp/ocis/owncloud/data",
+            "STORAGE_USERS_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/users",
+            "STORAGE_METADATA_DRIVER_OCIS_ROOT": "/srv/app/tmp/ocis/storage/metadata",
+            "STORAGE_SHARING_USER_JSON_FILE": "/srv/app/tmp/ocis/shares.json",
+            "OCIS_INSECURE": "true",
+            "PROXY_ENABLE_BASIC_AUTH": True,
+            "OCIS_LOG_LEVEL": "error",
+        },
+        "commands": [
+            "cd %s" % dirs["ocis"],
+            "./ocis init",
+            "./ocis server",
+        ],
+        "volumes": go_step_volumes,
+    }]
+
+def waitForOcisService():
+    return [{
+        "name": "wait-for-ocis",
+        "image": OC_CI_WAIT_FOR,
+        "commands": [
+            "wait-for -it ocis:9200 -t 300",
+        ],
+    }]

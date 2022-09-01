@@ -28,12 +28,15 @@ const { deleteItem,
   getFileId,
   listVersionsFolder,
   markAsFavorite,
-  createASystemTag
+  createASystemTag,
+  createFolderRecursive,
+  createFile
 } = require('./helpers/webdavHelper')
 const chai = require('chai')
 const { shareResource,
   createFolderInLastPublicShare
 } = require('./helpers/sharingHelper')
+const path = require('path')
 
 const delay = (delayTime) => {
   var start = new Date().getTime()
@@ -162,6 +165,24 @@ describe('provider testing', () => {
           result.status, 300, `creating file '${parameters.fileName}' failed`
         )
         return { fileId: result.headers.get('oc-fileid') }
+      }
+    },
+    'files exist': {
+      setup: (parameters) => {
+        Object.keys(parameters).forEach(key => {
+          const dirname = path.dirname(parameters[key].fileName)
+          const content = parameters[key].content || testContent
+          if (dirname !== '' && dirname !== '/' && dirname !== '.') {
+            const results = createFolderRecursive(parameters[key].username, dirname)
+            assertFoldersCreatedSuccessfully(results, dirname)
+          }
+          const result = createFile(
+            parameters[key].username, parameters[key].fileName, content
+          )
+          chai.assert.isBelow(
+            result.status, 300, `creating file '${parameters[key].fileName}' failed`
+          )
+        })
       }
     },
     'resource is deleted': {

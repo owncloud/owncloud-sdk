@@ -2,6 +2,7 @@
 // https://github.com/pact-foundation/pact-js/issues/632
 
 import { MatchersV3, XmlBuilder } from '@pact-foundation/pact'
+import { testFiles, testFolder } from './config/config.json'
 
 describe('oc.publicFiles', function () {
   const {
@@ -224,9 +225,16 @@ describe('oc.publicFiles', function () {
             const status = shallGrantAccess ? 207 : 401
 
             await givenUserExists(provider, testUser)
+            const filesToCreate = []
             for (let fileNum = 0; fileNum < testFiles.length; fileNum++) {
-              await givenFileExists(provider, testUser, testFolder + '/' + testFiles[fileNum])
+              filesToCreate.push({
+                username: testUser,
+                fileName: testFolder + '/' + testFiles[fileNum],
+                content: ''
+              })
             }
+            await provider
+              .given('files exist', filesToCreate)
             await givenPublicShareExists(provider, testUser, testFolder, { password: data.shareParams.password })
             return provider
               .uponReceiving(description)

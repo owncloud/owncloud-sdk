@@ -1,7 +1,7 @@
 // [oCIS] HTTP 401 Unauthorized responses don't contain a body
 // https://github.com/owncloud/ocis/issues/1293
 
-const { MatchersV3 } = require('@pact-foundation/pact/v3')
+const { MatchersV3 } = require('@pact-foundation/pact')
 
 describe('Unauthorized: Currently testing file/folder sharing,', function () {
   const {

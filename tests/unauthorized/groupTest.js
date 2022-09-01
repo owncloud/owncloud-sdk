@@ -1,7 +1,7 @@
 // [oCIS] HTTP 401 Unauthorized responses don't contain a body
 // https://github.com/owncloud/ocis/issues/1293
 
-import { MatchersV3 } from '@pact-foundation/pact/v3'
+import { MatchersV3 } from '@pact-foundation/pact'
 
 describe('Unauthorized: Currently testing group management,', function () {
   const config = require('../config/config.json')

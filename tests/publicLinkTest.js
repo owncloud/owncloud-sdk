@@ -1,7 +1,7 @@
 // TODO: Review all matchers in xml once the issue is fixed
 // https://github.com/pact-foundation/pact-js/issues/632
 
-import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact'
 
 describe('oc.publicFiles', function () {
   const {

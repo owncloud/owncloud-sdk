@@ -1,4 +1,4 @@
-import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact'
 
 describe('oc.shares', function () {
   const { testFile } = require('./config/config.json')

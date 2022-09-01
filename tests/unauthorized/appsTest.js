@@ -1,4 +1,4 @@
-import { MatchersV3 } from '@pact-foundation/pact/v3'
+import { MatchersV3 } from '@pact-foundation/pact'
 
 describe('Unauthorized: Currently testing apps management,', function () {
   const config = require('../config/config.json')

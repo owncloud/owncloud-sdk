@@ -1,4 +1,4 @@
-import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import { MatchersV3, PactV3, XmlBuilder } from '@pact-foundation/pact'
 
 const config = require('../config/config.json')
 const { getDisplayNameForUser } = require('../helpers/userHelper')

@@ -1,4 +1,4 @@
-import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact'
 
 describe('Main: Currently testing user management,', function () {
   var config = require('./config/config.json')

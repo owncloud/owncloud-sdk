@@ -1,4 +1,4 @@
-import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
+import { MatchersV3, XmlBuilder } from '@pact-foundation/pact'
 
 const { fromProviderState } = MatchersV3
 const {

@@ -1,4 +1,4 @@
-import { MatchersV3 } from '@pact-foundation/pact/v3'
+import { MatchersV3 } from '@pact-foundation/pact'
 
 describe('Main: Currently testing low level OCS', function () {
   const {

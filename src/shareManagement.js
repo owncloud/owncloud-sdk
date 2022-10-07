@@ -498,6 +498,42 @@ class Shares {
   }
 
   /**
+   * Gets the protected token info for a public link
+   * @param   {string}   token     token of the public link
+   * @returns {Promise.<ShareInfo>}   instance of class ShareInfo
+   * @returns {Promise.<error>}       string: error message, if any.
+   */
+  getProtectedTokenInfo (token) {
+    return new Promise((resolve, reject) => {
+      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, this.helpers.OCS_PROTECTED_TOKEN_INFO + '/' + token)
+        .then(data => {
+          const tokenInfo = data.data.ocs.data
+          resolve(tokenInfo)
+        }).catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  /**
+   * Gets the unprotected token info for a public link
+   * @param   {string}   token     token of the public link
+   * @returns {Promise.<ShareInfo>}   instance of class ShareInfo
+   * @returns {Promise.<error>}       string: error message, if any.
+   */
+  getUnprotectedTokenInfo (token) {
+    return new Promise((resolve, reject) => {
+      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE, this.helpers.OCS_UNPROTECTED_TOKEN_INFO + '/' + token, null, false)
+        .then(data => {
+          const tokenInfo = data.data.ocs.data
+          resolve(tokenInfo)
+        }).catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  /**
    * @param {object} optionalParams
    * @returns {object}
    */

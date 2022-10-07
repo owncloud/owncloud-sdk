@@ -23,6 +23,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
 * Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
+* Enhancement - Add token info endpoint support: [#1126](https://github.com/owncloud/owncloud-sdk/pull/1126)
 
 ## Details
 
@@ -167,6 +168,14 @@ The following sections list the changes in ownCloud SDK unreleased.
    https://github.com/owncloud/owncloud-sdk/pull/1013
    https://github.com/owncloud/owncloud-sdk/pull/1025
    https://github.com/owncloud/owncloud-sdk/pull/1027
+
+
+* Enhancement - Add token info endpoint support: [#1126](https://github.com/owncloud/owncloud-sdk/pull/1126)
+
+   We've added support for the new token info endpoint.
+
+   https://github.com/owncloud/web/issues/7304
+   https://github.com/owncloud/owncloud-sdk/pull/1126
 
 # Changelog for [2.0.1] (2022-02-15)
 

@@ -1,0 +1,6 @@
+Enhancement: Add token info endpoint support
+
+We've added support for the new token info endpoint.
+
+https://github.com/owncloud/owncloud-sdk/pull/1126
+https://github.com/owncloud/web/issues/7304

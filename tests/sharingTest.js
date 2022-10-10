@@ -920,7 +920,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }
 
       it('shareFileWithLink with non-existent file', async function () {
-        const provider = createProvider(false, false)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         await linkSharePOSTNonExistentFile(provider)
@@ -936,7 +936,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('shareFileWithGroup with non existent file', async function () {
-        const provider = createProvider(false, false)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         await groupSharePOSTNonExistentFile(provider)

@@ -3,7 +3,8 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 const { fromProviderState } = MatchersV3
 const {
   toFormUrlEncoded,
-  getShareIdToken
+  getShareIdToken,
+  generateExpirationDate
 } = require('./helpers/sharingHelper')
 
 const {
@@ -21,7 +22,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
     testGroup,
     testFolder,
     nonExistentFile,
-    expirationDate,
     testFiles,
     testFilesId,
     testFilesPath,
@@ -46,6 +46,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   // TESTING CONFIGS
   const publicLinkPassword = '1234'
+
+  // Expiration Date
+  const expirationDate = generateExpirationDate()
 
   const validAuthHeaders = {
     authorization: getAuthHeaders(sharer, sharerPassword)

@@ -130,11 +130,26 @@ const getShareIdToken = (resource, resourceType) => {
   return { shareId, shareToken }
 }
 
+/**
+ *
+ *
+ * @returns {String} expiration date (10+ days from current Date)
+ */
+const generateExpirationDate = () => {
+  const currentDate = new Date()
+  const additionalDaysToAdd = 10
+  // adding +10 days to the current data
+  currentDate.setDate(currentDate.getDate() + additionalDaysToAdd)
+  // extracting date in string like '2022-10-10' from currentDate which is in format like '2022-10-10T07:20:33.287Z'
+  return currentDate.toISOString().slice(0, 10)
+}
+
 module.exports = {
   shareResource,
   getShareInfoByPath,
   createFolderInLastPublicShare,
   createFileInLastPublicShare,
   toFormUrlEncoded,
-  getShareIdToken
+  getShareIdToken,
+  generateExpirationDate
 }

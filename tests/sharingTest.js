@@ -49,6 +49,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   // Expiration Date
   const expirationDate = generateExpirationDate()
+  console.log('Todays Date----------------------------------------------------------------------------' + expirationDate)
 
   const validAuthHeaders = {
     authorization: getAuthHeaders(sharer, sharerPassword)
@@ -1088,7 +1089,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
         })
       })
 
-      it('should share a file with another user when expiration date is set', async function () {
+      it.only('should share a file with another user when expiration date is set', async function () {
         const provider = createProvider(false, true)
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)

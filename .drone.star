@@ -383,7 +383,7 @@ def databaseService():
         },
     }]
 
-def pactConsumerTests(uploadPact):
+def pactConsumerTests(ctx, uploadPact):
     return [{
         "name": "test",
         "image": OC_CI_NODEJS,
@@ -393,18 +393,21 @@ def pactConsumerTests(uploadPact):
             },
         },
         "commands": [
-            sanitizeBranchName("DRONE_SOURCE_BRANCH"),
+            setPactConsumerTagEnv(ctx),
+            "echo %s" % ctx.repo.name,
+            "echo %s" % ctx.build.source,
+            "echo %s" % ctx.build.event,
             "yarn test-consumer",
         ] + ([
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-oc10/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-oc10.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-ocis/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-ocis.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-oc10-ocis/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-oc10-ocis.json',
-            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${DRONE_SOURCE_BRANCH}',
+            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${PACT_CONSUMER_TAG}',
         ] if uploadPact else []),
     }]
 
-def pactProviderTests(version, baseUrl, extraEnvironment = {}):
+def pactProviderTests(ctx, version, baseUrl, extraEnvironment = {}):
     environment = {}
     environment["PACTFLOW_TOKEN"] = {
         "from_secret": "pactflow_token",
@@ -420,7 +423,7 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
         "image": OC_CI_NODEJS,
         "environment": environment,
         "commands": [
-            sanitizeBranchName("DRONE_SOURCE_BRANCH"),
+            setPactConsumerTagEnv(ctx),
             "yarn test-provider:ocis" if extraEnvironment.get("RUN_ON_OCIS") == "true" else "yarn test-provider:oc10",
         ],
     }]
@@ -469,7 +472,7 @@ def consumerTestPipeline(ctx, subFolderPath = "/"):
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig(subFolderPath) +
-                 pactConsumerTests(True if subFolderPath == "/" else False),
+                 pactConsumerTests(ctx, True if subFolderPath == "/" else False),
         "trigger": {
             "ref": [
                 "refs/heads/master",
@@ -500,7 +503,7 @@ def ocisProviderTestPipeline(ctx):
                  restoreOcisCache() +
                  ocisService() +
                  waitForOcisService() +
-                 pactProviderTests("ocis-master", "https://ocis:9200", extraEnvironment),
+                 pactProviderTests(ctx, "ocis-master", "https://ocis:9200", extraEnvironment),
         "volumes": [{
             "name": "configs",
             "temp": {},
@@ -534,7 +537,7 @@ def oc10ProviderTestPipeline(ctx):
                  owncloudLog() +
                  setupServerAndApp() +
                  fixPermissions() +
-                 pactProviderTests(OC10_VERSION, "http://owncloud"),
+                 pactProviderTests(ctx, OC10_VERSION, "http://owncloud"),
         "services": owncloudService() +
                     databaseService(),
         "trigger": {
@@ -658,12 +661,14 @@ def changelog(ctx):
         },
     }]
 
-# replaces reserved and unsafe url characters with '-'
-# reserved: & $ + , / : ; = ? @ #
-# unsafe: <space> < > [ ] { } | \ ^ %
-def sanitizeBranchName(BRANCH_NAME = ""):
+def setPactConsumerTagEnv(ctx):
+    consumer_tag = ctx.build.source if ctx.build.event == "pull_request" else ctx.repo.name
+
+    # replaces reserved and unsafe url characters with '-'
+    # reserved: & $ + , / : ; = ? @ #
+    # unsafe: <space> < > [ ] { } | \ ^ %
     REGEX = "[][&$+,/:;=?@#[:space:]<>{}|^%\\\\]"
-    return '%s=`echo $%s | sed -e "s/%s/-/g"`' % (BRANCH_NAME, BRANCH_NAME, REGEX)
+    return 'PACT_CONSUMER_TAG=`echo "%s" | sed -e "s/%s/-/g"`' % (consumer_tag, REGEX)
 
 def checkStarlark():
     return [{

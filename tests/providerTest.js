@@ -21,6 +21,14 @@ const PACTFLOW_TOKEN = process.env.PACTFLOW_TOKEN
 const DRONE_SOURCE_BRANCH = process.env.DRONE_SOURCE_BRANCH
 const PROVIDER_VERSION = process.env.PROVIDER_VERSION
 
+console.log('=====================================')
+console.log('source: ', process.env.DRONE_SOURCE_BRANCH)
+console.log('source: ', DRONE_SOURCE_BRANCH)
+console.log('branch: ', process.env.DRONE_BRANCH)
+console.log('target: ', process.env.DRONE_TARGET_BRANCH)
+console.log('commit: ', process.env.DRONE_COMMIT_BRANCH)
+console.log('=====================================')
+
 let lastSharedToken = ''
 const crypto = require('crypto')
 

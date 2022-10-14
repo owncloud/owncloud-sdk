@@ -18,15 +18,12 @@ const TEST_TIMEOUT = 600000
 
 // environment variables
 const PACTFLOW_TOKEN = process.env.PACTFLOW_TOKEN
-const DRONE_SOURCE_BRANCH = process.env.DRONE_SOURCE_BRANCH
+const DRONE_COMMIT_SHA = process.env.DRONE_COMMIT_SHA
 const PROVIDER_VERSION = process.env.PROVIDER_VERSION
 
 console.log('=====================================')
-console.log('source: ', process.env.DRONE_SOURCE_BRANCH)
-console.log('source: ', DRONE_SOURCE_BRANCH)
-console.log('branch: ', process.env.DRONE_BRANCH)
-console.log('target: ', process.env.DRONE_TARGET_BRANCH)
-console.log('commit: ', process.env.DRONE_COMMIT_BRANCH)
+console.log('sha: ', process.env.DRONE_COMMIT_SHA)
+console.log('commit: ', process.env.DRONE_COMMIT)
 console.log('=====================================')
 
 let lastSharedToken = ''
@@ -112,7 +109,7 @@ describe('provider testing', () => {
     defaultOpts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
     defaultOpts.publishVerificationResult = true
     defaultOpts.pactBrokerToken = PACTFLOW_TOKEN
-    defaultOpts.consumerVersionTags = DRONE_SOURCE_BRANCH
+    defaultOpts.consumerVersionTags = DRONE_COMMIT_SHA
     defaultOpts.providerVersion = PROVIDER_VERSION
     defaultOpts.providerVersionTags = PROVIDER_VERSION
   }

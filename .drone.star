@@ -659,7 +659,7 @@ def changelog(ctx):
     }]
 
 def setPactConsumerTagEnv(ctx):
-    consumer_tag = ctx.build.source if ctx.build.event == "pull_request" else ctx.repo.name
+    consumer_tag = ctx.build.source if ctx.build.event == "pull_request" else ctx.repo.branch
 
     # replaces reserved and unsafe url characters with '-'
     # reserved: & $ + , / : ; = ? @ #

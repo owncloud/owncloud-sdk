@@ -394,16 +394,13 @@ def pactConsumerTests(ctx, uploadPact):
         },
         "commands": [
             setPactConsumerTagEnv(ctx),
-            "echo %s" % ctx.repo.name,
-            "echo %s" % ctx.build.source,
-            "echo %s" % ctx.build.event,
             "yarn test-consumer",
         ] + ([
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-oc10/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-oc10.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-ocis/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-ocis.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-oc10-ocis/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-oc10-ocis.json',
-            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${PACT_CONSUMER_TAG}',
+            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${PACT_CONSUMER_VERSION_TAG}',
         ] if uploadPact else []),
     }]
 
@@ -668,7 +665,7 @@ def setPactConsumerTagEnv(ctx):
     # reserved: & $ + , / : ; = ? @ #
     # unsafe: <space> < > [ ] { } | \ ^ %
     REGEX = "[][&$+,/:;=?@#[:space:]<>{}|^%\\\\]"
-    return 'PACT_CONSUMER_TAG=`echo "%s" | sed -e "s/%s/-/g"`' % (consumer_tag, REGEX)
+    return 'export PACT_CONSUMER_VERSION_TAG=$(echo "%s" | sed -e "s/%s/-/g")' % (consumer_tag, REGEX)
 
 def checkStarlark():
     return [{

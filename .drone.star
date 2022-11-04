@@ -1,7 +1,7 @@
 # docker images
 OC_CI_ALPINE = "owncloudci/alpine:latest"
 OC_CI_GOLANG = "owncloudci/golang:1.18"
-OC_CI_NODEJS = "owncloudci/nodejs:14"
+OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS = "owncloudci/drone-cancel-previous-builds"
@@ -13,6 +13,7 @@ MINIO_MC = "minio/mc:RELEASE.2021-10-07T04-19-58Z"
 # constants
 ROCKETCHAT_CHANNEL = "builds"
 OC10_VERSION = "latest"
+DEFAULT_NODEJS_VERSION = "14"
 
 # directory dictionary
 dirs = {
@@ -110,7 +111,7 @@ def yarnCache(ctx):
 def installYarn():
     return [{
         "name": "yarn-install",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn install --immutable",
         ],
@@ -119,7 +120,7 @@ def installYarn():
 def lint():
     return [{
         "name": "lint",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn lint",
         ],
@@ -278,7 +279,7 @@ def purgeBuildArtifactCache(ctx, name):
 def buildDocs():
     return [{
         "name": "build-docs",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn install --immutable",
             "yarn build:docs",
@@ -288,7 +289,7 @@ def buildDocs():
 def buildSystem():
     return [{
         "name": "build-system",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn build:system",
         ],
@@ -386,7 +387,7 @@ def databaseService():
 def pactConsumerTests(ctx, uploadPact):
     return [{
         "name": "test",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "environment": {
             "PACTFLOW_TOKEN": {
                 "from_secret": "pactflow_token",
@@ -417,7 +418,7 @@ def pactProviderTests(ctx, version, baseUrl, extraEnvironment = {}):
 
     return [{
         "name": "test",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "environment": environment,
         "commands": [
             setPactConsumerTagEnv(ctx),
@@ -881,7 +882,7 @@ def buildOcis():
         },
         {
             "name": "generate-ocis",
-            "image": OC_CI_NODEJS,
+            "image": OC_CI_NODEJS % "16",
             "commands": [
                 # we cannot use the $GOPATH here because of different base image
                 "cd /go/src/github.com/owncloud/ocis/",

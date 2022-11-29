@@ -302,6 +302,7 @@ def debugPwd():
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "find $$(pwd) | grep -v node_modules",
+            "find / | grep dist/owncloud.js",
         ],
     }]
 
@@ -566,9 +567,10 @@ def publish(ctx):
             "arch": "amd64",
         },
         "workspace": sdk_workspace,
-        "steps": buildDocs() +
-                 restoreBuildArtifactCache(ctx, "dist", "dist") +
-                 debugPwd(),
+        "steps":
+        #  buildDocs() +
+        restoreBuildArtifactCache(ctx, "dist", "dist") +
+        debugPwd(),
         # publishDocs() +
         # publishSystem(),
         "trigger": {

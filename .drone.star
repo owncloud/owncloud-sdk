@@ -219,6 +219,7 @@ def genericCache(name, action, mounts, cache_key):
             "rebuild": rebuild,
             "restore": restore,
             "mount": mounts,
+            "debug": "true",
         },
     }]
 

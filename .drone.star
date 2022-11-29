@@ -81,7 +81,7 @@ def beforePipelines(ctx):
            pipelinesDependsOn(yarnlint(ctx), yarnCache(ctx))
 
 def consumerPipelines(ctx):
-    return consumerTestPipeline(ctx) + consumerTestPipeline(ctx, "/sub/")
+    return []  # consumerTestPipeline(ctx) + consumerTestPipeline(ctx, "/sub/")
 
 def providerPipelines(ctx):
     return []  #oc10ProviderTestPipeline(ctx) + ocisProviderTestPipeline(ctx)

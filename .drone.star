@@ -294,6 +294,7 @@ def buildSystem():
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn build:system",
+            "touch dist/foobar",
         ],
     }]
 

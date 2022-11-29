@@ -569,8 +569,8 @@ def publish(ctx):
         "steps": buildDocs() +
                  restoreBuildArtifactCache(ctx, "dist", "dist") +
                  debugPwd(),
-                 # publishDocs() +
-                 # publishSystem(),
+        # publishDocs() +
+        # publishSystem(),
         "trigger": {
             "ref": [
                 "refs/tags/**",

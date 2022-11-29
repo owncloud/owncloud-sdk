@@ -283,7 +283,6 @@ def buildDocs():
         "name": "build-docs",
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
-            "yarn install --immutable",
             "yarn build:docs",
         ],
     }]
@@ -294,7 +293,7 @@ def buildSystem():
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn build:system",
-            "touch dist/foobar",
+            "echo bar >> dist/foo",
         ],
     }]
 
@@ -304,7 +303,6 @@ def debugPwd():
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "find $$(pwd) | grep -v node_modules",
-            "find / | grep dist | grep -v node_modules",
         ],
     }]
 
@@ -569,10 +567,11 @@ def publish(ctx):
             "arch": "amd64",
         },
         "workspace": sdk_workspace,
-        "steps":
-        #  buildDocs() +
-        restoreBuildArtifactCache(ctx, "dist", "dist") +
-        debugPwd(),
+        "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
+                 installYarn() +
+                 buildSystem() +
+                 buildDocs() +
+                 debugPwd(),
         # publishDocs() +
         # publishSystem(),
         "trigger": {

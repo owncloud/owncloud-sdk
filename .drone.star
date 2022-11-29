@@ -151,6 +151,7 @@ def buildSystemCache(ctx):
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  buildSystem() +
+                 debugPwd() +
                  rebuildBuildArtifactCache(ctx, "dist", "dist"),
         "trigger": {
             "ref": [
@@ -292,6 +293,15 @@ def buildSystem():
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn build:system",
+        ],
+    }]
+
+def debugPwd():
+    return [{
+        "name": "debug-pwd",
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
+        "commands": [
+            "find $$(pwd) | grep -v node_modules",
         ],
     }]
 
@@ -558,11 +568,13 @@ def publish(ctx):
         "workspace": sdk_workspace,
         "steps": buildDocs() +
                  restoreBuildArtifactCache(ctx, "dist", "dist") +
-                 publishDocs() +
-                 publishSystem(),
+                 debugPwd(),
+                 # publishDocs() +
+                 # publishSystem(),
         "trigger": {
             "ref": [
                 "refs/tags/**",
+                "refs/pull/**",
             ],
         },
     }]

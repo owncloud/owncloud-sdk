@@ -303,7 +303,7 @@ def debugPwd():
         "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "find $$(pwd) | grep -v node_modules",
-            "find / | grep CHANGELOG.md | grep -v node_modules",
+            "find / | grep dist | grep -v node_modules",
         ],
     }]
 

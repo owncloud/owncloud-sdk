@@ -577,6 +577,9 @@ def publish(ctx):
                 "refs/pull/**",
             ],
         },
+        "depends_on": [
+            "cache-build-system",
+        ],
     }]
 
 def changelog(ctx):

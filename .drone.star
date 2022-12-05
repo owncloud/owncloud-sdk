@@ -1,7 +1,7 @@
 # docker images
 OC_CI_ALPINE = "owncloudci/alpine:latest"
 OC_CI_GOLANG = "owncloudci/golang:1.18"
-OC_CI_NODEJS = "owncloudci/nodejs:14"
+OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_PHP = "owncloudci/php:7.3"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS = "owncloudci/drone-cancel-previous-builds"
@@ -13,6 +13,7 @@ MINIO_MC = "minio/mc:RELEASE.2021-10-07T04-19-58Z"
 # constants
 ROCKETCHAT_CHANNEL = "builds"
 OC10_VERSION = "latest"
+DEFAULT_NODEJS_VERSION = "14"
 
 # directory dictionary
 dirs = {
@@ -112,7 +113,7 @@ def yarnCache(ctx):
 def installYarn():
     return [{
         "name": "yarn-install",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn install --immutable",
         ],
@@ -121,7 +122,7 @@ def installYarn():
 def lint():
     return [{
         "name": "lint",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn lint",
         ],
@@ -280,7 +281,7 @@ def purgeBuildArtifactCache(ctx, name):
 def buildDocs():
     return [{
         "name": "build-docs",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn install --immutable",
             "yarn build:docs",
@@ -290,7 +291,7 @@ def buildDocs():
 def buildSystem():
     return [{
         "name": "build-system",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "commands": [
             "yarn build:system",
         ],
@@ -385,28 +386,28 @@ def databaseService():
         },
     }]
 
-def pactConsumerTests(uploadPact):
+def pactConsumerTests(ctx, uploadPact):
     return [{
         "name": "test",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "environment": {
             "PACTFLOW_TOKEN": {
                 "from_secret": "pactflow_token",
             },
         },
         "commands": [
-            sanitizeBranchName("DRONE_SOURCE_BRANCH"),
+            setPactConsumerTagEnv(ctx),
             "yarn test-consumer",
         ] + ([
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-oc10/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-oc10.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-ocis/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-ocis.json',
             'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacts/provider/oc-server-pendingOn-oc10-ocis/consumer/owncloud-sdk/version/$${DRONE_COMMIT_SHA} -d @tests/pacts/owncloud-sdk-oc-server-pendingOn-oc10-ocis.json',
-            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${DRONE_SOURCE_BRANCH}',
+            'curl -XPUT -H"Content-Type: application/json" -H"Authorization: Bearer $${PACTFLOW_TOKEN}" https://jankaritech.pactflow.io/pacticipants/owncloud-sdk/versions/$${DRONE_COMMIT_SHA}/tags/$${PACT_CONSUMER_VERSION_TAG}',
         ] if uploadPact else []),
     }]
 
-def pactProviderTests(version, baseUrl, extraEnvironment = {}):
+def pactProviderTests(ctx, version, baseUrl, extraEnvironment = {}):
     environment = {}
     environment["PACTFLOW_TOKEN"] = {
         "from_secret": "pactflow_token",
@@ -419,10 +420,10 @@ def pactProviderTests(version, baseUrl, extraEnvironment = {}):
 
     return [{
         "name": "test",
-        "image": OC_CI_NODEJS,
+        "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
         "environment": environment,
         "commands": [
-            sanitizeBranchName("DRONE_SOURCE_BRANCH"),
+            setPactConsumerTagEnv(ctx),
             "yarn test-provider:ocis" if extraEnvironment.get("RUN_ON_OCIS") == "true" else "yarn test-provider:oc10",
         ],
     }]
@@ -471,7 +472,7 @@ def consumerTestPipeline(ctx, subFolderPath = "/"):
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig(subFolderPath) +
-                 pactConsumerTests(True if subFolderPath == "/" else False),
+                 pactConsumerTests(ctx, True if subFolderPath == "/" else False),
         "trigger": {
             "ref": [
                 "refs/heads/master",
@@ -502,7 +503,7 @@ def ocisProviderTestPipeline(ctx):
                  restoreOcisCache() +
                  ocisService() +
                  waitForOcisService() +
-                 pactProviderTests("ocis-master", "https://ocis:9200", extraEnvironment),
+                 pactProviderTests(ctx, "ocis-master", "https://ocis:9200", extraEnvironment),
         "volumes": [{
             "name": "configs",
             "temp": {},
@@ -536,7 +537,7 @@ def oc10ProviderTestPipeline(ctx):
                  owncloudLog() +
                  setupServerAndApp() +
                  fixPermissions() +
-                 pactProviderTests(OC10_VERSION, "http://owncloud"),
+                 pactProviderTests(ctx, OC10_VERSION, "http://owncloud"),
         "services": owncloudService() +
                     databaseService(),
         "trigger": {
@@ -660,12 +661,14 @@ def changelog(ctx):
         },
     }]
 
-# replaces reserved and unsafe url characters with '-'
-# reserved: & $ + , / : ; = ? @ #
-# unsafe: <space> < > [ ] { } | \ ^ %
-def sanitizeBranchName(BRANCH_NAME = ""):
+def setPactConsumerTagEnv(ctx):
+    consumer_tag = ctx.build.source if ctx.build.event == "pull_request" else ctx.repo.branch
+
+    # replaces reserved and unsafe url characters with '-'
+    # reserved: & $ + , / : ; = ? @ #
+    # unsafe: <space> < > [ ] { } | \ ^ %
     REGEX = "[][&$+,/:;=?@#[:space:]<>{}|^%\\\\]"
-    return '%s=`echo $%s | sed -e "s/%s/-/g"`' % (BRANCH_NAME, BRANCH_NAME, REGEX)
+    return 'export PACT_CONSUMER_VERSION_TAG=$(echo "%s" | sed -e "s/%s/-/g")' % (consumer_tag, REGEX)
 
 def checkStarlark():
     return [{
@@ -881,7 +884,7 @@ def buildOcis():
         },
         {
             "name": "generate-ocis",
-            "image": OC_CI_NODEJS,
+            "image": OC_CI_NODEJS % "16",
             "commands": [
                 # we cannot use the $GOPATH here because of different base image
                 "cd /go/src/github.com/owncloud/ocis/",

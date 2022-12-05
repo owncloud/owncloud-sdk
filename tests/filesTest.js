@@ -349,8 +349,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    // [oCIS] request to non-existing file gives empty response body
-    // https://github.com/owncloud/ocis/issues/1799
+    // https://github.com/owncloud/ocis/issues/1945#issuecomment-1247644423
     it('checking method : list with non existent file', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
@@ -395,8 +394,8 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    // [oCIS] request to non-existing file gives empty response body
-    // https://github.com/owncloud/ocis/issues/1799
+    // [oCIS] GET request to non-existing file doesn't have response body
+    // https://github.com/owncloud/ocis/issues/4770
     it('checking method : getFileContents for non existent file', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
@@ -502,8 +501,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    // [oCIS] request to non-existing file gives empty response body
-    // https://github.com/owncloud/ocis/issues/1799
+    // https://github.com/owncloud/ocis/issues/1945#issuecomment-1247644423
     it('checking method : createFolder for a non-existent parent path', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(provider, testUser, testUserPassword)
@@ -514,7 +512,7 @@ describe('Main: Currently testing files management,', function () {
         .uponReceiving(`as '${testUser}', a MKCOL request to create a folder in a not existing root`)
         .withRequest({
           method: 'MKCOL',
-          path: webdavPath(`${testFolder}/${nonExistentDir}/newFolder/`, testUser),
+          path: webdavPath(`${nonExistentDir}/newFolder/`, testUser),
           headers: validAuthHeaders
         })
         .willRespondWith({
@@ -526,7 +524,7 @@ describe('Main: Currently testing files management,', function () {
       return provider.executeTest(async () => {
         const oc = createOwncloud(testUser, testUserPassword)
         await oc.login()
-        return oc.files.createFolder(`files/${testUser}/${testFolder}/${nonExistentDir}/newFolder/`).then(status => {
+        return oc.files.createFolder(`files/${testUser}/${nonExistentDir}/newFolder/`).then(status => {
           expect(status).toBe(null)
         }).catch(error => {
           expect(error.message).toBe('Parent node does not exist')
@@ -559,8 +557,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    // [oCIS] request to non-existing file gives empty response body
-    // https://github.com/owncloud/ocis/issues/1799
+    // https://github.com/owncloud/ocis/issues/1945#issuecomment-1247644423
     it('checking method : delete for a non-existent folder', async function () {
       const provider = createProvider(false, true)
       await getCapabilitiesInteraction(
@@ -669,8 +666,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    // [oCIS] request to non-existing file gives empty response body
-    // https://github.com/owncloud/ocis/issues/1799
+    // https://github.com/owncloud/ocis/issues/1945#issuecomment-1247644423
     it('checking method : move non existent file', async function () {
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/abcd.txt`
       const provider = createProvider(false, true)
@@ -753,8 +749,7 @@ describe('Main: Currently testing files management,', function () {
       })
     })
 
-    // [oCIS] request to non-existing file gives empty response body
-    // https://github.com/owncloud/ocis/issues/1799
+    // https://github.com/owncloud/ocis/issues/1945#issuecomment-1247644423
     it('checking method : copy non existent file', async function () {
       const destinationWebDavPath = `remote.php/dav/files/${testUser}/abcd.txt`
       const provider = createProvider(false, true)

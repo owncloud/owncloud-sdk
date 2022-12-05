@@ -1,3 +1,23 @@
+# Changelog for [unreleased] (UNRELEASED)
+
+The following sections list the changes in ownCloud SDK unreleased.
+
+[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v3.0.0...master
+
+## Summary
+
+* Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
+
+## Details
+
+* Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
+
+   We've added a processing property to the fileinfo if the server response is `HTTP/1.1 425 TOO
+   EARLY`
+
+   https://github.com/owncloud/owncloud-sdk/pull/1109
+   https://github.com/owncloud/owncloud-sdk/pull/1188
+
 # Changelog for [3.0.0] (2022-11-28)
 
 The following sections list the changes in ownCloud SDK 3.0.0.

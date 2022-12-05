@@ -3,7 +3,8 @@ import { MatchersV3, XmlBuilder } from '@pact-foundation/pact/v3'
 const { fromProviderState } = MatchersV3
 const {
   toFormUrlEncoded,
-  getShareIdToken
+  getShareIdToken,
+  generateExpirationDate
 } = require('./helpers/sharingHelper')
 
 const {
@@ -21,7 +22,6 @@ describe('Main: Currently testing file/folder sharing,', function () {
     testGroup,
     testFolder,
     nonExistentFile,
-    expirationDate,
     testFiles,
     testFilesId,
     testFilesPath,
@@ -46,6 +46,9 @@ describe('Main: Currently testing file/folder sharing,', function () {
 
   // TESTING CONFIGS
   const publicLinkPassword = '1234'
+
+  // Expiration Date
+  const expirationDate = generateExpirationDate()
 
   const validAuthHeaders = {
     authorization: getAuthHeaders(sharer, sharerPassword)
@@ -739,6 +742,18 @@ describe('Main: Currently testing file/folder sharing,', function () {
     })
 
     describe('checking method: ', function () {
+      const nonExistentFileResponse = {
+        status: 200,
+        headers: {
+          ...xmlResponseHeaders
+        },
+        body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
+          ocs.appendElement('meta', '', (meta) => {
+            ocsMeta(meta, 'failure', 404, 'Wrong path, file/folder doesn\'t exist')
+          })
+        })
+      }
+
       // [oCIS] Trying to share non-existing file responds with empty body
       // https://github.com/owncloud/ocis/issues/1799
       async function linkSharePOSTNonExistentFile (provider) {
@@ -755,17 +770,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               ...applicationFormUrlEncoded
             },
             body: 'shareType=3' + '&path=%2F' + nonExistentFile + '&password=' + publicLinkPassword
-          }).willRespondWith({
-            status: 200,
-            headers: {
-              ...xmlResponseHeaders
-            },
-            body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-              ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'failure', 404, 'Wrong path, file/folder doesn\'t exist')
-              }).appendElement('data', '', '')
-            })
-          })
+          }).willRespondWith(nonExistentFileResponse)
       }
       // [oCIS] Trying to share non-existing file responds with empty body
       // https://github.com/owncloud/ocis/issues/1799
@@ -784,15 +789,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
               ...applicationFormUrlEncoded
             },
             body: 'shareType=1&shareWith=' + testGroup + '&path=%2F' + nonExistentFile + '&permissions=19'
-          }).willRespondWith({
-            status: 200,
-            headers: xmlResponseHeaders,
-            body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-              ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'failure', 404, 'Wrong path, file/folder doesn\'t exist')
-              }).appendElement('data', '', '')
-            })
-          })
+          }).willRespondWith(nonExistentFileResponse)
       }
       // [oCIS] Different responses in oCIS and oC10
       // https://github.com/owncloud/ocis/issues/1777
@@ -807,17 +804,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
             ),
             query: { path: '/' + nonExistentFile },
             headers: validAuthHeaders
-          }).willRespondWith({
-            status: 200,
-            headers: {
-              ...xmlResponseHeaders
-            },
-            body: new XmlBuilder('1.0', '', 'ocs').build(ocs => {
-              ocs.appendElement('meta', '', (meta) => {
-                ocsMeta(meta, 'failure', 404, 'Wrong path, file/folder doesn\'t exist')
-              })
-            })
-          })
+          }).willRespondWith(nonExistentFileResponse)
       }
       async function shareGETExistingNonSharedFile (provider, name, fileName) {
         await givenUserExists(provider, sharer)
@@ -933,7 +920,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       }
 
       it('shareFileWithLink with non-existent file', async function () {
-        const provider = createProvider(false, true)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         await linkSharePOSTNonExistentFile(provider)
@@ -949,7 +936,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
       })
 
       it('shareFileWithGroup with non existent file', async function () {
-        const provider = createProvider(false, true)
+        const provider = createProvider()
         await getCapabilitiesInteraction(provider, sharer, sharerPassword)
         await getCurrentUserInformationInteraction(provider, sharer, sharerPassword)
         await groupSharePOSTNonExistentFile(provider)

@@ -1,8 +1,8 @@
-# Changelog for [unreleased] (UNRELEASED)
+# Changelog for [3.0.0] (2022-11-28)
 
-The following sections list the changes in ownCloud SDK unreleased.
+The following sections list the changes in ownCloud SDK 3.0.0.
 
-[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v2.0.1...master
+[3.0.0]: https://github.com/owncloud/owncloud-sdk/compare/v2.0.1...v3.0.0
 
 ## Summary
 

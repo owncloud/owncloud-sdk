@@ -18,7 +18,7 @@ const TEST_TIMEOUT = 600000
 
 // environment variables
 const PACTFLOW_TOKEN = process.env.PACTFLOW_TOKEN
-const DRONE_SOURCE_BRANCH = process.env.DRONE_SOURCE_BRANCH
+const PACT_CONSUMER_VERSION_TAG = process.env.PACT_CONSUMER_VERSION_TAG
 const PROVIDER_VERSION = process.env.PROVIDER_VERSION
 
 let lastSharedToken = ''
@@ -104,7 +104,7 @@ describe('provider testing', () => {
     defaultOpts.pactBrokerUrl = 'https://jankaritech.pactflow.io'
     defaultOpts.publishVerificationResult = true
     defaultOpts.pactBrokerToken = PACTFLOW_TOKEN
-    defaultOpts.consumerVersionTags = DRONE_SOURCE_BRANCH
+    defaultOpts.consumerVersionTags = PACT_CONSUMER_VERSION_TAG
     defaultOpts.providerVersion = PROVIDER_VERSION
     defaultOpts.providerVersionTags = PROVIDER_VERSION
   }

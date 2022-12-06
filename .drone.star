@@ -17,18 +17,9 @@ DEFAULT_NODEJS_VERSION = "14"
 
 # directory dictionary
 dirs = {
-    "base": "/var/www/owncloud",
-    "ocis": "/var/www/owncloud/ocis-build",
-}
-
-# config dictionary
-config = {
-    "app": "owncloud-sdk",
-}
-
-sdk_workspace = {
-    "base": dirs["base"],
-    "path": config["app"],
+    "base": "/drone/src",
+    "oc10": "/var/www/owncloud",
+    "ocis": "/drone/src/ocis-build",
 }
 
 # minio mc environment variables
@@ -166,7 +157,6 @@ def cacheOcisPipeline(ctx):
         "kind": "pipeline",
         "type": "docker",
         "name": "cache-ocis",
-        "workspace": sdk_workspace,
         "clone": {
             "disable": True,
         },
@@ -466,7 +456,6 @@ def consumerTestPipeline(ctx, subFolderPath = "/"):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": sdk_workspace,
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig(subFolderPath) +
@@ -494,7 +483,6 @@ def ocisProviderTestPipeline(ctx):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": sdk_workspace,
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig() +
@@ -527,7 +515,9 @@ def oc10ProviderTestPipeline(ctx):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": sdk_workspace,
+        "workspace": {
+            "base": dirs["oc10"],
+        },
         "steps": restoreBuildArtifactCache(ctx, "yarn", ".yarn") +
                  installYarn() +
                  prepareTestConfig() +
@@ -555,7 +545,6 @@ def publish(ctx):
             "os": "linux",
             "arch": "amd64",
         },
-        "workspace": sdk_workspace,
         "steps": buildDocs() +
                  restoreBuildArtifactCache(ctx, "dist", "dist") +
                  publishDocs() +

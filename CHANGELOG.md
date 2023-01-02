@@ -7,7 +7,6 @@ The following sections list the changes in ownCloud SDK unreleased.
 ## Summary
 
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
-* Enhancement - Add tags for ocis: [#1127](https://github.com/owncloud/owncloud-sdk/pull/1127)
 
 ## Details
 
@@ -18,13 +17,6 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/owncloud-sdk/pull/1109
    https://github.com/owncloud/owncloud-sdk/pull/1188
-
-
-* Enhancement - Add tags for ocis: [#1127](https://github.com/owncloud/owncloud-sdk/pull/1127)
-
-   We've added tag management for ocis.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1127
 
 # Changelog for [3.0.0] (2022-11-28)
 

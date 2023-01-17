@@ -333,10 +333,11 @@ class Files {
    * @param   {string} pattern        pattern to be searched for
    * @param   {number} limit          maximum number of results
    * @param   {string[]} properties   list of DAV properties which are expected in the response
+   * @param   {Object} context        search context
    * @returns {Promise.Object}        boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
    */
-  search (pattern, limit, properties) {
+  search (pattern, limit, properties, context) {
     pattern = pattern || ''
     limit = limit || 30
 
@@ -358,7 +359,7 @@ class Files {
       '</oc:search-files>'
 
     return new Promise((resolve, reject) => {
-      this._sendDavReport(body, true).then(reportResponse => {
+      this._sendDavReport(body, true, context).then(reportResponse => {
         return resolve({
           results: this.helpers._parseBody(reportResponse.body),
           range: reportResponse.res?.headers?.['content-range']
@@ -447,13 +448,14 @@ class Files {
     return this._sendDavReport(body)
   }
 
-  _sendDavReport (body, plainResult = false) {
+  _sendDavReport (body, plainResult = false, context) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
 
     return this.helpers.getCurrentUserAsync().then(user => {
-      const path = '/files/' + user.id + '/'
+      let path = `/files/${user.id}/`
+      if (context?.path) path += `${context.path}/`
 
       const headers = this.helpers.buildHeaders()
       headers['Content-Type'] = 'application/xml; charset=utf-8'

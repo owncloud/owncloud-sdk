@@ -26,42 +26,26 @@ The following sections list the changes in ownCloud SDK 3.0.0.
 
 ## Summary
 
-* Bugfix - Depth 0 PROPFIND on empty responses: [#1128](https://github.com/owncloud/owncloud-sdk/pull/1128)
-* Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 * Bugfix - Always add X-Requested-With header: [#1020](https://github.com/owncloud/owncloud-sdk/pull/1020)
+* Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
+* Bugfix - Depth 0 PROPFIND on empty responses: [#1128](https://github.com/owncloud/owncloud-sdk/pull/1128)
 * Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
-* Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
-* Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)
-* Enhancement - Add overwrite flag for public files move and copy: [#7122](https://github.com/owncloud/web/issues/7122)
-* Enhancement - Add range to search result: [#1112](https://github.com/owncloud/owncloud-sdk/pull/1112)
-* Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)
-* Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
-* Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
-* Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
-* Enhancement - Add role api parameter and stop deleting other params: [#1092](https://github.com/owncloud/owncloud-sdk/pull/1092)
-* Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
-* Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
+* Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
+* Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
+* Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
+* Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
+* Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)
+* Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
+* Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)
+* Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
+* Enhancement - Add role api parameter and stop deleting other params: [#1092](https://github.com/owncloud/owncloud-sdk/pull/1092)
+* Enhancement - Add range to search result: [#1112](https://github.com/owncloud/owncloud-sdk/pull/1112)
 * Enhancement - Add token info endpoint support: [#1126](https://github.com/owncloud/owncloud-sdk/pull/1126)
+* Enhancement - Add overwrite flag for public files move and copy: [#7122](https://github.com/owncloud/web/issues/7122)
 
 ## Details
-
-* Bugfix - Depth 0 PROPFIND on empty responses: [#1128](https://github.com/owncloud/owncloud-sdk/pull/1128)
-
-   We fixed a bug where depth 0 PROPFINDs resulted in an exception when the response is empty. This
-   was happening when requesting only certain props in the PROPFIND and those were not present.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1128
-
-
-* Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
-
-   Adds a new `noCache` option to the public links' `download` method, which sets the
-   `Cache-Control: no-cache` header.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1079
-
 
 * Bugfix - Always add X-Request-ID: [#1016](https://github.com/owncloud/owncloud-sdk/pull/1016)
 
@@ -83,6 +67,22 @@ The following sections list the changes in ownCloud SDK 3.0.0.
    https://github.com/owncloud/owncloud-sdk/pull/1020
 
 
+* Bugfix - Optional no cache for public links: [#1079](https://github.com/owncloud/owncloud-sdk/pull/1079)
+
+   Adds a new `noCache` option to the public links' `download` method, which sets the
+   `Cache-Control: no-cache` header.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1079
+
+
+* Bugfix - Depth 0 PROPFIND on empty responses: [#1128](https://github.com/owncloud/owncloud-sdk/pull/1128)
+
+   We fixed a bug where depth 0 PROPFINDs resulted in an exception when the response is empty. This
+   was happening when requesting only certain props in the PROPFIND and those were not present.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1128
+
+
 * Change - Pass full trash bin path to methods of FilesTrash class: [#1021](https://github.com/owncloud/owncloud-sdk/pull/1021)
 
    Since incompatibility with spaces, we changed the way how the methods of the class
@@ -90,92 +90,6 @@ The following sections list the changes in ownCloud SDK 3.0.0.
    path of the trash bin.
 
    https://github.com/owncloud/owncloud-sdk/pull/1021
-
-
-* Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
-
-   We've added an overwrite flag for the file copy operation
-
-   https://github.com/owncloud/owncloud-sdk/pull/1087
-
-
-* Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)
-
-   We've added an overwrite flag for the file move operation
-
-   https://github.com/owncloud/owncloud-sdk/pull/1073
-
-
-* Enhancement - Add overwrite flag for public files move and copy: [#7122](https://github.com/owncloud/web/issues/7122)
-
-   We've added an overwrite flag for the public files move and copy operation
-
-   https://github.com/owncloud/web/issues/7122
-   https://github.com/owncloud/owncloud-sdk/pull/1097
-
-
-* Enhancement - Add range to search result: [#1112](https://github.com/owncloud/owncloud-sdk/pull/1112)
-
-   We've added the range property to the search result, so we can retrieve the found items, even if
-   the search limit will be exceeded.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1112
-
-
-* Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)
-
-   We've enabled search results for ocis, which has been skipped before.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1057
-
-
-* Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
-
-   With oC10, the `share_type` is not set to guest, if a user shares a resource with a guest user,
-   therefore we check if the property `share_with_user_type` is present and set to `guest`, if so
-   we manipulate the `share_type` property and set it to guest.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1046
-
-
-* Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
-
-   We've added the option to define if a share link is of type quicklink or not.
-
-   https://github.com/owncloud/web/issues/6605
-   https://github.com/owncloud/owncloud-sdk/pull/1041
-   https://github.com/owncloud/core/pull/39167
-   https://github.com/cs3org/reva/pull/2715
-
-
-* Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
-
-   We've replaced all occurrences of the deprecated String.prototype.substr() function with
-   String.prototype.slice() which works similarly but isn't deprecated.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1035
-
-
-* Enhancement - Add role api parameter and stop deleting other params: [#1092](https://github.com/owncloud/owncloud-sdk/pull/1092)
-
-   We've added the option to define a role when sharing a resource. Beside that we've stopped to
-   delete certain other parameters when a `space_ref` is provided.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1092
-
-
-* Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
-
-   We now support blob as resolveType for requests in addition to text and arrayBuffer.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1028
-
-
-* Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
-
-   Due to server encoding, the ETag might differ from OC-ETag, therefore we emit both.
-
-   https://github.com/owncloud/owncloud-sdk/pull/1067
 
 
 * Enhancement - Adjust share management to properly work with spaces: [#1013](https://github.com/owncloud/owncloud-sdk/pull/1013)
@@ -190,12 +104,98 @@ The following sections list the changes in ownCloud SDK 3.0.0.
    https://github.com/owncloud/owncloud-sdk/pull/1027
 
 
+* Enhancement - Add blob resolveType: [#1028](https://github.com/owncloud/owncloud-sdk/pull/1028)
+
+   We now support blob as resolveType for requests in addition to text and arrayBuffer.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1028
+
+
+* Enhancement - Replace deprecated String.prototype.substr(): [#1035](https://github.com/owncloud/owncloud-sdk/pull/1035)
+
+   We've replaced all occurrences of the deprecated String.prototype.substr() function with
+   String.prototype.slice() which works similarly but isn't deprecated.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1035
+
+
+* Enhancement - Create quicklink: [#1041](https://github.com/owncloud/owncloud-sdk/pull/1041)
+
+   We've added the option to define if a share link is of type quicklink or not.
+
+   https://github.com/owncloud/web/issues/6605
+   https://github.com/owncloud/owncloud-sdk/pull/1041
+   https://github.com/owncloud/core/pull/39167
+   https://github.com/cs3org/reva/pull/2715
+
+
+* Enhancement - Enforce `share_type` guest if applies: [#1046](https://github.com/owncloud/owncloud-sdk/pull/1046)
+
+   With oC10, the `share_type` is not set to guest, if a user shares a resource with a guest user,
+   therefore we check if the property `share_with_user_type` is present and set to `guest`, if so
+   we manipulate the `share_type` property and set it to guest.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1046
+
+
+* Enhancement - Enable search results for ocis: [#1057](https://github.com/owncloud/owncloud-sdk/pull/1057)
+
+   We've enabled search results for ocis, which has been skipped before.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1057
+
+
+* Enhancement - Send oc-etag on putFileContents and getFileContents methods: [#1067](https://github.com/owncloud/owncloud-sdk/pull/1067)
+
+   Due to server encoding, the ETag might differ from OC-ETag, therefore we emit both.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1067
+
+
+* Enhancement - Add overwrite flag for file move: [#1073](https://github.com/owncloud/owncloud-sdk/pull/1073)
+
+   We've added an overwrite flag for the file move operation
+
+   https://github.com/owncloud/owncloud-sdk/pull/1073
+
+
+* Enhancement - Add overwrite flag for file copy: [#1087](https://github.com/owncloud/owncloud-sdk/pull/1087)
+
+   We've added an overwrite flag for the file copy operation
+
+   https://github.com/owncloud/owncloud-sdk/pull/1087
+
+
+* Enhancement - Add role api parameter and stop deleting other params: [#1092](https://github.com/owncloud/owncloud-sdk/pull/1092)
+
+   We've added the option to define a role when sharing a resource. Beside that we've stopped to
+   delete certain other parameters when a `space_ref` is provided.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1092
+
+
+* Enhancement - Add range to search result: [#1112](https://github.com/owncloud/owncloud-sdk/pull/1112)
+
+   We've added the range property to the search result, so we can retrieve the found items, even if
+   the search limit will be exceeded.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1112
+
+
 * Enhancement - Add token info endpoint support: [#1126](https://github.com/owncloud/owncloud-sdk/pull/1126)
 
    We've added support for the new token info endpoint.
 
    https://github.com/owncloud/web/issues/7304
    https://github.com/owncloud/owncloud-sdk/pull/1126
+
+
+* Enhancement - Add overwrite flag for public files move and copy: [#7122](https://github.com/owncloud/web/issues/7122)
+
+   We've added an overwrite flag for the public files move and copy operation
+
+   https://github.com/owncloud/web/issues/7122
+   https://github.com/owncloud/owncloud-sdk/pull/1097
 
 # Changelog for [2.0.1] (2022-02-15)
 
@@ -224,12 +224,21 @@ The following sections list the changes in ownCloud SDK 2.0.0.
 
 ## Summary
 
+* Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
 * Change - Drop Internet Explorer support: [#966](https://github.com/owncloud/owncloud-sdk/pull/966)
 * Change - Pass full file or directory path to methods of Files class: [#971](https://github.com/owncloud/owncloud-sdk/pull/971)
 * Change - Use peerDependencies instead of dependencies: [#979](https://github.com/owncloud/owncloud-sdk/pull/979)
-* Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
 
 ## Details
+
+* Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
+
+   The DAV api now uses dav v2 by default, webdav v1 has been entirely removed.
+
+   https://github.com/owncloud/owncloud-sdk/issues/958
+   https://github.com/owncloud/owncloud-sdk/pull/962
+   https://github.com/owncloud/owncloud-sdk/pull/985
+
 
 * Change - Drop Internet Explorer support: [#966](https://github.com/owncloud/owncloud-sdk/pull/966)
 
@@ -262,15 +271,6 @@ The following sections list the changes in ownCloud SDK 2.0.0.
    and can decide which minor or bugfix version to use.
 
    https://github.com/owncloud/owncloud-sdk/pull/979
-
-
-* Change - Remove webdav v1 api support: [#962](https://github.com/owncloud/owncloud-sdk/pull/962)
-
-   The DAV api now uses dav v2 by default, webdav v1 has been entirely removed.
-
-   https://github.com/owncloud/owncloud-sdk/issues/958
-   https://github.com/owncloud/owncloud-sdk/pull/962
-   https://github.com/owncloud/owncloud-sdk/pull/985
 
 # Changelog for [1.1.2] (2022-02-01)
 

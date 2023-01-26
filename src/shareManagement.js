@@ -155,6 +155,10 @@ class Shares {
 
     if (optionalParams) {
       postData = { ...postData, ...this._getOptionalParams(optionalParams) }
+
+      if (optionalParams.expireDate !== undefined) {
+        postData.expireDate = optionalParams.expireDate
+      }
     }
 
     return this.helpers._makeOCSrequest('POST', this.helpers.OCS_SERVICE_SHARE, 'shares', postData)

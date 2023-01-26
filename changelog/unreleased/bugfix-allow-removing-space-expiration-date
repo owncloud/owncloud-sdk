@@ -1,0 +1,6 @@
+Bugfix: Allow removing expiration dates from space shares
+
+We've fixed a bug where removing expiration dates from space shares was not possible.
+
+https://github.com/owncloud/owncloud-sdk/pull/1204
+https://github.com/owncloud/web/pull/8320

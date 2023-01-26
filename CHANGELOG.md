@@ -6,9 +6,18 @@ The following sections list the changes in ownCloud SDK unreleased.
 
 ## Summary
 
+* Bugfix - Allow removing expiration dates from space shares: [#1204](https://github.com/owncloud/owncloud-sdk/pull/1204)
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
 
 ## Details
+
+* Bugfix - Allow removing expiration dates from space shares: [#1204](https://github.com/owncloud/owncloud-sdk/pull/1204)
+
+   We've fixed a bug where removing expiration dates from space shares was not possible.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1204
+   https://github.com/owncloud/web/pull/8320
+
 
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
 

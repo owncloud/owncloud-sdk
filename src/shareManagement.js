@@ -15,6 +15,7 @@ const { ShareInfo, USER_TYPE_GUEST, SHARE_TYPE_GUEST } = require('./shareInfo.js
  *          <li>shareFileWithUser</li>
  *          <li>shareSpaceWithUser</li>
  *          <li>shareFileWithGroup</li>
+ *          <li>shareSpaceWithGroup</li>
  *          <li>getShares</li>
  *          <li>isShared</li>
  *          <li>getShare</li>
@@ -143,9 +144,36 @@ class Shares {
    * @returns {Promise.<error>}            string: error message, if any.
    */
   shareSpaceWithUser (path, username, spaceId, optionalParams) {
+    return this.shareSpace(path, username, this.helpers.OCS_SHARE_TYPE_SPACE_USER, spaceId, optionalParams)
+  }
+
+  /**
+   * Shares a space with specified user
+   * @param   {string}    path             path to the remote file share
+   * @param   {string}    groupName        name of the group to share with
+   * @param   {string}    spaceId          id of the space
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, attributes: assoc array (at free disposal)}
+   * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
+   * @returns {Promise.<error>}            string: error message, if any.
+   */
+  shareSpaceWithGroup (path, groupName, spaceId, optionalParams) {
+    return this.shareSpace(path, groupName, this.helpers.OCS_SHARE_TYPE_SPACE_GROUP, spaceId, optionalParams)
+  }
+
+  /**
+   * Shares a space with specified user or group
+   * @param   {string}    path             path to the remote file share
+   * @param   {string}    shareWith        name of the user or group to share with
+   * @param   {number}    shareType        share type for the new share
+   * @param   {string}    spaceId          id of the space
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: assoc array (at free disposal)}
+   * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
+   * @returns {Promise.<error>}            string: error message, if any.
+   */
+  shareSpace (path, shareWith, shareType, spaceId, optionalParams) {
     let postData = {
-      shareType: this.helpers.OCS_SHARE_TYPE_SPACE,
-      shareWith: username,
+      shareType,
+      shareWith,
       space_ref: spaceId
     }
 

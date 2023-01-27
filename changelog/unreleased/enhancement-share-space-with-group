@@ -1,0 +1,5 @@
+Enhancement: Share space with group
+
+We've added a helper to share a space with a group.
+
+https://github.com/owncloud/owncloud-sdk/pull/1207

@@ -24,6 +24,8 @@ yarn-error.log*
 *.njsproj
 *.sln
 
+/.pnpm-store/
+
 .yarn/*
 !.yarn/patches
 !.yarn/releases

@@ -1,6 +1,6 @@
 {
   "name": "owncloud-sdk",
-  "version": "3.1.0-alpha.2",
+  "version": "3.1.0-alpha.3",
   "description": "ownCloud client library for JavaScript",
   "keywords": [
     "owncloud",

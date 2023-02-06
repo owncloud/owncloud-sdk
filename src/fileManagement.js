@@ -337,7 +337,7 @@ class Files {
    * @returns {Promise.Object}        boolean: whether the operation was successful
    * @returns {Promise.<error>}       string: error message, if any.
    */
-  search (pattern, limit, properties, context) {
+  search (pattern, limit, properties, context = {}) {
     pattern = pattern || ''
     limit = limit || 30
 
@@ -448,7 +448,7 @@ class Files {
     return this._sendDavReport(body)
   }
 
-  _sendDavReport (body, plainResult = false, context) {
+  _sendDavReport (body, plainResult = false, context = {}) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }

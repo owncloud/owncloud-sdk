@@ -104,7 +104,7 @@ class Shares {
    * Shares a remote file with specified user
    * @param   {string}    path             path to the remote file share
    * @param   {string}    username         name of the user to share with
-   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: assoc array (at free disposal)}
+   * @param   {object}    optionalParams   {permissions: integer, expirationDate: ISO Date, remoteUser: boolean, attributes: assoc array (at free disposal), shareWithUser: string, shareWithProvider: string}
    * @returns {Promise.<ShareInfo>}        instance of class ShareInfo
    * @returns {Promise.<error>}            string: error message, if any.
    */
@@ -571,6 +571,15 @@ class Shares {
    */
   _getOptionalParams (optionalParams) {
     const data = {}
+
+    if (optionalParams.shareWithUser) {
+      data.shareWithUser = optionalParams.shareWithUser
+    }
+
+    if (optionalParams.shareWithProvider) {
+      data.shareWithProvider = optionalParams.shareWithProvider
+    }
+
     if (optionalParams.permissions) {
       data.permissions = optionalParams.permissions
     }

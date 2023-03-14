@@ -2,7 +2,7 @@
 OC_CI_ALPINE = "owncloudci/alpine:latest"
 OC_CI_GOLANG = "owncloudci/golang:1.19"
 OC_CI_NODEJS = "owncloudci/nodejs:%s"
-OC_CI_PHP = "owncloudci/php:7.3"
+OC_CI_PHP = "owncloudci/php:7.4"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS = "owncloudci/drone-cancel-previous-builds"
 OC_CI_WAIT_FOR = "owncloudci/wait-for:latest"

@@ -1,0 +1,6 @@
+Bugfix: Add missing headers
+
+Some requests were missing the headers which were given when initializing the SDK. This has been fixed.
+
+https://github.com/owncloud/web/issues/8612
+https://github.com/owncloud/owncloud-sdk/pull/1224

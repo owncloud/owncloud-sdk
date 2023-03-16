@@ -34,10 +34,8 @@ class FilesVersions {
    */
   listVersions (fileId) {
     const path = '/meta/' + fileId + '/v'
-
-    return this.davClient.propFind(this.helpers._buildFullDAVPath(path), [], 1, {
-      Authorization: this.helpers.getAuthorization()
-    }).then(result => {
+    const headers = this.helpers.buildHeaders()
+    return this.davClient.propFind(this.helpers._buildFullDAVPath(path), [], 1, headers).then(result => {
       if (result.status !== 207) {
         return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
       } else {
@@ -81,7 +79,7 @@ class FilesVersions {
     const target = '/files/' + this.helpers.getCurrentUser().id + '/' + targetPath
 
     return this.davClient.request('COPY', this.helpers._buildFullDAVPath(source), {
-      Authorization: this.helpers.getAuthorization(),
+      ...this.helpers.buildHeaders(),
       Destination: this.helpers._buildFullDAVURL(target)
     }, null, { version: 'v2' }).then(result => {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {

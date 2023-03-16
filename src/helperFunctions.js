@@ -321,6 +321,7 @@ class helpers {
     }
 
     const headers = {
+      ...this._headers,
       Authorization: this._authHeader,
       'Content-Type': 'application/x-www-form-urlencoded'
     }

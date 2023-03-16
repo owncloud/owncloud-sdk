@@ -7,6 +7,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 ## Summary
 
 * Bugfix - Allow removing expiration dates from space shares: [#1204](https://github.com/owncloud/owncloud-sdk/pull/1204)
+* Bugfix - Add missing headers: [#8612](https://github.com/owncloud/web/issues/8612)
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
 * Enhancement - Share space with group: [#1207](https://github.com/owncloud/owncloud-sdk/pull/1207)
 
@@ -18,6 +19,15 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/owncloud-sdk/pull/1204
    https://github.com/owncloud/web/pull/8320
+
+
+* Bugfix - Add missing headers: [#8612](https://github.com/owncloud/web/issues/8612)
+
+   Some requests were missing the headers which were given when initializing the SDK. This has
+   been fixed.
+
+   https://github.com/owncloud/web/issues/8612
+   https://github.com/owncloud/owncloud-sdk/pull/1224
 
 
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)

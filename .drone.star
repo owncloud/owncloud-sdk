@@ -871,7 +871,7 @@ def buildOcis():
         },
         {
             "name": "generate-ocis",
-            "image": OC_CI_NODEJS % "16",
+            "image": OC_CI_NODEJS % "18",
             "commands": [
                 # we cannot use the $GOPATH here because of different base image
                 "cd /go/src/github.com/owncloud/ocis/",

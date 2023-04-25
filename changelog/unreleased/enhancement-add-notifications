@@ -1,0 +1,7 @@
+Enhancement: Add notifications fields
+
+This enhancement adds extra fields on the update share method to accommodate the
+changes in CS3APIs (https://cs3org.github.io/cs3apis/#cs3.sharing.link.v1beta1.CreatePublicShareRequest),
+as well as the method to send a reminder notification about a share.
+
+https://github.com/owncloud/owncloud-sdk/pull/1234

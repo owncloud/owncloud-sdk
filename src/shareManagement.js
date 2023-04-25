@@ -444,6 +444,15 @@ class Shares {
       if (optionalParams.attributes) {
         postData.attributes = optionalParams.attributes
       }
+      if (optionalParams.notifyUploads !== undefined) {
+        postData.notifyUploads = optionalParams.notifyUploads
+      }
+      if (optionalParams.notifyUploadsExtraRecipients !== undefined) {
+        postData.notifyUploadsExtraRecipients = optionalParams.notifyUploadsExtraRecipients
+      }
+      if (optionalParams.notifyAddresses !== undefined) {
+        postData.notifyAddresses = optionalParams.notifyAddresses
+      }
     }
 
     /* jshint unused: false */
@@ -476,6 +485,27 @@ class Shares {
         'shares/' + encodeURIComponent(shareId.toString()) + urlParamString
       ).then(() => {
         resolve(true)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  }
+
+  /**
+   * Send a share reminder notification
+   * @param   {number}   shareId   ID of the share to delete
+   * @returns {Promise.<status>}   string: Array of emails where notification was sent.
+   * @returns {Promise.<error>}    string: error message, if any.
+   */
+  notifyShare (shareId) {
+    return new Promise((resolve, reject) => {
+      this.helpers._makeOCSrequest('GET', this.helpers.OCS_SERVICE_SHARE,
+        'shares/' + encodeURIComponent(shareId.toString()) + '/notify', []
+      ).then(data => {
+        if (data.response.ok) {
+          resolve(data.data.recipients)
+        }
+        throw new Error(data.response.status + '/' + data.response.statusText)
       }).catch(error => {
         reject(error)
       })
@@ -598,6 +628,10 @@ class Shares {
 
     if (optionalParams.remoteUser) {
       data.shareType = this.helpers.OCS_SHARE_TYPE_REMOTE
+    }
+
+    if (optionalParams.notify) {
+      data.notify = optionalParams.notify
     }
 
     return data

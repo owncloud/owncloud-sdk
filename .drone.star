@@ -4,7 +4,6 @@ OC_CI_GOLANG = "owncloudci/golang:1.19"
 OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_PHP = "owncloudci/php:7.4"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
-OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS = "owncloudci/drone-cancel-previous-builds"
 OC_CI_WAIT_FOR = "owncloudci/wait-for:latest"
 PLUGINS_SLACK = "plugins/slack:1"
 MELTWATER_DRONE_CACHE = "meltwater/drone-cache:v1"
@@ -23,12 +22,12 @@ dirs = {
 }
 
 # minio mc environment variables
-minio_mc_environment = {
+MINIO_MC_ENV = {
     "CACHE_BUCKET": {
-        "from_secret": "cache_public_s3_bucket",
+        "from_secret": "cache_s3_bucket",
     },
     "MC_HOST": {
-        "from_secret": "cache_s3_endpoint",
+        "from_secret": "cache_s3_server",
     },
     "AWS_ACCESS_KEY_ID": {
         "from_secret": "cache_s3_access_key",
@@ -62,8 +61,7 @@ def main(ctx):
     return before + pipelinesDependsOn(stages, before) + after + purge_caches
 
 def beforePipelines(ctx):
-    return cancelPreviousBuilds() + \
-           checkStarlark() + \
+    return checkStarlark() + \
            changelog(ctx) + \
            sonarcloud(ctx) + \
            cacheOcisPipeline(ctx) + \
@@ -189,17 +187,10 @@ def genericCache(name, action, mounts, cache_key):
     return [{
         "name": "%s_%s" % (action, name),
         "image": MELTWATER_DRONE_CACHE,
-        "environment": {
-            "AWS_ACCESS_KEY_ID": {
-                "from_secret": "cache_s3_access_key",
-            },
-            "AWS_SECRET_ACCESS_KEY": {
-                "from_secret": "cache_s3_secret_key",
-            },
-        },
+        "environment": MINIO_MC_ENV,
         "settings": {
             "endpoint": {
-                "from_secret": "cache_s3_endpoint",
+                "from_secret": "cache_s3_server",
             },
             "bucket": "cache",
             "region": "us-east-1",  # not used at all, but fails if not given!
@@ -225,13 +216,10 @@ def genericCachePurge(ctx, name, cache_key):
                 "name": "purge-cache",
                 "image": MINIO_MC,
                 "failure": "ignore",
-                "environment": {
-                    "MC_HOST_cache": {
-                        "from_secret": "cache_s3_connection_url",
-                    },
-                },
+                "environment": MINIO_MC_ENV,
                 "commands": [
-                    "mc rm --recursive --force cache/cache/%s/%s" % (ctx.repo.name, cache_key),
+                    "mc alias set cachebucket $MC_HOST $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY",
+                    "mc rm --recursive --force cache/$CACHE_BUCKET/%s/%s" % (ctx.repo.name, cache_key),
                 ],
             },
         ],
@@ -766,7 +754,7 @@ def notify():
                 "image": PLUGINS_SLACK,
                 "settings": {
                     "webhook": {
-                        "from_secret": "private_rocketchat",
+                        "from_secret": "rocketchat_chat_webhook",
                     },
                     "channel": ROCKETCHAT_CHANNEL,
                 },
@@ -780,30 +768,6 @@ def notify():
             "status": [
                 "success",
                 "failure",
-            ],
-        },
-    }]
-
-def cancelPreviousBuilds():
-    return [{
-        "kind": "pipeline",
-        "type": "docker",
-        "name": "cancel-previous-builds",
-        "clone": {
-            "disable": True,
-        },
-        "steps": [{
-            "name": "cancel-previous-builds",
-            "image": OC_CI_DRONE_CANCEL_PREVIOUS_BUILDS,
-            "settings": {
-                "DRONE_TOKEN": {
-                    "from_secret": "drone_token",
-                },
-            },
-        }],
-        "trigger": {
-            "ref": [
-                "refs/pull/**",
             ],
         },
     }]
@@ -842,7 +806,7 @@ def checkForExistingOcisCache(ctx):
         {
             "name": "check-for-exisiting-cache",
             "image": OC_UBUNTU,
-            "environment": minio_mc_environment,
+            "environment": MINIO_MC_ENV,
             "commands": [
                 "curl -o .drone.env %s/.drone.env" % sdk_repo_path,
                 "curl -o check-oCIS-cache.sh %s/tests/drone/check-oCIS-cache.sh" % sdk_repo_path,
@@ -898,7 +862,7 @@ def cacheOcis():
     return [{
         "name": "upload-ocis-cache",
         "image": MINIO_MC,
-        "environment": minio_mc_environment,
+        "environment": MINIO_MC_ENV,
         "commands": [
             ". ./.drone.env",
             "mc alias set s3 $MC_HOST $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY",
@@ -911,7 +875,7 @@ def restoreOcisCache():
     return [{
         "name": "restore-ocis-cache",
         "image": MINIO_MC,
-        "environment": minio_mc_environment,
+        "environment": MINIO_MC_ENV,
         "commands": [
             ". ./.drone.env",
             "rm -rf %s" % dirs["ocis"],

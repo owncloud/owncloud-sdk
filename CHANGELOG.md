@@ -10,6 +10,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Bugfix - Add missing headers: [#8612](https://github.com/owncloud/web/issues/8612)
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
 * Enhancement - Share space with group: [#1207](https://github.com/owncloud/owncloud-sdk/pull/1207)
+* Enhancement - Add notifications fields: [#1234](https://github.com/owncloud/owncloud-sdk/pull/1234)
 
 ## Details
 
@@ -44,6 +45,16 @@ The following sections list the changes in ownCloud SDK unreleased.
    We've added a helper to share a space with a group.
 
    https://github.com/owncloud/owncloud-sdk/pull/1207
+
+
+* Enhancement - Add notifications fields: [#1234](https://github.com/owncloud/owncloud-sdk/pull/1234)
+
+   This enhancement adds extra fields on the update share method to accommodate the changes in
+   CS3APIs
+   (https://cs3org.github.io/cs3apis/#cs3.sharing.link.v1beta1.CreatePublicShareRequest),
+   as well as the method to send a reminder notification about a share.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1234
 
 # Changelog for [3.0.0] (2022-11-28)
 

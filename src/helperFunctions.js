@@ -366,9 +366,9 @@ class helpers {
     })
   }
 
-  buildHttpErrorFromDavResponse (status, body) {
+  buildHttpErrorFromDavResponse (response, status, body) {
     const error = this._parseDAVerror(body)
-    return new HttpError(status, error)
+    return new HttpError(response, status, error)
   }
 
   /**

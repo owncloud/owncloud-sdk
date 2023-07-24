@@ -6,9 +6,10 @@
  */
 
 class HTTPError extends Error {
-  constructor (code, message = null) {
+  constructor (response, code, message = null) {
     super(message)
     this.statusCode = code
+    this.response = response
   }
 }
 

@@ -52,7 +52,7 @@ class Files {
     const headers = this.helpers.buildHeaders()
     return this.davClient.propFind(this.helpers._buildFullDAVPath(path), properties, depth, headers).then(result => {
       if (result.status !== 207) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       } else {
         const entries = this.helpers._parseBody(result.body)
         if (entries.length) {
@@ -84,7 +84,7 @@ class Files {
       const body = data.body
 
       if (response.statusCode !== 200) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response.status, body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response, response.status, body))
       }
       options = options || []
       const resolveWithResponseObject = options.resolveWithResponseObject || false
@@ -126,7 +126,7 @@ class Files {
       Authorization: this.helpers.getAuthorization()
     }).then(result => {
       if (result.status !== 207) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       }
       const file = this.helpers._parseBody(result.body)
       return Promise.resolve(file[0].getProperty('{http://owncloud.org/ns}meta-path-for-user'))
@@ -179,7 +179,7 @@ class Files {
           'OC-FileId': result.res.headers['oc-fileid']
         })
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       }
     })
   }
@@ -207,7 +207,7 @@ class Files {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 
@@ -230,7 +230,7 @@ class Files {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       }
     })
   }
@@ -271,7 +271,7 @@ class Files {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 
@@ -298,7 +298,7 @@ class Files {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 
@@ -324,7 +324,7 @@ class Files {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 
@@ -462,7 +462,7 @@ class Files {
 
       return this.davClient.request('REPORT', path, headers, body).then(result => {
         if (result.status !== 207) {
-          return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+          return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
         } else {
           return plainResult
             ? Promise.resolve(result)

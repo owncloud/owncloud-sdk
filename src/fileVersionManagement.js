@@ -37,7 +37,7 @@ class FilesVersions {
     const headers = this.helpers.buildHeaders()
     return this.davClient.propFind(this.helpers._buildFullDAVPath(path), [], 1, headers).then(result => {
       if (result.status !== 207) {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       } else {
         return Promise.resolve(this.helpers._parseBody(result.body).splice(1))
       }
@@ -59,7 +59,7 @@ class FilesVersions {
       if (response.statusCode === 200) {
         return Promise.resolve(body)
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response.status, body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(response, response.status, body))
       }
     })
   }
@@ -85,7 +85,7 @@ class FilesVersions {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       }
     })
   }

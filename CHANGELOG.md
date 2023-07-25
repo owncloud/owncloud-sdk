@@ -11,6 +11,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
 * Enhancement - Share space with group: [#1207](https://github.com/owncloud/owncloud-sdk/pull/1207)
 * Enhancement - Add notifications fields: [#1234](https://github.com/owncloud/owncloud-sdk/pull/1234)
+* Enhancement - Add response to error object: [#1236](https://github.com/owncloud/owncloud-sdk/pull/1236)
 
 ## Details
 
@@ -55,6 +56,14 @@ The following sections list the changes in ownCloud SDK unreleased.
    as well as the method to send a reminder notification about a share.
 
    https://github.com/owncloud/owncloud-sdk/pull/1234
+
+
+* Enhancement - Add response to error object: [#1236](https://github.com/owncloud/owncloud-sdk/pull/1236)
+
+   We've added the http response object to the error object, this allows developers to further
+   process the error information.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1236
 
 # Changelog for [3.0.0] (2022-11-28)
 

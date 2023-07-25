@@ -459,7 +459,7 @@ describe('Main: Currently testing user management,', function () {
       return oc.users.getUser(config.nonExistentUser).then(user => {
         expect(user).toBe(null)
       }).catch(error => {
-        expect(error).toBe('The requested user could not be found')
+        expect(error.message).toBe('The requested user could not be found')
       })
     })
   })
@@ -1082,7 +1082,7 @@ describe('Main: Currently testing user management,', function () {
       return oc.users.getUser(config.nonExistentUser).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
-        expect(error).toEqual('The requested user could not be found')
+        expect(error.message).toEqual('The requested user could not be found')
       })
     })
   })
@@ -1157,7 +1157,7 @@ describe('Main: Currently testing user management,', function () {
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
-          expect(error).toBe('Group:' + config.nonExistentGroup + ' does not exist')
+          expect(error.message).toBe('Group:' + config.nonExistentGroup + ' does not exist')
         })
     })
   })
@@ -1183,7 +1183,7 @@ describe('Main: Currently testing user management,', function () {
       return oc.users.addUserToSubadminGroup(config.nonExistentUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toBe('User does not exist')
+        expect(error.message).toBe('User does not exist')
       })
     })
   })
@@ -1213,7 +1213,7 @@ describe('Main: Currently testing user management,', function () {
         expect(typeof (data)).toBe('object')
         expect(data.length).toEqual(0)
       }).catch(error => {
-        expect(error).toBe('The requested user could not be found')
+        expect(error.message).toBe('The requested user could not be found')
       })
     })
   })
@@ -1274,7 +1274,7 @@ describe('Main: Currently testing user management,', function () {
         .then(status => {
           expect(status).toBe(null)
         }).catch(error => {
-          expect(error).toBe('The requested user could not be found')
+          expect(error.message).toBe('The requested user could not be found')
         })
     })
   })

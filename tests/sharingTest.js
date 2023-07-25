@@ -930,7 +930,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.shareFileWithLink(nonExistentFile, { password: publicLinkPassword }).then(status => {
             expect(status).toBe(null)
           }).catch(error => {
-            expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
+            expect(error.message.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
           })
         })
       })
@@ -947,7 +947,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.shareFileWithGroup(nonExistentFile, testGroup, { permissions: 19 }).then(share => {
             expect(share).toBe(null)
           }).catch(error => {
-            expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
+            expect(error.message.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
           })
         })
       })
@@ -964,7 +964,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.isShared(nonExistentFile).then(status => {
             expect(status).toBe(null)
           }).catch(error => {
-            expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
+            expect(error.message.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
           })
         })
       })
@@ -1001,10 +1001,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.getShare(-1).then(share => {
             expect(share).toBe(null)
           }).catch(error => {
-            if (error.slice(-1) === '.') {
-              error = error.slice(0, -1)
+            let errorMessage = error.message
+            if (errorMessage.slice(-1) === '.') {
+              errorMessage = errorMessage.slice(0, -1)
             }
-            expect(error.toLowerCase()).toEqual('wrong share id, share doesn\'t exist')
+            expect(errorMessage.toLowerCase()).toEqual('wrong share id, share doesn\'t exist')
           })
         })
       })
@@ -1021,7 +1022,7 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.getShares(nonExistentFile).then(shares => {
             expect(shares).toBe(null)
           }).catch(error => {
-            expect(error.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
+            expect(error.message.toLowerCase()).toBe('wrong path, file/folder doesn\'t exist')
           })
         })
       })
@@ -1060,10 +1061,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.updateShare(-1, formData).then(status => {
             expect(status).toBe(null)
           }).catch(error => {
-            if (error.slice(-1) === '.') {
-              error = error.slice(0, -1)
+            let errorMessage = error.message
+            if (errorMessage.slice(-1) === '.') {
+              errorMessage = errorMessage.slice(0, -1)
             }
-            expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist')
+            expect(errorMessage.toLowerCase()).toBe('wrong share id, share doesn\'t exist')
           })
         })
       })
@@ -1080,10 +1082,11 @@ describe('Main: Currently testing file/folder sharing,', function () {
           return oc.shares.deleteShare(-1).then(status => {
             expect(status).toBe(true)
           }).catch(error => {
-            if (error.slice(-1) === '.') {
-              error = error.slice(0, -1)
+            let errorMessage = error.message
+            if (errorMessage.slice(-1) === '.') {
+              errorMessage = errorMessage.slice(0, -1)
             }
-            expect(error.toLowerCase()).toBe('wrong share id, share doesn\'t exist')
+            expect(errorMessage.toLowerCase()).toBe('wrong share id, share doesn\'t exist')
           })
         })
       })

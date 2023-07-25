@@ -31,7 +31,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.files.list(config.testFolder, 1).then(() => {
         fail()
@@ -50,7 +50,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       for (let i = 0; i < testSubFiles.length; i++) {
@@ -73,7 +73,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.files.putFileContents(newFile, config.testContent).then(() => {
         fail()
@@ -93,7 +93,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.files.createFolder(newFolder).then(() => {
         fail()
@@ -113,7 +113,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.files.delete(newFolder).then(() => {
         fail()
@@ -133,7 +133,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.files.move(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(() => {
         fail()
@@ -153,7 +153,7 @@ describe('Unauthorized: Currently testing files management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.files.copy(config.testFolder + '/中文.txt', config.testFolder + '/中文.txt').then(() => {
         fail()

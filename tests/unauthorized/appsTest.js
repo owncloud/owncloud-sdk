@@ -63,13 +63,13 @@ describe('Unauthorized: Currently testing apps management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.apps.getApps().then(apps => {
         expect(apps).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -84,13 +84,13 @@ describe('Unauthorized: Currently testing apps management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.apps.enableApp('files').then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -105,14 +105,14 @@ describe('Unauthorized: Currently testing apps management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.apps.disableApp('files').then(status => {
         expect(status).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
         done()
       })
     })

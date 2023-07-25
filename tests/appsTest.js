@@ -148,7 +148,7 @@ describe('Main: Currently testing apps management,', function () {
       return oc.apps.enableApp(nonExistentApp).then(status => {
         expect(status).toBe(true)
       }).catch(error => {
-        expect(error).toEqual('No app found by the name "' + nonExistentApp + '"')
+        expect(error.message).toEqual('No app found by the name "' + nonExistentApp + '"')
       })
     })
   })

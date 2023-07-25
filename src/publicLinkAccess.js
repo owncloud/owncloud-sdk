@@ -61,7 +61,7 @@ class PublicFiles {
       return this.helpers._parseBody(result.body, 1)
     }
 
-    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.res.body))
+    return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.res.body))
   }
 
   /**
@@ -95,7 +95,7 @@ class PublicFiles {
         return Promise.resolve(resp)
       }
       return resp.text().then(body => {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(resp.status, body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(resp, resp.status, body))
       })
     })
   }
@@ -156,7 +156,7 @@ class PublicFiles {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 
@@ -180,7 +180,7 @@ class PublicFiles {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       }
     })
   }
@@ -226,7 +226,7 @@ class PublicFiles {
           'OC-FileId': result.res.headers['oc-fileid']
         })
       } else {
-        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+        return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
       }
     })
   }
@@ -253,7 +253,7 @@ class PublicFiles {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 
@@ -279,7 +279,7 @@ class PublicFiles {
       if ([200, 201, 204, 207].indexOf(result.status) > -1) {
         return Promise.resolve(true)
       }
-      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result.status, result.body))
+      return Promise.reject(this.helpers.buildHttpErrorFromDavResponse(result, result.status, result.body))
     })
   }
 

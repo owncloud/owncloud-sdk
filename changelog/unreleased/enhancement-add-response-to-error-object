@@ -1,0 +1,6 @@
+Enhancement: Add response to error object
+
+We've added the http response object to the error object,
+this allows developers to further process the error information.
+
+https://github.com/owncloud/owncloud-sdk/pull/1236

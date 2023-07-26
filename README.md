@@ -144,6 +144,8 @@ yarn test-consumer
 
 > Note: If you have pacts from old test run in `tests/pacts` your tests will fail. Make sure to delete that before you run the tests again.
 
+> Note: The pact tests need node 14. You can switch node versions locally with `nvm install 14` and then `make` to get all the correct dependencies.
+
 ### Provider tests
 
 The pact provider tests the pacts generated from the consumer tests against the real owncloud backend server. For this you will need an actual owncloud server running. Then you can run the pact tests with the following command:

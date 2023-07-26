@@ -83,12 +83,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.getUser(adminUsername).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -104,12 +104,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.createUser('newUser' + timeRightNow, testUserPassword).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -125,12 +125,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.searchUsers('').then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -147,12 +147,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.userExists(adminUsername).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -168,12 +168,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.setUserAttribute(testUser, 'email', 'asd@a.com').then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -189,12 +189,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.addUserToGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -210,12 +210,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.getUserGroups(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -231,12 +231,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.userIsInGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -252,12 +252,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.getUser(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -273,12 +273,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.removeUserFromGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -294,12 +294,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.addUserToSubadminGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -315,12 +315,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.getUserSubadminGroups(testUser).then(data => {
         expect(data).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -336,12 +336,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.userIsInSubadminGroup(testUser, config.testGroup).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -357,12 +357,12 @@ describe('Unauthorized: Currently testing user management,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
       return oc.users.deleteUser(config.nonExistentUser).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })

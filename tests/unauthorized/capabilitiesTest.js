@@ -17,14 +17,14 @@ describe('Unauthorized: Currently testing getConfig, getVersion and getCapabilit
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.getCapabilities().then(capabilities => {
         expect(capabilities).toBe(null)
         done()
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
         done()
       })
     })

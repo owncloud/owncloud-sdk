@@ -89,13 +89,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.shareFileWithLink(testFile).then(share => {
         expect(share).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -112,13 +112,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.shareFileWithUser(testFile, testUser).then(share => {
         expect(share).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -135,7 +135,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.shareFileWithGroup(testFile, testGroup, {
@@ -143,7 +143,7 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       }).then(share => {
         expect(share).toEqual(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -160,13 +160,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.isShared(testFile).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -183,13 +183,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.getShare(1).then(share => {
         expect(share).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -206,13 +206,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.getShares(testFile).then(shares => {
         expect(shares).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -229,13 +229,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.updateShare(1).then(share => {
         expect(share).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -252,13 +252,13 @@ describe('Unauthorized: Currently testing file/folder sharing,', function () {
       await oc.login().then(() => {
         fail('not expected to log in')
       }).catch((err) => {
-        expect(err).toBe('Unauthorized')
+        expect(err.message).toBe('Unauthorized')
       })
 
       return oc.shares.deleteShare(1).then(status => {
         expect(status).toBe(null)
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })

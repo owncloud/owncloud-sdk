@@ -6,6 +6,7 @@ const utf8 = require('utf8')
 const FileInfo = require('./fileInfo.js')
 const { v4: uuidv4 } = require('uuid')
 const HttpError = require('./httpError.js')
+const OCSError = require('./OCSError.js')
 const SignUrl = require('./owncloud-sign-url')
 
 class helpers {
@@ -263,7 +264,7 @@ class helpers {
       })
         .then(res => {
           if (res.status >= 400) {
-            reject(res.statusText)
+            throw new OCSError(res.statusText, res)
           }
           return res
         })
@@ -276,18 +277,17 @@ class helpers {
             try {
               tree = JSON.parse(body)
             } catch (e) {
-              reject(e)
-              return
+              throw new OCSError(e.message, res)
             }
           }
           if ('message' in tree) {
-            reject(tree.message)
-            return
+            throw new OCSError(tree.message, res)
           }
           const error = self._checkOCSstatus(tree)
           if (error) {
-            reject(error)
-            return
+            const errorMessage = typeof error === 'object' ? error.ocs.meta.message : error
+            const ocsData = typeof error === 'object' ? error : {}
+            throw new OCSError(errorMessage, res, ocsData.ocs)
           }
           res.statusCode = res.status
           resolve({
@@ -430,7 +430,7 @@ class helpers {
    * Checks the status code of an OCS request
    * @param   {object} json                         parsed response
    * @param   {array}  [acceptedCodes = [100] ]     array containing accepted codes
-   * @returns {string}                              error message or NULL
+   * @returns {object|string}                       ocs error object or message
    */
   _checkOCSstatus (json, acceptedCodes) {
     if (!acceptedCodes) {

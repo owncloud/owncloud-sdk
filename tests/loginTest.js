@@ -69,7 +69,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       return oc.login().then(() => {
         fail()
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })
@@ -92,7 +92,7 @@ describe('Main: Currently testing Login and initLibrary,', function () {
       return oc.login().then(() => {
         fail()
       }).catch(error => {
-        expect(error).toMatch('Unauthorized')
+        expect(error.message).toMatch('Unauthorized')
       })
     })
   })

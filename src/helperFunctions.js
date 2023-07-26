@@ -285,8 +285,8 @@ class helpers {
           }
           const error = self._checkOCSstatus(tree)
           if (error) {
-            const errorMessage = typeof error  === 'object'  ? error.ocs.meta.message : error
-            const ocsData = typeof error  === 'object'  ? error : {}
+            const errorMessage = typeof error === 'object' ? error.ocs.meta.message : error
+            const ocsData = typeof error === 'object' ? error : {}
             throw new OCSError(errorMessage, res, ocsData.ocs)
           }
           res.statusCode = res.status

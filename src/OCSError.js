@@ -3,7 +3,7 @@
  * @classdesc A error class for OCS errors
  * @param   {string}  message   message to be added to the OCSError
  * @param   {object}  response  http response
- * @param   {object}  ocs  ocs additional data
+ * @param   {object}  ocs       ocs additional data
 
  */
 

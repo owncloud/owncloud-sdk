@@ -455,7 +455,7 @@ class Files {
     }
 
     return this.helpers.getCurrentUserAsync().then(user => {
-      let path = useSpacesEndpoint ? '/spaces' : `/files/${user.id}/`
+      let path = useSpacesEndpoint ? '/spaces/' : `/files/${user.id}/`
       if (context?.path) path += `${context.path}/`
 
       const headers = this.helpers.buildHeaders()

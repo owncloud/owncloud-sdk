@@ -13,6 +13,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Add notifications fields: [#1234](https://github.com/owncloud/owncloud-sdk/pull/1234)
 * Enhancement - Add response to error object: [#1236](https://github.com/owncloud/owncloud-sdk/pull/1236)
 * Enhancement - Add OCSError: [#1237](https://github.com/owncloud/owncloud-sdk/pull/1237)
+* Enhancement - Search allow spaces endpoint: [#1239](https://github.com/owncloud/owncloud-sdk/pull/1239)
 
 ## Details
 
@@ -73,6 +74,14 @@ The following sections list the changes in ownCloud SDK unreleased.
    information.
 
    https://github.com/owncloud/owncloud-sdk/pull/1237
+
+
+* Enhancement - Search allow spaces endpoint: [#1239](https://github.com/owncloud/owncloud-sdk/pull/1239)
+
+   We've added the support for the spaces endpoint for the search. So it's not necessary to use the
+   legacy files/<userid> endpoint anymore.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1239
 
 # Changelog for [3.0.0] (2022-11-28)
 

@@ -1,0 +1,6 @@
+Enhancement: Search allow spaces endpoint
+
+We've added the support for the spaces endpoint for the search.
+So it's not necessary to use the legacy <userid>/files endpoint anymore.
+
+https://github.com/owncloud/owncloud-sdk/pull/1239

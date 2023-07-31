@@ -330,14 +330,15 @@ class Files {
 
   /**
    * Search in all files of the user for a given pattern
-   * @param   {string} pattern        pattern to be searched for
-   * @param   {number} limit          maximum number of results
-   * @param   {string[]} properties   list of DAV properties which are expected in the response
-   * @param   {Object} context        search context
-   * @returns {Promise.Object}        boolean: whether the operation was successful
-   * @returns {Promise.<error>}       string: error message, if any.
+   * @param   {string} pattern              pattern to be searched for
+   * @param   {number} limit                maximum number of results
+   * @param   {string[]} properties         list of DAV properties which are expected in the response
+   * @param   {boolean} useSpacesEndpoint   make use of the spaces endpoint (ocis)
+   * @param   {Object} context              search context
+   * @returns {Promise.Object}              boolean: whether the operation was successful
+   * @returns {Promise.<error>}             string: error message, if any.
    */
-  search (pattern, limit, properties, context = {}) {
+  search (pattern, limit, properties, useSpacesEndpoint = false, context = {}) {
     pattern = pattern || ''
     limit = limit || 30
 
@@ -359,7 +360,7 @@ class Files {
       '</oc:search-files>'
 
     return new Promise((resolve, reject) => {
-      this._sendDavReport(body, true, context).then(reportResponse => {
+      this._sendDavReport(body, true, useSpacesEndpoint, context).then(reportResponse => {
         return resolve({
           results: this.helpers._parseBody(reportResponse.body),
           range: reportResponse.res?.headers?.['content-range']
@@ -448,13 +449,13 @@ class Files {
     return this._sendDavReport(body)
   }
 
-  _sendDavReport (body, plainResult = false, context = {}) {
+  _sendDavReport (body, plainResult = false, useSpacesEndpoint = false, context = {}) {
     if (!this.helpers.getAuthorization()) {
       return Promise.reject('Please specify an authorization first.')
     }
 
     return this.helpers.getCurrentUserAsync().then(user => {
-      let path = `/files/${user.id}/`
+      let path = useSpacesEndpoint ? '/spaces' : `/files/${user.id}/`
       if (context?.path) path += `${context.path}/`
 
       const headers = this.helpers.buildHeaders()

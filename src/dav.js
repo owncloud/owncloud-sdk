@@ -266,6 +266,7 @@ export class Dav {
         return ''
       }
       var subNodes = []
+      var subObject
       // Propnode can be any one of these
       //         { 'oc:share-type': [ '0', '3' ] }
       //         { 'oc:share-type': '3' }
@@ -285,10 +286,15 @@ export class Dav {
         var nsComponent = key.split(':')[0]
         var localComponent = key.split(':')[1]
         var nsValue = this.xmlNamespacesComponents[nsComponent]
-        subNodes.push('{' + nsValue + '}' + localComponent)
+
+        const foo = JSON.parse(JSON.stringify(node).replaceAll('d:', '{DAV:}').replaceAll('oc:', '{http://owncloud.org/ns}:'))
+        subObject = { ['{' + nsValue + '}' + localComponent]: foo }
       }
       if (subNodes.length) {
         content = subNodes
+      }
+      if (subObject) {
+        content = subObject
       }
     } else if (propNode) {
       content = propNode

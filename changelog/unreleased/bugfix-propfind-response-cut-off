@@ -2,3 +2,4 @@ Bugfix: Propfind reponse cut off
 
 We've fixed a bug that caused the activelock information to be cut off the file info.
 
+https://github.com/owncloud/owncloud-sdk/pull/1241

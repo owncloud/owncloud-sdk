@@ -289,8 +289,8 @@ export class Dav {
           var subContent = this._parsePropNode(subNode)
 
           if (subContent) {
-            var subNsComponent = subKey.split(':')[0]
-            var subLocalComponent = subKey.split(':')[1]
+            var subNsComponent = subKey.split(':')?.[0]
+            var subLocalComponent = subKey.split(':')?.[1]
             var subNsValue = this.xmlNamespacesComponents[subNsComponent]
             subObject['{' + subNsValue + '}' + subLocalComponent] = subContent
           }

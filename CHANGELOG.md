@@ -7,6 +7,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 ## Summary
 
 * Bugfix - Allow removing expiration dates from space shares: [#1204](https://github.com/owncloud/owncloud-sdk/pull/1204)
+* Bugfix - Propfind reponse cut off: [#1241](https://github.com/owncloud/owncloud-sdk/pull/1241)
 * Bugfix - Add missing headers: [#8612](https://github.com/owncloud/web/issues/8612)
 * Enhancement - Resource processing: [#1109](https://github.com/owncloud/owncloud-sdk/pull/1109)
 * Enhancement - Share space with group: [#1207](https://github.com/owncloud/owncloud-sdk/pull/1207)
@@ -23,6 +24,13 @@ The following sections list the changes in ownCloud SDK unreleased.
 
    https://github.com/owncloud/owncloud-sdk/pull/1204
    https://github.com/owncloud/web/pull/8320
+
+
+* Bugfix - Propfind reponse cut off: [#1241](https://github.com/owncloud/owncloud-sdk/pull/1241)
+
+   We've fixed a bug that caused the activelock information to be cut off the file info.
+
+   https://github.com/owncloud/owncloud-sdk/pull/1241
 
 
 * Bugfix - Add missing headers: [#8612](https://github.com/owncloud/web/issues/8612)

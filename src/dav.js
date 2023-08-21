@@ -282,9 +282,27 @@ export class Dav {
           }
           continue
         }
+
+        var subObject = {}
+        for (var subKey in node) {
+          var subNode = node[subKey]
+          var subContent = this._parsePropNode(subNode)
+
+          if (subContent) {
+            var subNsComponent = subKey.split(':')?.[0]
+            var subLocalComponent = subKey.split(':')?.[1]
+            var subNsValue = this.xmlNamespacesComponents[subNsComponent]
+            subObject['{' + subNsValue + '}' + subLocalComponent] = subContent
+          }
+        }
+
         var nsComponent = key.split(':')[0]
         var localComponent = key.split(':')[1]
         var nsValue = this.xmlNamespacesComponents[nsComponent]
+        if (Object.keys(subObject).length) {
+          return { ['{' + nsValue + '}' + localComponent]: subObject }
+        }
+
         subNodes.push('{' + nsValue + '}' + localComponent)
       }
       if (subNodes.length) {

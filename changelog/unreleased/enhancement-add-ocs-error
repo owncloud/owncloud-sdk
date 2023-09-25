@@ -4,3 +4,4 @@ We've added the new OCSError class,
 this allows developers to further process the error information.
 
 https://github.com/owncloud/owncloud-sdk/pull/1237
+https://github.com/owncloud/owncloud-sdk/pull/1245

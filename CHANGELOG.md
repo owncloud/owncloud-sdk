@@ -82,6 +82,7 @@ The following sections list the changes in ownCloud SDK unreleased.
    information.
 
    https://github.com/owncloud/owncloud-sdk/pull/1237
+   https://github.com/owncloud/owncloud-sdk/pull/1245
 
 
 * Enhancement - Search allow spaces endpoint: [#1239](https://github.com/owncloud/owncloud-sdk/pull/1239)

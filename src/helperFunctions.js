@@ -264,7 +264,7 @@ class helpers {
       })
         .then(res => {
           if (res.status >= 400) {
-            throw new OCSError(res.statusText, res)
+            throw new OCSError(res.statusText, res.status, res)
           }
           return res
         })
@@ -277,17 +277,18 @@ class helpers {
             try {
               tree = JSON.parse(body)
             } catch (e) {
-              throw new OCSError(e.message, res)
+              throw new OCSError(e.message, 422, res)
             }
           }
           if ('message' in tree) {
-            throw new OCSError(tree.message, res)
+            throw new OCSError(tree.message, tree.statuscode ? parseInt(tree.statuscode) : null, res)
           }
           const error = self._checkOCSstatus(tree)
           if (error) {
             const errorMessage = typeof error === 'object' ? error.ocs.meta.message : error
-            const ocsData = typeof error === 'object' ? error : {}
-            throw new OCSError(errorMessage, res, ocsData.ocs)
+            const ocsData = typeof error === 'object' ? error.ocs : {}
+            const statusCode = tree?.ocs?.meta?.statuscode ? parseInt(tree.ocs.meta.statuscode) : null
+            throw new OCSError(errorMessage, statusCode, res, ocsData)
           }
           res.statusCode = res.status
           resolve({

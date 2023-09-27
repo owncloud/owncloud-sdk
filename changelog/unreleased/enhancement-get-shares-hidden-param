@@ -1,0 +1,7 @@
+Enhancement: Decide whether to fetch hidden shares from server
+
+The getShares endpoint now accepts a show_hidden query parameter when fetching shares.
+
+https://github.com/cs3org/reva/pull/4194
+https://github.com/owncloud/ocis/pull/7355
+https://github.com/owncloud/owncloud-sdk/pull/1246

@@ -236,7 +236,7 @@ class Shares {
    * Returns array of shares
    * @param   {string}  path            path to the file whose share needs to be checked
    * @param   {object}  optionalParams  object of values {"reshares": boolean,
-   *                                    "subfiles": boolean, "shared_with_me": boolean, "state": number}
+   *                                    "subfiles": boolean, "shared_with_me": boolean, "show_hidden": boolean, "state": number}
    * @returns {Promise.<ShareInfo>}     Array of instances of class ShareInfo for all Shares
    * @returns {Promise.<error>}         string: error message, if any.
    */
@@ -273,6 +273,10 @@ class Shares {
 
       if (optionalParams.state && typeof (optionalParams.state) === 'string') {
         send.state = optionalParams.state
+      }
+
+      if (optionalParams.show_hidden && typeof (optionalParams.show_hidden) === 'boolean') {
+        send.show_hidden = optionalParams.show_hidden
       }
 
       /* jshint camelcase: false */

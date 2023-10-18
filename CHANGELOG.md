@@ -15,6 +15,7 @@ The following sections list the changes in ownCloud SDK unreleased.
 * Enhancement - Add response to error object: [#1236](https://github.com/owncloud/owncloud-sdk/pull/1236)
 * Enhancement - Add OCSError: [#1237](https://github.com/owncloud/owncloud-sdk/pull/1237)
 * Enhancement - Search allow spaces endpoint: [#1239](https://github.com/owncloud/owncloud-sdk/pull/1239)
+* Enhancement - Decide whether to fetch hidden shares from server: [#4194](https://github.com/cs3org/reva/pull/4194)
 
 ## Details
 
@@ -91,6 +92,15 @@ The following sections list the changes in ownCloud SDK unreleased.
    legacy files/<userid> endpoint anymore.
 
    https://github.com/owncloud/owncloud-sdk/pull/1239
+
+
+* Enhancement - Decide whether to fetch hidden shares from server: [#4194](https://github.com/cs3org/reva/pull/4194)
+
+   The getShares endpoint now accepts a show_hidden query parameter when fetching shares.
+
+   https://github.com/cs3org/reva/pull/4194
+   https://github.com/owncloud/ocis/pull/7355
+   https://github.com/owncloud/owncloud-sdk/pull/1246
 
 # Changelog for [3.0.0] (2022-11-28)
 

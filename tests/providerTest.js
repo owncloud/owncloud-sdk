@@ -243,6 +243,9 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
+        if (isRunningWithOCIS() && !parameters.password) {
+          return
+        }
         const { username, ...shareParams } = parameters
         const response = shareResource(username, shareParams)
         const { status } = getOCSMeta(response)
@@ -258,6 +261,9 @@ describe('provider testing', () => {
     },
     'folder exists in last shared public share': (setup, parameters) => {
       if (setup) {
+        if (isRunningWithOCIS() && !parameters.password) {
+          return
+        }
         const { folderName, password } = parameters
         const response = createFolderInLastPublicShare(lastSharedToken, folderName, password)
 
@@ -271,6 +277,9 @@ describe('provider testing', () => {
     },
     'file exists in last shared public share': (setup, parameters) => {
       if (setup) {
+        if (isRunningWithOCIS() && !parameters.password) {
+          return
+        }
         const {
           fileName,
           password,

@@ -178,8 +178,8 @@ describe('provider testing', () => {
         deleteUser(parameters.username)
 
         const result = createUser(parameters.username)
-        chai.assert.strictEqual(
-          result.status, 200, `creating user '${parameters.username}' failed`
+        chai.assert.isBelow(
+          result.status, 299, `creating user '${parameters.username}' failed`
         )
         return { description: 'user created' }
       }

@@ -243,7 +243,7 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
-        if (isRunningWithOCIS() && !parameters.password) {
+        if (isRunningWithOCIS() && parameters.shareType === 3 && !parameters.password) {
           return
         }
         const { username, ...shareParams } = parameters

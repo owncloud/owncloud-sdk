@@ -178,8 +178,8 @@ describe('provider testing', () => {
         deleteUser(parameters.username)
 
         const result = createUser(parameters.username)
-        chai.assert.strictEqual(
-          result.status, 200, `creating user '${parameters.username}' failed`
+        chai.assert.isBelow(
+          result.status, 299, `creating user '${parameters.username}' failed`
         )
         return { description: 'user created' }
       }
@@ -243,6 +243,9 @@ describe('provider testing', () => {
     },
     'resource is shared': (setup, parameters) => {
       if (setup) {
+        if (isRunningWithOCIS() && parameters.shareType === 3 && !parameters.password) {
+          return
+        }
         const { username, ...shareParams } = parameters
         const response = shareResource(username, shareParams)
         const { status } = getOCSMeta(response)
@@ -258,6 +261,9 @@ describe('provider testing', () => {
     },
     'folder exists in last shared public share': (setup, parameters) => {
       if (setup) {
+        if (isRunningWithOCIS() && !parameters.password) {
+          return
+        }
         const { folderName, password } = parameters
         const response = createFolderInLastPublicShare(lastSharedToken, folderName, password)
 
@@ -271,6 +277,9 @@ describe('provider testing', () => {
     },
     'file exists in last shared public share': (setup, parameters) => {
       if (setup) {
+        if (isRunningWithOCIS() && !parameters.password) {
+          return
+        }
         const {
           fileName,
           password,

@@ -161,21 +161,21 @@ describe('oc.publicFiles', function () {
       },
       'with password': {
         shareParams: {
-          password: 'password'
+          password: 'Pwd:1234'
         },
-        passwordWhenListing: 'password',
+        passwordWhenListing: 'Pwd:1234',
         shallGrantAccess: true
       },
       'with password but invalid when accessing': {
         shareParams: {
-          password: 'password'
+          password: 'Pwd:1234'
         },
         passwordWhenListing: 'invalid',
         shallGrantAccess: false
       },
       'with password but no password when accessing': {
         shareParams: {
-          password: 'password'
+          password: 'Pwd:1234'
         },
         passwordWhenListing: null,
         shallGrantAccess: false
@@ -362,6 +362,9 @@ describe('oc.publicFiles', function () {
           let provider
           if (data.shallGrantAccess) {
             provider = createProvider()
+            if (!data.shareParams.password) {
+              provider = createProvider(false, true)
+            }
           } else {
             provider = createProvider(false, true)
           }
@@ -411,14 +414,19 @@ describe('oc.publicFiles', function () {
       'with password': {
         description: 'with password',
         shareParams: {
-          password: 'password',
+          password: 'Pwd:1234',
           permissions: 15
         }
       }
     }, function (data, description) {
       describe(description, function () {
         it('should create a folder', async function () {
-          const provider = createProvider()
+          let provider
+          if (data.shareParams.password) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await folderInPublicShareInteraction(
@@ -441,7 +449,13 @@ describe('oc.publicFiles', function () {
           })
         })
         it('should get content of a file', async function () {
-          const provider = createProvider()
+          let provider
+          if (data.shareParams.password) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
+
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
@@ -470,7 +484,12 @@ describe('oc.publicFiles', function () {
         })
 
         it('should update a file', async function () {
-          const provider = createProvider()
+          let provider
+          if (data.shareParams.password) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
           await publicShareContentInteraction(
@@ -501,7 +520,13 @@ describe('oc.publicFiles', function () {
           const source = shareTokenOfPublicLinkFolder + '/' + testFile
           const target = shareTokenOfPublicLinkFolder + '/lorem123456.txt'
 
-          const provider = createProvider()
+          let provider
+          if (data.shareParams.password) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
+
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
@@ -549,7 +574,13 @@ describe('oc.publicFiles', function () {
           const source = shareTokenOfPublicLinkFolder + '/' + testFile
           const target = shareTokenOfPublicLinkFolder + '/foo/lorem.txt'
 
-          const provider = createProvider()
+          let provider
+          if (data.shareParams.password) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
+
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 
@@ -594,7 +625,13 @@ describe('oc.publicFiles', function () {
         })
 
         it('should move a folder', async function () {
-          const provider = createProvider()
+          let provider
+          if (data.shareParams.password) {
+            provider = createProvider()
+          } else {
+            provider = createProvider(false, true)
+          }
+
           await getCapabilitiesInteraction(provider, testUser, testUserPassword)
           await getCurrentUserInformationInteraction(provider, testUser, testUserPassword)
 

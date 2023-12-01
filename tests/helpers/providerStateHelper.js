@@ -202,7 +202,7 @@ const givenFileFolderIsCreated = (provider, username, resource, resourceType) =>
  * @param {string} password
  * @param {boolean} publicUpload
  */
-const givenResourceIsShared = async (
+const givenResourceIsShared = async ({
   provider,
   username,
   resource,
@@ -213,7 +213,7 @@ const givenResourceIsShared = async (
   attributes,
   password,
   publicUpload
-) => {
+}) => {
   if (shareType === SHARE_TYPE.public) {
     return givenPublicShareExists(
       provider,

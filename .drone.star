@@ -1,6 +1,6 @@
 # docker images
 OC_CI_ALPINE = "owncloudci/alpine:latest"
-OC_CI_GOLANG = "owncloudci/golang:1.21"
+OC_CI_GOLANG = "owncloudci/golang:1.22"
 OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_PHP = "owncloudci/php:7.4"
 OC_UBUNTU = "owncloud/ubuntu:20.04"

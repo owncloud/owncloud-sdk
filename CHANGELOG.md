@@ -1,8 +1,8 @@
-# Changelog for [unreleased] (UNRELEASED)
+# Changelog for [3.1.0] (2024-04-19)
 
-The following sections list the changes in ownCloud SDK unreleased.
+The following sections list the changes in ownCloud SDK 3.1.0.
 
-[unreleased]: https://github.com/owncloud/owncloud-sdk/compare/v3.0.0...master
+[3.1.0]: https://github.com/owncloud/owncloud-sdk/compare/v3.0.0...v3.1.0
 
 ## Summary
 

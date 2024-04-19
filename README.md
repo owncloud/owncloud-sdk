@@ -2,6 +2,8 @@
 
 # ownCloud JavaScript SDK
 
+**Deprecation notice: The `owncloud-sdk` has been deprecated and discontinued in favor of the [web-client package](https://github.com/owncloud/web/tree/master/packages/web-client). This means the package won't get any updates in the future.**
+
 Use this light-weight JS library with a promise-based interface for seamless communication with your ownCloud instance, both from the browser and from Node backends.
 
 ## Installation
